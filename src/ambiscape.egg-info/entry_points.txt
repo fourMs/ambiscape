@@ -1,0 +1,2 @@
+[console_scripts]
+ambiscape = ambiscape.cli:main

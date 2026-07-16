@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ambiscape"
+version = "0.1.0"
+description = "Long-duration first-order ambisonic soundscape analysis (streaming companion to ambiviz)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Alexander Refsum Jensenius" }]
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "soundfile>=0.12",
+    "matplotlib>=3.7",
+]
+
+[project.optional-dependencies]
+viz = ["ambiviz>=0.0.1"]      # rich spatial visuals (anglegram/directogram/AEM) on extracted segments
+iso = ["mosqito>=1.2"]        # ISO 532-1 loudness, sharpness, roughness (ambiscape iso)
+ml = ["panns-inference>=0.1", "silero-vad>=5.0", "torch>=2.0"]  # tags + speech gate
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+ambiscape = "ambiscape.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

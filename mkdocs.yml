@@ -1,0 +1,54 @@
+site_name: ambiscape
+site_description: Long-duration first-order ambisonic soundscape analysis
+site_url: https://fourms.github.io/ambiscape/
+repo_url: https://github.com/fourMs/ambiscape
+repo_name: fourMs/ambiscape
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue
+      toggle:
+        icon: material/brightness-7
+        name: Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      toggle:
+        icon: material/brightness-4
+        name: Light mode
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Install: install.md
+  - Quickstart: quickstart.md
+  - Guide:
+      - Sessions & conventions: guide/sessions.md
+      - Features & descriptors: guide/descriptors.md
+      - Room acoustics & ISO: guide/acoustics.md
+      - Taxonomy workflow: guide/taxonomy.md
+      - Machine listening: guide/ml.md
+      - Deposit export: guide/deposit.md
+  - API reference: api.md
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
+            show_source: true
+            members_order: source
+
+markdown_extensions:
+  - admonition
+  - tables
+  - pymdownx.highlight
+  - pymdownx.superfences

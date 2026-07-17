@@ -36,6 +36,18 @@
 
 ::: ambiscape.rhythm
 
+## Spatial dynamics
+
+::: ambiscape.spatial
+
+## Schedule matching
+
+::: ambiscape.schedule
+
+## Event timbre templates
+
+::: ambiscape.timbre
+
 ## Taxonomy
 
 ::: ambiscape.taxonomy

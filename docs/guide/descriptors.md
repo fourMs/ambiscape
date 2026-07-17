@@ -83,6 +83,37 @@ drift); a **harmonic sieve** finds the best f0 per minute and scores
 tonal energy folds onto a 12-bin **pitch-class profile** ("what key does
 the soundscape hum in").
 
+## Spatial dynamics (`spatial`)
+
+Per-octave **directness** (|pseudo-intensity| / band power — the spatial
+analogue of foreground/background), **pass-by detection** (level events
+whose azimuth sweeps monotonically: moving sources with rate and
+direction), and the **azimuth organization timeline** R(t) — windowed,
+energy-weighted circular concentration of the direction of arrival.
+
+## Schedule matching (`schedule`)
+
+Folds event streams at civic periods (minute, 5-min, quarter, half-hour,
+hour, day) and scores each with circular statistics. Read `n_cycles`
+before trusting a match: R is trivially 1 when all events fall inside one
+grid cycle. `schedule.clock_offset` turns an event of known wall-clock
+time into the `clock_offset_s` calibration value.
+
+## Event timbre templates (`timbre`)
+
+Each spectral event gets a fingerprint — mel-band **rise spectrum** (what
+appeared) plus per-band **decay slope** (how it faded) — and fingerprints
+are clustered by correlation into recurring event classes: "the same sound
+again" across a session, transparent and corpus-comparable, no ML.
+
+## Masking (`background.masking_index`)
+
+Floor elevation per band between a source-active and a quiet state: how
+much a dominant source hides the rest of the field, and in which bands.
+Often frequency-selective — the Haarlem bells elevate the typical floor
+9–14 dB in their partial bands while the rest of the spectrum stays
+nearly free.
+
 ## Segment selection
 
 `pick_segments` proposes representative windows — quietest, most active,

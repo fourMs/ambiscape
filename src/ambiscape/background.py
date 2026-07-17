@@ -72,6 +72,30 @@ def spectral_events(rise_db: np.ndarray, logf: np.ndarray,
     return sorted(out, key=lambda e: e["t0_s"])
 
 
+def masking_index(F: dict, active: np.ndarray, quiet: np.ndarray) -> dict:
+    """How much a dominant source hides the rest of the field — the "lo-fi"
+    claim as a number.
+
+    ``active``/``quiet`` are boolean second-masks (source on / off). Per log
+    band, the floor elevation is the rise of the active-state median level
+    above the quiet-state median: ambient sounds in that band must now
+    exceed the elevated typical floor to be audible. Returns the median and
+    maximum elevation over 250 Hz–8 kHz, the fraction of bands elevated by
+    more than 6 dB, and the per-band curve.
+    """
+    ls = F["logspec"]
+    logf = F["logf"]
+    el = 10 * np.log10(np.median(ls[active], axis=0) + EPS) \
+        - 10 * np.log10(np.median(ls[quiet], axis=0) + EPS)
+    band = (logf[:-1] >= 250) & (logf[:-1] <= 8000)
+    return {
+        "floor_elevation_median_db": round(float(np.median(el[band])), 1),
+        "floor_elevation_max_db": round(float(el[band].max()), 1),
+        "bands_masked_gt6db_fraction": round(float((el[band] > 6).mean()), 2),
+        "elevation_db_per_band": [round(float(v), 1) for v in el],
+    }
+
+
 def summarize_foreground(F: dict, win_s: float = 300.0) -> dict:
     """Foreground descriptors for the analyze summary."""
     bg = band_background(F["logspec"], win_s=win_s)

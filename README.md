@@ -33,6 +33,9 @@ ambiscape taxonomy   <session-folder>   # Schaeffer map + Schafer timeline
 ambiscape rhythm     <session-folder>   # strike-level rhythm of periodic sources
 ambiscape modspec    <session-folder>   # micro/meso/macro modulation profile
 ambiscape tonality   <session-folder>   # tonal tracks, harmonicity, pitch classes
+ambiscape spatial    <session-folder>   # direct/diffuse split, pass-bys, azimuth R(t)
+ambiscape schedule   <session-folder>   # match events against civic time grids
+ambiscape timbre     <session-folder>   # event timbre templates (no-ML clustering)
 ambiscape iso        <session-folder>   # ISO 12913-3 indicators
 ambiscape speechgate <wav-or-folder>    # privacy check before publishing
 ambiscape deposit    <session-folder>   # non-identifying 1 Hz TSV export

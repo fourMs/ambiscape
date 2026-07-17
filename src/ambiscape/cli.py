@@ -61,6 +61,15 @@ def main(argv=None):
                              "(needs a prior analyze run)")
     to.add_argument("folder")
     to.add_argument("-o", "--out", default=None)
+    for name, help_ in (("spatial", "direct/diffuse split, pass-by events, "
+                                    "azimuth organization timeline"),
+                        ("schedule", "match event streams against civic "
+                                     "time grids"),
+                        ("timbre", "event timbre templates (rise/decay "
+                                   "fingerprints, clustered)")):
+        sp = sub.add_parser(name, help=help_ + " (needs a prior analyze run)")
+        sp.add_argument("folder")
+        sp.add_argument("-o", "--out", default=None)
     iso_p = sub.add_parser("iso",
                            help="ISO 12913-3 psychoacoustic indicators "
                                 "(MoSQITo) on representative segments")
@@ -163,6 +172,32 @@ def main(argv=None):
                   f"{src['n_strikes']} strikes, az {src['azimuth_deg']} deg, "
                   f"partials {src['partials_hz'][:5]}...")
         print(f"wrote {out/'rhythm_overview.png'} and {out/'rhythm.json'}")
+        return 0
+
+    if args.cmd in ("spatial", "schedule", "timbre"):
+        from .io import open_session
+        sess = open_session(args.folder)
+        out = Path(args.out) if args.out else Path(args.folder) / "analysis"
+        if not (out / "features").exists():
+            print(f"no cached features in {out} — run 'ambiscape analyze' first")
+            return 1
+        mod = {"spatial": "spatial", "schedule": "schedule",
+               "timbre": "timbre"}[args.cmd]
+        import importlib
+        doc = importlib.import_module(f".{mod}", "ambiscape") \
+            .run_session(sess, out)
+        if args.cmd == "spatial":
+            print(f"  azimuth R median {doc['azimuth_R_median']}, "
+                  f"{len(doc['passbys'])} pass-by event(s)")
+        elif args.cmd == "schedule":
+            for m in doc["events"][:3]:
+                print(f"  period {m['period_s']:.0f}s: R={m['R']} "
+                      f"phase {m['phase_s']}s over {m['n_cycles']} cycle(s)")
+        else:
+            print(f"  {doc['n_events_fingerprinted']} events -> "
+                  f"{doc['n_classes']} timbre class(es), "
+                  f"{doc['n_unclustered']} unclustered")
+        print(f"wrote {out}/{args.cmd}.json")
         return 0
 
     if args.cmd in ("modspec", "tonality"):

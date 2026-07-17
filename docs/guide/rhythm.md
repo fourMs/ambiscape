@@ -48,6 +48,16 @@ p — and `phase_lock`, the per-strike relative phase between sources'
 primary streams; R near 1 with a small circular SD means the sources are
 mechanically phase-locked).
 
+## Swing verification (`rhythm.partial_fm`)
+
+A genuinely swinging bell Doppler-modulates its partials by a few cents at
+the swing period; a chimed bell does not. `partial_fm` tracks a partial's
+instantaneous frequency and demodulates at the cycle rate against an
+off-rate control. In the Haarlem case study both bells show cycle-rate FM
+20–70x above control (2.9 and 1.6 cents at the nominals) — both bells
+physically swing, which makes their millisecond phase lock a genuine
+mechanical-synchronization observation.
+
 ## Caveats
 
 - Sources sharing most of their partials (unison bells) will merge into one

@@ -472,6 +472,65 @@ def _overview_figure(P, streams, grid, t_stop, out_path, title=""):
     plt.close(fig)
 
 
+def partial_fm(take: Take, freq: float, period: float, t_max: float,
+               nfft=8192, hop=960) -> dict:
+    """Frequency modulation of one partial at the cycle rate.
+
+    A genuinely *swinging* bell Doppler-shifts its partials by a few cents
+    at the swing period; a chimed (hammer-struck) bell does not. Tracks the
+    instantaneous frequency of the partial (5-bin spectral centroid around
+    its bin, energy-gated), then complex-demodulates at 1/period and at an
+    off-rate control (1/(1.37*period)). Returns FM depth in cents at both;
+    a swing verdict needs depth well above the control.
+    """
+    fs = take.samplerate
+    hop = int(hop * fs / 48000)
+    win = np.hanning(nfft).astype(np.float32)
+    freqs = np.fft.rfftfreq(nfft, 1 / fs)
+    b0 = int(round(freq * nfft / fs))
+    sel = np.arange(b0 - 2, b0 + 3)
+    iW = take.wyzx[0]
+    fi, ei, tt = [], [], []
+    carry = np.zeros((0,), np.float32)
+    t_off = 0.0
+    with sf.SoundFile(str(take.path)) as f:
+        while t_off < t_max:
+            block = f.read(60 * fs, dtype="float32", always_2d=True)[:, iW]
+            if block.shape[0] == 0:
+                break
+            data = np.concatenate([carry, block]) if carry.shape[0] else block
+            nwin = (len(data) - nfft) // hop + 1
+            if nwin <= 0:
+                carry = data
+                continue
+            idx = np.arange(nfft)[None, :] + hop * np.arange(nwin)[:, None]
+            S = np.abs(np.fft.rfft(data[idx] * win))[:, sel] ** 2
+            e = S.sum(1)
+            fi.append((S * freqs[sel]).sum(1) / (e + EPS))
+            ei.append(e)
+            tt.append(t_off + (idx[:, 0] + nfft // 2) / fs)
+            t_off += nwin * hop / fs
+            carry = data[nwin * hop:].copy()
+    fi = np.concatenate(fi)
+    e = np.concatenate(ei)
+    tt = np.concatenate(tt)
+    m = (tt < t_max) & (e > np.percentile(e, 60))    # ringing frames only
+    cents = 1200 * np.log2(fi[m] / freq)
+    cents -= cents.mean()
+    w = e[m] / e[m].sum()
+
+    def demod(P):
+        z = (w * cents * np.exp(-2j * np.pi * tt[m] / P)).sum()
+        return float(2 * np.abs(z))
+
+    return {
+        "freq_hz": freq, "period_s": period,
+        "fm_cents_at_cycle": round(demod(period), 2),
+        "fm_cents_control": round(demod(1.37 * period), 2),
+        "n_frames": int(m.sum()),
+    }
+
+
 def strike_doa(P: dict, times, cols, dur=0.25):
     """Median per-strike azimuth/elevation (deg) from the pass arrays,
     energy-integrated over ``dur`` seconds after each strike."""

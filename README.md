@@ -52,5 +52,6 @@ concentration R, …) and overview figures (level + spectrogram + anglegram +
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Developed at
-[fourMs / RITMO](https://www.uio.no/ritmo/english/), University of Oslo.
+MIT — see [LICENSE](LICENSE). Developed in the
+[AMBIENT project](https://www.uio.no/ritmo/english/projects/ambient/index.html)
+at [fourMs / RITMO](https://www.uio.no/ritmo/english/), University of Oslo.

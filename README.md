@@ -30,6 +30,7 @@ ambiscape probe      <session-folder>   # metadata
 ambiscape analyze    <session-folder>   # features, descriptors, figures, README
 ambiscape draft      <session-folder>   # pre-fill taxonomy annotations
 ambiscape taxonomy   <session-folder>   # Schaeffer map + Schafer timeline
+ambiscape rhythm     <session-folder>   # strike-level rhythm of periodic sources
 ambiscape iso        <session-folder>   # ISO 12913-3 indicators
 ambiscape speechgate <wav-or-folder>    # privacy check before publishing
 ambiscape deposit    <session-folder>   # non-identifying 1 Hz TSV export

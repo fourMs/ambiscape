@@ -41,6 +41,16 @@ def main(argv=None):
     sg.add_argument("path", help="a WAV file or a folder of WAVs")
     sg.add_argument("--threshold", type=float, default=0.01,
                     help="max allowed speech fraction (default 0.01)")
+    rh = sub.add_parser("rhythm",
+                        help="strike-level rhythm analysis of quasi-periodic "
+                             "pitched sources (needs a prior analyze run)")
+    rh.add_argument("folder")
+    rh.add_argument("-o", "--out", default=None)
+    rh.add_argument("--sources", type=int, default=2,
+                    help="max number of sources to track (default 2)")
+    rh.add_argument("--stop", type=float, default=None,
+                    help="end of the active section in seconds into the "
+                         "session (default: auto from band activity)")
     iso_p = sub.add_parser("iso",
                            help="ISO 12913-3 psychoacoustic indicators "
                                 "(MoSQITo) on representative segments")
@@ -125,6 +135,24 @@ def main(argv=None):
         print(f"wrote {out} ({n_obj} draft objects, {n_tag} PANNs-tagged "
               f"windows) — edit, save as annotations.json, then run "
               f"'ambiscape taxonomy'")
+        return 0
+
+    if args.cmd == "rhythm":
+        from .io import open_session
+        from .rhythm import run_session
+        sess = open_session(args.folder)
+        out = Path(args.out) if args.out else Path(args.folder) / "analysis"
+        if not (out / "features").exists():
+            print(f"no cached features in {out} — run 'ambiscape analyze' first")
+            return 1
+        print(f"rhythm analysis: {sess.name}")
+        summary = run_session(sess, out, n_sources=args.sources,
+                              t_stop=args.stop)
+        for src in summary["sources"]:
+            print(f"  source {src['name']}: period {src['period_s']} s, "
+                  f"{src['n_strikes']} strikes, az {src['azimuth_deg']} deg, "
+                  f"partials {src['partials_hz'][:5]}...")
+        print(f"wrote {out/'rhythm_overview.png'} and {out/'rhythm.json'}")
         return 0
 
     if args.cmd == "taxonomy":

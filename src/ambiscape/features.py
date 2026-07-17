@@ -26,6 +26,7 @@ DOA_BAND = (80.0, 3000.0)
 LOGF_RANGE = (25.0, 20000.0)
 N_LOGBANDS = 96
 FAST = 0.125  # fast level window (s)
+HI_ENV = 0.02  # high-rate broadband envelope frame (s), for micro-rhythm
 
 
 def a_weighting_sos(fs: int):
@@ -62,9 +63,12 @@ def extract_take(take: Take, verbose: bool = False) -> dict:
     nsec = int(take.frames // fs)
     nfast = int(take.frames // int(FAST * fs))
     ffs = int(FAST * fs)
+    hfs = int(HI_ENV * fs)
+    nhi = int(take.frames // hfs)
     F = {
         "fast_db": np.zeros(nfast, np.float32),
         "fast_dba": np.zeros(nfast, np.float32),
+        "env_hi": np.zeros(nhi, np.float32),
         "rms_w": np.zeros(nsec, np.float32),
         "peak": np.zeros(nsec, np.float32),
         "oct_pow": np.zeros((nsec, len(OCT_CENTERS)), np.float32),
@@ -84,6 +88,7 @@ def extract_take(take: Take, verbose: bool = False) -> dict:
     carry = np.zeros((0, 4), np.float32)
     sec_base = 0
     fast_base = 0
+    hi_base = 0
     with sf.SoundFile(str(take.path)) as f:
         while True:
             block = f.read(60 * fs, dtype="float32", always_2d=True)
@@ -106,6 +111,13 @@ def extract_take(take: Take, verbose: bool = False) -> dict:
             F["fast_dba"][fast_base:fast_base + nfast_blk] = 10 * np.log10(
                 (wa.reshape(nfast_blk, ffs) ** 2).mean(1) + eps)
             fast_base += nfast_blk
+
+            # 20 ms broadband envelope on W (linear power, for modulation)
+            nhi_blk = min((nsec_blk * fs) // hfs, nhi - hi_base)
+            hseg = data[: nhi_blk * hfs, 0].reshape(nhi_blk, hfs)
+            F["env_hi"][hi_base:hi_base + nhi_blk] = \
+                (hseg.astype(np.float64) ** 2).mean(1)
+            hi_base += nhi_blk
 
             if nwin > 0:
                 iW, iY, iZ, iX = take.wyzx
@@ -163,6 +175,7 @@ def extract_take(take: Take, verbose: bool = False) -> dict:
     F["start"] = np.float64(take.start)
     F["fs"] = np.int64(fs)
     F["fast_dt"] = np.float64(FAST)
+    F["hi_dt"] = np.float64(HI_ENV)
     return F
 
 
@@ -195,6 +208,12 @@ def load_features(npz_paths: list[str | Path]) -> dict:
     for k in ("fast_db", "fast_dba", "rms_w", "peak", "oct_pow", "centroid",
               "flatness", "logspec", "I_band", "az", "el", "diffuse"):
         out[k] = np.concatenate([p[k] for p in parts])
+    if all("env_hi" in p for p in parts):    # absent in pre-0.2 caches
+        hd = float(parts[0]["hi_dt"])
+        out["hi_dt"] = hd
+        out["t_hi"] = np.concatenate(
+            [p["start"] + hd * np.arange(len(p["env_hi"])) for p in parts])
+        out["env_hi"] = np.concatenate([p["env_hi"] for p in parts])
     out["min_t"] = np.concatenate([p["start"] + 60 * np.arange(p["minspec"].shape[0])
                                    for p in parts])
     out["minspec"] = np.concatenate([p["minspec"] for p in parts])

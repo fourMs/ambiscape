@@ -24,6 +24,14 @@
 
 ::: ambiscape.circstats
 
+## Modulation profile
+
+::: ambiscape.modulation
+
+## Tonality and harmonicity
+
+::: ambiscape.tonality
+
 ## Strike-level rhythm
 
 ::: ambiscape.rhythm

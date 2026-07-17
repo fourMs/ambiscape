@@ -64,6 +64,25 @@ audio pass. On top of it:
 `analyze` appends `fg_fraction_median`, `fg_fraction_p90`,
 `spectral_events_per_min`, and `spectral_event_median_dur_s` to the summary.
 
+## Modulation profile (`modspec`)
+
+Environmental rhythm at three scales from cached envelopes: **micro**
+(0.5–20 Hz strike/speech-rate rhythm, from the 20 ms `env_hi` envelope),
+**meso** (0.01–0.5 Hz — traffic waves, surf), **macro** (duty cycles below
+0.01 Hz). Per scale: a log-frequency modulation spectrum, the dominant
+modulation frequency and its prominence, and a band modulation depth; plus a
+windowed "rhythm spectrogram" of the session. Caches from extractor
+versions without `env_hi` fall back to the 8 Hz fast level (micro < 4 Hz).
+
+## Tonality and harmonicity (`tonality`)
+
+From the per-minute mean PSD: prominent narrowband peaks are linked into
+**tonal tracks** (hums, bell partials, beeps — with duration and cents
+drift); a **harmonic sieve** finds the best f0 per minute and scores
+**harmonicity** (bells score low — their partial series is not harmonic);
+tonal energy folds onto a 12-bin **pitch-class profile** ("what key does
+the soundscape hum in").
+
 ## Segment selection
 
 `pick_segments` proposes representative windows — quietest, most active,

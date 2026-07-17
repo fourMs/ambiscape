@@ -51,6 +51,16 @@ def main(argv=None):
     rh.add_argument("--stop", type=float, default=None,
                     help="end of the active section in seconds into the "
                          "session (default: auto from band activity)")
+    mo = sub.add_parser("modspec",
+                        help="multi-scale envelope modulation profile "
+                             "(needs a prior analyze run)")
+    mo.add_argument("folder")
+    mo.add_argument("-o", "--out", default=None)
+    to = sub.add_parser("tonality",
+                        help="tonal tracks, harmonicity, pitch-class profile "
+                             "(needs a prior analyze run)")
+    to.add_argument("folder")
+    to.add_argument("-o", "--out", default=None)
     iso_p = sub.add_parser("iso",
                            help="ISO 12913-3 psychoacoustic indicators "
                                 "(MoSQITo) on representative segments")
@@ -153,6 +163,33 @@ def main(argv=None):
                   f"{src['n_strikes']} strikes, az {src['azimuth_deg']} deg, "
                   f"partials {src['partials_hz'][:5]}...")
         print(f"wrote {out/'rhythm_overview.png'} and {out/'rhythm.json'}")
+        return 0
+
+    if args.cmd in ("modspec", "tonality"):
+        from .io import open_session
+        sess = open_session(args.folder)
+        out = Path(args.out) if args.out else Path(args.folder) / "analysis"
+        if not (out / "features").exists():
+            print(f"no cached features in {out} — run 'ambiscape analyze' first")
+            return 1
+        if args.cmd == "modspec":
+            from .modulation import run_session
+            prof = run_session(sess, out)
+            for scale, st in prof["scales"].items():
+                print(f"  {scale}: peak {st['peak_freq_hz']} Hz "
+                      f"(period {st['peak_period_s']} s, "
+                      f"+{st['peak_prominence_db']} dB), "
+                      f"depth {st['modulation_depth']}")
+            print(f"wrote {out/'modulation_profile.png'} and "
+                  f"{out/'modulation.json'}")
+        else:
+            from .tonality import run_session
+            doc = run_session(sess, out)
+            print(f"  {len(doc['tracks'])} tonal tracks; tonalness median "
+                  f"{doc['tonalness_median']}, inharmonicity median "
+                  f"{doc['inharmonicity_median']}, top pitch classes "
+                  f"{', '.join(doc['top_pitch_classes'])}")
+            print(f"wrote {out/'tonality.png'} and {out/'tonality.json'}")
         return 0
 
     if args.cmd == "taxonomy":

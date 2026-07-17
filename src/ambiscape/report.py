@@ -29,9 +29,23 @@ TABLE_ROWS = [
 ]
 
 
+MARKER = "<!-- ambiscape:generated -->"
+
+
 def write_readme(sess: Session, summary: dict, out_dir: Path,
                  notes: str = "", extra: str = "") -> Path:
-    lines = [f"# {sess.name}", ""]
+    """Write the session README.
+
+    Everything above the ``MARKER`` line is hand-written and preserved
+    across re-analysis; only the section below it is regenerated.
+    """
+    path = sess.folder / "README.md"
+    head = ""
+    if path.exists():
+        txt = path.read_text()
+        if MARKER in txt:
+            head = txt[:txt.index(MARKER)]
+    lines = [head + MARKER, "", f"# {sess.name}", ""]
     if notes:
         lines += [notes, ""]
     lines += ["## Recording", "",
@@ -57,7 +71,6 @@ def write_readme(sess: Session, summary: dict, out_dir: Path,
     lines += ["---", "*Analyzed with [ambiscape](../ambiscape/) "
               "(streaming companion to "
               "[ambiviz](https://github.com/fisheggg/ambiviz)).*", ""]
-    path = sess.folder / "README.md"
     path.write_text("\n".join(lines))
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2))
     return path

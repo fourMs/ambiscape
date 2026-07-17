@@ -16,6 +16,10 @@
 
 ::: ambiscape.figures
 
+## Strike-level rhythm
+
+::: ambiscape.rhythm
+
 ## Taxonomy
 
 ::: ambiscape.taxonomy

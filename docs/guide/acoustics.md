@@ -31,6 +31,20 @@ With it, `analyze` adds `leq_db_spl`, `laeq_db_spl`, `L10/L50/L90_db_spl`
 to the summary (ISO 1996-comparable), and the ISO indicators below run in
 true pascals.
 
+The same file may carry a **clock correction**:
+
+```json
+{"clock_offset_s": 665.0,
+ "method": "ringing of the town bells ends 21:30:00 sharp"}
+```
+
+`clock_offset_s` seconds are added to every take's start time when the
+session is opened (positive = the recorder clock was slow), so figures,
+annotations, and reports all agree on corrected wall-clock time. Recorder
+clocks drift; calibrate them against any event of known time — a scheduled
+bell, a radio time signal, a phone alarm captured on the recording. Both
+keys are optional and independent.
+
 ## ISO 12913-3 indicators (`ambiscape iso`)
 
 Computes, per ear, on each representative segment:

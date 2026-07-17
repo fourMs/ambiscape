@@ -63,3 +63,9 @@ versions of the level descriptors:
  "method": "SPL meter next to mic, HVAC running, LAeq 42 dB",
  "date": "2026-07-16"}
 ```
+
+The same file can correct a wrong recorder clock: add
+`"clock_offset_s": 665.0` (positive = clock was slow) and every
+clock-labeled output uses corrected time. See
+[Room acoustics & ISO](guide/acoustics.md) for details, and
+[Strike-level rhythm](guide/rhythm.md) for the `rhythm` command.

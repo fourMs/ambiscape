@@ -182,7 +182,7 @@ def main(argv=None):
     summary = analysis.summarize(F)
     from .iso import load_calibration, apply_calibration
     cal = load_calibration(sess.folder)
-    if cal:
+    if cal and "dbfs_to_dbspl" in cal:
         summary = apply_calibration(summary, cal)
     figures.overview(F, out / "overview.png", title=sess.name, clock=sess.clock)
     figures.ltas_percentiles(F, out / "ltas_percentiles.png", title=sess.name)

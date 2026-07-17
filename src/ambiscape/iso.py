@@ -12,6 +12,12 @@ A session is calibrated by ``<folder>/calibration.json``::
 to (O − X) dB SPL. With it, dBFS descriptors become dB SPL and waveforms
 convert to pascals for psychoacoustic metrics.
 
+The same file may carry ``clock_offset_s`` — seconds added to every take's
+start time when the recorder clock was found to be off (positive = clock was
+slow; e.g. calibrated against a known external time reference). Applied in
+:func:`ambiscape.io.open_session`, so all clock-labeled outputs agree. Both
+keys are optional.
+
 Indicators (via MoSQITo, optional dependency)
 ---------------------------------------------
 ISO 532-1 time-varying loudness (N5, N50), DIN 45692 sharpness, and
@@ -37,10 +43,7 @@ ASSUMED_OFFSET = 94.0  # used (and flagged) when no calibration.json exists
 def load_calibration(folder: str | Path) -> dict | None:
     p = Path(folder) / "calibration.json"
     if p.exists():
-        cal = json.loads(p.read_text())
-        if "dbfs_to_dbspl" not in cal:
-            raise ValueError(f"{p}: missing 'dbfs_to_dbspl'")
-        return cal
+        return json.loads(p.read_text())
     return None
 
 
@@ -112,9 +115,10 @@ def segment_indicators(sess, F: dict, folder: str | Path,
     from .io import read_span
 
     cal = load_calibration(folder)
+    has_spl = bool(cal and "dbfs_to_dbspl" in cal)
     if offset is None:
-        offset = float(cal["dbfs_to_dbspl"]) if cal else ASSUMED_OFFSET
-    calibrated = cal is not None
+        offset = float(cal["dbfs_to_dbspl"]) if has_spl else ASSUMED_OFFSET
+    calibrated = has_spl or offset != ASSUMED_OFFSET
 
     out = {"calibrated": calibrated, "dbfs_to_dbspl": offset,
            "field_type": "diffuse", "segments": {}}

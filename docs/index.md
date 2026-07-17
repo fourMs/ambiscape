@@ -21,6 +21,8 @@ produces:
 - **figures** (session overview, percentile spectra, directograms,
   taxonomy maps and timelines),
 - **room acoustics** (T60 from claps or incidental impulses),
+- **strike-level rhythm** of quasi-periodic sources — bells, machines —
+  with periodicity, phase, and repetition-vs-variation statistics,
 - **ISO 12913-3 psychoacoustic indicators** and a calibration hook,
 - **machine-listening assists** (AudioSet tagging, a speech privacy gate),
 - **publication exports** (non-identifying 1 Hz features; curated segment

@@ -99,11 +99,24 @@ class Session:
 
 
 def open_session(folder: str | Path) -> Session:
+    """Scan a session folder.
+
+    If ``calibration.json`` contains ``clock_offset_s``, that many seconds are
+    added to every take's start time — the fix for a recorder whose clock was
+    found to be off (positive offset = clock was slow). All clock-labeled
+    outputs (figures, annotations, reports) then agree on corrected time.
+    """
     folder = Path(folder)
     paths = sorted(p for p in folder.iterdir()
                    if p.suffix.lower() == ".wav" and p.is_file())
     if not paths:
         raise FileNotFoundError(f"no WAV files in {folder}")
+    clock_offset = 0.0
+    cal = folder / "calibration.json"
+    if cal.exists():
+        import json
+        clock_offset = float(json.loads(cal.read_text())
+                             .get("clock_offset_s", 0.0))
     sess = Session(folder=folder)
     for p in paths:
         info = sf.info(str(p))
@@ -112,7 +125,8 @@ def open_session(folder: str | Path) -> Session:
         if sess.day0 is None:
             sess.day0 = date
         hh, mm, ss = (int(x) for x in bx["time"].split(":"))
-        start = ((date - sess.day0).days * 86400 + hh * 3600 + mm * 60 + ss)
+        start = ((date - sess.day0).days * 86400 + hh * 3600 + mm * 60 + ss
+                 + clock_offset)
         sess.takes.append(Take(
             path=p, start=float(start), duration=info.frames / info.samplerate,
             frames=info.frames, samplerate=info.samplerate,

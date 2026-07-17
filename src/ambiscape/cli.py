@@ -180,6 +180,8 @@ def main(argv=None):
     paths = features.extract_session(sess, out / "features")
     F = features.load_features(paths)
     summary = analysis.summarize(F)
+    from .background import summarize_foreground
+    summary.update(summarize_foreground(F))
     from .iso import load_calibration, apply_calibration
     cal = load_calibration(sess.folder)
     if cal and "dbfs_to_dbspl" in cal:

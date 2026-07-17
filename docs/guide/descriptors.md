@@ -47,6 +47,23 @@ rows stay comparable across studies:
     machine). Low R with any ψ = scattered sources. The two numbers do
     work neither does alone.
 
+## Spectral foreground (per-band background)
+
+`background.band_background` runs a low-percentile filter per log band
+(default: 10th percentile over 300 s), from the cached 1 Hz `logspec` — no
+audio pass. On top of it:
+
+- **foreground fraction** — the share of total power sitting > 3 dB above
+  the spectral background, per second (steady scenes score low even when
+  loud; transient-dominated scenes score high even when quiet);
+- **spectral events** — connected time × band regions of ≥ 6 dB exceedance:
+  band-limited events (a distant bell over traffic, a bird band, a beep)
+  that the broadband ±8 dB detector never sees. Each carries onset,
+  duration, band span, and peak rise.
+
+`analyze` appends `fg_fraction_median`, `fg_fraction_p90`,
+`spectral_events_per_min`, and `spectral_event_median_dur_s` to the summary.
+
 ## Segment selection
 
 `pick_segments` proposes representative windows — quietest, most active,

@@ -42,7 +42,11 @@ mean PSD).
 
 `analysis/rhythm_overview.png` (onset tempogram, phase fold, cycle-grid
 residuals, IOI histograms) and `analysis/rhythm.json` (per-source partials,
-period, phase clusters, DOA, per-position variation statistics).
+period, phase clusters, DOA, per-position variation statistics, plus
+circular statistics: per-stream `phase_stats` — R, circular SD, Rayleigh
+p — and `phase_lock`, the per-strike relative phase between sources'
+primary streams; R near 1 with a small circular SD means the sources are
+mechanically phase-locked).
 
 ## Caveats
 

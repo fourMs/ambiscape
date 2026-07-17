@@ -16,6 +16,14 @@
 
 ::: ambiscape.figures
 
+## Spectral foreground
+
+::: ambiscape.background
+
+## Circular statistics
+
+::: ambiscape.circstats
+
 ## Strike-level rhythm
 
 ::: ambiscape.rhythm

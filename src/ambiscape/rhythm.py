@@ -388,6 +388,18 @@ def run_session(sess, out_dir, n_sources=2, t_stop=None, verbose=True):
         for ci, (c, m) in enumerate(clusters):
             streams[f"{name}{ci}"] = s0[m]
         summary["sources"].append(src)
+    # circular statistics per stream and inter-source phase locking
+    if streams:
+        from .circstats import phase_stats, relative_phase
+        P0 = summary["sources"][0]["period_s"]
+        summary["phase_stats"] = {n: phase_stats(tk, P0)
+                                  for n, tk in streams.items()}
+        prim = {n[0]: tk for n, tk in sorted(streams.items())
+                if n.endswith("0")}
+        names = sorted(prim)
+        summary["phase_lock"] = {
+            f"{b}_vs_{a}": relative_phase(prim[b], prim[a], P0)
+            for a, b in zip(names, names[1:])}
     # flag phase clusters that coincide with another source's strikes
     # (cross-talk between partial groups, not independent strikes)
     for n, tk in streams.items():

@@ -46,11 +46,9 @@ def detect_events(fast_db, fast_dt, thresh_db=8.0, min_dur=0.25):
 
 def circular_stats(az_deg, weights=None):
     """Energy-weighted circular mean (deg) and resultant length R."""
-    a = np.radians(np.asarray(az_deg, float))
-    w = np.ones_like(a) if weights is None else np.asarray(weights, float)
-    C = (w * np.cos(a)).sum() / (w.sum() + EPS)
-    S = (w * np.sin(a)).sum() / (w.sum() + EPS)
-    return float(np.degrees(np.arctan2(S, C))), float(np.hypot(C, S))
+    from .circstats import mean_resultant
+    mu, R = mean_resultant(np.radians(np.asarray(az_deg, float)), weights)
+    return float(np.degrees(mu)), R
 
 
 def summarize(F: dict) -> dict:

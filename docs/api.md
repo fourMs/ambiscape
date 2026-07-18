@@ -36,6 +36,10 @@
 
 ::: ambiscape.biophony
 
+## State-resolved descriptors
+
+::: ambiscape.resolve
+
 ## Corpus catalog
 
 ::: ambiscape.catalog

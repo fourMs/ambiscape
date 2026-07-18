@@ -11,14 +11,16 @@ from .io import (open_session, read_bext, read_span, export_segment,
 from .features import extract_take, extract_session, load_features
 from .analysis import (summarize, detect_events, decay_time, decay_metrics,
                        intermittency_ratio, pick_segments)
-from . import biophony, catalog, ecology, enf, figures, states, taxonomy, iso
+from . import (biophony, catalog, ecology, enf, figures, resolve, states,
+               taxonomy, iso)
 
-__version__ = "0.7.0"
+__version__ = "0.8.0"
 __all__ = [
     "open_session", "read_bext", "read_span", "export_segment",
     "stereo_preview",
     "extract_take", "extract_session", "load_features",
     "summarize", "detect_events", "decay_time", "decay_metrics",
     "intermittency_ratio", "pick_segments",
-    "biophony", "catalog", "ecology", "enf", "figures", "states", "taxonomy",
+    "biophony", "catalog", "ecology", "enf", "figures", "resolve", "states",
+    "taxonomy",
 ]

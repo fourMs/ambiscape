@@ -88,6 +88,20 @@ def main(argv=None):
         sp = sub.add_parser(name, help=help_ + " (needs a prior analyze run)")
         sp.add_argument("folder")
         sp.add_argument("-o", "--out", default=None)
+    rs = sub.add_parser("resolve",
+                        help="state-resolved descriptors: summarize each "
+                             "machine on/off or day/night state separately "
+                             "(needs a prior analyze run)")
+    rs.add_argument("folder")
+    rs.add_argument("-o", "--out", default=None)
+    rs.add_argument("--by", choices=("machine", "diel"), default="machine",
+                    help="split by machine band on/off (default) or wall-clock "
+                         "day/night")
+    rs.add_argument("--band", default="250,1000",
+                    help="machine band lo,hi Hz for --by machine "
+                         "(default 250,1000)")
+    rs.add_argument("--night", default="22,6",
+                    help="night start,end hour for --by diel (default 22,6)")
     cat = sub.add_parser("catalog",
                          help="aggregate every <session>/analysis/summary.json "
                               "in a corpus into one CSV + Markdown table")
@@ -131,6 +145,34 @@ def main(argv=None):
             print(f"  {verdict}  {f.name}: {r['speech_fraction']*100:.2f}% "
                   f"speech, {r['n_speech_segments']} segment(s){extra}")
         return 0 if ok else 2
+
+    if args.cmd == "resolve":
+        from .io import open_session
+        from .features import load_features
+        from . import resolve as rmod
+        sess = open_session(args.folder)
+        out = Path(args.out) if args.out else Path(args.folder) / "analysis"
+        paths = sorted((out / "features").glob("*.npz"))
+        if not paths:
+            print(f"no cached features in {out} — run 'ambiscape analyze'")
+            return 1
+        F = load_features(paths)
+        if args.by == "machine":
+            lo, hi = (float(v) for v in args.band.split(","))
+            states = rmod.machine_states(F, band=(lo, hi))
+        else:
+            nlo, nhi = (int(v) for v in args.night.split(","))
+            states = rmod.diel_states(F, sess, night=(nlo, nhi))
+        res = rmod.resolve(F, states)
+        doc = {"states": {k: {"intervals_s": states[k], **v}
+                          for k, v in res.items()}}
+        (out / "states.json").write_text(json.dumps(doc, indent=2))
+        for label, s in res.items():
+            print(f"  {label}: {s['duration_min']} min, Leq {s['leq_dbfs']} "
+                  f"dBFS, psi {s['diffuseness_median']}, events/min "
+                  f"{s['events_per_min']}, NDSI {s.get('ndsi')}")
+        print(f"wrote {out/'states.json'}")
+        return 0
 
     if args.cmd == "catalog":
         from . import catalog as cat_mod

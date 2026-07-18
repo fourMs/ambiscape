@@ -172,7 +172,8 @@ def run_session(sess, out_dir) -> dict:
                                      - np.percentile(Rs, 25)), 2),
         "passbys": pb,
     }
-    (out_dir / "spatial.json").write_text(json.dumps(doc, indent=2))
+    (out_dir / "spatial.json").write_text(json.dumps(doc, indent=2,
+                                                     default=float))
 
     fig, ax = plt.subplots(2, 1, figsize=(12.8, 6.4), dpi=130, sharex=True)
     tt = F["t"] - F["t"][0]

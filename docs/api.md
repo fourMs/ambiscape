@@ -48,6 +48,10 @@
 
 ::: ambiscape.longitudinal
 
+## Visual features
+
+::: ambiscape.vision
+
 ## Circular statistics
 
 ::: ambiscape.circstats

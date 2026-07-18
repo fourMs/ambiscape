@@ -12,9 +12,9 @@ from .features import extract_take, extract_session, load_features
 from .analysis import (summarize, detect_events, decay_time, decay_metrics,
                        intermittency_ratio, pick_segments)
 from . import (biophony, capture, catalog, ecology, enf, figures,
-               longitudinal, resolve, states, taxonomy, iso)
+               longitudinal, resolve, states, taxonomy, vision, iso)
 
-__version__ = "0.11.0"
+__version__ = "0.12.0"
 __all__ = [
     "open_session", "open_recording", "read_bext", "read_span",
     "export_segment", "stereo_preview",
@@ -22,5 +22,5 @@ __all__ = [
     "summarize", "detect_events", "decay_time", "decay_metrics",
     "intermittency_ratio", "pick_segments",
     "biophony", "capture", "catalog", "ecology", "enf", "figures",
-    "longitudinal", "resolve", "states", "taxonomy",
+    "longitudinal", "resolve", "states", "taxonomy", "vision",
 ]

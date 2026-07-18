@@ -39,6 +39,7 @@ nav:
       - Corpus catalog: guide/catalog.md
       - Longitudinal analysis: guide/longitudinal.md
       - Always-on capture: guide/capture.md
+      - Visual features: guide/vision.md
       - Room acoustics & ISO: guide/acoustics.md
       - Strike-level rhythm: guide/rhythm.md
       - Taxonomy workflow: guide/taxonomy.md

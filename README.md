@@ -36,6 +36,7 @@ ambiscape tonality   <session-folder>   # tonal tracks, harmonicity, pitch class
 ambiscape spatial    <session-folder>   # direct/diffuse split, pass-bys, azimuth R(t)
 ambiscape schedule   <session-folder>   # match events against civic time grids
 ambiscape timbre     <session-folder>   # event timbre templates (no-ML clustering)
+ambiscape music      <session-folder>   # librosa tempogram + chromagram [music]
 ambiscape iso        <session-folder>   # ISO 12913-3 indicators
 ambiscape speechgate <wav-or-folder>    # privacy check before publishing
 ambiscape deposit    <session-folder>   # non-identifying 1 Hz TSV export

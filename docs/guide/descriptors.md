@@ -114,6 +114,13 @@ Often frequency-selective — the Haarlem bells elevate the typical floor
 9–14 dB in their partial bands while the rest of the spectrum stays
 nearly free.
 
+## MIR views (`music`, optional)
+
+With `pip install "ambiscape[music]"`, `ambiscape music` renders the
+MIR-standard **tempogram** (onset autocorrelation in BPM, with librosa's
+octave-resolved global tempo) and **chromagram** — cross-checks for the
+built-in windowed-ACF tempogram and pitch-class profile.
+
 ## Segment selection
 
 `pick_segments` proposes representative windows — quietest, most active,

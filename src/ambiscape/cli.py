@@ -61,6 +61,13 @@ def main(argv=None):
                              "(needs a prior analyze run)")
     to.add_argument("folder")
     to.add_argument("-o", "--out", default=None)
+    mu = sub.add_parser("music",
+                        help="librosa tempogram + chromagram "
+                             "(needs ambiscape[music] and a prior analyze)")
+    mu.add_argument("folder")
+    mu.add_argument("-o", "--out", default=None)
+    mu.add_argument("--t0", type=float, default=0.0)
+    mu.add_argument("--dur", type=float, default=None)
     for name, help_ in (("spatial", "direct/diffuse split, pass-by events, "
                                     "azimuth organization timeline"),
                         ("schedule", "match event streams against civic "
@@ -172,6 +179,19 @@ def main(argv=None):
                   f"{src['n_strikes']} strikes, az {src['azimuth_deg']} deg, "
                   f"partials {src['partials_hz'][:5]}...")
         print(f"wrote {out/'rhythm_overview.png'} and {out/'rhythm.json'}")
+        return 0
+
+    if args.cmd == "music":
+        from .io import open_session
+        from .music import run_session
+        sess = open_session(args.folder)
+        out = Path(args.out) if args.out else Path(args.folder) / "analysis"
+        out.mkdir(parents=True, exist_ok=True)
+        doc = run_session(sess, out, t0=args.t0, dur=args.dur)
+        print(f"  global tempo {doc['tempo_bpm_global']} BPM "
+              f"(period {doc['tempo_period_s']} s); top pitch classes "
+              f"{', '.join(doc['top_pitch_classes'])}")
+        print(f"wrote {out/'music.png'} and {out/'music.json'}")
         return 0
 
     if args.cmd in ("spatial", "schedule", "timbre"):

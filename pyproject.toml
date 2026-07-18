@@ -34,6 +34,7 @@ Issues = "https://github.com/fourMs/ambiscape/issues"
 [project.optional-dependencies]
 viz = ["ambiviz>=0.0.1"]      # rich spatial visuals (anglegram/directogram/AEM) on extracted segments
 iso = ["mosqito>=1.2"]        # ISO 532-1 loudness, sharpness, roughness (ambiscape iso)
+music = ["librosa>=0.10"]     # MIR tempogram + chromagram (ambiscape music)
 ml = ["panns-inference>=0.1", "silero-vad>=5.0", "torch>=2.0"]  # tags + speech gate
 dev = ["pytest>=7.0"]
 

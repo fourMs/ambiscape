@@ -278,10 +278,12 @@ def cycle_grid(streams: dict, P: float, t_max: float) -> dict:
                                           abs(r) < abs(res[c])):
                     res[c] = r
         v = res[~np.isnan(res)]
+        m = ~np.isnan(res)
+        if not m.any():          # cluster never landed on the cycle grid
+            continue
         g = ~np.isnan(res[:-1]) & ~np.isnan(res[1:])
         r1 = float(np.corrcoef(res[:-1][g], res[1:][g])[0, 1]) if g.sum() > 3 \
             else np.nan
-        m = ~np.isnan(res)
         xi = np.interp(np.arange(ncyc), np.flatnonzero(m), res[m])
         slow = uniform_filter1d(xi, max(3, int(60.0 / P)))
         out["streams"][name] = dict(
@@ -452,6 +454,8 @@ def _overview_figure(P, streams, grid, t_stop, out_path, title=""):
     ax[0].set(ylabel="lag (s)", title=f"{title} — onset tempogram")
 
     for i, (n, tk) in enumerate(streams.items()):
+        if n not in grid["streams"]:
+            continue
         c = colors[i % len(colors)]
         ax[1].plot(tk, (tk / Pc) % 1.0, ".", ms=2.5, color=c, alpha=0.6,
                    label=n)
@@ -516,12 +520,16 @@ def partial_fm(take: Take, freq: float, period: float, t_max: float,
     tt = np.concatenate(tt)
     m = (tt < t_max) & (e > np.percentile(e, 60))    # ringing frames only
     cents = 1200 * np.log2(fi[m] / freq)
-    cents -= cents.mean()
     w = e[m] / e[m].sum()
 
     def demod(P):
-        z = (w * cents * np.exp(-2j * np.pi * tt[m] / P)).sum()
-        return float(2 * np.abs(z))
+        # weighted least-squares sinusoid fit: unbiased even though the
+        # energy gate samples the cycle unevenly
+        ph = 2 * np.pi * tt[m] / P
+        A = np.stack([np.sin(ph), np.cos(ph), np.ones_like(ph)], 1)
+        Aw = A * w[:, None]
+        coef = np.linalg.lstsq(Aw.T @ A, Aw.T @ cents, rcond=None)[0]
+        return float(np.hypot(coef[0], coef[1]))
 
     return {
         "freq_hz": freq, "period_s": period,

@@ -48,6 +48,10 @@
 
 ::: ambiscape.timbre
 
+## MIR views (librosa)
+
+::: ambiscape.music
+
 ## Taxonomy
 
 ::: ambiscape.taxonomy

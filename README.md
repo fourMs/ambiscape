@@ -35,6 +35,8 @@ ambiscape deposit    <session-folder>   # non-identifying 1 Hz TSV export
 ambiscape resolve    <session-folder>   # per-state descriptors (on/off, day/night)
 ambiscape catalog    <corpus-folder>    # aggregate all summary.json -> CSV
 ambiscape longitudinal <corpus-folder>  # trend + seasonal over dated sessions
+ambiscape scenes     <folder>           # analyze each WAV as an independent scene
+ambiscape capture    <root>             # always-on feature-extraction daemon [capture]
 ```
 
 A *session* is a folder of WAVs on one absolute clock (BWF timestamps,

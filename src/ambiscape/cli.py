@@ -104,6 +104,23 @@ def main(argv=None):
                          "(default 250,1000)")
     rs.add_argument("--night", default="22,6",
                     help="night start,end hour for --by diel (default 22,6)")
+    cap = sub.add_parser("capture",
+                         help="always-on capture daemon: continuous feature "
+                              "extraction to disk (audio discarded per block) "
+                              "for month/year-long edge recording [capture]")
+    cap.add_argument("root", nargs="?", help="output directory")
+    cap.add_argument("--list-devices", action="store_true",
+                     help="list audio input devices and exit")
+    cap.add_argument("--device", default=None,
+                     help="input device id/name (see --list-devices)")
+    cap.add_argument("--block-seconds", type=float, default=3600.0,
+                     help="seconds per capture block (default 3600 = hourly)")
+    cap.add_argument("--channels", type=int, default=4)
+    cap.add_argument("--fs", type=int, default=48000)
+    cap.add_argument("--order", choices=("ambix", "fuma"), default="ambix")
+    cap.add_argument("--keep-audio", action="store_true",
+                     help="keep the per-block WAVs (default: discard)")
+    cap.add_argument("--no-deposit", action="store_true")
     scn = sub.add_parser("scenes",
                          help="analyze each WAV in a folder as an independent "
                               "one-off scene (for contributed corpora where "
@@ -196,6 +213,37 @@ def main(argv=None):
                   f"dBFS, psi {s['diffuseness_median']}, events/min "
                   f"{s['events_per_min']}, NDSI {s.get('ndsi')}")
         print(f"wrote {out/'states.json'}")
+        return 0
+
+    if args.cmd == "capture":
+        from . import capture as cap_mod
+        if args.list_devices:
+            if not cap_mod.capture_available():
+                print("sounddevice not installed — pip install "
+                      "'ambiscape[capture]'")
+                return 1
+            print(cap_mod.list_devices())
+            return 0
+        if not args.root:
+            print("usage: ambiscape capture <root> [options]  "
+                  "(or --list-devices)")
+            return 1
+        if not cap_mod.capture_available():
+            print("sounddevice not installed — pip install "
+                  "'ambiscape[capture]'")
+            return 1
+        import signal
+        daemon = cap_mod.CaptureDaemon(
+            args.root, fs=args.fs, channels=args.channels,
+            block_seconds=args.block_seconds, device=args.device,
+            order=args.order, keep_audio=args.keep_audio,
+            deposit=not args.no_deposit)
+        signal.signal(signal.SIGTERM, lambda *a: daemon.stop())
+        signal.signal(signal.SIGINT, lambda *a: daemon.stop())
+        print(f"capturing to {args.root} — Ctrl-C to stop")
+        daemon.run()
+        daemon.finish()
+        print("stopped; day rolled up")
         return 0
 
     if args.cmd == "scenes":

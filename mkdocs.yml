@@ -34,6 +34,7 @@ nav:
       - Machine states & fingerprints: guide/states.md
       - Mains hum & ENF: guide/enf.md
       - Ratings & global indices: guide/indices.md
+      - Biophony (nature & animals): guide/biophony.md
       - Room acoustics & ISO: guide/acoustics.md
       - Strike-level rhythm: guide/rhythm.md
       - Taxonomy workflow: guide/taxonomy.md

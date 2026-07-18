@@ -41,6 +41,17 @@ def main(argv=None):
     sg.add_argument("path", help="a WAV file or a folder of WAVs")
     sg.add_argument("--threshold", type=float, default=0.01,
                     help="max allowed speech fraction (default 0.01)")
+    bn = sub.add_parser("birdnet",
+                        help="BirdNET bird-species detections, optionally on "
+                             "hi-fi windows only (needs ambiscape[ml])")
+    bn.add_argument("folder")
+    bn.add_argument("-o", "--out", default=None)
+    bn.add_argument("--lat", type=float, default=None)
+    bn.add_argument("--lon", type=float, default=None)
+    bn.add_argument("--min-conf", type=float, default=0.25)
+    bn.add_argument("--hifi-max-diffuse", type=float, default=None,
+                    help="skip windows whose median diffuseness exceeds this "
+                         "(needs a prior analyze run; e.g. 0.75)")
     rh = sub.add_parser("rhythm",
                         help="strike-level rhythm analysis of quasi-periodic "
                              "pitched sources (needs a prior analyze run)")
@@ -112,6 +123,35 @@ def main(argv=None):
             print(f"  {verdict}  {f.name}: {r['speech_fraction']*100:.2f}% "
                   f"speech, {r['n_speech_segments']} segment(s){extra}")
         return 0 if ok else 2
+
+    if args.cmd == "birdnet":
+        from .io import open_session
+        from .ml import birdnet_available, birdnet_session
+        if not birdnet_available():
+            print("birdnetlib not installed — pip install 'ambiscape[ml]'")
+            return 1
+        sess = open_session(args.folder)
+        out = Path(args.out) if args.out else Path(args.folder) / "analysis"
+        F = None
+        if args.hifi_max_diffuse is not None:
+            from .features import load_features
+            paths = sorted((out / "features").glob("*.npz"))
+            if not paths:
+                print(f"no cached features in {out} — run 'ambiscape analyze'")
+                return 1
+            F = load_features(paths)
+        doc = birdnet_session(sess, F=F, lat=args.lat, lon=args.lon,
+                              min_conf=args.min_conf,
+                              hifi_max_diffuse=args.hifi_max_diffuse)
+        out.mkdir(parents=True, exist_ok=True)
+        (out / "birdnet.json").write_text(json.dumps(doc, indent=2))
+        print(f"  {doc['n_windows_with_birds']}/{doc['n_windows_analyzed']} "
+              f"windows with birds, {doc['n_species']} species")
+        for s in doc["species"][:10]:
+            print(f"    {s['common_name']} ({s['species']}): "
+                  f"{s['n']}×, max conf {s['max_conf']}")
+        print(f"wrote {out/'birdnet.json'}")
+        return 0
 
     if args.cmd == "iso":
         from .features import load_features
@@ -278,6 +318,8 @@ def main(argv=None):
     summary.update(summarize_ecology(F))
     from .spatial import summarize_spatial
     summary.update(summarize_spatial(F))
+    from .biophony import summarize_biophony
+    summary.update(summarize_biophony(F))
     from .iso import load_calibration, apply_calibration
     cal = load_calibration(sess.folder)
     if cal and "dbfs_to_dbspl" in cal:

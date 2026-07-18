@@ -35,6 +35,11 @@ TABLE_ROWS = [
     ("adi", "Acoustic diversity ADI"),
     ("aci", "Acoustic complexity ACI (5-min mean)"),
     ("acoustic_entropy", "Acoustic entropy H"),
+    ("bird_peaks_per_min", "Biophony narrowband peaks (per min)"),
+    ("bird_band_activity_pct", "Biophony band activity (%)"),
+    ("bird_temporal_entropy", "Biophony temporal entropy (low=structured)"),
+    ("bird_directional_entropy", "Biophony directional entropy"),
+    ("bird_above_horizon_fraction", "Biophony energy from above +10°"),
 ]
 
 

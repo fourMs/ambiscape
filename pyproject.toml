@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ambiscape"
-version = "0.5.0"
+version = "0.6.0"
 description = "Long-duration first-order ambisonic soundscape analysis (streaming companion to ambiviz)"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -35,7 +35,8 @@ Issues = "https://github.com/fourMs/ambiscape/issues"
 viz = ["ambiviz>=0.0.1"]      # rich spatial visuals (anglegram/directogram/AEM) on extracted segments
 iso = ["mosqito>=1.2"]        # ISO 532-1 loudness, sharpness, roughness (ambiscape iso)
 music = ["librosa>=0.10"]     # MIR tempogram + chromagram (ambiscape music)
-ml = ["panns-inference>=0.1", "silero-vad>=5.0", "torch>=2.0"]  # tags + speech gate
+ml = ["panns-inference>=0.1", "silero-vad>=5.0", "torch>=2.0",
+      "birdnetlib>=0.17"]  # tags + speech gate + bird species
 dev = ["pytest>=7.0"]
 
 [project.scripts]

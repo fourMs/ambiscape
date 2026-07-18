@@ -32,6 +32,10 @@
 
 ::: ambiscape.ecology
 
+## Biophony
+
+::: ambiscape.biophony
+
 ## Circular statistics
 
 ::: ambiscape.circstats

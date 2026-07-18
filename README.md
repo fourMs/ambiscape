@@ -74,6 +74,10 @@ from ambiscape import ecology, iso              # v0.5: ratings & indices
 ecology.indices(F)                              # ACI, ADI/AEI, NDSI, BI, H
 iso.room_criteria(iso.background_octaves_db(F)) # NR / NC / RC (HVAC idiom)
 asc.decay_metrics(x[:, 0], fs)                  # T60 + EDT, C50/C80, D50
+
+from ambiscape import biophony, ml              # v0.6: nature & animals
+biophony.summarize_biophony(F)                  # narrowband/temporal/spatial
+ml.birdnet_session(sess, F=F, hifi_max_diffuse=0.75, lat=52.4, lon=4.6)
 ```
 
 See the [machine-states guide](https://fourms.github.io/ambiscape/guide/states/)

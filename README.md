@@ -4,15 +4,7 @@
 [![Documentation](https://img.shields.io/badge/docs-fourms.github.io%2Fambiscape-blue)](https://fourms.github.io/ambiscape/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Analysis toolkit for **long-duration first-order ambisonic soundscape
-recordings** (Zoom H3-VR and other AmbiX/SN3D B-format sources) — hours to
-whole nights of audio, processed in a stream with constant memory.
-
-Built as the **streaming companion to
-[ambiviz](https://github.com/fisheggg/ambiviz)**: ambiviz renders rich
-spatial visuals from files it can load whole; ambiscape summarizes
-recordings too long for that, and selects the short representative excerpts
-that ambiviz then visualizes in detail.
+Analysis toolkit for long-duration (hours) first-order ambisonic soundscape recordings (Zoom H3-VR and other AmbiX/SN3D B-format sources), processed in a stream with constant memory.
 
 ## Install
 
@@ -93,6 +85,11 @@ and the executable session report it was built for.
   deposit export.
 - **[Wiki](https://github.com/fourMs/ambiscape/wiki)** — research context,
   field-recording protocol, design decisions, recipes, roadmap.
+
+## Dependencies
+
+- [ambiviz](https://github.com/fisheggg/ambiviz) renders rich spatial visuals from ambisonic files
+- librosa
 
 ## License
 

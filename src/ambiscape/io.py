@@ -90,7 +90,7 @@ class Session:
 
     @property
     def name(self) -> str:
-        return self.folder.name
+        return getattr(self, "_name", None) or self.folder.name
 
     def clock(self, t: float) -> str:
         """Absolute seconds -> 'DD Mon HH:MM:SS' string."""
@@ -134,6 +134,36 @@ def open_session(folder: str | Path) -> Session:
             order=channel_order(bx.get("description", "")),
         ))
     sess.takes.sort(key=lambda t: t.start)
+    return sess
+
+
+def open_recording(path: str | Path) -> Session:
+    """Open a single WAV file as a one-take session ("scene").
+
+    The folder-as-session model of :func:`open_session` assumes every WAV in
+    a folder belongs to one recording occasion on a shared clock. A
+    contributed corpus is often the opposite: one folder per recordist, each
+    holding many independent one-off scenes from different places and dates.
+    This opens exactly one file as its own session (day0 = that file's BWF
+    date), so each scene can go through the full pipeline on its own. The
+    session name is the file stem.
+    """
+    path = Path(path)
+    if not path.is_file():
+        raise FileNotFoundError(path)
+    info = sf.info(str(path))
+    bx = read_bext(path)
+    date = _dt.date.fromisoformat(bx["date"].replace(":", "-"))
+    hh, mm, ss = (int(x) for x in bx["time"].split(":"))
+    sess = Session(folder=path.parent, day0=date)
+    sess.takes.append(Take(
+        path=path, start=float(hh * 3600 + mm * 60 + ss),
+        duration=info.frames / info.samplerate, frames=info.frames,
+        samplerate=info.samplerate, channels=info.channels,
+        date=bx["date"], clock=bx["time"],
+        order=channel_order(bx.get("description", "")),
+    ))
+    sess._name = path.stem
     return sess
 
 

@@ -63,3 +63,19 @@ def test_diffuse_field_scores_high(tmp_path):
     sess = asc.open_session(tmp_path)
     F = features.extract_take(sess.takes[0])
     assert np.median(F["diffuse"]) > 0.7
+
+
+def test_open_recording_single_file(tmp_path):
+    """A single WAV opens as its own one-take scene."""
+    import numpy as np
+    from ambiscape import open_recording
+    from tests.conftest import write_bwf, plane_wave, FS
+    x = plane_wave(0.1 * np.random.default_rng(0).standard_normal(3 * FS),
+                   az_deg=45.0)
+    write_bwf(tmp_path / "20240321_x_Oslo_Kitchen.WAV", x, date="2024-03-21",
+              time="09:30:00")
+    sess = open_recording(tmp_path / "20240321_x_Oslo_Kitchen.WAV")
+    assert sess.name == "20240321_x_Oslo_Kitchen"
+    assert len(sess.takes) == 1
+    assert sess.day0.isoformat() == "2024-03-21"
+    assert sess.clock(sess.takes[0].start).endswith("09:30:00")

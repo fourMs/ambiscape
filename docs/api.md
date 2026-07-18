@@ -44,6 +44,10 @@
 
 ::: ambiscape.catalog
 
+## Longitudinal analysis
+
+::: ambiscape.longitudinal
+
 ## Circular statistics
 
 ::: ambiscape.circstats

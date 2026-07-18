@@ -104,6 +104,26 @@ def main(argv=None):
                          "(default 250,1000)")
     rs.add_argument("--night", default="22,6",
                     help="night start,end hour for --by diel (default 22,6)")
+    scn = sub.add_parser("scenes",
+                         help="analyze each WAV in a folder as an independent "
+                              "one-off scene (for contributed corpora where "
+                              "files are separate recordings, not one session)")
+    scn.add_argument("folder")
+    scn.add_argument("-o", "--out", default=None,
+                     help="output dir (default <folder>/analysis/scenes)")
+    scn.add_argument("--recursive", action="store_true",
+                     help="descend into subfolders")
+    lg = sub.add_parser("longitudinal",
+                        help="trend + seasonal analysis of dated session "
+                             "summaries across a corpus (for year-scale study)")
+    lg.add_argument("corpus", help="folder containing dated session subfolders")
+    lg.add_argument("-o", "--out", default=None,
+                    help="output dir (default <corpus>/analysis)")
+    lg.add_argument("--key", action="append", default=None,
+                    help="descriptor(s) to analyze (repeatable; default all); "
+                         "a figure is written per --key given")
+    lg.add_argument("--window-days", type=float, default=365.0,
+                    help="trend window in days (default 365 = one year)")
     cat = sub.add_parser("catalog",
                          help="aggregate every <session>/analysis/summary.json "
                               "in a corpus into one CSV + Markdown table")
@@ -176,6 +196,66 @@ def main(argv=None):
                   f"dBFS, psi {s['diffuseness_median']}, events/min "
                   f"{s['events_per_min']}, NDSI {s.get('ndsi')}")
         print(f"wrote {out/'states.json'}")
+        return 0
+
+    if args.cmd == "scenes":
+        from .io import open_recording
+        from .features import extract_session, load_features
+        from .resolve import full_summary
+        folder = Path(args.folder)
+        it = folder.rglob("*") if args.recursive else folder.iterdir()
+        wavs = sorted(w for w in it if w.suffix.lower() == ".wav")
+        if not wavs:
+            print(f"no WAV files in {folder}")
+            return 1
+        out = Path(args.out) if args.out else folder / "analysis" / "scenes"
+        n_ok = 0
+        for w in wavs:
+            try:
+                sess = open_recording(w)
+            except (KeyError, ValueError) as e:
+                print(f"  skip {w.name}: no BWF timestamp ({e})")
+                continue
+            adir = out / sess.name / "analysis"
+            F = load_features(extract_session(sess, adir / "features",
+                                              verbose=False))
+            summary = full_summary(F)
+            summary["date"] = sess.takes[0].date
+            parts = sess.name.split("_")
+            if len(parts) >= 4:
+                summary["city"], summary["setting"] = parts[2], "_".join(parts[3:])
+            (adir / "summary.json").write_text(json.dumps(summary, indent=2))
+            n_ok += 1
+            print(f"  {sess.name}: Leq {summary['leq_dbfs']}, psi "
+                  f"{summary['diffuseness_median']}, ev/min "
+                  f"{summary['events_per_min']}, NDSI {summary.get('ndsi')}")
+        print(f"{n_ok}/{len(wavs)} scenes -> {out}")
+        print(f"  aggregate with:  ambiscape catalog {out}")
+        return 0
+
+    if args.cmd == "longitudinal":
+        from . import longitudinal as lg_mod
+        out = Path(args.out) if args.out else Path(args.corpus) / "analysis"
+        doc = lg_mod.run_corpus(args.corpus, out, keys=args.key,
+                                window_days=args.window_days)
+        if not doc["descriptors"]:
+            print(f"no dated summaries with >=3 points under {args.corpus} "
+                  "— run 'ambiscape analyze' on the sessions first")
+            return 1
+        print(f"  {doc['n_sessions']} dated sessions, "
+              f"{doc['date_range'][0]}..{doc['date_range'][1]}")
+        for k, s in list(doc["descriptors"].items())[:12]:
+            print(f"    {k}: trend {s['trend_per_year']:+}/yr, "
+                  f"seasonal amp {s['seasonal_amplitude']} "
+                  f"(peak month {s['peak_month']})")
+        s = lg_mod.collect_series(args.corpus, keys=args.key)
+        for k in (args.key or []):
+            if k in s["series"]:
+                lg_mod.render(s["dates"], s["series"][k],
+                              out / f"longitudinal_{k}.png", key=k,
+                              window_days=args.window_days)
+                print(f"wrote {out}/longitudinal_{k}.png")
+        print(f"wrote {out}/longitudinal.json")
         return 0
 
     if args.cmd == "catalog":
@@ -384,6 +464,7 @@ def main(argv=None):
     paths = features.extract_session(sess, out / "features")
     F = features.load_features(paths)
     summary = analysis.summarize(F)
+    summary["date"] = sess.takes[0].date        # for longitudinal analysis
     from .background import summarize_foreground
     summary.update(summarize_foreground(F))
     from .ecology import summarize_ecology

@@ -157,17 +157,28 @@ def spatial_dispersion(F: dict, band=BIRD_BAND, nbins: int = 36,
     }
 
 
-def summarize_biophony(F: dict, band=BIRD_BAND) -> dict:
-    """Biophony descriptors for the analyze summary."""
+def summarize_biophony(F: dict, band=BIRD_BAND,
+                       min_active_fraction: float = 0.02) -> dict:
+    """Biophony descriptors for the analyze summary.
+
+    The *spatial* biophony descriptors are only meaningful when the bird
+    band actually carries foreground energy: in a quiet, birdless room a
+    trickle of high-frequency energy that happens to arrive from above would
+    otherwise read as ``above_horizon_fraction`` = 1.0, a false positive.
+    When the band-active fraction is below ``min_active_fraction`` the
+    directional and horizon descriptors are therefore reported as ``None``
+    rather than as spurious numbers.
+    """
     na = narrowband_activity(F, band)
     act = band_activity(F, band)
-    sd = spatial_dispersion(F, band)
+    active = act["active_fraction"] >= min_active_fraction
+    sd = spatial_dispersion(F, band) if active else {}
     return {
         "bird_peaks_per_min": na["median_peaks_per_min"],
         "bird_active_minute_fraction": na["active_minute_fraction"],
         "bird_band_activity_pct": round(act["active_fraction"] * 100, 1),
         "bird_event_rate_per_min": act["event_rate_per_min"],
         "bird_temporal_entropy": band_temporal_entropy(F, band),
-        "bird_directional_entropy": sd["directional_entropy"],
-        "bird_above_horizon_fraction": sd["above_horizon_fraction"],
+        "bird_directional_entropy": sd.get("directional_entropy"),
+        "bird_above_horizon_fraction": sd.get("above_horizon_fraction"),
     }

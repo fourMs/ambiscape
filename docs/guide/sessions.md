@@ -9,6 +9,23 @@ midnight. Recorder splits (2 GB FAT limits) chain seamlessly; genuinely
 separate takes (a gap larger than ten minutes) are kept on the same clock
 but rendered as separate panels in figures.
 
+### Sessions vs. scenes
+
+The folder-as-session model assumes every WAV in a folder belongs to one
+recording occasion. A contributed corpus is often the opposite: one folder
+per recordist, each holding many independent one-off **scenes** from
+different places and dates. Open a single recording as its own scene with
+`open_recording(path)` (day0 = that file's BWF date, name = the file stem),
+or analyze a whole folder of them in one call:
+
+```bash
+ambiscape scenes CONTRIB/Microphone_1/   # one summary per WAV, keyed by filename
+ambiscape catalog CONTRIB/Microphone_1/analysis/scenes/   # then compare them
+```
+
+Each scene is written as a catalog-ready mini-session, so `catalog` and
+`longitudinal` work across them unchanged.
+
 `read_span(session, t0, dur)` returns raw audio from anywhere on that
 clock, transparently crossing file boundaries.
 

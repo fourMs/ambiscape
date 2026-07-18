@@ -40,6 +40,7 @@ ambiscape music      <session-folder>   # librosa tempogram + chromagram [music]
 ambiscape iso        <session-folder>   # ISO 12913-3 indicators
 ambiscape speechgate <wav-or-folder>    # privacy check before publishing
 ambiscape deposit    <session-folder>   # non-identifying 1 Hz TSV export
+ambiscape catalog    <corpus-folder>    # aggregate all summary.json -> CSV
 ```
 
 A *session* is a folder of WAVs on one absolute clock (BWF timestamps,

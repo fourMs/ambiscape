@@ -88,6 +88,14 @@ def main(argv=None):
         sp = sub.add_parser(name, help=help_ + " (needs a prior analyze run)")
         sp.add_argument("folder")
         sp.add_argument("-o", "--out", default=None)
+    cat = sub.add_parser("catalog",
+                         help="aggregate every <session>/analysis/summary.json "
+                              "in a corpus into one CSV + Markdown table")
+    cat.add_argument("corpus", help="folder containing session subfolders")
+    cat.add_argument("-o", "--out", default=None,
+                     help="CSV path (default <corpus>/analysis/catalog.csv)")
+    cat.add_argument("--sort", default=None,
+                     help="descriptor key to rank sessions by (prints ranking)")
     iso_p = sub.add_parser("iso",
                            help="ISO 12913-3 psychoacoustic indicators "
                                 "(MoSQITo) on representative segments")
@@ -123,6 +131,24 @@ def main(argv=None):
             print(f"  {verdict}  {f.name}: {r['speech_fraction']*100:.2f}% "
                   f"speech, {r['n_speech_segments']} segment(s){extra}")
         return 0 if ok else 2
+
+    if args.cmd == "catalog":
+        from . import catalog as cat_mod
+        col = cat_mod.collect(args.corpus)
+        if not col:
+            print(f"no summary.json found under {args.corpus} — run "
+                  "'ambiscape analyze' on the sessions first")
+            return 1
+        out = Path(args.out) if args.out else \
+            Path(args.corpus) / "analysis" / "catalog.csv"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        cat_mod.to_csv(col, out)
+        (out.with_suffix(".md")).write_text(cat_mod.to_markdown(col))
+        print(f"  {len(col)} sessions -> {out} and {out.with_suffix('.md')}")
+        if args.sort:
+            for name, val in cat_mod.rank(col, args.sort):
+                print(f"    {val:>10.2f}  {name}")
+        return 0
 
     if args.cmd == "birdnet":
         from .io import open_session

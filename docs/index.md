@@ -37,7 +37,9 @@ produces:
 - **ISO 12913-3 psychoacoustic indicators** and a calibration hook,
 - **machine-listening assists** (AudioSet tagging, a speech privacy gate),
 - **publication exports** (non-identifying 1 Hz features; curated segment
-  selection).
+  selection),
+- **corpus aggregation** — one cross-session table (CSV + Markdown) from
+  every session's cached summary, with ranking and outlier queries.
 
 ## Relationship to ambiviz
 

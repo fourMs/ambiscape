@@ -36,6 +36,10 @@
 
 ::: ambiscape.biophony
 
+## Corpus catalog
+
+::: ambiscape.catalog
+
 ## Circular statistics
 
 ::: ambiscape.circstats

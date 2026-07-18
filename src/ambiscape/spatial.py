@@ -90,6 +90,66 @@ def azimuth_organization(F: dict, win_s=60.0, step_s=20.0):
     return np.array(ts), np.array(Rs)
 
 
+def directional_entropy(F: dict, nbins: int = 36) -> float:
+    """Normalized Shannon entropy of the energy-weighted azimuth histogram.
+
+    "How many directions does this place sound from": 0 = all energy from
+    one bearing, 1 = energy spread evenly around the horizon — the spatial
+    analogue of an acoustic diversity index, and something only an
+    ambisonic corpus can report.
+    """
+    p = np.asarray(F["rms_w"], np.float64) ** 2
+    h, _ = np.histogram(F["az"], bins=nbins, range=(-180, 180), weights=p)
+    q = h / (h.sum() + EPS)
+    return float(-(q * np.log(q + EPS)).sum() / np.log(nbins))
+
+
+def horizon_fractions(F: dict, limit_deg: float = 10.0) -> dict:
+    """Energy fractions arriving from above / around / below the horizon.
+
+    Uses the per-second broadband DOA elevation, energy-weighted. A room
+    heard from a couch splits mechanics on walls (above) from footsteps
+    and structure-borne paths (level/below); outdoors it separates birds
+    and building services from ground traffic.
+    """
+    p = np.asarray(F["rms_w"], np.float64) ** 2
+    el = np.asarray(F["el"], float)
+    tot = p.sum() + EPS
+    return {"above": round(float(p[el > limit_deg].sum() / tot), 2),
+            "level": round(float(p[np.abs(el) <= limit_deg].sum() / tot), 2),
+            "below": round(float(p[el < -limit_deg].sum() / tot), 2)}
+
+
+def fg_bg_az_overlap(F: dict, nbins: int = 36) -> float:
+    """Bhattacharyya overlap of foreground vs background azimuth energy.
+
+    Foreground = loudest 25 % of seconds, background = quietest 25 % (the
+    corpus convention). 1 = the foreground comes from where the background
+    hums (one-source rooms), 0 = figure and ground occupy different
+    directions (a street heard past a courtyard fountain).
+    """
+    p = np.asarray(F["rms_w"], np.float64) ** 2
+    fg = p >= np.percentile(p, 75)
+    bg = p <= np.percentile(p, 25)
+    hists = []
+    for m in (fg, bg):
+        h, _ = np.histogram(F["az"][m], bins=nbins, range=(-180, 180),
+                            weights=p[m])
+        hists.append(h / (h.sum() + EPS))
+    return float(np.sqrt(hists[0] * hists[1]).sum())
+
+
+def summarize_spatial(F: dict) -> dict:
+    """Spatial descriptors for the analyze summary."""
+    hf = horizon_fractions(F)
+    return {
+        "directional_entropy": round(directional_entropy(F), 3),
+        "above_horizon_fraction": hf["above"],
+        "below_horizon_fraction": hf["below"],
+        "fgbg_az_overlap": round(fg_bg_az_overlap(F), 2),
+    }
+
+
 def run_session(sess, out_dir) -> dict:
     """CLI driver: split + pass-bys + R(t), figure + spatial.json."""
     import json

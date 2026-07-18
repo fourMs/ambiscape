@@ -139,3 +139,92 @@ def segment_indicators(sess, F: dict, folder: str | Path,
                                      seg["right"]["N5_sone"])
         out["segments"][pick["kind"]] = seg
     return out
+
+
+# ------------------------------------------------------- room noise criteria
+
+NR_A = {31.5: 55.4, 63: 35.5, 125: 22.0, 250: 12.0, 500: 4.8,
+        1000: 0.0, 2000: -3.5, 4000: -6.1, 8000: -8.0}
+NR_B = {31.5: 0.681, 63: 0.790, 125: 0.870, 250: 0.930, 500: 0.974,
+        1000: 1.000, 2000: 1.015, 4000: 1.025, 8000: 1.030}
+# ANSI S12.2 tangent NC curves, octave levels 63 Hz .. 8 kHz per NC value
+NC_TABLE = {
+    15: (47, 36, 29, 22, 17, 14, 12, 11),
+    20: (51, 40, 33, 26, 22, 19, 17, 16),
+    25: (54, 44, 37, 31, 27, 24, 22, 21),
+    30: (57, 48, 41, 35, 31, 29, 28, 27),
+    35: (60, 52, 45, 40, 36, 34, 33, 32),
+    40: (64, 56, 50, 45, 41, 39, 38, 37),
+    45: (67, 60, 54, 49, 46, 44, 43, 42),
+    50: (71, 64, 58, 54, 51, 49, 48, 47),
+    55: (74, 67, 62, 58, 56, 54, 53, 52),
+    60: (77, 71, 67, 63, 61, 59, 58, 57),
+    65: (80, 75, 71, 68, 66, 64, 63, 62),
+}
+NC_FREQS = (63, 125, 250, 500, 1000, 2000, 4000, 8000)
+
+
+def room_criteria(oct_spl_db: dict) -> dict:
+    """NR, NC, and RC ratings of an octave-band SPL spectrum.
+
+    ``oct_spl_db`` maps octave center frequency (Hz) to band SPL (dB).
+    Ratings are only physically meaningful for *calibrated* levels
+    (``dbfs_to_dbspl`` in ``calibration.json``); on uncalibrated dBFS they
+    are relative numbers, comparable within one recorder+gain setup only.
+
+    - **NR** (ISO/R 1996 Noise Rating): analytic curves ``L = a + b*NR``;
+      the rating is the highest per-band NR value and
+      ``NR_governing_hz`` names the band that sets it.
+    - **NC** (ANSI S12.2 Noise Criterion): tangency against the tabulated
+      curves, linearly interpolated per band (63 Hz–8 kHz).
+    - **RC** (Blazier Room Criterion, simplified): arithmetic mean of the
+      500/1000/2000 Hz levels; the reference line has a −5 dB/octave slope
+      through (1 kHz, RC). ``RC_class`` is "R" (rumble) when any
+      31.5–250 Hz band exceeds the line by > 5 dB, "H" (hiss) when any
+      2–4 kHz band exceeds it by > 3 dB, "RH" for both, "N" (neutral)
+      otherwise.
+    """
+    spec = {float(k): float(v) for k, v in oct_spl_db.items()}
+
+    nr_per = {f: (spec[f] - NR_A[f]) / NR_B[f] for f in NR_A if f in spec}
+    f_gov = max(nr_per, key=nr_per.get)
+    nr = nr_per[f_gov]
+
+    nc = None
+    ncs = sorted(NC_TABLE)
+    per_band = []
+    for i, f in enumerate(NC_FREQS):
+        if f not in spec:
+            continue
+        levels = np.array([NC_TABLE[n][i] for n in ncs], float)
+        per_band.append(float(np.interp(spec[f], levels, ncs)))
+    if per_band:
+        nc = max(per_band)
+
+    rc = None
+    rc_class = None
+    if all(f in spec for f in (500.0, 1000.0, 2000.0)):
+        rc = (spec[500.0] + spec[1000.0] + spec[2000.0]) / 3
+        ref = {f: rc + 5 * np.log2(1000.0 / f) for f in spec}
+        rumble = any(spec[f] > ref[f] + 5 for f in (31.5, 63.0, 125.0, 250.0)
+                     if f in spec)
+        hiss = any(spec[f] > ref[f] + 3 for f in (2000.0, 4000.0)
+                   if f in spec)
+        rc_class = ("RH" if rumble and hiss else
+                    "R" if rumble else "H" if hiss else "N")
+
+    return {"NR": round(nr, 1), "NR_governing_hz": int(f_gov),
+            "NC": round(nc, 1) if nc is not None else None,
+            "RC": round(rc, 1) if rc is not None else None,
+            "RC_class": rc_class}
+
+
+def background_octaves_db(F: dict, pct: float = 50.0,
+                          offset_db: float = 0.0) -> dict:
+    """Per-octave percentile level (dB) from cached features, for
+    :func:`room_criteria`. ``offset_db`` is the dBFS→dB SPL calibration
+    offset (0 keeps uncalibrated dBFS)."""
+    from .features import OCT_CENTERS
+    lv = 10 * np.log10(np.asarray(F["oct_pow"], float) + 1e-20) + offset_db
+    return {c: float(np.percentile(lv[:, i], pct))
+            for i, c in enumerate(OCT_CENTERS) if c <= 8000}

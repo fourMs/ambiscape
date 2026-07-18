@@ -44,6 +44,81 @@ def detect_events(fast_db, fast_dt, thresh_db=8.0, min_dur=0.25):
     return events, bg
 
 
+def intermittency_ratio(level_db: np.ndarray, dt: float,
+                        k_db: float = 3.0) -> float:
+    """Intermittency ratio IR (Wunderli et al. 2016), in percent.
+
+    The share of total sound energy carried by "events": frames whose
+    level exceeds the whole-period Leq by ``k_db`` (3 dB per the original
+    definition, there on 1 s LAeq frames — here on the fast frames, which
+    is equivalent for events longer than the frame). IR ≈ 0 for steady
+    scenes (drones, dense traffic), high for scenes whose energy arrives
+    in distinct events (rail, church bells, sparse traffic).
+    """
+    p = 10 ** (np.asarray(level_db, np.float64) / 10)
+    leq = db(p.mean())
+    mask = level_db >= leq + k_db
+    return float(100.0 * p[mask].sum() / (p.sum() + EPS))
+
+
+def decay_metrics(x: np.ndarray, fs: int, bands=((250, 500), (500, 1000),
+                  (1000, 2000), (2000, 4000), (4000, 8000))) -> dict:
+    """T60, EDT, C50, C80 (dB) and D50 per octave band from an impulse.
+
+    Same truncated-Schroeder machinery as :func:`decay_time` (which is
+    kept unchanged — its output feeds frozen corpus reports), plus the
+    standard companions: EDT from the 0…−10 dB fit (perceived
+    reverberance), clarity C50/C80 = 10·log10 of the early/late energy
+    ratio at 50/80 ms, and definition D50 = early fraction at 50 ms.
+    Returns ``{band: {"T60", "EDT", "C50", "C80", "D50", "dr_db"}}``.
+    """
+    from scipy import signal as sg
+    pk_i = int(np.abs(x).argmax())
+    env_bb = sg.convolve(x ** 2, np.ones(480) / 480, "same")
+    tail = 10 * np.log10(env_bb[pk_i:pk_i + 3 * fs] + 1e-15)
+    run_min = np.minimum.accumulate(tail)
+    re = np.flatnonzero((tail - run_min > 8) & (np.arange(len(tail)) > fs // 10))
+    cut = int(re[0]) if len(re) else 2 * fs
+    out = {}
+    for lo, hi in bands:
+        sos = sg.butter(4, [lo, hi], "bandpass", fs=fs, output="sos")
+        y = sg.sosfilt(sos, x)
+        env = sg.convolve(y ** 2, np.ones(240) / 240, "same")
+        pk = int(env[max(0, pk_i - 2400):pk_i + 2400].argmax()) \
+            + max(0, pk_i - 2400)
+        if pk < fs // 4:
+            continue
+        noise = float(np.median(env[:pk - fs // 8]))
+        dr = 10 * np.log10(env[pk] / (noise + EPS))
+        if dr < 20:
+            continue
+        seg = np.maximum(y[pk:pk + cut] ** 2 - noise, 0)
+        sch = np.cumsum(seg[::-1])[::-1]
+        sch_db = 10 * np.log10(sch / (sch[0] + EPS) + 1e-15)
+        tax = np.arange(len(sch_db)) / fs
+        res = {"dr_db": round(float(dr), 0)}
+        for key, hi_db, lo_db in (("T60", -5.0, max(-35.0, -dr + 8)),
+                                  ("EDT", 0.0, -10.0)):
+            m = (sch_db <= hi_db) & (sch_db >= lo_db)
+            if m.sum() < 150:
+                continue
+            A = np.vstack([tax[m], np.ones(int(m.sum()))]).T
+            slope, _ = np.linalg.lstsq(A, sch_db[m], rcond=None)[0]
+            if slope < 0:
+                res[key] = round(-60.0 / slope, 2)
+        for key, ms in (("C50", 50), ("C80", 80)):
+            i = int(ms * fs / 1000)
+            if i < len(sch) and sch[i] > 0:
+                res[key] = round(float(10 * np.log10(
+                    (sch[0] - sch[i]) / (sch[i] + EPS) + EPS)), 1)
+        i50 = int(0.05 * fs)
+        if i50 < len(sch):
+            res["D50"] = round(float((sch[0] - sch[i50]) / (sch[0] + EPS)), 2)
+        if "T60" in res:
+            out[f"{lo}-{hi}"] = res
+    return out
+
+
 def circular_stats(az_deg, weights=None):
     """Energy-weighted circular mean (deg) and resultant length R."""
     from .circstats import mean_resultant
@@ -89,6 +164,8 @@ def summarize(F: dict) -> dict:
         "azimuth_fg_deg": round(az_fg, 0),
         "elevation_fg_median_deg": round(el_fg, 0),
         "n_events": len(events),
+        "emergence_db": round(float(laeq - np.percentile(fasta, 10)), 1),
+        "intermittency_ratio_pct": round(intermittency_ratio(fasta, dt), 1),
     }
 
 

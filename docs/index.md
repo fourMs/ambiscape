@@ -25,6 +25,10 @@ produces:
   fingerprints, and targeted civic-grid scans (church clocks, sirens),
 - **mains hum / ENF** — millihertz tracking of the electric network
   frequency for grid forensics and hum characterization,
+- **ratings & global indices** — NR/NC/RC room criteria, intermittency
+  ratio and emergence, the ecoacoustic battery (ACI, ADI/AEI, NDSI, BI,
+  H), EDT/C50/C80/D50, and spatial descriptors (directional entropy,
+  horizon fractions, foreground/background direction overlap),
 - **strike-level rhythm** of quasi-periodic sources — bells, machines —
   with periodicity, phase, and repetition-vs-variation statistics,
 - **ISO 12913-3 psychoacoustic indicators** and a calibration hook,

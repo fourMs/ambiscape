@@ -69,6 +69,11 @@ asc.export_segment(sess, t0, 600.0, "seg6_vent_switchoff.wav")
 
 from ambiscape import enf                       # v0.4: grid-frequency traces
 enf.enf_summary(enf.enf_track(sess))            # mains ENF wander, mHz-level
+
+from ambiscape import ecology, iso              # v0.5: ratings & indices
+ecology.indices(F)                              # ACI, ADI/AEI, NDSI, BI, H
+iso.room_criteria(iso.background_octaves_db(F)) # NR / NC / RC (HVAC idiom)
+asc.decay_metrics(x[:, 0], fs)                  # T60 + EDT, C50/C80, D50
 ```
 
 See the [machine-states guide](https://fourms.github.io/ambiscape/guide/states/)

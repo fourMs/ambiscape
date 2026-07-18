@@ -28,6 +28,10 @@
 
 ::: ambiscape.enf
 
+## Ecoacoustic indices
+
+::: ambiscape.ecology
+
 ## Circular statistics
 
 ::: ambiscape.circstats

@@ -274,6 +274,10 @@ def main(argv=None):
     summary = analysis.summarize(F)
     from .background import summarize_foreground
     summary.update(summarize_foreground(F))
+    from .ecology import summarize_ecology
+    summary.update(summarize_ecology(F))
+    from .spatial import summarize_spatial
+    summary.update(summarize_spatial(F))
     from .iso import load_calibration, apply_calibration
     cal = load_calibration(sess.folder)
     if cal and "dbfs_to_dbspl" in cal:

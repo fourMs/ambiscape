@@ -15,6 +15,8 @@ TABLE_ROWS = [
     ("dynamics_L10_L90", "Dynamics L10−L90 (dB)"),
     ("events_per_min", "Events ≥ +8 dB (per min)"),
     ("event_median_dur_s", "Median event duration (s)"),
+    ("intermittency_ratio_pct", "Intermittency ratio IR (%)"),
+    ("emergence_db", "Emergence LAeq − LA90 (dB)"),
     ("fg_fraction_median", "Spectral foreground fraction, median"),
     ("fg_fraction_p90", "Spectral foreground fraction, P90"),
     ("spectral_events_per_min", "Spectral events (per min)"),
@@ -26,6 +28,13 @@ TABLE_ROWS = [
     ("azimuth_mean_deg", "Dominant azimuth (mic frame, °)"),
     ("azimuth_R", "Azimuthal concentration R"),
     ("elevation_fg_median_deg", "Median foreground elevation (°)"),
+    ("directional_entropy", "Directional entropy (azimuth)"),
+    ("above_horizon_fraction", "Energy from above +10° elevation"),
+    ("fgbg_az_overlap", "Foreground/background azimuth overlap"),
+    ("ndsi", "NDSI (−1 anthropophony … +1 biophony band)"),
+    ("adi", "Acoustic diversity ADI"),
+    ("aci", "Acoustic complexity ACI (5-min mean)"),
+    ("acoustic_entropy", "Acoustic entropy H"),
 ]
 
 

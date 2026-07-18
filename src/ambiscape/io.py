@@ -148,3 +148,43 @@ def read_span(sess: Session, t0: float, dur: float, dtype="float32"):
                 f.seek(off)
                 return f.read(n, dtype=dtype, always_2d=True), fs
     raise ValueError(f"t={t0} not covered by session {sess.name}")
+
+
+def export_segment(sess: Session, t0: float, dur: float,
+                   out_path: str | Path) -> Path:
+    """Bit-exact 4-channel excerpt [t0, t0+dur) to a WAV.
+
+    Samples are copied in the source's own PCM subtype (no float round
+    trip), so the excerpt is archival: the representative segments of a
+    report stay citable against the raw takes. The span must lie within one
+    take (recorder 2 GB splits chain seamlessly only in ``read_span``'s
+    float path). Returns the output path.
+    """
+    out_path = Path(out_path)
+    for tk in sess.takes:
+        if tk.start <= t0 < tk.end:
+            fs = tk.samplerate
+            off = int((t0 - tk.start) * fs)
+            n = min(int(dur * fs), tk.frames - off)
+            with sf.SoundFile(str(tk.path)) as f:
+                subtype = f.subtype
+                dtype = "int16" if subtype == "PCM_16" else "int32"
+                f.seek(off)
+                data = f.read(n, dtype=dtype, always_2d=True)
+            sf.write(str(out_path), data, fs, subtype=subtype)
+            return out_path
+    raise ValueError(f"t={t0} not covered by session {sess.name}")
+
+
+def stereo_preview(x, wyzx=(0, 1, 2, 3), az_deg: float = 90.0):
+    """Side-facing cardioid stereo decode of an AmbiX block, for previews.
+
+    Left/right cardioids at ±``az_deg`` in the horizontal plane:
+    ``0.5 * (W ± sin(az) * Y)`` (SN3D). Returns an (n, 2) float array —
+    write it with ``soundfile`` for a listenable preview of an exported
+    segment.
+    """
+    import numpy as np
+    W, Y = x[:, wyzx[0]], x[:, wyzx[1]]
+    g = float(np.sin(np.radians(az_deg)))
+    return np.stack([0.5 * (W + g * Y), 0.5 * (W - g * Y)], axis=1)

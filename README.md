@@ -48,6 +48,29 @@ descriptor table (Leq, LAeq, L10/L50/L90, events, diffuseness ψ, azimuthal
 concentration R, …) and overview figures (level + spectrogram + anglegram +
 ψ timeline, percentile spectra, directogram).
 
+## In notebooks
+
+Everything the CLI does is a library call, and version 0.3 adds a
+notebook-oriented case-study toolbox — machine on/off states, source
+fingerprints, civic-grid scans, bit-exact segment export:
+
+```python
+import ambiscape as asc
+from ambiscape import background, features, schedule, states
+
+sess = asc.open_session("2026-07-15-Haarlem-loft")
+F = features.load_features(
+    features.extract_session(sess, "analysis/features"))
+
+segs = states.state_segments(states.band_level(F, (250, 1000)))  # vent on/off
+fp = background.source_fingerprint(F, night_minutes, morning_minutes)
+bells = schedule.grid_scan(F, 900.0, band=(350, 800))            # church clock
+asc.export_segment(sess, t0, 600.0, "seg6_vent_switchoff.wav")
+```
+
+See the [machine-states guide](https://fourms.github.io/ambiscape/guide/states/)
+and the executable session report it was built for.
+
 ## Documentation
 
 - **[User guide & API reference](https://fourms.github.io/ambiscape/)** —

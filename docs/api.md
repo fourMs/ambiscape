@@ -20,6 +20,10 @@
 
 ::: ambiscape.background
 
+## Machine states
+
+::: ambiscape.states
+
 ## Circular statistics
 
 ::: ambiscape.circstats

@@ -96,6 +96,56 @@ def masking_index(F: dict, active: np.ndarray, quiet: np.ndarray) -> dict:
     }
 
 
+def source_fingerprint(F: dict, active: np.ndarray, quiet: np.ndarray,
+                       fmin: float = 25.0, fmax: float = 16000.0,
+                       min_prom_db: float = 6.0, max_peaks: int = 20) -> dict:
+    """Spectral fingerprint of a source: active-minus-quiet mean PSDs.
+
+    ``active``/``quiet`` are boolean masks over the *minutes* of
+    ``F["minspec"]`` (source clearly on / clearly off, e.g. from
+    :func:`ambiscape.states.state_segments`). The rise curve is the dB
+    difference of the two mean spectra — the source's own spectrum with the
+    room ambience subtracted. Narrowband peaks of the rise are extracted and
+    passed through the harmonic sieve, so a blade-pass or compressor comb
+    reports its base frequency.
+
+    Returns dict: ``freqs``/``rise_db`` (the full curve), ``rise_max_db``/
+    ``rise_max_hz`` (the turbulence hump), ``peaks`` (list of
+    ``{f_hz, rise_db}``), and ``comb`` (``{f0_hz, harmonicity}`` of the peak
+    set, ``f0_hz`` None when there are no peaks).
+    """
+    from scipy.ndimage import median_filter as _medf
+    from scipy.signal import find_peaks as _find_peaks
+    from .tonality import harmonic_sieve
+
+    freqs = np.asarray(F["freqs"], float)
+    S_a = F["minspec"][np.asarray(active, bool)].mean(0)
+    S_q = F["minspec"][np.asarray(quiet, bool)].mean(0)
+    m = (freqs >= fmin) & (freqs <= fmax)
+    rise = 10 * np.log10((S_a[m] + EPS) / (S_q[m] + EPS))
+    fsel = freqs[m]
+
+    # hump: broad maximum of the smoothed rise
+    smooth = _medf(rise, size=51, mode="nearest")
+    i_max = int(np.argmax(smooth))
+    # peaks: narrowband lines above the smoothed curve
+    line = rise - smooth
+    pk, props = _find_peaks(line, height=min_prom_db, distance=5)
+    order = np.argsort(props["peak_heights"])[::-1][:max_peaks]
+    keep = np.sort(pk[order])
+    peaks = [{"f_hz": round(float(fsel[i]), 1),
+              "rise_db": round(float(rise[i]), 1)} for i in keep]
+    f0, h = harmonic_sieve(fsel[keep], 10 ** (rise[keep] / 10)) \
+        if len(keep) else (None, 0.0)
+    return {
+        "freqs": fsel, "rise_db": rise,
+        "rise_max_db": round(float(smooth[i_max]), 1),
+        "rise_max_hz": round(float(fsel[i_max]), 1),
+        "peaks": peaks,
+        "comb": {"f0_hz": round(f0, 1) if f0 else None, "harmonicity": h},
+    }
+
+
 def summarize_foreground(F: dict, win_s: float = 300.0) -> dict:
     """Foreground descriptors for the analyze summary."""
     bg = band_background(F["logspec"], win_s=win_s)

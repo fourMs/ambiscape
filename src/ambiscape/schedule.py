@@ -45,6 +45,48 @@ def match_periods(times_abs: np.ndarray, periods=CIVIC_PERIODS) -> list[dict]:
     return sorted(out, key=lambda d: -d["R"])
 
 
+def grid_scan(F: dict, period_s: float, phase_s: float = 0.0,
+              band=(300.0, 1500.0), win_s: float = 120.0,
+              min_rise_db: float = 6.0, bg_win_s: float = 300.0) -> list[dict]:
+    """Targeted scan of every tick of a civic grid for band-limited strikes.
+
+    The complement of :func:`match_periods`: instead of asking which grid an
+    event stream fits, look *at each tick* of a known grid (every quarter
+    hour, every hour + ``phase_s``) for energy in a band — a church clock in
+    the bell band, whether or not the broadband detector heard it. Uses the
+    cached features (band level above a running ``bg_win_s`` low-percentile
+    background), so the scan is instant.
+
+    Returns one dict per tick inside the feature timeline: ``t_tick``
+    (absolute seconds), ``detected``, ``rise_db`` (peak exceedance within
+    ``win_s`` centered on the tick), and ``offset_s`` of that peak from the
+    tick — a consistent nonzero offset across ticks is recorder-clock error
+    (see :func:`clock_offset`).
+    """
+    from scipy.ndimage import percentile_filter
+    from .states import band_level
+
+    t = np.asarray(F["t"], float)
+    lvl = band_level(F, band)
+    n = max(3, int(round(bg_win_s)) | 1)
+    rise = lvl - percentile_filter(lvl, 10, size=n, mode="nearest")
+    first = np.ceil((t[0] - phase_s) / period_s) * period_s + phase_s
+    out = []
+    for tick in np.arange(first, t[-1], period_s):
+        m = np.abs(t - tick) <= win_s / 2
+        if not m.any():
+            continue
+        i = int(np.argmax(rise[m]))
+        r = float(rise[m][i])
+        out.append({
+            "t_tick": float(tick),
+            "detected": bool(r >= min_rise_db),
+            "rise_db": round(r, 1),
+            "offset_s": round(float(t[m][i] - tick), 1),
+        })
+    return out
+
+
 def clock_offset(observed_abs: float, true_clock_s: float) -> float:
     """Recorder-clock correction from one event of known wall-clock time.
 

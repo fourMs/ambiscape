@@ -24,6 +24,10 @@
 
 ::: ambiscape.states
 
+## Electric network frequency (ENF)
+
+::: ambiscape.enf
+
 ## Circular statistics
 
 ::: ambiscape.circstats

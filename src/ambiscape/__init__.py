@@ -10,13 +10,13 @@ from .io import (open_session, read_bext, read_span, export_segment,
                  stereo_preview)
 from .features import extract_take, extract_session, load_features
 from .analysis import summarize, detect_events, decay_time, pick_segments
-from . import figures, states, taxonomy, iso
+from . import enf, figures, states, taxonomy, iso
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 __all__ = [
     "open_session", "read_bext", "read_span", "export_segment",
     "stereo_preview",
     "extract_take", "extract_session", "load_features",
     "summarize", "detect_events", "decay_time", "pick_segments",
-    "figures", "states", "taxonomy",
+    "enf", "figures", "states", "taxonomy",
 ]

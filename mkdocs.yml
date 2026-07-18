@@ -32,6 +32,7 @@ nav:
       - Sessions & conventions: guide/sessions.md
       - Features & descriptors: guide/descriptors.md
       - Machine states & fingerprints: guide/states.md
+      - Mains hum & ENF: guide/enf.md
       - Room acoustics & ISO: guide/acoustics.md
       - Strike-level rhythm: guide/rhythm.md
       - Taxonomy workflow: guide/taxonomy.md

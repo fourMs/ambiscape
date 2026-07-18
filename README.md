@@ -66,6 +66,9 @@ segs = states.state_segments(states.band_level(F, (250, 1000)))  # vent on/off
 fp = background.source_fingerprint(F, night_minutes, morning_minutes)
 bells = schedule.grid_scan(F, 900.0, band=(350, 800))            # church clock
 asc.export_segment(sess, t0, 600.0, "seg6_vent_switchoff.wav")
+
+from ambiscape import enf                       # v0.4: grid-frequency traces
+enf.enf_summary(enf.enf_track(sess))            # mains ENF wander, mHz-level
 ```
 
 See the [machine-states guide](https://fourms.github.io/ambiscape/guide/states/)

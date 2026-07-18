@@ -23,6 +23,8 @@ produces:
 - **room acoustics** (T60 from claps or incidental impulses),
 - **machine states** — on/off segmentation, duty cycles, source spectral
   fingerprints, and targeted civic-grid scans (church clocks, sirens),
+- **mains hum / ENF** — millihertz tracking of the electric network
+  frequency for grid forensics and hum characterization,
 - **strike-level rhythm** of quasi-periodic sources — bells, machines —
   with periodicity, phase, and repetition-vs-variation statistics,
 - **ISO 12913-3 psychoacoustic indicators** and a calibration hook,

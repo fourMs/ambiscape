@@ -64,17 +64,22 @@ def _all_keys(collected: dict, keys=None) -> list:
 
 
 def to_csv(collected: dict, path: str | Path, keys=None) -> Path:
-    """Write a session-per-row CSV (union of keys, blanks for missing)."""
+    """Write a session-per-row CSV (union of keys, blanks for missing).
+
+    Uses the standard :mod:`csv` writer, so any field containing a comma,
+    quote, or newline is quoted correctly (a value like ``"interior,
+    morning"`` round-trips) — consistent with every other CSV the toolkit
+    emits.
+    """
+    import csv
     path = Path(path)
     cols = _all_keys(collected, keys)
-    lines = ["session," + ",".join(cols)]
-    for name, summary in collected.items():
-        row = [name]
-        for k in cols:
-            v = summary.get(k, "")
-            row.append("" if v is None else str(v))
-        lines.append(",".join(row))
-    path.write_text("\n".join(lines) + "\n")
+    with open(path, "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["session", *cols])
+        for name, summary in collected.items():
+            w.writerow([name, *("" if summary.get(k) is None else summary.get(k, "")
+                                for k in cols)])
     return path
 
 

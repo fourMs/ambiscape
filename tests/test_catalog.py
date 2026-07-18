@@ -62,3 +62,15 @@ def test_rank_and_outliers(tmp_path):
 
 def test_collect_empty_dir(tmp_path):
     assert catalog.collect(tmp_path) == {}
+
+
+def test_to_csv_quotes_commas(tmp_path):
+    """A value containing a comma must be quoted so the CSV round-trips."""
+    import csv
+    col = {"s1": {"label": "interior, morning", "leq": -30.0},
+           "s2": {"label": "quiet", "leq": -50.0}}
+    out = catalog.to_csv(col, tmp_path / "c.csv")
+    with open(out, newline="") as f:
+        rows = list(csv.DictReader(f))
+    assert rows[0]["label"] == "interior, morning"      # comma preserved
+    assert rows[0]["session"] == "s1" and rows[1]["label"] == "quiet"

@@ -11,7 +11,7 @@ from .features import extract_take, extract_session, load_features
 from .analysis import summarize, detect_events, decay_time, pick_segments
 from . import figures, taxonomy, iso
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __all__ = [
     "open_session", "read_bext", "read_span",
     "extract_take", "extract_session", "load_features",

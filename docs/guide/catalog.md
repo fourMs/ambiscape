@@ -19,6 +19,11 @@ with different descriptor sets — older caches, optional modules — are
 handled by taking the union of keys and blanking where a session lacks one,
 so a growing corpus never breaks the table.
 
+Add `--states` (CLI) or `include_states=True` (`collect`) to expand each
+multi-state session into extra `"<session>::<state>"` rows drawn from its
+`states.json`, right after the pooled row — the state-resolved corpus view
+in one table.
+
 ## In a notebook
 
 ```python

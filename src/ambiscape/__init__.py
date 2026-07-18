@@ -14,7 +14,7 @@ from .analysis import (summarize, detect_events, decay_time, decay_metrics,
 from . import (biophony, catalog, ecology, enf, figures, resolve, states,
                taxonomy, iso)
 
-__version__ = "0.8.0"
+__version__ = "0.9.0"
 __all__ = [
     "open_session", "read_bext", "read_span", "export_segment",
     "stereo_preview",

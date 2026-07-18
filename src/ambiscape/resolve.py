@@ -137,6 +137,35 @@ def machine_states(F: dict, band=(250.0, 1000.0), min_dur_s: float = 120.0,
     return {k: v for k, v in states.items() if v}
 
 
+def auto_states(F: dict, band=(250.0, 1000.0), min_dur_s: float = 180.0,
+                min_step_db: float = 4.0, min_dur_frac: float = 0.05) -> dict:
+    """Machine on/off states *only if* the session is genuinely two-state.
+
+    The gate for automatic use in ``analyze``: returns the
+    :func:`machine_states` split when both states last at least
+    ``min_dur_s`` (and ``min_dur_frac`` of the session) and the band-level
+    step between them is at least ``min_step_db``; otherwise ``{}`` (a
+    single-state session gets no state rows). Prevents spurious splitting of
+    a flat, steady soundscape.
+    """
+    from .states import band_level
+    st = machine_states(F, band=band, min_dur_s=min_dur_s)
+    if len(st) < 2:
+        return {}
+    total = len(F["t"])
+    floor = max(min_dur_s, min_dur_frac * total)
+    if any(sum(b - a for a, b in v) < floor for v in st.values()):
+        return {}
+    lvl = band_level(F, band)
+    meds = {}
+    for label, intervals in st.items():
+        m = _axis_mask(F["t"], intervals)
+        meds[label] = float(np.median(lvl[m])) if m.any() else 0.0
+    if max(meds.values()) - min(meds.values()) < min_step_db:
+        return {}
+    return st
+
+
 def diel_states(F: dict, sess, night=(22, 6),
                 labels=("night", "day")) -> dict:
     """Split a session into night / day by the wall clock.

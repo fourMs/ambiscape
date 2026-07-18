@@ -45,13 +45,54 @@ TABLE_ROWS = [
 
 MARKER = "<!-- ambiscape:generated -->"
 
+STATE_ROWS = [
+    ("duration_min", "Duration (min)"),
+    ("leq_dbfs", "Leq (dBFS)"),
+    ("laeq_dbfs", "LAeq (dBFS)"),
+    ("L90", "L90 (dBFS)"),
+    ("dynamics_L10_L90", "Dynamics L10−L90 (dB)"),
+    ("events_per_min", "Events (per min)"),
+    ("intermittency_ratio_pct", "Intermittency ratio IR (%)"),
+    ("diffuseness_median", "Diffuseness ψ, median"),
+    ("directional_entropy", "Directional entropy"),
+    ("ndsi", "NDSI"),
+    ("bird_band_activity_pct", "Biophony band activity (%)"),
+]
+
+
+def state_table(states_doc: dict) -> str:
+    """Compact Markdown table of state-resolved descriptors.
+
+    ``states_doc`` maps state label -> summary dict (the ``states`` value of
+    ``states.json``, or a plain ``{label: summary}``). Returns "" when
+    empty."""
+    states = states_doc.get("states", states_doc)
+    if not states:
+        return ""
+    labels = list(states)
+    head = "| Descriptor | " + " | ".join(labels) + " |"
+    sep = "|" + "---|" * (len(labels) + 1)
+    lines = ["## State-resolved descriptors", "",
+             "Auto-detected machine on/off states (see `analysis/states.json`; "
+             "regenerate with `ambiscape resolve`). The pooled descriptor "
+             "table above is a duration-weighted average of these.", "",
+             head, sep]
+    for key, label in STATE_ROWS:
+        if any(key in states[s] for s in labels):
+            cells = [str(states[s].get(key, "")) for s in labels]
+            lines.append(f"| {label} | " + " | ".join(cells) + " |")
+    return "\n".join(lines)
+
 
 def write_readme(sess: Session, summary: dict, out_dir: Path,
-                 notes: str = "", extra: str = "") -> Path:
+                 notes: str = "", extra: str = "",
+                 states: dict | None = None) -> Path:
     """Write the session README.
 
     Everything above the ``MARKER`` line is hand-written and preserved
-    across re-analysis; only the section below it is regenerated.
+    across re-analysis; only the section below it is regenerated. When
+    ``states`` (a ``{label: summary}`` dict) is given, a state-resolved
+    table is appended.
     """
     path = sess.folder / "README.md"
     head = ""
@@ -80,6 +121,10 @@ def write_readme(sess: Session, summary: dict, out_dir: Path,
               "![overview](analysis/overview.png)",
               "![LTAS percentiles](analysis/ltas_percentiles.png)",
               "![directogram](analysis/directogram.png)", ""]
+    if states:
+        st = state_table(states)
+        if st:
+            lines += [st, ""]
     if extra:
         lines += [extra, ""]
     lines += ["---", "*Analyzed with [ambiscape](../ambiscape/) "

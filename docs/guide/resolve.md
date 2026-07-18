@@ -15,7 +15,17 @@ res = resolve.resolve(F, states)                       # {state: full_summary}
 res["machine_off"]["ndsi"], res["machine_on"]["ndsi"]
 ```
 
-Or from the command line, writing `analysis/states.json`:
+## Automatic in `analyze`
+
+`ambiscape analyze` runs `resolve.auto_states` after the pooled summary:
+when a session is genuinely two-state (both states last long enough and the
+machine band steps by ≥ 4 dB between them) it writes `analysis/states.json`
+and appends a **state-resolved table** to the session README. Steady,
+single-state sessions get no state rows — the gate prevents spurious
+splitting. Disable with `analyze --no-resolve`.
+
+For an explicit split (a specific band, or day/night), the standalone
+command writes the same `states.json`:
 
 ```bash
 ambiscape resolve SESSION/ --by machine --band 250,1000

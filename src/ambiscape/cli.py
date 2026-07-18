@@ -22,6 +22,8 @@ def main(argv=None):
     a.add_argument("-o", "--out", default=None,
                    help="output dir (default <folder>/analysis)")
     a.add_argument("--notes", default="", help="free-text session notes for README")
+    a.add_argument("--no-resolve", action="store_true",
+                   help="skip automatic machine on/off state resolution")
     tx = sub.add_parser("taxonomy",
                         help="render Schaeffer map + Schafer timeline from "
                              "<folder>/annotations.json")
@@ -110,6 +112,8 @@ def main(argv=None):
                      help="CSV path (default <corpus>/analysis/catalog.csv)")
     cat.add_argument("--sort", default=None,
                      help="descriptor key to rank sessions by (prints ranking)")
+    cat.add_argument("--states", action="store_true",
+                     help="include per-state rows from each states.json")
     iso_p = sub.add_parser("iso",
                            help="ISO 12913-3 psychoacoustic indicators "
                                 "(MoSQITo) on representative segments")
@@ -176,7 +180,7 @@ def main(argv=None):
 
     if args.cmd == "catalog":
         from . import catalog as cat_mod
-        col = cat_mod.collect(args.corpus)
+        col = cat_mod.collect(args.corpus, include_states=args.states)
         if not col:
             print(f"no summary.json found under {args.corpus} — run "
                   "'ambiscape analyze' on the sessions first")
@@ -395,7 +399,18 @@ def main(argv=None):
     figures.overview(F, out / "overview.png", title=sess.name, clock=sess.clock)
     figures.ltas_percentiles(F, out / "ltas_percentiles.png", title=sess.name)
     figures.directogram(F, out / "directogram.png", title=sess.name)
-    report.write_readme(sess, summary, out, notes=args.notes)
+    states_doc = None
+    if not args.no_resolve:
+        from . import resolve as rmod
+        st = rmod.auto_states(F)
+        if st:
+            res = rmod.resolve(F, st)
+            states_doc = {"states": {k: {"intervals_s": st[k], **v}
+                                     for k, v in res.items()}}
+            (out / "states.json").write_text(json.dumps(states_doc, indent=2))
+            print(f"  resolved {len(res)} states -> {out/'states.json'}")
+    report.write_readme(sess, summary, out, notes=args.notes,
+                        states=states_doc)
     for k, v in summary.items():
         print(f"  {k}: {v}")
     print(f"wrote {out} and {sess.folder/'README.md'}")

@@ -21,11 +21,15 @@ import numpy as np
 
 
 def collect(corpus_dir: str | Path,
-            pattern: str = "*/analysis/summary.json") -> dict:
+            pattern: str = "*/analysis/summary.json",
+            include_states: bool = False) -> dict:
     """Map session name → summary dict for every summary under ``corpus_dir``.
 
     The session name is the top-level folder (the parent of ``analysis/``).
-    Unreadable or malformed files are skipped.
+    Unreadable or malformed files are skipped. With ``include_states``, each
+    session's ``analysis/states.json`` (if present) contributes extra
+    ``"<session>::<state>"`` rows right after the pooled session row — the
+    state-resolved corpus view.
     """
     corpus_dir = Path(corpus_dir)
     out = {}
@@ -35,6 +39,16 @@ def collect(corpus_dir: str | Path,
             out[name] = json.loads(p.read_text())
         except (json.JSONDecodeError, OSError):
             continue
+        if include_states:
+            sp = p.parent / "states.json"
+            if sp.exists():
+                try:
+                    states = json.loads(sp.read_text()).get("states", {})
+                except (json.JSONDecodeError, OSError):
+                    states = {}
+                for label, summ in states.items():
+                    out[f"{name}::{label}"] = {
+                        k: v for k, v in summ.items() if k != "intervals_s"}
     return out
 
 

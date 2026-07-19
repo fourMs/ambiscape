@@ -1,4 +1,4 @@
-"""Streaming per-second feature extraction from AmbiX B-format WAV files.
+"""Streaming per-second feature extraction from soundscape recordings.
 
 Designed for arbitrarily long recordings: files are read in 60-s blocks and
 never held in memory. Per second: broadband and A-weighted fast levels
@@ -7,7 +7,19 @@ log-frequency spectrogram row, per-octave pseudo-intensity vectors, broadband
 DOA (azimuth, elevation) and diffuseness. Per minute: full-resolution mean PSD
 (for narrowband hum tracking and fingerprinting).
 
-Channel order is AmbiX ACN (W, Y, Z, X) as written by the Zoom H3-VR.
+The level and spectral features run on a single *mono reference*: the W
+channel for AmbiX (ACN W,Y,Z,X, as written by the Zoom H3-VR), the L/R mean
+for stereo, or the lone channel for mono. Direction depends on the mode:
+
+- **ambix** (>= 4 ch): full 3-D pseudo-intensity — azimuth, elevation,
+  diffuseness, and a per-octave intensity vector.
+- **stereo** (2 ch): a *lateral* left/right cue only. Azimuth is the
+  energy balance mapped to +-90 deg (+ = left, 0 = centre; no front/back or
+  elevation), and "diffuseness" is one minus the inter-channel coherence (a
+  point source at the centre reads coherent/near-zero, a decorrelated
+  ambient field reads diffuse/near-one). Elevation is undefined (NaN).
+- **mono** (1 ch): no direction at all — azimuth, elevation, diffuseness
+  and the intensity vector are NaN.
 """
 from __future__ import annotations
 
@@ -80,64 +92,89 @@ def extract_take(take: Take, verbose: bool = False) -> dict:
         "el": np.zeros(nsec, np.float32),
         "diffuse": np.zeros(nsec, np.float32),
     }
+    mode = getattr(take, "mode", "ambix")
+    if mode != "ambix":                 # direction is partial (stereo) or absent
+        F["el"][:] = np.nan
+        if mode == "mono":
+            F["az"][:] = np.nan
+            F["diffuse"][:] = np.nan
+            F["I_band"][:] = np.nan
+        else:                            # stereo: lateral az + coherence only
+            F["I_band"][:] = np.nan
     nmin = -(-nsec // 60) if nsec else 0
     minspec = np.zeros((nmin, len(freqs)), np.float64)
     mincnt = np.zeros(nmin, np.int64)
     eps = 1e-20
 
-    carry = np.zeros((0, 4), np.float32)
+    nch = take.channels
+    carry = np.zeros((0, nch), np.float32)
     sec_base = 0
     fast_base = 0
     hi_base = 0
-    with sf.SoundFile(str(take.path)) as f:
+    with sf.SoundFile(str(take.audio_path)) as f:
         while True:
             block = f.read(60 * fs, dtype="float32", always_2d=True)
             if block.shape[0] == 0:
                 break
             data = np.concatenate([carry, block]) if carry.shape[0] else block
             navail = data.shape[0]
+            # mono reference: W (ambix), L/R mean (stereo), the channel (mono)
+            if mode == "ambix":
+                ref = data[:, take.wyzx[0]]
+            elif mode == "stereo":
+                ref = 0.5 * (data[:, 0] + data[:, 1])
+            else:
+                ref = data[:, 0]
             nsec_blk = min(navail // fs, nsec - sec_base)
             nwin = (navail - nfft) // hop + 1 if navail >= nfft else 0
             if nsec_blk <= 0:
                 break
 
-            # fast levels on W (contiguous 125 ms frames)
+            # fast levels on the mono reference (contiguous 125 ms frames)
             nfast_blk = min((nsec_blk * fs) // ffs, nfast - fast_base)
-            wseg = data[: nfast_blk * ffs, 0].reshape(nfast_blk, ffs)
+            wseg = ref[: nfast_blk * ffs].reshape(nfast_blk, ffs)
             F["fast_db"][fast_base:fast_base + nfast_blk] = 10 * np.log10(
                 (wseg.astype(np.float64) ** 2).mean(1) + eps)
-            wa, a_state = signal.sosfilt(a_sos, data[: nfast_blk * ffs, 0]
+            wa, a_state = signal.sosfilt(a_sos, ref[: nfast_blk * ffs]
                                          .astype(np.float64), zi=a_state)
             F["fast_dba"][fast_base:fast_base + nfast_blk] = 10 * np.log10(
                 (wa.reshape(nfast_blk, ffs) ** 2).mean(1) + eps)
             fast_base += nfast_blk
 
-            # 20 ms broadband envelope on W (linear power, for modulation)
+            # 20 ms broadband envelope (linear power, for modulation)
             nhi_blk = min((nsec_blk * fs) // hfs, nhi - hi_base)
-            hseg = data[: nhi_blk * hfs, 0].reshape(nhi_blk, hfs)
+            hseg = ref[: nhi_blk * hfs].reshape(nhi_blk, hfs)
             F["env_hi"][hi_base:hi_base + nhi_blk] = \
                 (hseg.astype(np.float64) ** 2).mean(1)
             hi_base += nhi_blk
 
             if nwin > 0:
-                iW, iY, iZ, iX = take.wyzx
                 idx = np.arange(nfft)[None, :] + hop * np.arange(nwin)[:, None]
-                Wf = np.fft.rfft(data[:, iW][idx] * win)
-                Yf = np.fft.rfft(data[:, iY][idx] * win)
-                Zf = np.fft.rfft(data[:, iZ][idx] * win)
-                Xf = np.fft.rfft(data[:, iX][idx] * win)
+                Wf = np.fft.rfft(ref[idx] * win)
                 Pw = (Wf.real ** 2 + Wf.imag ** 2) / wsum2
-                IX = (Wf.conj() * Xf).real / wsum2
-                IY = (Wf.conj() * Yf).real / wsum2
-                IZ = (Wf.conj() * Zf).real / wsum2
-                Ev = (Xf.real ** 2 + Xf.imag ** 2 + Yf.real ** 2 + Yf.imag ** 2
-                      + Zf.real ** 2 + Zf.imag ** 2) / wsum2
                 centers = (idx[:, 0] + nfft // 2) / fs
+                if mode == "ambix":
+                    iW, iY, iZ, iX = take.wyzx
+                    Yf = np.fft.rfft(data[:, iY][idx] * win)
+                    Zf = np.fft.rfft(data[:, iZ][idx] * win)
+                    Xf = np.fft.rfft(data[:, iX][idx] * win)
+                    IX = (Wf.conj() * Xf).real / wsum2
+                    IY = (Wf.conj() * Yf).real / wsum2
+                    IZ = (Wf.conj() * Zf).real / wsum2
+                    Ev = (Xf.real ** 2 + Xf.imag ** 2 + Yf.real ** 2
+                          + Yf.imag ** 2 + Zf.real ** 2 + Zf.imag ** 2) / wsum2
+                elif mode == "stereo":
+                    Lf = np.fft.rfft(data[:, 0][idx] * win)
+                    Rf = np.fft.rfft(data[:, 1][idx] * win)
+                    PL = (Lf.real ** 2 + Lf.imag ** 2) / wsum2
+                    PR = (Rf.real ** 2 + Rf.imag ** 2) / wsum2
+                    CLR = (Lf.conj() * Rf) / wsum2      # complex cross-spectrum
 
             for s in range(nsec_blk):
                 g = sec_base + s
                 seg = data[s * fs:(s + 1) * fs]
-                F["rms_w"][g] = np.sqrt((seg[:, 0].astype(np.float64) ** 2).mean())
+                F["rms_w"][g] = np.sqrt((ref[s * fs:(s + 1) * fs]
+                                         .astype(np.float64) ** 2).mean())
                 F["peak"][g] = float(np.abs(seg).max())
                 if nwin == 0:
                     continue
@@ -145,21 +182,37 @@ def extract_take(take: Take, verbose: bool = False) -> dict:
                 if len(sel) == 0:
                     continue
                 pw = Pw[sel].mean(0)
-                ix, iy, iz = (IX[sel].mean(0), IY[sel].mean(0), IZ[sel].mean(0))
-                ev = Ev[sel].mean(0)
                 for b, bi in enumerate(oct_idx):
                     F["oct_pow"][g, b] = pw[bi].sum()
-                    F["I_band"][g, b] = (ix[bi].sum(), iy[bi].sum(), iz[bi].sum())
                 p = pw[spec_mask]
                 F["centroid"][g] = float((freqs[spec_mask] * p).sum() / (p.sum() + eps))
                 F["flatness"][g] = float(np.exp(np.log(p + eps).mean()) / (p.mean() + eps))
                 np.add.at(F["logspec"][g], log_idx[log_idx >= 0], pw[log_idx >= 0])
-                Ix, Iy, Iz = (ix[doa_mask].sum(), iy[doa_mask].sum(), iz[doa_mask].sum())
-                F["az"][g] = np.degrees(np.arctan2(Iy, Ix))
-                F["el"][g] = np.degrees(np.arctan2(Iz, np.hypot(Ix, Iy)))
-                etot = (pw[doa_mask].sum() + ev[doa_mask].sum()) / 2
-                inorm = float(np.sqrt(Ix ** 2 + Iy ** 2 + Iz ** 2))
-                F["diffuse"][g] = 1.0 - min(1.0, inorm / (etot + eps))
+                if mode == "ambix":
+                    ix, iy, iz = (IX[sel].mean(0), IY[sel].mean(0),
+                                  IZ[sel].mean(0))
+                    ev = Ev[sel].mean(0)
+                    for b, bi in enumerate(oct_idx):
+                        F["I_band"][g, b] = (ix[bi].sum(), iy[bi].sum(),
+                                             iz[bi].sum())
+                    Ix, Iy, Iz = (ix[doa_mask].sum(), iy[doa_mask].sum(),
+                                  iz[doa_mask].sum())
+                    F["az"][g] = np.degrees(np.arctan2(Iy, Ix))
+                    F["el"][g] = np.degrees(np.arctan2(Iz, np.hypot(Ix, Iy)))
+                    etot = (pw[doa_mask].sum() + ev[doa_mask].sum()) / 2
+                    inorm = float(np.sqrt(Ix ** 2 + Iy ** 2 + Iz ** 2))
+                    F["diffuse"][g] = 1.0 - min(1.0, inorm / (etot + eps))
+                elif mode == "stereo":
+                    pl, pr = PL[sel].mean(0), PR[sel].mean(0)
+                    clr = CLR[sel].mean(0)
+                    sL, sR = float(pl[doa_mask].sum()), float(pr[doa_mask].sum())
+                    # lateral balance -> +-90 deg (+ = left), coherence -> width
+                    F["az"][g] = 90.0 * (sL - sR) / (sL + sR + eps)
+                    coh = abs(clr[doa_mask].sum()) / (np.sqrt(sL * sR) + eps)
+                    F["diffuse"][g] = 1.0 - min(1.0, float(coh))
+                    for b, bi in enumerate(oct_idx):
+                        F["I_band"][g, b] = (0.0, float(pl[bi].sum()
+                                                        - pr[bi].sum()), 0.0)
                 minspec[g // 60] += pw
                 mincnt[g // 60] += 1
 
@@ -176,6 +229,8 @@ def extract_take(take: Take, verbose: bool = False) -> dict:
     F["fs"] = np.int64(fs)
     F["fast_dt"] = np.float64(FAST)
     F["hi_dt"] = np.float64(HI_ENV)
+    F["mode"] = np.str_(getattr(take, "mode", "ambix"))
+    F["channels"] = np.int64(take.channels)
     return F
 
 
@@ -219,4 +274,7 @@ def load_features(npz_paths: list[str | Path]) -> dict:
     out["minspec"] = np.concatenate([p["minspec"] for p in parts])
     out["freqs"] = parts[0]["freqs"]
     out["logf"] = parts[0]["logf"]
+    if "mode" in parts[0]:                   # absent in pre-0.13 caches
+        out["mode"] = str(parts[0]["mode"])
+        out["channels"] = int(parts[0]["channels"])
     return out

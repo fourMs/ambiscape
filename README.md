@@ -4,7 +4,7 @@
 [![Documentation](https://img.shields.io/badge/docs-fourms.github.io%2Fambiscape-blue)](https://fourms.github.io/ambiscape/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Analysis toolkit for long-duration (hours) first-order ambisonic soundscape recordings (Zoom H3-VR and other AmbiX/SN3D B-format sources), processed in a stream with constant memory.
+Analysis toolkit for long-duration (hours) first-order ambisonic soundscape recordings (Zoom H3-VR and other AmbiX/SN3D B-format sources), processed in a stream with constant memory. Stereo and mono recordings — including a phone's `.m4a` — are analysed too, with a lateral left/right cue recovered from stereo (see [Stereo & mono inputs](https://fourms.github.io/ambiscape/guide/stereo-mono/)).
 
 ## Install
 

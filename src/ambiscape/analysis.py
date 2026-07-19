@@ -139,10 +139,22 @@ def summarize(F: dict) -> dict:
     p = F["rms_w"].astype(np.float64) ** 2
     e_fg = p >= np.percentile(p, 75)
     e_bg = p <= np.percentile(p, 25)
-    az_mean, R = circular_stats(F["az"], weights=p)
-    az_fg, R_fg = circular_stats(F["az"][e_fg], weights=p[e_fg])
-    el_fg = float(np.median(F["el"][e_fg]))
-    psi = F["diffuse"]
+    # direction is full 3-D (ambix), lateral-only (stereo), or absent (mono);
+    # emit None for whatever this recording's channel layout cannot support
+    az = np.asarray(F["az"], float)
+    el = np.asarray(F["el"], float)
+    psi = np.asarray(F["diffuse"], float)
+    fin_az = np.isfinite(az)
+    if fin_az.any():
+        az_mean, R = circular_stats(az[fin_az], weights=p[fin_az])
+        fg_az = e_fg & fin_az
+        az_fg = (circular_stats(az[fg_az], weights=p[fg_az])[0]
+                 if fg_az.any() else az_mean)
+    else:
+        az_mean = R = az_fg = None
+    el_fg = (float(np.nanmedian(el[e_fg])) if np.isfinite(el[e_fg]).any()
+             else None)
+    has_psi = np.isfinite(psi).any()
 
     return {
         "duration_min": round(dur / 60, 1),
@@ -156,13 +168,14 @@ def summarize(F: dict) -> dict:
             [(e["i1"] - e["i0"] + 1) * dt for e in events])), 2) if events else None,
         "centroid_median_hz": int(np.median(F["centroid"])),
         "flatness_median": round(float(np.median(F["flatness"])), 3),
-        "diffuseness_median": round(float(np.median(psi)), 2),
-        "diffuseness_iqr": round(float(np.percentile(psi, 75)
-                                       - np.percentile(psi, 25)), 2),
-        "azimuth_mean_deg": round(az_mean, 0),
-        "azimuth_R": round(R, 2),
-        "azimuth_fg_deg": round(az_fg, 0),
-        "elevation_fg_median_deg": round(el_fg, 0),
+        "diffuseness_median": round(float(np.nanmedian(psi)), 2) if has_psi else None,
+        "diffuseness_iqr": round(float(np.nanpercentile(psi, 75)
+                                       - np.nanpercentile(psi, 25)), 2)
+        if has_psi else None,
+        "azimuth_mean_deg": round(az_mean, 0) if az_mean is not None else None,
+        "azimuth_R": round(R, 2) if R is not None else None,
+        "azimuth_fg_deg": round(az_fg, 0) if az_fg is not None else None,
+        "elevation_fg_median_deg": round(el_fg, 0) if el_fg is not None else None,
         "n_events": len(events),
         "emergence_db": round(float(laeq - np.percentile(fasta, 10)), 1),
         "intermittency_ratio_pct": round(intermittency_ratio(fasta, dt), 1),

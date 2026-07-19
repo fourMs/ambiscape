@@ -45,6 +45,39 @@ TABLE_ROWS = [
 
 MARKER = "<!-- ambiscape:generated -->"
 
+_FIGURES = [
+    ("overview.png", "![overview](analysis/overview.png)"),
+    ("ltas_percentiles.png", "![LTAS percentiles](analysis/ltas_percentiles.png)"),
+    ("directogram.png", "![directogram](analysis/directogram.png)"),
+]
+
+
+def _recording_note(sess: Session) -> str:
+    """Channel-layout-appropriate recording note for the README."""
+    mode = getattr(sess.takes[0], "mode", "ambix") if sess.takes else "ambix"
+    if mode == "stereo":
+        return ("2-channel stereo. Levels are uncalibrated dBFS. Direction is "
+                "a lateral left/right cue only: azimuth is the inter-channel "
+                "energy balance (±90°, + = left, 0 = centre) and diffuseness "
+                "is inter-channel decorrelation (0 = coherent point source, "
+                "1 = decorrelated/enveloping) — no elevation or front/back.")
+    if mode == "mono":
+        return ("1-channel mono. Levels are uncalibrated dBFS; no directional "
+                "information.")
+    return ("Zoom H3-VR, AmbiX B-format (ACN: W-Y-Z-X, SN3D), upright. "
+            "Levels are uncalibrated dBFS; directions are mic-relative.")
+
+
+def _json_safe(o):
+    """Recursively replace NaN/inf floats with None for valid JSON."""
+    if isinstance(o, float):
+        return None if (o != o or o in (float("inf"), float("-inf"))) else o
+    if isinstance(o, dict):
+        return {k: _json_safe(v) for k, v in o.items()}
+    if isinstance(o, (list, tuple)):
+        return [_json_safe(v) for v in o]
+    return o
+
 STATE_ROWS = [
     ("duration_min", "Duration (min)"),
     ("leq_dbfs", "Leq (dBFS)"),
@@ -109,18 +142,15 @@ def write_readme(sess: Session, summary: dict, out_dir: Path,
     for tk in sess.takes:
         lines.append(f"| `{tk.path.name}` | {tk.date} | {tk.clock} | "
                      f"{tk.duration/60:.1f} min |")
-    lines += ["",
-              "Zoom H3-VR, AmbiX B-format (ACN: W-Y-Z-X, SN3D), upright. "
-              "Levels are uncalibrated dBFS; directions are mic-relative.",
+    lines += ["", _recording_note(sess),
               "", "## Descriptors", "", "| Descriptor | Value |", "|---|---|"]
     for key, label in TABLE_ROWS:
         v = summary.get(key)
         if v is not None:
             lines.append(f"| {label} | {v} |")
-    lines += ["", "## Figures", "",
-              "![overview](analysis/overview.png)",
-              "![LTAS percentiles](analysis/ltas_percentiles.png)",
-              "![directogram](analysis/directogram.png)", ""]
+    fig_lines = [ln for fname, ln in _FIGURES if (out_dir / fname).exists()]
+    if fig_lines:
+        lines += ["", "## Figures", ""] + fig_lines + [""]
     if states:
         st = state_table(states)
         if st:
@@ -131,5 +161,6 @@ def write_readme(sess: Session, summary: dict, out_dir: Path,
               "(streaming companion to "
               "[ambiviz](https://github.com/fisheggg/ambiviz)).*", ""]
     path.write_text("\n".join(lines))
-    (out_dir / "summary.json").write_text(json.dumps(summary, indent=2))
+    (out_dir / "summary.json").write_text(
+        json.dumps(_json_safe(summary), indent=2))
     return path

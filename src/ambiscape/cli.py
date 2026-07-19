@@ -10,6 +10,8 @@ import json
 import sys
 from pathlib import Path
 
+import numpy as np
+
 
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="ambiscape",
@@ -580,7 +582,8 @@ def main(argv=None):
         summary = apply_calibration(summary, cal)
     figures.overview(F, out / "overview.png", title=sess.name, clock=sess.clock)
     figures.ltas_percentiles(F, out / "ltas_percentiles.png", title=sess.name)
-    figures.directogram(F, out / "directogram.png", title=sess.name)
+    if np.isfinite(np.asarray(F["az"], float)).any():   # skip for mono
+        figures.directogram(F, out / "directogram.png", title=sess.name)
     states_doc = None
     if not args.no_resolve:
         from . import resolve as rmod

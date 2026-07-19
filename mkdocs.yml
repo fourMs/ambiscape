@@ -37,6 +37,8 @@ nav:
       - Biophony (nature & animals): guide/biophony.md
       - State-resolved descriptors: guide/resolve.md
       - Corpus catalog: guide/catalog.md
+      - Cross-session comparison: guide/compare.md
+      - Stereo & mono inputs: guide/stereo-mono.md
       - Longitudinal analysis: guide/longitudinal.md
       - Always-on capture: guide/capture.md
       - Visual features: guide/vision.md

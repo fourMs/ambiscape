@@ -140,13 +140,21 @@ def fg_bg_az_overlap(F: dict, nbins: int = 36) -> float:
 
 
 def summarize_spatial(F: dict) -> dict:
-    """Spatial descriptors for the analyze summary."""
-    hf = horizon_fractions(F)
+    """Spatial descriptors for the analyze summary.
+
+    Azimuth-based measures (directional entropy, fg/bg overlap) are reported
+    for ambix and stereo (lateral) but not mono; elevation-based measures
+    (horizon fractions) only for ambix, since neither stereo nor mono
+    resolves elevation.
+    """
+    has_az = np.isfinite(np.asarray(F["az"], float)).any()
+    has_el = np.isfinite(np.asarray(F["el"], float)).any()
+    hf = horizon_fractions(F) if has_el else None
     return {
-        "directional_entropy": round(directional_entropy(F), 3),
-        "above_horizon_fraction": hf["above"],
-        "below_horizon_fraction": hf["below"],
-        "fgbg_az_overlap": round(fg_bg_az_overlap(F), 2),
+        "directional_entropy": round(directional_entropy(F), 3) if has_az else None,
+        "above_horizon_fraction": hf["above"] if hf else None,
+        "below_horizon_fraction": hf["below"] if hf else None,
+        "fgbg_az_overlap": round(fg_bg_az_overlap(F), 2) if has_az else None,
     }
 
 

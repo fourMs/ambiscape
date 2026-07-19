@@ -151,6 +151,28 @@ def main(argv=None):
                      help="descriptor key to rank sessions by (prints ranking)")
     cat.add_argument("--states", action="store_true",
                      help="include per-state rows from each states.json")
+    cmp_p = sub.add_parser("compare",
+                           help="cross-session comparison of two or more "
+                                "analyzed sessions of the same place: "
+                                "clock-aligned timelines, per-state LTAS, "
+                                "azimuth roses, descriptor tables")
+    cmp_p.add_argument("folders", nargs="+", help="analyzed session folders")
+    cmp_p.add_argument("-o", "--out", default=None,
+                       help="output dir (default "
+                            "<first>/../comparisons/<joined names>)")
+    cmp_p.add_argument("--lines", default=None,
+                       help="comma-separated Hz to check tonal-line "
+                            "prominence at (a machine fingerprint, e.g. "
+                            "146,258,650,820)")
+    cmp_p.add_argument("--band", default=None,
+                       help="F0:F1 Hz band for a clock-aligned band "
+                            "timeline (e.g. 2000:8000 for dawn chorus)")
+    cmp_p.add_argument("--hours", default=None,
+                       help="H0:H1 clock hours restricting the band "
+                            "timeline (> 24 = day 2, e.g. 27:34)")
+    cmp_p.add_argument("--state", default="machine_on",
+                       help="state name to shade / mask by "
+                            "(default machine_on)")
     iso_p = sub.add_parser("iso",
                            help="ISO 12913-3 psychoacoustic indicators "
                                 "(MoSQITo) on representative segments")
@@ -322,6 +344,37 @@ def main(argv=None):
         if args.sort:
             for name, val in cat_mod.rank(col, args.sort):
                 print(f"    {val:>10.2f}  {name}")
+        return 0
+
+    if args.cmd == "compare":
+        from . import compare as cmp_mod
+        folders = [Path(f) for f in args.folders]
+        if len(folders) < 2:
+            print("compare needs at least two session folders")
+            return 1
+        out = Path(args.out) if args.out else \
+            folders[0].parent / "comparisons" / "-vs-".join(
+                f.name for f in folders)[:150]
+        lines = [float(v) for v in args.lines.split(",")] if args.lines \
+            else None
+        band = tuple(float(v) for v in args.band.split(":")) if args.band \
+            else None
+        hours = tuple(float(v) for v in args.hours.split(":")) if args.hours \
+            else None
+        doc = cmp_mod.run_compare(folders, out, lines=lines, band=band,
+                                  hours=hours, state=args.state)
+        for name in doc["sessions"]:
+            p = doc["pooled"][name]
+            print(f"  {name}: LAeq {p.get('laeq_dbfs')} dBFS, "
+                  f"L90 {p.get('L90')}, events/min {p.get('events_per_min')}, "
+                  f"NDSI {p.get('ndsi')}")
+        if "line_prominence" in doc:
+            for name, ls in doc["line_prominence"].items():
+                pr = ", ".join(f"{f}: {v['prominence_db']} dB"
+                               for f, v in ls.items())
+                print(f"    lines {name}: {pr}")
+        print(f"wrote {out}/compare.json and "
+              f"{len(doc['figures'])} figure(s)")
         return 0
 
     if args.cmd == "birdnet":

@@ -120,6 +120,16 @@ class Take:
         """Column indices of (W, Y, Z, X) for this take's convention."""
         return (0, 2, 3, 1) if self.order == "fuma" else (0, 1, 2, 3)
 
+    def mono_ref(self, data):
+        """Mono reference column from an (n, ch) block for this take's mode:
+        the W channel (ambix), the L/R mean (stereo), or the lone channel
+        (mono). The single signal every level/spectral/MIR feature runs on."""
+        if self.mode == "stereo":
+            return 0.5 * (data[:, 0] + data[:, 1])
+        if self.mode == "mono":
+            return data[:, 0]
+        return data[:, self.wyzx[0]]
+
 
 @dataclass
 class Session:

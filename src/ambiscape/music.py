@@ -28,15 +28,18 @@ def _require_librosa():
 
 
 def load_w(take, t0=0.0, dur=None, sr=22050):
-    """W channel of a take, resampled to ``sr``."""
+    """Mono reference of a take (W / L-R mean / channel), resampled to ``sr``.
+
+    Reads the take's decoded audio (so a transcoded ``.m4a`` works too) and
+    downmixes per the take's mode — MIR runs on the same mono reference the
+    rest of the pipeline uses."""
     librosa = _require_librosa()
     fs = take.samplerate
-    iW = take.wyzx[0]
-    with sf.SoundFile(str(take.path)) as f:
+    with sf.SoundFile(str(take.audio_path)) as f:
         f.seek(int(t0 * fs))
         n = f.frames - int(t0 * fs) if dur is None else int(dur * fs)
-        x = f.read(n, dtype="float32", always_2d=True)[:, iW]
-    return librosa.resample(x, orig_sr=fs, target_sr=sr), sr
+        x = f.read(n, dtype="float32", always_2d=True)
+    return librosa.resample(take.mono_ref(x), orig_sr=fs, target_sr=sr), sr
 
 
 def tempogram(y, sr, hop=512, win_s=8.0):

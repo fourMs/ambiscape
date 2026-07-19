@@ -78,8 +78,10 @@ def partial_pass(take: Take, pfreq, nfft=4096, hop=960) -> dict:
     env, ix, iy, iz, odf = [], [], [], [], []
     prevL = None
     carry = np.zeros((0, take.channels), np.float32)
-    iW, iY, iZ, iX = take.wyzx
-    with sf.SoundFile(str(take.path)) as f:
+    ambix = getattr(take, "mode", "ambix") == "ambix"
+    if ambix:
+        iW, iY, iZ, iX = take.wyzx
+    with sf.SoundFile(str(take.audio_path)) as f:
         while True:
             block = f.read(60 * fs, dtype="float32", always_2d=True)
             if block.shape[0] == 0:
@@ -90,15 +92,19 @@ def partial_pass(take: Take, pfreq, nfft=4096, hop=960) -> dict:
                 carry = data
                 continue
             idx = np.arange(nfft)[None, :] + hop * np.arange(nwin)[:, None]
-            W = np.fft.rfft(data[:, iW][idx] * win)
-            Y = np.fft.rfft(data[:, iY][idx] * win)
-            Z = np.fft.rfft(data[:, iZ][idx] * win)
-            X = np.fft.rfft(data[:, iX][idx] * win)
+            W = np.fft.rfft(take.mono_ref(data)[idx] * win)
             Pw = W.real ** 2 + W.imag ** 2
             env.append(Pw[:, psel].sum(2).astype(np.float32))
-            ix.append((W.conj() * X).real[:, psel].sum(2).astype(np.float32))
-            iy.append((W.conj() * Y).real[:, psel].sum(2).astype(np.float32))
-            iz.append((W.conj() * Z).real[:, psel].sum(2).astype(np.float32))
+            if ambix:      # source azimuth needs the intensity vector
+                Y = np.fft.rfft(data[:, iY][idx] * win)
+                Z = np.fft.rfft(data[:, iZ][idx] * win)
+                X = np.fft.rfft(data[:, iX][idx] * win)
+                ix.append((W.conj() * X).real[:, psel].sum(2).astype(np.float32))
+                iy.append((W.conj() * Y).real[:, psel].sum(2).astype(np.float32))
+                iz.append((W.conj() * Z).real[:, psel].sum(2).astype(np.float32))
+            else:          # stereo/mono: no direction for the pitched source
+                z = np.zeros((idx.shape[0], psel.shape[0]), np.float32)
+                ix.append(z); iy.append(z.copy()); iz.append(z.copy())
             L = np.log1p(1e6 * Pw[:, fmask])
             Lp = np.concatenate([prevL[None] if prevL is not None else L[:1], L])
             odf.append(np.maximum(np.diff(Lp, axis=0), 0).sum(1)
@@ -309,14 +315,13 @@ def rise_spectrum(take: Take, times, nfft=8192, n_max=150, seed=1):
     rng = np.random.default_rng(seed)
     sel = rng.choice(times, min(n_max, len(times)), replace=False)
     acc, n = np.zeros(len(freqs)), 0
-    iW = take.wyzx[0]
-    with sf.SoundFile(str(take.path)) as f:
+    with sf.SoundFile(str(take.audio_path)) as f:
         for s in sel:
             i = int(s * fs)
             if i < nfft or i + nfft > f.frames:
                 continue
             f.seek(i - nfft + int(0.02 * fs))
-            x = f.read(2 * nfft, dtype="float64", always_2d=True)[:, iW]
+            x = take.mono_ref(f.read(2 * nfft, dtype="float64", always_2d=True))
             if len(x) < 2 * nfft:
                 continue
             pre = np.abs(np.fft.rfft(x[:nfft] * win)) ** 2
@@ -520,13 +525,13 @@ def partial_fm(take: Take, freq: float, period: float, t_max: float,
     freqs = np.fft.rfftfreq(nfft, 1 / fs)
     b0 = int(round(freq * nfft / fs))
     sel = np.arange(b0 - 2, b0 + 3)
-    iW = take.wyzx[0]
     fi, ei, tt = [], [], []
     carry = np.zeros((0,), np.float32)
     t_off = 0.0
-    with sf.SoundFile(str(take.path)) as f:
+    with sf.SoundFile(str(take.audio_path)) as f:
         while t_off < t_max:
-            block = f.read(60 * fs, dtype="float32", always_2d=True)[:, iW]
+            block = take.mono_ref(f.read(60 * fs, dtype="float32",
+                                         always_2d=True))
             if block.shape[0] == 0:
                 break
             data = np.concatenate([carry, block]) if carry.shape[0] else block

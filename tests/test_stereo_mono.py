@@ -147,6 +147,26 @@ def test_summary_stereo_is_lateral(tmp_path):
     json.dumps(s, allow_nan=False)                     # strictly valid JSON
 
 
+def test_music_load_w_reads_mono_from_stereo(tmp_path):
+    pytest.importorskip("librosa")
+    from ambiscape import music
+    p = _write(tmp_path / "260719_120000.wav", _stereo(6 * FS, pan=0.4))
+    tk = io.open_recording(p).takes[0]
+    y, sr = music.load_w(tk, t0=1.0, dur=3.0)      # mono ref, resampled
+    assert y.ndim == 1 and sr == 22050 and np.isfinite(y).all()
+
+
+def test_rhythm_runs_on_stereo(tmp_path):
+    # the ambisonic intensity path is skipped for stereo; must not crash
+    from ambiscape import rhythm, features
+    p = _write(tmp_path / "260719_120000.wav", _stereo(90 * FS, pan=0.2))
+    sess = io.open_recording(p)
+    out = tmp_path / "analysis"
+    features.extract_session(sess, out / "features", verbose=False)
+    summary = rhythm.run_session(sess, out, verbose=False)
+    assert isinstance(summary, dict) and "sources" in summary
+
+
 def test_summary_mono_has_no_direction(tmp_path):
     t = np.arange(90 * FS) / FS
     mono = (0.2 * np.sin(2 * np.pi * 300 * t)

@@ -37,6 +37,16 @@ quantities; the elevation-based ones (`elevation_fg_median_deg`,
 `above_horizon_fraction`, `below_horizon_fraction`) are `null`. For mono every
 directional descriptor is `null` and the directogram is skipped.
 
+The audio-reading follow-on modules are mode-aware too: `music` (tempo,
+chroma), `tonality`, `rhythm` and `timbre` run on the same mono reference, so
+they work on stereo and mono inputs — `rhythm` simply reports no source
+azimuth off ambisonics. `enf` (mains-hum tracking) reads the raw line and is
+channel-agnostic. In other words, a café phone recording can be characterised
+across *coexisting* layers at once — electricity (`ambiscape enf`), music
+(`ambiscape music` / `tonality`), and biophony (`analyze`'s bird band, though
+indoors that band responds to music, not birds — use the trained classifier
+via `ambiscape birdnet` to be sure).
+
 ```bash
 ambiscape analyze path/to/cafe          # a folder with one stereo .m4a
 #   2-channel stereo. azimuth is a lateral L/R balance; no elevation.

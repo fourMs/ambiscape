@@ -37,17 +37,17 @@ def _melish_matrix(freqs, fmin=100.0, fmax=8000.0, n=N_MEL):
 def event_fingerprint(take, t_onset: float, nfft=8192, decay_s=1.0):
     """Rise spectrum (dB, mel-ish bands) + per-band decay slope (dB/s)."""
     fs = take.samplerate
-    iW = take.wyzx[0]
     win = np.hanning(nfft)
     freqs = np.fft.rfftfreq(nfft, 1 / fs)
     W, centers = _melish_matrix(freqs)
     i = int(t_onset * fs)
     n_dec = int(decay_s * fs / nfft)
-    with sf.SoundFile(str(take.path)) as f:
+    with sf.SoundFile(str(take.audio_path)) as f:
         if i < nfft or i + (n_dec + 1) * nfft > f.frames:
             return None, None, centers
         f.seek(i - nfft + int(0.02 * fs))
-        x = f.read((n_dec + 2) * nfft, dtype="float64", always_2d=True)[:, iW]
+        x = take.mono_ref(f.read((n_dec + 2) * nfft, dtype="float64",
+                                 always_2d=True))
     def spec(seg):
         return W @ (np.abs(np.fft.rfft(seg * win)) ** 2)
     pre = spec(x[:nfft])

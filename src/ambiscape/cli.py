@@ -153,6 +153,19 @@ def main(argv=None):
                      help="descriptor key to rank sessions by (prints ranking)")
     cat.add_argument("--states", action="store_true",
                      help="include per-state rows from each states.json")
+    en = sub.add_parser("enf",
+                        help="electric network frequency: track the mains hum "
+                             "(50/60 Hz) across a session — electrification "
+                             "descriptor + forensic grid trace")
+    en.add_argument("folder")
+    en.add_argument("-o", "--out", default=None,
+                    help="output dir (default <folder>/analysis)")
+    en.add_argument("--nominal", type=float, default=50.0,
+                    help="mains nominal Hz (50 Europe/Asia, 60 Americas)")
+    en.add_argument("--step", type=float, default=300.0,
+                    help="seconds between windows (default 300)")
+    en.add_argument("--win", type=float, default=60.0,
+                    help="window length in seconds (default 60)")
     cmp_p = sub.add_parser("compare",
                            help="cross-session comparison of two or more "
                                 "analyzed sessions of the same place: "
@@ -346,6 +359,44 @@ def main(argv=None):
         if args.sort:
             for name, val in cat_mod.rank(col, args.sort):
                 print(f"    {val:>10.2f}  {name}")
+        return 0
+
+    if args.cmd == "enf":
+        from . import enf as enf_mod
+        from .io import open_session
+        sess = open_session(args.folder)
+        out = Path(args.out) if args.out else Path(args.folder) / "analysis"
+        out.mkdir(parents=True, exist_ok=True)
+        track = enf_mod.enf_track(sess, step_s=args.step, win_s=args.win,
+                                  nominal=args.nominal)
+        summary = enf_mod.enf_summary(track, nominal=args.nominal)
+        doc = {"nominal_hz": args.nominal, **summary}
+        (out / "enf.json").write_text(json.dumps(doc, indent=2, default=float))
+        if len(track["t"]):
+            import matplotlib
+            matplotlib.use("Agg")
+            import matplotlib.pyplot as plt
+            k0 = sorted(track["f"])[0]
+            good = track["rise"][k0] >= 6.0
+            th = (track["t"] - track["t"][0]) / 3600
+            fig, ax = plt.subplots(figsize=(11, 3.6), dpi=130)
+            ax.axhline(args.nominal, color="0.7", lw=0.8, ls="--")
+            ax.plot(th[good], track["f"][k0][good], ".-", ms=4, lw=0.8,
+                    color="#2a78d6")
+            ax.set(xlabel="time (h)", ylabel=f"mains freq (Hz, ÷{k0})",
+                   title=f"{sess.name} — ENF trace "
+                         f"(mean {summary.get('mean_hz')} Hz, "
+                         f"coverage {summary.get('coverage')})")
+            ax.grid(alpha=0.25, lw=0.5)
+            fig.tight_layout()
+            fig.savefig(out / "enf.png")
+            plt.close(fig)
+        print(f"  nominal {args.nominal} Hz: mean {summary.get('mean_hz')} Hz, "
+              f"coverage {summary.get('coverage')}, "
+              f"rise {summary.get('median_rise_db')} dB, "
+              f"harmonic agreement {summary.get('harmonic_agreement_mhz')} mHz")
+        print(f"wrote {out/'enf.json'}"
+              + (f" and {out/'enf.png'}" if len(track['t']) else ""))
         return 0
 
     if args.cmd == "compare":

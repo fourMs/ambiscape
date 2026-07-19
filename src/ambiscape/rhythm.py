@@ -331,14 +331,21 @@ def _activity_masks(F: dict):
     power (top vs bottom quartile of per-minute medians)."""
     e = 10 * np.log10(F["oct_pow"][:, 5] + EPS)
     nmin = F["minspec"].shape[0]
-    med = np.array([np.median(e[m * 60:(m + 1) * 60]) for m in range(nmin)])
-    thr = float(med.mean())
+    med = np.array([np.median(e[m * 60:(m + 1) * 60])
+                    if len(e[m * 60:(m + 1) * 60]) else np.nan
+                    for m in range(nmin)])
+    valid = np.isfinite(med)
+    thr = float(np.nanmean(med)) if valid.any() else 0.0
     for _ in range(20):          # 2-means threshold on the per-minute medians
-        new = (med[med > thr].mean() + med[med <= thr].mean()) / 2
+        hi = med[valid & (med > thr)]
+        lo = med[valid & (med <= thr)]
+        if not len(hi) or not len(lo):  # unimodal: keep the last valid split
+            break
+        new = (hi.mean() + lo.mean()) / 2
         if abs(new - thr) < 1e-6:
             break
         thr = new
-    return med > thr, med <= thr, med
+    return valid & (med > thr), valid & (med <= thr), med
 
 
 def run_session(sess, out_dir, n_sources=2, t_stop=None, verbose=True):
@@ -353,12 +360,29 @@ def run_session(sess, out_dir, n_sources=2, t_stop=None, verbose=True):
     active, quiet, med = _activity_masks(F)
     if t_stop is None:
         sm = median_filter(10 * np.log10(F["oct_pow"][:, 5] + EPS), 31)
-        thr = (np.median(sm[np.repeat(active, 60)[:len(sm)]])
-               + np.median(sm[np.repeat(quiet, 60)[:len(sm)]])) / 2
-        t_stop = float(np.flatnonzero(sm > thr).max())
+        if active.any() and quiet.any():
+            thr = (np.median(sm[np.repeat(active, 60)[:len(sm)]])
+                   + np.median(sm[np.repeat(quiet, 60)[:len(sm)]])) / 2
+        else:                    # no active/quiet split: use the whole session
+            thr = float(np.median(sm))
+        idx = np.flatnonzero(sm > thr)
+        if not idx.size:
+            if verbose:
+                print("  no active periodic section detected")
+            summary = {"t_stop_s": None, "sources": []}
+            (Path(out_dir) / "rhythm.json").write_text(
+                json.dumps(summary, indent=1))
+            return summary
+        t_stop = float(idx.max())
     if verbose:
         print(f"  active section ends at {t_stop:.0f} s")
     pfreq, rise = detect_partials(F, active, quiet)
+    if not len(pfreq):
+        if verbose:
+            print("  no salient partials in the active section")
+        summary = {"t_stop_s": round(t_stop, 1), "sources": []}
+        (Path(out_dir) / "rhythm.json").write_text(json.dumps(summary, indent=1))
+        return summary
     if verbose:
         print(f"  {len(pfreq)} partials "
               f"({pfreq.min():.0f}-{pfreq.max():.0f} Hz)")
@@ -443,10 +467,13 @@ def _overview_figure(P, streams, grid, t_stop, out_path, title=""):
     odf = P["odf"]
     win, step = int(40 / dt), int(5 / dt)
     max_lag = int(min(4.5, 1.4 * Pc) / dt)
-    starts = np.arange(0, int(t_stop / dt) - win, step)
+    starts = np.arange(0, min(int(t_stop / dt), len(odf)) - win, step)
     TG = np.zeros((len(starts), max_lag))
     for i, s0 in enumerate(starts):
-        y = odf[s0:s0 + win] - odf[s0:s0 + win].mean()
+        y = odf[s0:s0 + win]
+        if len(y) < win:
+            continue
+        y = y - y.mean()
         a = np.correlate(y, y, "full")[win - 1:win - 1 + max_lag]
         TG[i] = a / (a[0] + EPS)
     ax[0].pcolormesh((starts + win // 2) * dt, np.arange(max_lag) * dt, TG.T,

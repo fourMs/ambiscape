@@ -66,6 +66,16 @@ def main(argv=None):
     rh.add_argument("--stop", type=float, default=None,
                     help="end of the active section in seconds into the "
                          "session (default: auto from band activity)")
+    rh.add_argument("--prior", default=None, metavar="JSON",
+                    help="informed-prior file: JSON with 'partials_hz' (list), "
+                         "optional 'groups' ({name:[hz,...]}), 'strike_k', "
+                         "'min_gap_floor'. Bypasses blind partial detection / "
+                         "clustering — for distant or low-SNR sources.")
+    rh.add_argument("--k", type=float, default=None,
+                    help="strike-picking threshold in MADs (overrides prior)")
+    rh.add_argument("--min-gap", type=float, default=None, dest="min_gap",
+                    help="floor for the minimum intra-cycle gap, s "
+                         "(overrides prior)")
     mo = sub.add_parser("modspec",
                         help="multi-scale envelope modulation profile "
                              "(needs a prior analyze run)")
@@ -83,6 +93,19 @@ def main(argv=None):
     mu.add_argument("-o", "--out", default=None)
     mu.add_argument("--t0", type=float, default=0.0)
     mu.add_argument("--dur", type=float, default=None)
+    ca = sub.add_parser("carillon",
+                        help="which bells a carillon/bell instrument played: "
+                             "strike-note inventory via bell-template salience "
+                             "(needs ambiscape[music])")
+    ca.add_argument("folder")
+    ca.add_argument("-o", "--out", default=None)
+    ca.add_argument("--t0", type=float, default=0.0,
+                    help="start of the concert in seconds into the take")
+    ca.add_argument("--dur", type=float, default=None)
+    ca.add_argument("--fmin", type=float, default=110.0,
+                    help="lowest candidate strike note, Hz (default 110 = A2)")
+    ca.add_argument("--octaves", type=float, default=5.0, dest="octaves",
+                    help="CQT range in octaves above fmin (default 5)")
     for name, help_ in (("spatial", "direct/diffuse split, pass-by events, "
                                     "azimuth organization timeline"),
                         ("schedule", "match event streams against civic "
@@ -518,8 +541,20 @@ def main(argv=None):
             print(f"no cached features in {out} — run 'ambiscape analyze' first")
             return 1
         print(f"rhythm analysis: {sess.name}")
+        kw = {}
+        if args.prior:
+            import json as _json
+            prior = _json.loads(Path(args.prior).read_text())
+            kw["partials"] = prior.get("partials_hz")
+            kw["groups"] = prior.get("groups")
+            kw["strike_k"] = prior.get("strike_k", 1.5)
+            kw["min_gap_floor"] = prior.get("min_gap_floor")
+        if args.k is not None:
+            kw["strike_k"] = args.k
+        if args.min_gap is not None:
+            kw["min_gap_floor"] = args.min_gap
         summary = run_session(sess, out, n_sources=args.sources,
-                              t_stop=args.stop)
+                              t_stop=args.stop, **kw)
         for src in summary["sources"]:
             print(f"  source {src['name']}: period {src['period_s']} s, "
                   f"{src['n_strikes']} strikes, az {src['azimuth_deg']} deg, "
@@ -538,6 +573,25 @@ def main(argv=None):
               f"(period {doc['tempo_period_s']} s); top pitch classes "
               f"{', '.join(doc['top_pitch_classes'])}")
         print(f"wrote {out/'music.png'} and {out/'music.json'}")
+        return 0
+
+    if args.cmd == "carillon":
+        from .io import open_session
+        from .carillon import run_session
+        sess = open_session(args.folder)
+        out = Path(args.out) if args.out else Path(args.folder) / "analysis"
+        out.mkdir(parents=True, exist_ok=True)
+        print(f"carillon MIR: {sess.name}")
+        doc = run_session(sess, out, t0=args.t0, dur=args.dur,
+                          fmin=args.fmin, n_octaves=args.octaves)
+        rng = doc.get("range")
+        print(f"  {doc['n_bells_detected']} bells detected"
+              + (f", {rng['low']}–{rng['high']} ({rng['semitones']} semitones)"
+                 if rng else "")
+              + f"; pitch centre {', '.join(doc['top_pitch_classes'])}")
+        print("  " + "  ".join(f"{b['note']}({b['freq_hz']:.0f})"
+                               for b in doc["bells"]))
+        print(f"wrote {out/'carillon.png'} and {out/'carillon.json'}")
         return 0
 
     if args.cmd in ("spatial", "schedule", "timbre"):

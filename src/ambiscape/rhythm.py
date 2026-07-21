@@ -353,9 +353,33 @@ def _activity_masks(F: dict):
     return valid & (med > thr), valid & (med <= thr), med
 
 
-def run_session(sess, out_dir, n_sources=2, t_stop=None, verbose=True):
+def _resolve_groups(groups, pfreq):
+    """Map a fixed A/B partial grouping onto ``pfreq`` column indices.
+
+    ``groups`` is either a dict ``{name: [freq, ...]}`` or a list of frequency
+    lists (named A, B, ... in order). Each frequency is snapped to its nearest
+    ``pfreq`` column. Returns a list of ``(name, [col, ...])``."""
+    items = (list(groups.items()) if isinstance(groups, dict)
+             else [(chr(ord("A") + i), g) for i, g in enumerate(groups)])
+    out = []
+    for name, flist in items:
+        cols = sorted({int(np.argmin(np.abs(pfreq - float(f)))) for f in flist})
+        out.append((name, cols))
+    return out
+
+
+def run_session(sess, out_dir, n_sources=2, t_stop=None, verbose=True,
+                partials=None, groups=None, strike_k=1.5, min_gap_floor=None):
     """Full rhythm pipeline for a single-take session; writes
-    ``rhythm_overview.png`` and ``rhythm.json``, returns the summary dict."""
+    ``rhythm_overview.png`` and ``rhythm.json``, returns the summary dict.
+
+    Informed-prior mode (for recordings where blind partial detection fails —
+    e.g. a distant source under loud foreground): pass ``partials`` (a fixed
+    list of partial frequencies in Hz) to bypass ``detect_partials``, and/or
+    ``groups`` (``{name: [freq, ...]}`` or a list of frequency lists) to bypass
+    the blind A/B clustering. ``strike_k`` sets the onset-picking threshold in
+    MADs; ``min_gap_floor`` floors the ACF-derived minimum intra-cycle gap (s),
+    both of which stabilise picking when the strike ODF is noisy."""
     import json
     from .features import load_features
     out_dir = Path(out_dir)
@@ -381,29 +405,44 @@ def run_session(sess, out_dir, n_sources=2, t_stop=None, verbose=True):
         t_stop = float(idx.max())
     if verbose:
         print(f"  active section ends at {t_stop:.0f} s")
-    pfreq, rise = detect_partials(F, active, quiet)
-    if not len(pfreq):
+    prior_used = partials is not None
+    if prior_used:
+        pfreq, rise = np.asarray(partials, dtype=float), None
         if verbose:
-            print("  no salient partials in the active section")
-        summary = {"t_stop_s": round(t_stop, 1), "sources": []}
-        (Path(out_dir) / "rhythm.json").write_text(json.dumps(summary, indent=1))
-        return summary
-    if verbose:
-        print(f"  {len(pfreq)} partials "
-              f"({pfreq.min():.0f}-{pfreq.max():.0f} Hz)")
+            print(f"  informed prior: {len(pfreq)} partials "
+                  f"({pfreq.min():.0f}-{pfreq.max():.0f} Hz)")
+    else:
+        pfreq, rise = detect_partials(F, active, quiet)
+        if not len(pfreq):
+            if verbose:
+                print("  no salient partials in the active section")
+            summary = {"t_stop_s": round(t_stop, 1), "sources": []}
+            (Path(out_dir) / "rhythm.json").write_text(
+                json.dumps(summary, indent=1))
+            return summary
+        if verbose:
+            print(f"  {len(pfreq)} partials "
+                  f"({pfreq.min():.0f}-{pfreq.max():.0f} Hz)")
     P = partial_pass(take, pfreq)
     t = P["t"]
-    groups = cluster_partials(P["env"], mask=t < t_stop)[:n_sources]
+    if groups is not None:
+        named_groups = _resolve_groups(groups, pfreq)
+    else:
+        named_groups = [(chr(ord("A") + gi), cols) for gi, cols in
+                        enumerate(cluster_partials(P["env"],
+                                                   mask=t < t_stop)[:n_sources])]
     summary = {"t_stop_s": round(t_stop, 1), "sources": []}
     streams = {}
-    for gi, cols in enumerate(groups):
-        name = chr(ord("A") + gi)
+    for name, cols in named_groups:
         odf = source_odf(P["env"], cols)
         dt = float(np.median(np.diff(t)))
         cycle, min_gap = acf_structure(odf, dt, t_mask=t < t_stop)
         if cycle is None:
             continue
-        s0 = pick_strikes(odf, t, min_sep=0.8 * min_gap, t_max=t_stop)
+        if min_gap_floor is not None:
+            min_gap = max(min_gap, float(min_gap_floor))
+        s0 = pick_strikes(odf, t, min_sep=0.8 * min_gap, k=strike_k,
+                          t_max=t_stop)
         if len(s0) < 20:
             continue
         Pbest = best_period(s0, lo=0.9 * cycle, hi=1.1 * cycle)
@@ -453,6 +492,17 @@ def run_session(sess, out_dir, n_sources=2, t_stop=None, verbose=True):
         summary["cycle_period_s"] = P0
         _overview_figure(P, streams, grid, t_stop,
                          out_dir / "rhythm_overview.png", title=sess.name)
+    if prior_used or groups is not None:
+        summary["_prior"] = {
+            "partials_hz": [round(float(x), 1) for x in pfreq],
+            "groups": {n: [round(float(pfreq[c]), 1) for c in cols]
+                       for n, cols in named_groups},
+            "strike_k": strike_k, "min_gap_floor": min_gap_floor}
+        summary["_method_note"] = (
+            "informed-prior run: partial list and A/B grouping supplied as a "
+            "fixed prior (blind detection unreliable at this distance/SNR); "
+            f"strike threshold k={strike_k} MADs, "
+            f"min intra-cycle gap floored at {min_gap_floor} s.")
     (out_dir / "rhythm.json").write_text(json.dumps(summary, indent=2))
     return summary
 

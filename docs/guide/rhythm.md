@@ -58,6 +58,34 @@ off-rate control. In the Haarlem case study both bells show cycle-rate FM
 physically swing, which makes their millisecond phase lock a genuine
 mechanical-synchronization observation.
 
+## Informed prior (distant / low-SNR sources)
+
+Blind partial detection needs the source to dominate the active-vs-quiet
+spectral rise. At two blocks' distance, under birds, bikes and traffic, it
+fails — foreground events swamp the rise. Supply a **fixed prior** instead:
+
+```bash
+ambiscape rhythm <folder> --prior damiaatjes_prior.json --k 3.5 --min-gap 0.42
+```
+
+where the JSON carries a known partial list and A/B grouping:
+
+```json
+{ "partials_hz": [475.1, 597.7, 920.2, 1130.9, 1359.4, 1910.2, 2302.7, 2882.8],
+  "groups": { "A": [475.1, 920.2, 1130.9], "B": [597.7, 1359.4, 2302.7] },
+  "strike_k": 3.5, "min_gap_floor": 0.42 }
+```
+
+This bypasses `detect_partials` (the list becomes the tracked partials) and the
+blind clustering (the grouping is fixed), while `strike_k` raises the
+onset-picking threshold and `min_gap_floor` guards the intra-cycle separation —
+both stabilise picking when the strike ODF is noisy. `rhythm.json` records the
+prior and a `_method_note`. The library call is
+`rhythm.run_session(sess, out, partials=[...], groups={...}, strike_k=3.5,
+min_gap_floor=0.42)`. The prior is reusable across sessions of the same source:
+the Damiaatjes prior derived from the close 2026-07-17 recording drives the
+distant 07-18 and 07-21 analyses unchanged.
+
 ## Caveats
 
 - Sources sharing most of their partials (unison bells) will merge into one

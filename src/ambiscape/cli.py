@@ -81,6 +81,16 @@ def main(argv=None):
                              "(needs a prior analyze run)")
     mo.add_argument("folder")
     mo.add_argument("-o", "--out", default=None)
+    for dom, desc in (
+            ("mechanical", "engines/machinery/traffic: low-freq fraction, "
+                           "rumble, envelope periodicity"),
+            ("anthropophony", "human speech/activity: voice band, syllabic "
+                              "modulation, activity"),
+            ("geophony", "wind/rain/water: diffuse low-band and flat "
+                         "high-band indices")):
+        dp = sub.add_parser(dom, help=desc + " (needs a prior analyze run)")
+        dp.add_argument("folder")
+        dp.add_argument("-o", "--out", default=None)
     to = sub.add_parser("tonality",
                         help="tonal tracks, harmonicity, pitch-class profile "
                              "(needs a prior analyze run)")
@@ -670,6 +680,25 @@ def main(argv=None):
                   f"{doc['inharmonicity_median']}, top pitch classes "
                   f"{', '.join(doc['top_pitch_classes'])}")
             print(f"wrote {out/'tonality.png'} and {out/'tonality.json'}")
+        return 0
+
+    if args.cmd in ("mechanical", "anthropophony", "geophony"):
+        from . import features as feats
+        from .io import open_session
+        sess = open_session(args.folder)
+        out = Path(args.out) if args.out else Path(args.folder) / "analysis"
+        if not (out / "features").exists():
+            print(f"no cached features in {out} — run 'ambiscape analyze' first")
+            return 1
+        F = feats.load_features(sorted((out / "features").glob("*.npz")))
+        from . import anthropophony, geophony, mechanical
+        mod = {"mechanical": mechanical, "anthropophony": anthropophony,
+               "geophony": geophony}[args.cmd]
+        summ = getattr(mod, f"summarize_{args.cmd}")(F)
+        (out / f"{args.cmd}.json").write_text(json.dumps(summ, indent=2))
+        for k, v in summ.items():
+            print(f"  {k}: {v}")
+        print(f"wrote {out}/{args.cmd}.json")
         return 0
 
     if args.cmd == "taxonomy":

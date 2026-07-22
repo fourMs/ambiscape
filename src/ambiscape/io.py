@@ -122,9 +122,10 @@ class Take:
 
     def mono_ref(self, data):
         """Mono reference column from an (n, ch) block for this take's mode:
-        the W channel (ambix), the L/R mean (stereo), or the lone channel
-        (mono). The single signal every level/spectral/MIR feature runs on."""
-        if self.mode == "stereo":
+        the W channel (ambix), the L/R mean (stereo/binaural), or the lone
+        channel (mono). The single signal every level/spectral/MIR feature
+        runs on."""
+        if self.mode in ("stereo", "binaural"):
             return 0.5 * (data[:, 0] + data[:, 1])
         if self.mode == "mono":
             return data[:, 0]
@@ -221,7 +222,25 @@ def _probe_recording(path: Path) -> dict:
             "time": time, "order": order}
 
 
-def _make_take(path: Path, day0: _dt.date, clock_offset: float = 0.0) -> Take:
+def resolve_mode(channels: int, override: str | None) -> str:
+    """Channel-count mode, unless a *compatible* explicit override is given.
+
+    ``binaural`` (2-channel ear signals from in-ear mics or a dummy head)
+    cannot be told from ``stereo`` by channel count, so it is only ever
+    selected explicitly -- via ``calibration.json`` ``"mode"`` or
+    ``open_recording(mode=...)``. An override that contradicts the channel
+    count (e.g. ``"binaural"`` on a 4-channel file) is ignored.
+    """
+    auto = channel_mode(channels)
+    if not override:
+        return auto
+    ok = {"mono": channels == 1, "stereo": channels == 2,
+          "binaural": channels == 2, "ambix": channels >= 4}
+    return override if ok.get(override, False) else auto
+
+
+def _make_take(path: Path, day0: _dt.date, clock_offset: float = 0.0,
+               mode_override: str | None = None) -> Take:
     """Build a Take from any supported recording, relative to ``day0``."""
     m = _probe_recording(path)
     info, date = m["info"], _dt.date.fromisoformat(m["date"])
@@ -233,7 +252,7 @@ def _make_take(path: Path, day0: _dt.date, clock_offset: float = 0.0) -> Take:
         duration=info.frames / info.samplerate, frames=info.frames,
         samplerate=info.samplerate, channels=info.channels,
         date=m["date"], clock=m["time"], order=m["order"],
-        mode=channel_mode(info.channels))
+        mode=resolve_mode(info.channels, mode_override))
 
 
 def open_session(folder: str | Path) -> Session:
@@ -253,22 +272,29 @@ def open_session(folder: str | Path) -> Session:
     if not paths:
         raise FileNotFoundError(f"no audio files in {folder}")
     clock_offset = 0.0
+    mode_override = None
     cal = folder / "calibration.json"
     if cal.exists():
         import json
-        clock_offset = float(json.loads(cal.read_text())
-                             .get("clock_offset_s", 0.0))
+        c = json.loads(cal.read_text())
+        clock_offset = float(c.get("clock_offset_s", 0.0))
+        mode_override = c.get("mode")            # e.g. "binaural" for ear signals
     sess = Session(folder=folder)
     metas = [(p, _probe_recording(p)) for p in paths]
     sess.day0 = min(_dt.date.fromisoformat(m["date"]) for _, m in metas)
     for p, _ in metas:
-        sess.takes.append(_make_take(p, sess.day0, clock_offset))
+        sess.takes.append(_make_take(p, sess.day0, clock_offset, mode_override))
     sess.takes.sort(key=lambda t: t.start)
     return sess
 
 
-def open_recording(path: str | Path) -> Session:
+def open_recording(path: str | Path, mode: str | None = None) -> Session:
     """Open a single recording as a one-take session ("scene").
+
+    ``mode`` forces the processing mode when the channel count is ambiguous --
+    chiefly ``"binaural"`` for a 2-channel ear-signal recording, which would
+    otherwise be read as ``stereo``. Ignored if it contradicts the channel
+    count.
 
     The folder-as-session model of :func:`open_session` assumes every file in
     a folder belongs to one recording occasion on a shared clock. A
@@ -284,7 +310,7 @@ def open_recording(path: str | Path) -> Session:
         raise FileNotFoundError(path)
     day0 = _dt.date.fromisoformat(_probe_recording(path)["date"])
     sess = Session(folder=path.parent, day0=day0)
-    sess.takes.append(_make_take(path, day0))
+    sess.takes.append(_make_take(path, day0, mode_override=mode))
     sess._name = path.stem
     return sess
 

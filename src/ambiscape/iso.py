@@ -63,18 +63,38 @@ def apply_calibration(summary: dict, cal: dict) -> dict:
     return out
 
 
-def binaural(x4: np.ndarray, fs: int) -> tuple[np.ndarray, str]:
-    """FOA (W,Y,Z,X columns) -> stereo ear signals.
+def binaural(x: np.ndarray, fs: int, order: str = "ambix",
+             mode: str = "ambix") -> tuple[np.ndarray, str]:
+    """Two-channel ear signals from a block, for the ISO psychoacoustic metrics.
 
-    Tries ambiviz's HRIR binauralizer; falls back to a ±90° cardioid pair
-    (no pinna cues). Returns (n, 2) array and the method name.
+    The treatment follows the take's ``mode`` so every input type is handled:
+
+    * ``mono`` (or a 1-column block) -> the lone channel is duplicated to both
+      ears.
+    * ``stereo`` / ``binaural`` (or < 4 columns) -> the first two channels are
+      already a left/right pair (binaural ear signals or a stereo mix) and
+      pass through unchanged.
+    * ``ambix`` first-order B-format -> the block is remapped to canonical
+      AmbiX (W, Y, Z, X) via ``order``, so a ``fuma`` (W, X, Y, Z) take is
+      decoded correctly, then binauralised with ambiviz's HRIR decoder,
+      falling back to a +-90 deg cardioid pair (``0.5 * (W +- Y)``, no pinna cues).
+
+    ``order`` is consulted only for ambix input. Returns an (n, 2) array and
+    the method name.
     """
+    if mode == "mono" or x.shape[1] == 1:
+        m = x[:, 0]
+        return np.stack([m, m], axis=1), "mono-duplicated"
+    if mode in ("stereo", "binaural") or x.shape[1] < 4:
+        return np.ascontiguousarray(x[:, :2]), "stereo-passthrough"
+    wyzx = (0, 2, 3, 1) if order == "fuma" else (0, 1, 2, 3)
+    xw = x[:, list(wyzx)]  # canonical AmbiX W, Y, Z, X
     try:
         from ambiviz.ambisonics.binauralizer import binauralize  # type: ignore
-        y = binauralize(x4.T, fs)  # ambiviz convention: channels first
+        y = binauralize(xw.T, fs)  # ambiviz convention: channels first, AmbiX
         return np.asarray(y).T[:, :2], "ambiviz-hrir"
     except Exception:
-        w, ych = x4[:, 0], x4[:, 1]
+        w, ych = xw[:, 0], xw[:, 1]
         left = 0.5 * (w + ych)
         right = 0.5 * (w - ych)
         return np.stack([left, right], axis=1), "cardioid-pair-fallback"
@@ -130,7 +150,12 @@ def segment_indicators(sess, F: dict, folder: str | Path,
             x, fs = read_span(sess, pick["t0"], dur)
         except ValueError:
             continue
-        ears, method = binaural(x, fs)
+        tk = next((t for t in sess.takes
+                   if t.start <= pick["t0"] < t.end), None)
+        ears, method = binaural(
+            x, fs,
+            order=(tk.order if tk else "ambix"),
+            mode=(tk.mode if tk else "ambix"))
         seg = {"t0": sess.clock(pick["t0"]), "dur_s": dur,
                "binaural_method": method}
         for ch, name in ((0, "left"), (1, "right")):

@@ -14,6 +14,8 @@ Writes `carillon.json` (detected bells with note names, frequencies and cents,
 range, pitch-class profile, strike count) and `carillon.png` (the bell-salience
 inventory with note labels, over a pitch-class profile).
 
+![Bell-salience inventory: template-matched strike notes with their note labels, above the folded 12-bin pitch-class profile of the recital.](../img/carillon.png)
+
 ## Why naive pitch tracking fails
 
 A struck bell is *inharmonic*. Its principal partials sit at fixed ratios to the

@@ -88,7 +88,7 @@ def main(argv=None):
     to.add_argument("-o", "--out", default=None)
     mu = sub.add_parser("music",
                         help="librosa tempogram + chromagram "
-                             "(needs ambiscape[music] and a prior analyze)")
+                             "(needs ambiscape[music]; reads audio directly)")
     mu.add_argument("folder")
     mu.add_argument("-o", "--out", default=None)
     mu.add_argument("--t0", type=float, default=0.0)
@@ -106,6 +106,16 @@ def main(argv=None):
                     help="lowest candidate strike note, Hz (default 110 = A2)")
     ca.add_argument("--octaves", type=float, default=5.0, dest="octaves",
                     help="CQT range in octaves above fmin (default 5)")
+    vi = sub.add_parser("vision",
+                        help="per-frame visual features of a video (or image "
+                             "folder): brightness, colour, light direction, "
+                             "motion — the multimodal companion to the audio")
+    vi.add_argument("source", help="a video file or a folder of image frames")
+    vi.add_argument("-o", "--out", default=None)
+    vi.add_argument("--fps", type=float, default=1.0,
+                    help="frames per second to sample (default 1)")
+    vi.add_argument("--merge", default=None,
+                    help="an audio summary.json to fold the vis_ keys into")
     for name, help_ in (("spatial", "direct/diffuse split, pass-by events, "
                                     "azimuth organization timeline"),
                         ("schedule", "match event streams against civic "
@@ -594,6 +604,21 @@ def main(argv=None):
         print(f"wrote {out/'carillon.png'} and {out/'carillon.json'}")
         return 0
 
+    if args.cmd == "vision":
+        from . import vision
+        src = Path(args.source)
+        out = Path(args.out) if args.out else (
+            (src if src.is_dir() else src.parent) / "analysis")
+        summary = vision.run_video(args.source, out, fps=args.fps,
+                                   merge=args.merge)
+        print(f"  {summary.get('n_frames', 0)} frames; "
+              f"brightness {summary.get('vis_brightness_median')}, "
+              f"motion {summary.get('vis_motion_mean')}")
+        if args.merge:
+            print(f"  merged vis_ keys into {args.merge}")
+        print(f"wrote {out/'vision.json'} and {out/'vision.png'}")
+        return 0
+
     if args.cmd in ("spatial", "schedule", "timbre"):
         from .io import open_session
         sess = open_session(args.folder)
@@ -665,22 +690,15 @@ def main(argv=None):
                   f"{tk.duration/60:.1f} min, {tk.channels}ch @{tk.samplerate}")
         return 0
 
-    from . import analysis, features, figures, report
+    from . import features, figures, report
     out = Path(args.out) if args.out else sess.folder / "analysis"
     out.mkdir(parents=True, exist_ok=True)
     print(f"analyzing {sess.name} ({sess.duration/60:.1f} min)")
     paths = features.extract_session(sess, out / "features")
     F = features.load_features(paths)
-    summary = analysis.summarize(F)
-    summary["date"] = sess.takes[0].date        # for longitudinal analysis
-    from .background import summarize_foreground
-    summary.update(summarize_foreground(F))
-    from .ecology import summarize_ecology
-    summary.update(summarize_ecology(F))
-    from .spatial import summarize_spatial
-    summary.update(summarize_spatial(F))
-    from .biophony import summarize_biophony
-    summary.update(summarize_biophony(F))
+    from .resolve import full_summary
+    summary = full_summary(F)                    # same descriptor set as scenes/capture
+    summary["date"] = sess.takes[0].date         # for longitudinal analysis
     from .iso import load_calibration, apply_calibration
     cal = load_calibration(sess.folder)
     if cal and "dbfs_to_dbspl" in cal:

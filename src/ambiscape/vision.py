@@ -127,3 +127,115 @@ def summarize_vision(features, motion=None) -> dict:
         out["vis_motion_mean"] = round(float(m.mean()), 5)
         out["vis_motion_p90"] = round(float(np.percentile(m, 90)), 5)
     return out
+
+
+# ----------------------------------------------------------- multimodal wiring
+
+def analyze_frames(frames, times=None) -> dict:
+    """Per-frame features + motion + ``vis_`` summary for an iterable of frames.
+
+    ``frames`` yields (H, W, 3) uint8/float RGB arrays; ``times`` (optional)
+    gives each frame's timestamp in seconds on the session clock. Returns
+    ``{"frames": [...], "summary": {...}}`` -- each per-frame row carries ``t``
+    so the visual stream lines up with the audio feature timeline.
+    """
+    rows, motion, prev = [], [], None
+    for i, fr in enumerate(frames):
+        t = float(times[i]) if times is not None else float(i)
+        row = {"t": round(t, 3), **frame_features(fr)}
+        if prev is not None:
+            row["motion"] = frame_delta(prev, fr)
+            motion.append(row["motion"])
+        rows.append(row)
+        prev = fr
+    return {"frames": rows, "summary": summarize_vision(rows, motion or None)}
+
+
+def frame_series(source, fps: float = 1.0):
+    """Yield ``(t_seconds, rgb)`` from a video file or a folder of images.
+
+    A directory is read as its sorted image files (needs Pillow); any other
+    path is decoded with ffmpeg at ``fps`` frames/second (raw RGB piped in
+    memory -- no imagery written to disk), matching the module's
+    features-not-recordings stance.
+    """
+    import subprocess
+    from pathlib import Path
+    p = Path(source)
+    if p.is_dir():
+        from PIL import Image
+        exts = {".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff"}
+        files = sorted(q for q in p.iterdir() if q.suffix.lower() in exts)
+        for i, q in enumerate(files):
+            with Image.open(q) as im:
+                yield i / fps, np.asarray(im.convert("RGB"))
+        return
+    import json as _json
+    probe = subprocess.run(
+        ["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
+         "stream=width,height", "-of", "json", str(p)],
+        capture_output=True, text=True)
+    st = _json.loads(probe.stdout)["streams"][0]
+    w, h = int(st["width"]), int(st["height"])
+    proc = subprocess.Popen(
+        ["ffmpeg", "-v", "error", "-i", str(p), "-vf", f"fps={fps}",
+         "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], stdout=subprocess.PIPE)
+    fsz, i = w * h * 3, 0
+    try:
+        while True:
+            buf = proc.stdout.read(fsz)
+            if len(buf) < fsz:
+                break
+            yield i / fps, np.frombuffer(buf, np.uint8).reshape(h, w, 3)
+            i += 1
+    finally:
+        proc.stdout.close()
+        proc.wait()
+
+
+def render(result: dict, out_path, title: str = ""):
+    """Brightness / colourfulness / motion over time -> a PNG."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    rows = result["frames"]
+    t = [r["t"] for r in rows]
+    fig, ax = plt.subplots(3, 1, figsize=(9, 6), sharex=True)
+    ax[0].plot(t, [r["brightness"] for r in rows], color="0.25")
+    ax[0].set_ylabel("brightness")
+    ax[1].plot(t, [r["colourfulness"] for r in rows], color="tab:orange")
+    ax[1].set_ylabel("colourfulness")
+    mt = [(r["t"], r["motion"]) for r in rows if "motion" in r]
+    if mt:
+        ax[2].plot([a for a, _ in mt], [b for _, b in mt], color="tab:red")
+    ax[2].set_ylabel("motion")
+    ax[2].set_xlabel("time (s)")
+    fig.suptitle(f"visual features — {title}")
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=110)
+    plt.close(fig)
+    return out_path
+
+
+def run_video(source, out_dir, fps: float = 1.0, merge=None) -> dict:
+    """CLI driver: a video's visual features -> ``vision.json`` + ``vision.png``.
+
+    If ``merge`` points at an existing ``summary.json`` (the audio analysis of
+    the same room and occasion), the ``vis_`` keys are folded into it, so one
+    row describes the audio-visual scene -- the multimodal join.
+    """
+    import json
+    from pathlib import Path
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    series = list(frame_series(source, fps))
+    result = analyze_frames((f for _, f in series), [t for t, _ in series])
+    (out_dir / "vision.json").write_text(json.dumps(result, indent=2))
+    render(result, out_dir / "vision.png", title=Path(source).name)
+    if merge:
+        mp = Path(merge)
+        if mp.exists():
+            s = json.loads(mp.read_text())
+            s.update(result["summary"])
+            mp.write_text(json.dumps(s, indent=2))
+    return result["summary"]

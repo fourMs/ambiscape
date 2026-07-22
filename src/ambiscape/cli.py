@@ -106,6 +106,16 @@ def main(argv=None):
                     help="lowest candidate strike note, Hz (default 110 = A2)")
     ca.add_argument("--octaves", type=float, default=5.0, dest="octaves",
                     help="CQT range in octaves above fmin (default 5)")
+    vi = sub.add_parser("vision",
+                        help="per-frame visual features of a video (or image "
+                             "folder): brightness, colour, light direction, "
+                             "motion — the multimodal companion to the audio")
+    vi.add_argument("source", help="a video file or a folder of image frames")
+    vi.add_argument("-o", "--out", default=None)
+    vi.add_argument("--fps", type=float, default=1.0,
+                    help="frames per second to sample (default 1)")
+    vi.add_argument("--merge", default=None,
+                    help="an audio summary.json to fold the vis_ keys into")
     for name, help_ in (("spatial", "direct/diffuse split, pass-by events, "
                                     "azimuth organization timeline"),
                         ("schedule", "match event streams against civic "
@@ -592,6 +602,21 @@ def main(argv=None):
         print("  " + "  ".join(f"{b['note']}({b['freq_hz']:.0f})"
                                for b in doc["bells"]))
         print(f"wrote {out/'carillon.png'} and {out/'carillon.json'}")
+        return 0
+
+    if args.cmd == "vision":
+        from . import vision
+        src = Path(args.source)
+        out = Path(args.out) if args.out else (
+            (src if src.is_dir() else src.parent) / "analysis")
+        summary = vision.run_video(args.source, out, fps=args.fps,
+                                   merge=args.merge)
+        print(f"  {summary.get('n_frames', 0)} frames; "
+              f"brightness {summary.get('vis_brightness_median')}, "
+              f"motion {summary.get('vis_motion_mean')}")
+        if args.merge:
+            print(f"  merged vis_ keys into {args.merge}")
+        print(f"wrote {out/'vision.json'} and {out/'vision.png'}")
         return 0
 
     if args.cmd in ("spatial", "schedule", "timbre"):

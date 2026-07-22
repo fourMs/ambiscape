@@ -49,6 +49,9 @@ nav:
   - Ecology & sources:
       - Ratings & global indices: guide/indices.md
       - Biophony (nature & animals): guide/biophony.md
+      - Mechanical & transport: guide/mechanical.md
+      - Anthropophony (human): guide/anthropophony.md
+      - Geophony (wind, rain, water): guide/geophony.md
       - Mains hum & ENF: guide/enf.md
       - Machine listening: guide/ml.md
   - Interpretation & multimodal:

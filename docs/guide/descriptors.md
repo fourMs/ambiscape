@@ -1,5 +1,7 @@
 # Features and descriptors
 
+![The `analyze` session overview: fast level with running background and L10/L50/L90 lines, log-frequency spectrogram, azimuth-vs-time anglegram, and diffuseness ψ, gap-split into per-take panels.](../img/overview.png)
+
 ## Streaming feature extraction
 
 Files are read in 60-second blocks; nothing is ever held whole in memory.
@@ -46,6 +48,8 @@ rows stay comparable across studies:
     "leans" one way). Low ψ + high R = a point-source room (one running
     machine). Low R with any ψ = scattered sources. The two numbers do
     work neither does alone.
+
+![Percentile long-term spectra: the 10th (background), 50th (median), and 90th (foreground) percentile levels per log-frequency band, the shaded band showing the scene's spectral dynamics.](../img/ltas_percentiles.png)
 
 ## Spectral foreground (per-band background)
 

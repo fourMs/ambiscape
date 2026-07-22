@@ -28,25 +28,37 @@ nav:
   - Home: index.md
   - Install: install.md
   - Quickstart: quickstart.md
-  - Guide:
+  - Core:
       - Sessions & conventions: guide/sessions.md
       - Features & descriptors: guide/descriptors.md
+      - Mono, stereo & binaural inputs: guide/stereo-mono.md
       - Machine states & fingerprints: guide/states.md
-      - Mains hum & ENF: guide/enf.md
+      - State-resolved descriptors: guide/resolve.md
+  - Space & acoustics:
+      - Spatial analysis: guide/spatial.md
+      - Room acoustics & ISO: guide/acoustics.md
+  - Time & rhythm:
+      - Strike-level rhythm: guide/rhythm.md
+      - Modulation profile: guide/modulation.md
+      - Civic-grid schedule matching: guide/schedule.md
+  - Pitch, timbre & music:
+      - Tonality: guide/tonality.md
+      - Event timbre: guide/timbre.md
+      - Music (tempo & chroma): guide/music.md
+      - Carillon bell inventory: guide/carillon.md
+  - Ecology & sources:
       - Ratings & global indices: guide/indices.md
       - Biophony (nature & animals): guide/biophony.md
-      - State-resolved descriptors: guide/resolve.md
+      - Mains hum & ENF: guide/enf.md
+      - Machine listening: guide/ml.md
+  - Interpretation & multimodal:
+      - Taxonomy (Schaeffer & Schafer): guide/taxonomy.md
+      - Visual features (multimodal): guide/vision.md
+  - Corpus & workflow:
       - Corpus catalog: guide/catalog.md
       - Cross-session comparison: guide/compare.md
-      - Stereo & mono inputs: guide/stereo-mono.md
       - Longitudinal analysis: guide/longitudinal.md
       - Always-on capture: guide/capture.md
-      - Visual features: guide/vision.md
-      - Room acoustics & ISO: guide/acoustics.md
-      - Strike-level rhythm: guide/rhythm.md
-      - Carillon bell inventory: guide/carillon.md
-      - Taxonomy workflow: guide/taxonomy.md
-      - Machine listening: guide/ml.md
       - Deposit export: guide/deposit.md
   - API reference: api.md
 

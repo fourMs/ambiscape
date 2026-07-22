@@ -4,7 +4,7 @@
 [![Documentation](https://img.shields.io/badge/docs-fourms.github.io%2Fambiscape-blue)](https://fourms.github.io/ambiscape/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Analysis toolkit for long-duration (hours) first-order ambisonic soundscape recordings (Zoom H3-VR and other AmbiX/SN3D B-format sources), processed in a stream with constant memory. Stereo and mono recordings — including a phone's `.m4a` — are analysed too, with a lateral left/right cue recovered from stereo (see [Stereo & mono inputs](https://fourms.github.io/ambiscape/guide/stereo-mono/)).
+Analysis toolkit for long-duration (hours) first-order ambisonic soundscape recordings (Zoom H3-VR and other AmbiX/SN3D B-format sources), processed in a stream with constant memory. Stereo, binaural, and mono recordings — including a phone's `.m4a` — are analysed too: a lateral left/right cue is recovered from stereo, and 2-channel binaural ear signals are handled directly (see [Mono, stereo & binaural inputs](https://fourms.github.io/ambiscape/guide/stereo-mono/)).
 
 ## Install
 
@@ -30,6 +30,7 @@ ambiscape schedule   <session-folder>   # match events against civic time grids
 ambiscape timbre     <session-folder>   # event timbre templates (no-ML clustering)
 ambiscape music      <session-folder>   # librosa tempogram + chromagram [music]
 ambiscape carillon   <session-folder>   # which bells a carillon played: strike-note inventory [music]
+ambiscape vision     <video-or-folder>  # per-frame visual features (multimodal companion)
 ambiscape iso        <session-folder>   # ISO 12913-3 indicators
 ambiscape speechgate <wav-or-folder>    # privacy check before publishing
 ambiscape deposit    <session-folder>   # non-identifying 1 Hz TSV export

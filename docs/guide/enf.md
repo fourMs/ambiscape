@@ -22,6 +22,8 @@ enf.enf_summary(tr)
 #  'coverage': 1.0, 'harmonic_agreement_mhz': 0.9, ...}
 ```
 
+![The tracked electric network frequency across a session: the grid's frequency wander in millihertz, recovered independently from the 50 Hz and 100 Hz hum lines.](../img/enf.png)
+
 `hum_peak` measures one window (zero-padded FFT + parabolic interpolation
 → millihertz precision on a 60 s window); `enf_track` walks a whole
 session, skipping the sliver reads that recorders' overlapping 2 GB splits

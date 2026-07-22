@@ -53,6 +53,8 @@ collapses all azimuth estimates onto a 0°/180° axis.
   axis, or calibration claps from known positions — see the
   [wiki protocol](https://github.com/fourMs/ambiscape/wiki)).
 
+![Directogram: energy-weighted polar azimuth histograms for the loudest 25 % (foreground) versus quietest 25 % (background) of seconds, on the front/left/rear/right convention above.](../img/directogram.png)
+
 ## Levels
 
 Levels are dBFS (uncalibrated) unless a `calibration.json` provides a

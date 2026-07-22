@@ -48,7 +48,12 @@ Intercontinental database's Haarlem and Berlin session folders.
 - **Schaeffer map** — every object on the facture × mass plane, colored by
   its Schafer function; a corpus's structure in one glance (keynotes crowd
   the sustained/unlimited columns, signals the impulse/iteration columns).
+
+![Schaeffer map: annotated objects placed on the facture × mass plane, colored by Schafer soundscape function.](../img/schaeffer_map.png)
+
 - **Schafer timeline** — one lane per object on the real session clock:
   keynote bars, signal/soundmark event markers, lo-fi states shaded,
   gap-aware panels for multi-take sessions. Makes claims like *"the
   community soundmark is audible only in hi-fi windows"* visible directly.
+
+![Schafer timeline: one lane per object on the session clock — keynote bars, signal/soundmark event markers, and shaded lo-fi states.](../img/schafer_timeline.png)

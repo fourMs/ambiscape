@@ -90,6 +90,26 @@ def azimuth_organization(F: dict, win_s=60.0, step_s=20.0):
     return np.array(ts), np.array(Rs)
 
 
+def _az_span(F: dict) -> tuple[float, float]:
+    """Azimuth-histogram range for this input mode.
+
+    Ambix resolves the full circle; the stereo/binaural *lateral* cue only
+    ever spans the front half-plane, so histogramming it over +-180 deg would
+    leave half the bins empty and bias every directional-spread measure low.
+    """
+    mode = str(F.get("mode", "")).lower()
+    if mode in ("stereo", "binaural"):
+        return (-90.0, 90.0)
+    if mode in ("ambix", "mono"):
+        return (-180.0, 180.0)
+    # pre-0.13 caches carry no mode: infer from the observed azimuth range
+    az = np.asarray(F.get("az"), float)
+    az = az[np.isfinite(az)]
+    if az.size and float(np.nanmax(np.abs(az))) <= 90.5:
+        return (-90.0, 90.0)
+    return (-180.0, 180.0)
+
+
 def directional_entropy(F: dict, nbins: int = 36) -> float:
     """Normalized Shannon entropy of the energy-weighted azimuth histogram.
 
@@ -99,7 +119,7 @@ def directional_entropy(F: dict, nbins: int = 36) -> float:
     ambisonic corpus can report.
     """
     p = np.asarray(F["rms_w"], np.float64) ** 2
-    h, _ = np.histogram(F["az"], bins=nbins, range=(-180, 180), weights=p)
+    h, _ = np.histogram(F["az"], bins=nbins, range=_az_span(F), weights=p)
     q = h / (h.sum() + EPS)
     return float(-(q * np.log(q + EPS)).sum() / np.log(nbins))
 
@@ -133,7 +153,7 @@ def fg_bg_az_overlap(F: dict, nbins: int = 36) -> float:
     bg = p <= np.percentile(p, 25)
     hists = []
     for m in (fg, bg):
-        h, _ = np.histogram(F["az"][m], bins=nbins, range=(-180, 180),
+        h, _ = np.histogram(F["az"][m], bins=nbins, range=_az_span(F),
                             weights=p[m])
         hists.append(h / (h.sum() + EPS))
     return float(np.sqrt(hists[0] * hists[1]).sum())

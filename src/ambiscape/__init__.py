@@ -14,7 +14,7 @@ from .analysis import (summarize, detect_events, decay_time, decay_metrics,
 from . import (biophony, capture, catalog, compare, ecology, enf, figures,
                longitudinal, resolve, states, taxonomy, vision, iso)
 
-__version__ = "0.13.0"
+__version__ = "0.14.0"
 __all__ = [
     "open_session", "open_recording", "read_bext", "read_span",
     "export_segment", "stereo_preview",
@@ -22,5 +22,5 @@ __all__ = [
     "summarize", "detect_events", "decay_time", "decay_metrics",
     "intermittency_ratio", "pick_segments",
     "biophony", "capture", "catalog", "compare", "ecology", "enf", "figures",
-    "longitudinal", "resolve", "states", "taxonomy", "vision",
+    "longitudinal", "resolve", "states", "taxonomy", "vision", "iso",
 ]

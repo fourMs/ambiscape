@@ -129,18 +129,16 @@ COLLECT = {
 ANNOTATIONS = {
     "session": "docs-demo",
     "objects": [
-        {"label": "bell A", "facture": "impulse", "mass": "tonic",
-         "kind": "soundmark", "source": "anthropophony",
-         "t_start": 0, "t_end": 90},
-        {"label": "bell B", "facture": "impulse", "mass": "tonic-complex",
-         "kind": "signal", "source": "anthropophony",
-         "t_start": 0, "t_end": 90},
-        {"label": "mains hum", "facture": "sustained", "mass": "tonic",
-         "kind": "keynote", "source": "anthropophony", "t_start": 0, "t_end": 120},
-        {"label": "voices", "facture": "iteration", "mass": "complex",
-         "kind": "figure", "source": "anthropophony", "t_start": 10, "t_end": 80},
-        {"label": "diffuse floor", "facture": "unlimited", "mass": "noise",
-         "kind": "keynote", "source": "geophony", "t_start": 0, "t_end": 120},
+        {"name": "bell A", "facture": "impulse", "mass": "tonic",
+         "kind": "soundmark", "source": "anthropophony", "spans": [[0, 90]]},
+        {"name": "bell B", "facture": "impulse", "mass": "tonic-complex",
+         "kind": "signal", "source": "anthropophony", "spans": [[0, 90]]},
+        {"name": "mains hum", "facture": "sustained", "mass": "tonic",
+         "kind": "keynote", "source": "anthropophony", "spans": [[0, 120]]},
+        {"name": "voices", "facture": "iteration", "mass": "complex",
+         "kind": "figure", "source": "anthropophony", "spans": [[10, 80]]},
+        {"name": "diffuse floor", "facture": "unlimited", "mass": "noise",
+         "kind": "keynote", "source": "geophony", "spans": [[0, 120]]},
     ],
 }
 
@@ -153,7 +151,7 @@ def main():
     print("synthesised", sess)
 
     run("analyze", str(sess))
-    for cmd in ("spatial", "modspec", "tonality", "timbre", "rhythm",
+    for cmd in ("spatial", "modspec", "tonality", "timbre",
                 "music", "carillon", "enf"):
         run(cmd, str(sess))
 
@@ -161,9 +159,24 @@ def main():
     (sess / "annotations.json").write_text(json.dumps(ANNOTATIONS, indent=2))
     run("taxonomy", str(sess))
 
-    # gather every produced PNG (analysis dir + session dir), copy the wanted
-    produced = {p.name: p for p in list(analysis.rglob("*.png"))
-                + list(sess.rglob("*.png"))}
+    # rhythm needs clean sustained partials (like the test fixture), which the
+    # busy scene above masks -- so render it from a bells-only sub-session.
+    rsess = tmp / "bells"
+    rsess.mkdir(parents=True, exist_ok=True)
+    rdur, ractive = 300.0, 240.0          # rhythm needs many cycles to lock on
+    nb = int(rdur * FS)
+    bells = (bell(rdur, ractive, 480.0, (2.4, 4.0, 6.0), (0.0, 0.35), 30.0, seed=1)
+             + bell(rdur, ractive, 600.0, (2.4, 4.0, 6.0), (0.5,), 60.0, seed=2)
+             + 0.01 * np.random.default_rng(0).standard_normal((nb, 4)))
+    write_bwf(rsess / "bells.wav", bells)
+    run("analyze", str(rsess))
+    run("rhythm", str(rsess))
+
+    # gather produced PNGs: everything from the rich scene, rhythm from bells
+    produced = {p.name: p for p in sess.rglob("*.png")}
+    for p in rsess.rglob("*.png"):
+        if p.name == "rhythm_overview.png":
+            produced[p.name] = p
     got, missing = [], []
     for src_name, dst_name in COLLECT.items():
         if src_name in produced:

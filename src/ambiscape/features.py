@@ -95,7 +95,7 @@ def extract_take(take: Take, verbose: bool = False) -> dict:
     mode = getattr(take, "mode", "ambix")
     if mode != "ambix":                 # direction is partial (stereo) or absent
         F["el"][:] = np.nan
-        if mode == "mono":
+        if mode in ("mono", "binaural"):  # no valid DOA (binaural L/R = HRTF)
             F["az"][:] = np.nan
             F["diffuse"][:] = np.nan
             F["I_band"][:] = np.nan
@@ -121,7 +121,7 @@ def extract_take(take: Take, verbose: bool = False) -> dict:
             # mono reference: W (ambix), L/R mean (stereo), the channel (mono)
             if mode == "ambix":
                 ref = data[:, take.wyzx[0]]
-            elif mode == "stereo":
+            elif mode in ("stereo", "binaural"):
                 ref = 0.5 * (data[:, 0] + data[:, 1])
             else:
                 ref = data[:, 0]

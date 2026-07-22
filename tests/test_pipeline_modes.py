@@ -73,3 +73,32 @@ def test_ambix_pipeline_full_direction(tmp_path, n):
     assert np.isfinite(s["leq_dbfs"])
     assert s["directional_entropy"] is not None
     assert s["above_horizon_fraction"] is not None    # elevation resolved
+
+
+def test_binaural_mode_via_calibration(tmp_path, n):
+    import json
+    _write(tmp_path / "ears.wav", _noise(n, 2, 5))
+    (tmp_path / "calibration.json").write_text(json.dumps({"mode": "binaural"}))
+    sess = asc.open_session(tmp_path)
+    assert sess.takes[0].mode == "binaural"           # not auto-detected 'stereo'
+    paths = features.extract_session(
+        sess, tmp_path / "analysis" / "features", verbose=False)
+    F = features.load_features(paths)
+    assert str(F["mode"]) == "binaural"
+    s = full_summary(F)
+    assert np.isfinite(s["leq_dbfs"])                 # levels from the L/R mean
+    assert s["directional_entropy"] is None           # HRTF ears -> no DOA
+    assert s["above_horizon_fraction"] is None
+
+
+def test_open_recording_binaural_override(tmp_path, n):
+    p = _write(tmp_path / "260721_090000_ears.wav", _noise(n, 2, 6))
+    assert asc.open_recording(p, mode="binaural").takes[0].mode == "binaural"
+
+
+def test_resolve_mode_rejects_incompatible_override():
+    from ambiscape.io import resolve_mode
+    assert resolve_mode(2, "binaural") == "binaural"
+    assert resolve_mode(2, "stereo") == "stereo"
+    assert resolve_mode(4, "binaural") == "ambix"     # incompatible -> ignored
+    assert resolve_mode(1, None) == "mono"

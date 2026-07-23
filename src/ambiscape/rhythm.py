@@ -545,8 +545,13 @@ def _overview_figure(P, streams, grid, t_stop, out_path, title=""):
         ax[2].plot(grid["t0"] + np.arange(grid["ncyc"]) * Pc, res * 1e3, ".",
                    ms=2.5, color=c, alpha=0.6, label=n)
         ioi = np.diff(tk)
-        ax[3].hist(ioi[ioi < 2 * Pc], bins=120, histtype="step", color=c,
-                   label=n)
+        iois = ioi[ioi < 2 * Pc]
+        if iois.size >= 2:
+            try:                                 # 'auto' + guard: a degenerate
+                ax[3].hist(iois, bins="auto",    # range must never crash a figure
+                           histtype="step", color=c, label=n)
+            except ValueError:
+                pass
     ax[1].set(ylabel=f"phase @ {Pc:.3f}s", xlabel="time (s)", ylim=(0, 1))
     ax[2].set(ylabel="residual (ms)", xlabel="time (s)")
     ax[3].set(xlabel="inter-onset interval (s)", ylabel="count")

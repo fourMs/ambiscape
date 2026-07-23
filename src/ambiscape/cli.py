@@ -35,6 +35,9 @@ def main(argv=None):
                         help="pre-fill annotations.draft.json from detected "
                              "states and events (needs a prior analyze run)")
     dr.add_argument("folder")
+    dr.add_argument("-o", "--out", default=None,
+                    help="analysis dir with cached features "
+                         "(default <folder>/analysis)")
     dp = sub.add_parser("deposit",
                         help="export non-identifying 1 Hz feature TSVs "
                              "(StillStanding365 schema) to <folder>/deposit/")
@@ -235,6 +238,8 @@ def main(argv=None):
                            help="ISO 12913-3 psychoacoustic indicators "
                                 "(MoSQITo) on representative segments")
     iso_p.add_argument("folder")
+    iso_p.add_argument("-o", "--out", default=None,
+                       help="analysis dir (default <folder>/analysis)")
     iso_p.add_argument("--dur", type=float, default=30.0,
                        help="seconds per segment (default 30)")
     iso_p.add_argument("--offset", type=float, default=None,
@@ -507,7 +512,8 @@ def main(argv=None):
         from .io import open_session
         from . import iso as iso_mod
         sess = open_session(args.folder)
-        fdir = Path(args.folder) / "analysis" / "features"
+        base = Path(args.out) if args.out else Path(args.folder) / "analysis"
+        fdir = base / "features"
         paths = sorted(fdir.glob("*.npz"))
         if not paths:
             print(f"no cached features in {fdir} — run 'ambiscape analyze' first")
@@ -515,7 +521,7 @@ def main(argv=None):
         F = load_features(paths)
         res = iso_mod.segment_indicators(sess, F, args.folder,
                                          dur=args.dur, offset=args.offset)
-        out = Path(args.folder) / "analysis" / "iso_indicators.json"
+        out = base / "iso_indicators.json"
         out.write_text(json.dumps(res, indent=2))
         if not res["calibrated"]:
             print("WARNING:", res["warning"])
@@ -531,7 +537,8 @@ def main(argv=None):
         from .features import load_features
         from .io import open_session
         from .draft import draft_annotations
-        fdir = Path(args.folder) / "analysis" / "features"
+        base = Path(args.out) if args.out else Path(args.folder) / "analysis"
+        fdir = base / "features"
         paths = sorted(fdir.glob("*.npz"))
         if not paths:
             print(f"no cached features in {fdir} — run 'ambiscape analyze' first")

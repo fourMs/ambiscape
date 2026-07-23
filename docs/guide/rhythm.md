@@ -6,6 +6,11 @@ at strike resolution (~20 ms), far below the 1 Hz grid of the standard
 features. It needs a prior `analyze` run (it starts from the cached per-minute
 mean PSD).
 
+![rhythm overview](../img/rhythm_overview.png)
+*The `rhythm_overview.png` four-panel figure: the onset tempogram (candidate
+periods over time), the strike phases folded at the recovered cycle, the
+per-cycle residual grid, and the inter-onset-interval histograms per stream.*
+
 ## Pipeline
 
 1. **Partials** — narrowband peaks of the source(s), found by contrasting the

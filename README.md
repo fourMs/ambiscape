@@ -1,12 +1,12 @@
-# ambiscape
+# Ambiscape
 
 [![PyPI version](https://img.shields.io/pypi/v/ambiscape)](https://pypi.org/project/ambiscape/)
 [![Documentation](https://img.shields.io/badge/docs-fourms.github.io%2Fambiscape-blue)](https://fourms.github.io/ambiscape/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-ambiscape is a toolbox for analysing **soundscapes** — the sonic ambiences of rooms, streets, and landscapes — and it takes a *holistic* view: it brings level, spectral, spatial, temporal, ecological, and source-domain descriptors together so a place's sound can be described as a whole rather than one metric at a time.
+Ambiscape is a toolbox for analysing *soundscapes*, with a particular focus on the sonic ambiences of rooms. It takes a holistic view, bringing together measurements of level, spectral, spatial, temporal, ecological, and source-domain descriptors so a place's sound can be described as a whole rather than one metric at a time.
 
-It works from **any recording** — mono, stereo, binaural, or first-order ambisonic (a phone's `.m4a` through to a Zoom H3-VR), using whatever spatial information each format carries (see [Mono, stereo & binaural inputs](https://fourms.github.io/ambiscape/guide/stereo-mono/)) — and streams recordings of any length, from a short clip to whole nights, in constant memory. It is built to be useful to **different people**: acousticians and soundscape ecologists, sound artists and composers, students, and anyone curious about the sound of a place.
+The toolbox works from many different types of recordings: mono, stereo, binaural, or first-order ambisonic, using whatever spatial information each format carries (see [Mono, stereo & binaural inputs](https://fourms.github.io/ambiscape/guide/stereo-mono/)). It is built to be useful to different people: acousticians and soundscape ecologists, sound artists and composers, students, and anyone curious about the sound of a place.
 
 ## Install
 
@@ -43,18 +43,11 @@ ambiscape scenes     <folder>           # analyze each WAV as an independent sce
 ambiscape capture    <root>             # always-on feature-extraction daemon [capture]
 ```
 
-A *session* is a folder of WAVs on one absolute clock (BWF timestamps,
-parsed natively); a single one-off recording opens as its own scene with
-`open_recording(path)`. `analyze` produces a per-session `README.md` with a
-descriptor table (Leq, LAeq, L10/L50/L90, events, diffuseness ψ, azimuthal
-concentration R, …) and overview figures (level + spectrogram + anglegram +
-ψ timeline, percentile spectra, directogram).
+A *session* is a folder of WAVs on one absolute clock (BWF timestamps, parsed natively); a single one-off recording opens as its own scene with `open_recording(path)`. `analyze` produces a per-session `README.md` with a descriptor table (Leq, LAeq, L10/L50/L90, events, diffuseness ψ, azimuthal concentration R, …) and overview figures (level + spectrogram + anglegram + ψ timeline, percentile spectra, directogram).
 
 ## In notebooks
 
-Everything the CLI does is a library call, and version 0.3 adds a
-notebook-oriented case-study toolbox — machine on/off states, source
-fingerprints, civic-grid scans, bit-exact segment export:
+Everything the CLI does is a library call. From version 0.3 there has been a notebook-oriented case-study toolbox — machine on/off states, source fingerprints, civic-grid scans, bit-exact segment export:
 
 ```python
 import ambiscape as asc
@@ -82,8 +75,7 @@ biophony.summarize_biophony(F)                  # narrowband/temporal/spatial
 ml.birdnet_session(sess, F=F, hifi_max_diffuse=0.75, lat=52.4, lon=4.6)
 ```
 
-See the [machine-states guide](https://fourms.github.io/ambiscape/guide/states/)
-and the executable session report it was built for.
+See the [machine-states guide](https://fourms.github.io/ambiscape/guide/states/) and the executable session report it was built for.
 
 ## Documentation
 
@@ -97,10 +89,12 @@ and the executable session report it was built for.
 ## Dependencies
 
 - [ambiviz](https://github.com/fisheggg/ambiviz) renders rich spatial visuals from ambisonic files
-- librosa
+- [librosa](https://librosa.org/)
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Developed in the
-[AMBIENT project](https://www.uio.no/ritmo/english/projects/ambient/index.html)
-at [fourMs / RITMO](https://www.uio.no/ritmo/english/), University of Oslo.
+MIT — see [LICENSE](LICENSE). 
+
+## Funding
+
+Developed as part of the [AMBIENT project](https://www.uio.no/ritmo/english/projects/ambient/index.html) at [fourMs / RITMO](https://www.uio.no/ritmo/english/), University of Oslo. Supported by the Research Council of Norway.

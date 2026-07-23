@@ -1,10 +1,15 @@
-"""ambiscape — long-duration first-order ambisonic soundscape analysis.
+"""ambiscape — a holistic toolbox for analysing soundscapes (sonic ambiences).
 
-Streaming companion to ambiviz (https://github.com/fisheggg/ambiviz):
-ambiscape summarizes hours of AmbiX recordings (levels, spectra, events,
-DOA/diffuseness timelines, reverberation, representative segments); ambiviz
-renders rich spatial visuals (AEM, anglegram, directogram) on the short
-excerpts ambiscape selects.
+It works from any recording — mono, stereo, binaural, or first-order
+ambisonic — using whatever spatial information each format carries, and streams
+recordings of any length (minutes to whole nights) in constant memory. Level,
+spectral, spatial, temporal, ecological, and source-domain descriptors are
+brought together for a holistic view of a place's sound, meant to be useful to
+researchers, artists, and students alike.
+
+(Companion to ambiviz, https://github.com/fisheggg/ambiviz, which renders rich
+spatial visuals — AEM, anglegram, directogram — on the short excerpts
+ambiscape selects from hours of audio.)
 """
 from .io import (open_session, open_recording, read_bext, read_span,
                  export_segment, stereo_preview)

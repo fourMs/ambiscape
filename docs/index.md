@@ -1,8 +1,13 @@
 # ambiscape
 
-Analysis toolkit for **long-duration first-order ambisonic soundscape
-recordings** — hours to whole nights of AmbiX B-format audio from recorders
-like the Zoom H3-VR, processed in a stream with constant memory.
+A holistic toolbox for analysing **soundscapes** — the sonic ambiences of
+rooms, streets, and landscapes — from **any recording**: mono, stereo,
+binaural, or first-order ambisonic. It brings level, spectral, spatial,
+temporal, ecological, and source-domain descriptors into one picture, and
+streams recordings of any length (minutes to whole nights) in constant memory.
+It is built to be useful to different people — acousticians and soundscape
+ecologists, sound artists and composers, students, and anyone curious about
+the sound of a place.
 
 ## Why
 
@@ -16,8 +21,11 @@ produces:
 
 - **descriptors** in the environmental-acoustics idiom (Leq, LAeq,
   L10/L50/L90, event statistics),
-- **spatial timelines** only ambisonics can supply — direction of arrival,
-  diffuseness, azimuthal concentration,
+- **spatial timelines** when the recording carries direction — full
+  direction of arrival, diffuseness and azimuthal concentration from
+  ambisonics, a lateral left/right cue from stereo,
+- **source decomposition** — geophony, biophony, anthropophony, and
+  mechanical/transport indices, plus a Schaeffer/Schafer taxonomy layer,
 - **figures** (session overview, percentile spectra, directograms,
   taxonomy maps and timelines),
 - **room acoustics** (T60 from claps or incidental impulses),

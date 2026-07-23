@@ -4,7 +4,9 @@
 [![Documentation](https://img.shields.io/badge/docs-fourms.github.io%2Fambiscape-blue)](https://fourms.github.io/ambiscape/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Analysis toolkit for long-duration (hours) first-order ambisonic soundscape recordings (Zoom H3-VR and other AmbiX/SN3D B-format sources), processed in a stream with constant memory. Stereo, binaural, and mono recordings — including a phone's `.m4a` — are analysed too: a lateral left/right cue is recovered from stereo, and 2-channel binaural ear signals are handled directly (see [Mono, stereo & binaural inputs](https://fourms.github.io/ambiscape/guide/stereo-mono/)).
+ambiscape is a toolbox for analysing **soundscapes** — the sonic ambiences of rooms, streets, and landscapes — and it takes a *holistic* view: it brings level, spectral, spatial, temporal, ecological, and source-domain descriptors together so a place's sound can be described as a whole rather than one metric at a time.
+
+It works from **any recording** — mono, stereo, binaural, or first-order ambisonic (a phone's `.m4a` through to a Zoom H3-VR), using whatever spatial information each format carries (see [Mono, stereo & binaural inputs](https://fourms.github.io/ambiscape/guide/stereo-mono/)) — and streams recordings of any length, from a short clip to whole nights, in constant memory. It is built to be useful to **different people**: acousticians and soundscape ecologists, sound artists and composers, students, and anyone curious about the sound of a place.
 
 ## Install
 

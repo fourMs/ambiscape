@@ -1,5 +1,5 @@
 site_name: ambiscape
-site_description: Long-duration first-order ambisonic soundscape analysis
+site_description: A holistic toolbox for analysing soundscapes from mono, stereo, binaural, or ambisonic recordings
 site_url: https://fourms.github.io/ambiscape/
 repo_url: https://github.com/fourMs/ambiscape
 repo_name: fourMs/ambiscape

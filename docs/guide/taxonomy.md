@@ -23,6 +23,10 @@ From the cached features, `draft` pre-fills:
   AudioSet tag suggestions from PANNs (treat as suggestions to confirm by
   ear, not ground truth).
 
+For a finer, object-level draft of the two Schaeffer axes — every
+inter-onset sound object classified on a simplified TARTYP grid — see
+`music.tartyp_profile` in [Music](music.md) (needs the `[music]` extra).
+
 ## 2. Annotate (`annotations.json`)
 
 For each object you set:

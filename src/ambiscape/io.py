@@ -227,12 +227,19 @@ def _ensure_readable(path: Path) -> Path:
     """
     if path.suffix.lower() not in _NEEDS_TRANSCODE:
         return path
+    # Stream selection must happen before the cache-freshness check: the
+    # cache filename only encodes the selection when it deviates from the
+    # old default (a:0, 16-bit), so a stale pre-selection cache from an
+    # older ambiscape (always a:0/16-bit) is never mistaken for a fresh
+    # cache of a different stream/bit depth.
+    stream, deep = _pick_audio_stream(path)
     cache = path.parent / _DECODE_DIR
     cache.mkdir(exist_ok=True)
-    wav = cache / (path.stem + ".wav")
+    wav = cache / (path.stem
+                   + (f".a{stream}s24" if (stream > 0 or deep) else "")
+                   + ".wav")
     if wav.exists() and wav.stat().st_mtime >= path.stat().st_mtime:
         return wav
-    stream, deep = _pick_audio_stream(path)
     codec = "pcm_s24le" if deep else "pcm_s16le"
     try:
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(path),

@@ -174,3 +174,45 @@ def test_single_stream_ingest_unchanged(tmp_path):
     tk = sess.takes[0]
     assert tk.channels == 2
     assert sf_info.info(str(tk.audio_path)).subtype == "PCM_16"
+
+
+def test_stale_pre_selection_cache_not_reused(tmp_path):
+    """A pre-0.19 cache (name = ``<stem>.wav``, always decoded from a:0 at
+    16-bit) must not be mistaken for a fresh cache of a two-stream file
+    whose best stream is a:1/24-bit -- even if the stale file is newer than
+    the source, as an old cache always is once the source stops changing."""
+    import os
+    import shutil
+    import subprocess
+    import time
+    import pytest
+    import soundfile as sf_info
+    if shutil.which("ffmpeg") is None:
+        pytest.skip("ffmpeg not on PATH")
+    import ambiscape as asc
+    f = tmp_path / "20260724_120000_gopro.360"
+    subprocess.run(
+        ["ffmpeg", "-y", "-v", "error",
+         "-f", "lavfi", "-i", "sine=frequency=440:duration=2",
+         "-f", "lavfi", "-i", "anoisesrc=d=2:c=pink",
+         "-filter_complex", "[1:a]pan=4.0|c0=c0|c1=c0|c2=c0|c3=c0[a4]",
+         "-map", "0:a", "-map", "[a4]",
+         "-c:a:0", "aac", "-c:a:1", "pcm_s32le",
+         "-f", "mov", str(f)], check=True)
+
+    # Pre-seed a stale cache under the OLD naming convention: a mono WAV
+    # (simulating a pre-0.19 a:0/16-bit decode), with an mtime newer than
+    # the source -- exactly what the old freshness check would happily
+    # reuse forever.
+    cache_dir = tmp_path / ".ambiscape_decoded"
+    cache_dir.mkdir()
+    stale = cache_dir / "20260724_120000_gopro.wav"
+    sf_info.write(str(stale), np.zeros(FS, dtype=np.float32), FS,
+                  subtype="PCM_16")
+    future = time.time() + 3600
+    os.utime(stale, (future, future))
+
+    sess = asc.open_session(tmp_path)
+    tk = sess.takes[0]
+    assert tk.channels == 4
+    assert "a1s24" in tk.audio_path.name

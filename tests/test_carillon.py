@@ -39,6 +39,27 @@ def test_note_name():
     assert abs(carillon.note_name(440.0)[2]) < 1.0
 
 
+def test_transcribe_strikes(carillon_session):
+    import ambiscape as asc
+    sess = asc.open_session(carillon_session)
+    take = sess.takes[0]
+    A = carillon.analyze_bells(take, fmin=220.0, n_octaves=4)
+    bells = carillon.detect_bells(A["fcq"], A["sal"], A["bins_per_oct"],
+                                  part_acc=A["part_acc"])
+    ev = carillon.transcribe_strikes(take, bells, fmin=220.0, n_octaves=4)
+    # strikes every 0.7 s for ~38 s -> at least 40 found
+    assert len(ev) >= 40
+    # alternating A4 / C#5: both appear as top notes, at sane times
+    tops = [e["notes"][0]["note"] for e in ev if e["notes"]]
+    assert tops.count("A4") > 10 and tops.count("C#5") > 10
+    ts = np.array([e["t"] for e in ev])
+    assert ts.min() >= 0 and ts.max() < 40.0
+    # detected times land near the 0.7 s strike grid (within 60 ms)
+    grid = np.arange(0.0, 38.5, 0.7)
+    d = np.abs(ts[:, None] - grid[None, :]).min(axis=1)
+    assert np.median(d) < 0.06
+
+
 def test_detects_struck_bells_and_suppresses_ghosts(carillon_session):
     import ambiscape as asc
     sess = asc.open_session(carillon_session)

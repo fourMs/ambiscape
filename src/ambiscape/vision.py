@@ -25,6 +25,10 @@ Per frame (:func:`frame_features`):
 :func:`frame_delta` is a motion proxy (mean absolute luma change between two
 frames); :func:`summarize_vision` rolls a day of per-frame features into a
 ``vis_``-prefixed summary that joins the audio ``summary.json``.
+
+For full video analysis (motion, pose, 360° handling) use MGT-python
+(https://github.com/fourMs/MGT-python); this module deliberately stays a
+lightweight, dependency-free companion.
 """
 from __future__ import annotations
 

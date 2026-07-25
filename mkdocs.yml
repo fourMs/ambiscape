@@ -44,6 +44,7 @@ nav:
   - Pitch, timbre & music:
       - Tonality: guide/tonality.md
       - Event timbre: guide/timbre.md
+      - Background bed & excerpt: guide/background-render.md
       - Music (tempo & chroma): guide/music.md
       - Carillon bell inventory: guide/carillon.md
   - Ecology & sources:

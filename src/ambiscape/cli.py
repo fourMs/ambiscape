@@ -119,6 +119,27 @@ def main(argv=None):
                     help="lowest candidate strike note, Hz (default 110 = A2)")
     ca.add_argument("--octaves", type=float, default=5.0, dest="octaves",
                     help="CQT range in octaves above fmin (default 5)")
+    ca.add_argument("--events", action="store_true",
+                    help="also transcribe per-strike events (time + bell "
+                         "note(s) per onset) into carillon.json")
+    es = sub.add_parser("escapement",
+                        help="tick-level regularity of clockwork/escapement "
+                             "clicks: beat period, jitter vs wander, beat "
+                             "error, Allan deviation (reads audio directly)")
+    es.add_argument("folder")
+    es.add_argument("-o", "--out", default=None)
+    es.add_argument("--t0", type=float, default=0.0,
+                    help="start of the analysed span, s into the take")
+    es.add_argument("--dur", type=float, default=None)
+    es.add_argument("--band", type=float, nargs=2, default=(2000.0, 9000.0),
+                    metavar=("LO", "HI"),
+                    help="click band in Hz (default 2000 9000)")
+    es.add_argument("--k", type=float, default=3.0,
+                    help="tick-picking threshold in MADs (default 3)")
+    es.add_argument("--min-rate", type=float, default=0.3, dest="min_rate",
+                    help="slowest tick rate considered, Hz (default 0.3)")
+    es.add_argument("--max-rate", type=float, default=6.0, dest="max_rate",
+                    help="fastest tick rate considered, Hz (default 6)")
     vi = sub.add_parser("vision",
                         help="per-frame visual features of a video (or image "
                              "folder): brightness, colour, light direction, "
@@ -610,7 +631,8 @@ def main(argv=None):
         out.mkdir(parents=True, exist_ok=True)
         print(f"carillon MIR: {sess.name}")
         doc = run_session(sess, out, t0=args.t0, dur=args.dur,
-                          fmin=args.fmin, n_octaves=args.octaves)
+                          fmin=args.fmin, n_octaves=args.octaves,
+                          events=args.events)
         rng = doc.get("range")
         print(f"  {doc['n_bells_detected']} bells detected"
               + (f", {rng['low']}–{rng['high']} ({rng['semitones']} semitones)"
@@ -618,7 +640,29 @@ def main(argv=None):
               + f"; pitch centre {', '.join(doc['top_pitch_classes'])}")
         print("  " + "  ".join(f"{b['note']}({b['freq_hz']:.0f})"
                                for b in doc["bells"]))
-        print(f"wrote {out/'carillon.png'} and {out/'carillon.json'}")
+        print(f"wrote {out/'carillon.png'} and {out/'carillon.json'}"
+              + (f" ({doc['n_events']} strike events)"
+                 if "n_events" in doc else ""))
+        return 0
+
+    if args.cmd == "escapement":
+        from .io import open_session
+        from .escapement import run_session
+        sess = open_session(args.folder)
+        out = Path(args.out) if args.out else Path(args.folder) / "analysis"
+        out.mkdir(parents=True, exist_ok=True)
+        print(f"escapement: {sess.name}")
+        doc = run_session(sess, out, t0=args.t0, dur=args.dur,
+                          band=tuple(args.band), k=args.k,
+                          min_rate=args.min_rate, max_rate=args.max_rate)
+        print(f"  beat {doc['beat_period_s']} s ({doc['rate_bph']} beats/h), "
+              f"{doc['n_ticks']} ticks, coverage {doc['coverage']}")
+        if doc.get("n_valid_iois"):
+            print(f"  jitter {doc['fast_sd_ms']} ms, wander "
+                  f"{doc['slow_sd_ms']} ms, beat error "
+                  f"{doc['beat_error_ms']} ms, drift "
+                  f"{doc['rate_drift_ppm']} ppm")
+        print(f"wrote {out/'escapement.png'} and {out/'escapement.json'}")
         return 0
 
     if args.cmd == "vision":

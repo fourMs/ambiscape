@@ -199,7 +199,81 @@ def detect_bells(fcq, sal, bins_per_oct, part_acc=None, prime_lo=123.0,
     return sorted(best.values(), key=lambda d: d["freq_hz"])
 
 
-def run_session(sess, out_dir, t0=0.0, dur=None, fmin=110.0, n_octaves=5) -> dict:
+def transcribe_strikes(take, bells, t0=0.0, dur=None, sr=22050, fmin=110.0,
+                       n_octaves=5, bins_per_oct=36, hop=2048, chunk_s=120.0,
+                       rel_gate=0.4, max_polyphony=4, min_sep_s=0.12):
+    """Per-strike transcription against a detected bell inventory.
+
+    Second pass over the audio: librosa onset detection gives strike times;
+    at each onset the bell-template salience of the next few frames is
+    evaluated at the inventory notes only, and every bell reaching
+    ``rel_gate`` of the strongest bell at that onset (up to
+    ``max_polyphony``) is reported — a chord is several bells struck
+    together. Returns ``[{"t": s-into-take, "notes": [{"note", "freq_hz",
+    "score"}, ...]}, ...]``.
+    """
+    librosa = _require_librosa()
+    if not bells:
+        return []
+    fs = take.samplerate
+    n_bins = int(n_octaves * bins_per_oct)
+    fcq = fmin * 2.0 ** (np.arange(n_bins) / bins_per_oct)
+    bell_bins = np.array([int(np.clip(round(
+        bins_per_oct * np.log2(b["freq_hz"] / fmin)), 0, n_bins - 1))
+        for b in bells])
+    events = []
+    t_end = (take.frames / fs) if dur is None else (t0 + dur)
+    hann_pad = int(0.05 * fs)
+    with sf.SoundFile(str(take.audio_path)) as f:
+        t = t0
+        while t < t_end - 0.2:
+            n = int(min(chunk_s, t_end - t) * fs) + hann_pad
+            f.seek(int(t * fs))
+            x = f.read(n, dtype="float32", always_2d=True)
+            if x.shape[0] < fs // 2:
+                break
+            y = librosa.resample(take.mono_ref(x), orig_sr=fs, target_sr=sr)
+            C = np.abs(librosa.cqt(y, sr=sr, fmin=fmin, n_bins=n_bins,
+                                   bins_per_octave=bins_per_oct,
+                                   hop_length=hop)) ** 2
+            oenv, mask = _strike_frames(y, sr, hop)
+            onsets = librosa.onset.onset_detect(
+                onset_envelope=oenv, sr=sr, hop_length=hop, backtrack=False,
+                units="frames")
+            for j in onsets:
+                if j >= C.shape[1] or not mask[min(j, len(mask) - 1)]:
+                    continue
+                Cw = C[:, j:min(j + 4, C.shape[1])].mean(axis=1,
+                                                         keepdims=True)
+                sal = bell_salience_from_parts(
+                    bell_partial_energies(Cw, bins_per_oct))[:, 0]
+                scores = sal[bell_bins]
+                top = scores.max()
+                if top <= 0:
+                    continue
+                hit = np.argsort(scores)[::-1][:max_polyphony]
+                notes = [{"note": bells[i]["note"],
+                          "freq_hz": bells[i]["freq_hz"],
+                          "score": round(float(scores[i] / top), 2)}
+                         for i in hit if scores[i] >= rel_gate * top]
+                events.append({"t": round(t + j * hop / sr, 3),
+                               "strength": round(float(oenv[j]), 2),
+                               "notes": notes})
+            t += chunk_s
+    # merge onsets closer than min_sep_s (chunk overlap, double-triggers)
+    events.sort(key=lambda e: e["t"])
+    merged = []
+    for e in events:
+        if merged and e["t"] - merged[-1]["t"] < min_sep_s:
+            if e["strength"] > merged[-1]["strength"]:
+                merged[-1] = e
+        else:
+            merged.append(e)
+    return merged
+
+
+def run_session(sess, out_dir, t0=0.0, dur=None, fmin=110.0, n_octaves=5,
+                events=False) -> dict:
     """Full carillon MIR for the first take: bell inventory + figures.
 
     Writes ``carillon.json`` (detected bells, range, pitch-class centre, note
@@ -237,6 +311,10 @@ def run_session(sess, out_dir, t0=0.0, dur=None, fmin=110.0, n_octaves=5) -> dic
             "chord above them may be missed; tuning cents are relative to "
             "A4=440 equal temperament."),
     }
+    if events:
+        doc["events"] = transcribe_strikes(take, bells, t0=t0, dur=dur,
+                                           fmin=fmin, n_octaves=n_octaves)
+        doc["n_events"] = len(doc["events"])
     (out_dir / "carillon.json").write_text(
         json.dumps(doc, indent=2, default=float))
 

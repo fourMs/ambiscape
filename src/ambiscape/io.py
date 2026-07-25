@@ -30,7 +30,10 @@ AMBIX_CHANNELS = ("W", "Y", "Z", "X")  # Zoom H3-VR AmbiX (ACN/SN3D)
 # Audio containers libsndfile cannot open (AAC/Apple/etc.); decoded to WAV
 # with ffmpeg on ingest. WAV/FLAC/OGG/MP3/AIFF etc. are read natively.
 _NEEDS_TRANSCODE = {".m4a", ".aac", ".mp4", ".m4b", ".mov", ".3gp", ".wma",
-                    ".opus", ".webm"}
+                    ".opus", ".webm",
+                    # 360-camera containers (Insta360, GoPro): plain MP4s
+                    # with the first audio stream where we expect it
+                    ".insv", ".lrv", ".glv", ".360"}
 _AUDIO_SUFFIXES = {".wav", ".flac", ".ogg", ".mp3", ".aiff", ".aif", ".w64",
                    ".rf64", ".caf", ".au"} | _NEEDS_TRANSCODE
 _DECODE_DIR = ".ambiscape_decoded"

@@ -79,3 +79,26 @@ def test_open_recording_single_file(tmp_path):
     assert len(sess.takes) == 1
     assert sess.day0.isoformat() == "2024-03-21"
     assert sess.clock(sess.takes[0].start).endswith("09:30:00")
+
+
+def test_insv_container_opens_via_transcode(tmp_path):
+    """Insta360 .insv (an MP4 in disguise) is decoded on ingest."""
+    import shutil
+    import subprocess
+    import pytest
+    if shutil.which("ffmpeg") is None:
+        pytest.skip("ffmpeg not on PATH")
+    import ambiscape as asc
+    # a 2 s stereo AAC mp4, renamed to the Insta360 extension
+    mp4 = tmp_path / "20260724_142731_00_037.insv"
+    subprocess.run(
+        ["ffmpeg", "-y", "-v", "error", "-f", "lavfi",
+         "-i", "sine=frequency=440:duration=2",
+         "-ac", "2", "-c:a", "aac", "-f", "mp4", str(mp4)],
+        check=True)
+    sess = asc.open_session(tmp_path)
+    assert len(sess.takes) == 1
+    tk = sess.takes[0]
+    assert tk.clock == "14:27:31"          # from the filename stamp
+    assert 1.5 < tk.duration < 2.5
+    assert tk.channels == 2

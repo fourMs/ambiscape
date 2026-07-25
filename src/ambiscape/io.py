@@ -20,6 +20,7 @@ import datetime as _dt
 import re
 import struct
 import subprocess
+import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -286,6 +287,11 @@ def open_session(folder: str | Path) -> Session:
         clock_offsets = {str(k): float(v)
                          for k, v in c.get("clock_offsets_s", {}).items()}
         mode_override = c.get("mode")            # e.g. "binaural" for ear signals
+    unmatched = set(clock_offsets) - {p.name for p in paths}
+    if unmatched:
+        warnings.warn(f"calibration.json clock_offsets_s names no session "
+                      f"file: {sorted(unmatched)}", stacklevel=2)
+
     sess = Session(folder=folder)
     metas = [(p, _probe_recording(p)) for p in paths]
     sess.day0 = min(_dt.date.fromisoformat(m["date"]) for _, m in metas)

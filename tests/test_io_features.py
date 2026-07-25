@@ -1,5 +1,6 @@
 """Session scanning, BWF parsing, clock offset, feature extraction."""
 import json
+import warnings
 
 import numpy as np
 import pytest
@@ -112,7 +113,19 @@ def test_per_take_clock_offsets(tmp_path):
         "clock_offset_s": 2.0,
         "clock_offsets_s": {"b.wav": -5.0},
     }))
-    sess = asc.open_session(tmp_path)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        sess = asc.open_session(tmp_path)
     takes = {t.path.name: t for t in sess.takes}
     assert takes["a.wav"].start == 2.0            # global only
     assert takes["b.wav"].start == 60.0 + 2.0 - 5.0   # global + per-take
+
+
+def test_unmatched_clock_offset_key_warns(tmp_path):
+    n = 48000
+    write_bwf(tmp_path / "a.wav", np.zeros((n, 4)), time="00:00:00")
+    (tmp_path / "calibration.json").write_text(json.dumps({
+        "clock_offsets_s": {"typo.wav": -5.0},
+    }))
+    with pytest.warns(UserWarning, match="clock_offsets_s"):
+        asc.open_session(tmp_path)

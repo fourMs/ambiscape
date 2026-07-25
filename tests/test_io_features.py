@@ -102,3 +102,17 @@ def test_insv_container_opens_via_transcode(tmp_path):
     assert tk.clock == "14:27:31"          # from the filename stamp
     assert 1.5 < tk.duration < 2.5
     assert tk.channels == 2
+
+
+def test_per_take_clock_offsets(tmp_path):
+    n = 48000
+    write_bwf(tmp_path / "a.wav", np.zeros((n, 4)), time="00:00:00")
+    write_bwf(tmp_path / "b.wav", np.zeros((n, 4)), time="00:01:00")
+    (tmp_path / "calibration.json").write_text(json.dumps({
+        "clock_offset_s": 2.0,
+        "clock_offsets_s": {"b.wav": -5.0},
+    }))
+    sess = asc.open_session(tmp_path)
+    takes = {t.path.name: t for t in sess.takes}
+    assert takes["a.wav"].start == 2.0            # global only
+    assert takes["b.wav"].start == 60.0 + 2.0 - 5.0   # global + per-take

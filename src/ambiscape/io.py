@@ -267,7 +267,8 @@ def open_session(folder: str | Path) -> Session:
     mtimes (see the module docstring). If ``calibration.json`` contains
     ``clock_offset_s``, that many seconds are added to every take's start
     time — the fix for a recorder whose clock was found to be off (positive
-    offset = clock was slow).
+    offset = clock was slow). ``clock_offsets_s`` maps individual filenames
+    to additional per-take offsets for multi-device sessions.
     """
     folder = Path(folder)
     paths = sorted(p for p in folder.iterdir()
@@ -275,18 +276,24 @@ def open_session(folder: str | Path) -> Session:
     if not paths:
         raise FileNotFoundError(f"no audio files in {folder}")
     clock_offset = 0.0
+    clock_offsets = {}
     mode_override = None
     cal = folder / "calibration.json"
     if cal.exists():
         import json
         c = json.loads(cal.read_text())
         clock_offset = float(c.get("clock_offset_s", 0.0))
+        clock_offsets = {str(k): float(v)
+                         for k, v in c.get("clock_offsets_s", {}).items()}
         mode_override = c.get("mode")            # e.g. "binaural" for ear signals
     sess = Session(folder=folder)
     metas = [(p, _probe_recording(p)) for p in paths]
     sess.day0 = min(_dt.date.fromisoformat(m["date"]) for _, m in metas)
     for p, _ in metas:
-        sess.takes.append(_make_take(p, sess.day0, clock_offset, mode_override))
+        sess.takes.append(_make_take(
+            p, sess.day0,
+            clock_offset + clock_offsets.get(p.name, 0.0),
+            mode_override))
     sess.takes.sort(key=lambda t: t.start)
     return sess
 

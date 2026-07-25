@@ -106,6 +106,21 @@ def main(argv=None):
     mu.add_argument("-o", "--out", default=None)
     mu.add_argument("--t0", type=float, default=0.0)
     mu.add_argument("--dur", type=float, default=None)
+    bg = sub.add_parser("background",
+                        help="render a background-only WAV: foreground "
+                             "events capped at the running spectral "
+                             "background (reads audio directly)")
+    bg.add_argument("folder")
+    bg.add_argument("-o", "--out", default=None)
+    bg.add_argument("--margin-db", type=float, default=12.0, dest="margin_db",
+                    help="cap above the background surface, dB: ~3 = strict "
+                         "bed, ~12 keeps quiet keynotes like clock ticks "
+                         "(default 12)")
+    bg.add_argument("--t0", type=float, default=0.0)
+    bg.add_argument("--dur", type=float, default=None)
+    bg.add_argument("--out-wav", default=None, dest="out_wav",
+                    help="output WAV path (default: "
+                         "<analysis>/background_<take>_<margin>dB.wav)")
     ca = sub.add_parser("carillon",
                         help="which bells a carillon/bell instrument played: "
                              "strike-note inventory via bell-template salience "
@@ -621,6 +636,21 @@ def main(argv=None):
               f"(period {doc['tempo_period_s']} s); top pitch classes "
               f"{', '.join(doc['top_pitch_classes'])}")
         print(f"wrote {out/'music.png'} and {out/'music.json'}")
+        return 0
+
+    if args.cmd == "background":
+        from .io import open_session
+        from .render import run_session
+        sess = open_session(args.folder)
+        out = Path(args.out) if args.out else Path(args.folder) / "analysis"
+        out.mkdir(parents=True, exist_ok=True)
+        print(f"background render: {sess.name}")
+        doc = run_session(sess, out, margin_db=args.margin_db, t0=args.t0,
+                          dur=args.dur, out_path=args.out_wav)
+        print(f"  {doc['rendered_s']} s rendered, exceedance "
+              f"{doc['exceed_fraction_before']:.2%} -> "
+              f"{doc['exceed_fraction_after']:.2%}")
+        print(f"wrote {doc['out_path']}")
         return 0
 
     if args.cmd == "carillon":

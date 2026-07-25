@@ -167,3 +167,13 @@ def test_fg_bg_overlap():
     F2 = _F_dir(az2, np.zeros(n))
     F2["rms_w"] = F["rms_w"]
     assert spatial.fg_bg_az_overlap(F2) < 0.3         # opposite directions
+
+
+def test_azimuth_organization_short_take():
+    """A take shorter than one 60 s window still yields one R value
+    (regression: empty Rs made run_session's percentile raise, issue #11)."""
+    n = 45
+    F = _F_dir(np.full(n, 20.0), np.zeros(n), nsec=n)
+    ts, Rs = spatial.azimuth_organization(F)
+    assert len(Rs) == 1 and len(ts) == 1
+    assert np.isfinite(Rs[0]) and Rs[0] > 0.9   # one dominant direction

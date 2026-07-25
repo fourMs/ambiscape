@@ -82,6 +82,8 @@ def azimuth_organization(F: dict, win_s=60.0, step_s=20.0):
     p = F["rms_w"].astype(np.float64) ** 2
     az = np.radians(F["az"])
     n, w, s = len(az), int(win_s), int(step_s)
+    if n < w:            # take shorter than one window: measure the whole
+        w = max(n, 1)    # take once rather than returning no data at all
     ts, Rs = [], []
     for i0 in range(0, n - w + 1, s):
         _mu, R = mean_resultant(az[i0:i0 + w], weights=p[i0:i0 + w])

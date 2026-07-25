@@ -39,6 +39,9 @@ _AUDIO_SUFFIXES = {".wav", ".flac", ".ogg", ".mp3", ".aiff", ".aif", ".w64",
                    ".rf64", ".caf", ".au"} | _NEEDS_TRANSCODE
 _DECODE_DIR = ".ambiscape_decoded"
 
+# codecs whose decoded audio is deeper than 16 bit and worth a 24-bit cache
+_DEEP_PCM = ("pcm_s24", "pcm_s32", "pcm_f32", "pcm_f64", "pcm_s64")
+
 # leading YYYYMMDD_HHMMSS or YYMMDD_HHMMSS in a filename (phone / recorder)
 _TS_LONG = re.compile(r"(?<!\d)(\d{4})(\d{2})(\d{2})[_-](\d{2})(\d{2})(\d{2})")
 _TS_SHORT = re.compile(r"(?<!\d)(\d{2})(\d{2})(\d{2})[_-](\d{2})(\d{2})(\d{2})")
@@ -175,13 +178,52 @@ def _filename_datetime(path: Path) -> _dt.datetime | None:
     return None
 
 
+def _pick_audio_stream(path: Path) -> tuple[int, bool]:
+    """Best decodable audio stream of a container: (a:N index, deep?).
+
+    Most channels wins (a GoPro MAX's 4-channel ambisonic PCM track beats
+    its stereo AAC); undecodable codecs (e.g. Apple's APAC, which ffprobe
+    reports as ``none``) are skipped; ties break to the lower index; a:0
+    is the floor when probing fails. Note two camera quirks documented in
+    the lab's spatial-audio study (Riaz, Guo & Jensenius): Insta360
+    4-channel streams are NOT B-format ambisonics (spatial metrics from
+    them are unreliable), and Garmin VIRB 360 AmbiX has an empty Z channel
+    (elevation is meaningless; prefer in-camera originals over VIRB Edit
+    exports, whose FOA track is bugged).
+    """
+    import json
+    try:
+        out = subprocess.run(
+            ["ffprobe", "-v", "error", "-select_streams", "a",
+             "-show_entries", "stream=codec_name,channels",
+             "-of", "json", str(path)],
+            capture_output=True, text=True, check=True)
+        streams = json.loads(out.stdout).get("streams", [])
+    except (FileNotFoundError, subprocess.CalledProcessError,
+            ValueError):
+        return 0, False
+    best, best_ch = 0, -1
+    deep = False
+    for n, s in enumerate(streams):
+        codec = s.get("codec_name") or "none"
+        if codec in ("none", "unknown"):
+            continue
+        ch = int(s.get("channels", 0))
+        if ch > best_ch:
+            best, best_ch = n, ch
+            deep = codec.startswith(_DEEP_PCM)
+    return best, deep
+
+
 def _ensure_readable(path: Path) -> Path:
     """A libsndfile-readable path for ``path``.
 
     WAV/FLAC/MP3/etc. pass through; compressed containers libsndfile cannot
     open (AAC ``.m4a`` and friends) are decoded once to a cached WAV under
-    ``<folder>/.ambiscape_decoded/`` with ffmpeg (native rate and channels,
-    16-bit PCM) and reused while newer than the source.
+    ``<folder>/.ambiscape_decoded/`` with ffmpeg (native rate and channels).
+    Containers with several audio streams decode their best one — most channels
+    among decodable codecs (see ``_pick_audio_stream``); sources deeper than
+    16-bit are cached at 24-bit. The cache is reused while newer than the source.
     """
     if path.suffix.lower() not in _NEEDS_TRANSCODE:
         return path
@@ -190,9 +232,11 @@ def _ensure_readable(path: Path) -> Path:
     wav = cache / (path.stem + ".wav")
     if wav.exists() and wav.stat().st_mtime >= path.stat().st_mtime:
         return wav
+    stream, deep = _pick_audio_stream(path)
+    codec = "pcm_s24le" if deep else "pcm_s16le"
     try:
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(path),
-                        "-map", "a:0", "-c:a", "pcm_s16le", str(wav)],
+                        "-map", f"a:{stream}", "-c:a", codec, str(wav)],
                        check=True)
     except (FileNotFoundError, subprocess.CalledProcessError) as e:
         raise RuntimeError(

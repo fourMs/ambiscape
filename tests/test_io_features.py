@@ -129,3 +129,48 @@ def test_unmatched_clock_offset_key_warns(tmp_path):
     }))
     with pytest.warns(UserWarning, match="clock_offsets_s"):
         asc.open_session(tmp_path)
+
+
+def test_best_audio_stream_selected(tmp_path):
+    """A .360 with stereo AAC first and 4ch PCM s32 second ingests the
+    4-channel ambisonic stream, cached at 24-bit."""
+    import shutil
+    import subprocess
+    import pytest
+    import soundfile as sf_info
+    if shutil.which("ffmpeg") is None:
+        pytest.skip("ffmpeg not on PATH")
+    import ambiscape as asc
+    f = tmp_path / "20260724_120000_gopro.360"
+    subprocess.run(
+        ["ffmpeg", "-y", "-v", "error",
+         "-f", "lavfi", "-i", "sine=frequency=440:duration=2",
+         "-f", "lavfi", "-i", "anoisesrc=d=2:c=pink",
+         "-filter_complex", "[1:a]pan=4.0|c0=c0|c1=c0|c2=c0|c3=c0[a4]",
+         "-map", "0:a", "-map", "[a4]",
+         "-c:a:0", "aac", "-c:a:1", "pcm_s32le",
+         "-f", "mov", str(f)], check=True)
+    sess = asc.open_session(tmp_path)
+    tk = sess.takes[0]
+    assert tk.channels == 4
+    assert tk.mode == "ambix"
+    assert sf_info.info(str(tk.audio_path)).subtype == "PCM_24"
+
+
+def test_single_stream_ingest_unchanged(tmp_path):
+    import shutil
+    import subprocess
+    import pytest
+    import soundfile as sf_info
+    if shutil.which("ffmpeg") is None:
+        pytest.skip("ffmpeg not on PATH")
+    import ambiscape as asc
+    f = tmp_path / "20260724_120000_phone.m4a"
+    subprocess.run(
+        ["ffmpeg", "-y", "-v", "error", "-f", "lavfi", "-i",
+         "sine=frequency=440:duration=2", "-ac", "2", "-c:a", "aac",
+         str(f)], check=True)
+    sess = asc.open_session(tmp_path)
+    tk = sess.takes[0]
+    assert tk.channels == 2
+    assert sf_info.info(str(tk.audio_path)).subtype == "PCM_16"

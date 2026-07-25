@@ -76,24 +76,8 @@ def background_bed(x: np.ndarray, fs: int, margin_db: float = 12.0,
             float(exceed_after.mean()))
 
 
-def run_session(sess, out_dir, margin_db: float = 12.0, t0: float = 0.0,
-                dur: float | None = None, block_s: float = 10.0,
-                pctl: float = 50.0, minwin_s: float = 120.0,
-                out_path=None) -> dict:
-    """CLI driver: render the first take's background bed to a WAV.
-
-    Writes ``<out_dir>/background_<stem>_<margin>dB.wav`` (24-bit, same
-    rate and channel count as the take) plus ``background_render.json``
-    with the parameters and suppression metrics.
-    """
-    import json
-    out_dir = Path(out_dir)
-    take = sess.takes[0]
-    fs = take.samplerate
-    with sf.SoundFile(str(take.audio_path)) as f:
-        f.seek(int(t0 * fs))
-        n = f.frames - int(t0 * fs) if dur is None else int(dur * fs)
-        x = f.read(n, dtype="float32", always_2d=True)
+def _render_array(x, fs, margin_db, block_s, pctl, minwin_s):
+    """All channels of one array through background_bed."""
     chans, eb, ea = [], [], []
     for c in range(x.shape[1]):
         y, before, after = background_bed(
@@ -102,7 +86,64 @@ def run_session(sess, out_dir, margin_db: float = 12.0, t0: float = 0.0,
         chans.append(y)
         eb.append(before)
         ea.append(after)
-    y = np.stack(chans, axis=1)
+    return np.stack(chans, axis=1), float(np.mean(eb)), float(np.mean(ea))
+
+
+def run_session(sess, out_dir, margin_db: float = 12.0, t0: float = 0.0,
+                dur: float | None = None, block_s: float = 10.0,
+                pctl: float = 50.0, minwin_s: float = 120.0,
+                chunk_s: float | None = 1200.0, out_path=None) -> dict:
+    """CLI driver: render the first take's background bed to a WAV.
+
+    Writes ``<out_dir>/background_<stem>_<margin>dB.wav`` (24-bit, same
+    rate and channel count as the take) plus ``background_render.json``
+    with the parameters and suppression metrics. Takes longer than
+    ``chunk_s`` are processed in chunks with ``minwin_s`` of context on
+    each side and 50 ms crossfades at the joins, keeping memory bounded
+    (a one-shot render of an hour-plus take can need tens of GB);
+    ``chunk_s=None`` forces one-shot.
+    """
+    import json
+    out_dir = Path(out_dir)
+    take = sess.takes[0]
+    fs = take.samplerate
+    with sf.SoundFile(str(take.audio_path)) as f:
+        f.seek(int(t0 * fs))
+        n = f.frames - int(t0 * fs) if dur is None else int(dur * fs)
+        total = n
+        if chunk_s is None or total <= int(chunk_s * fs):
+            x = f.read(total, dtype="float32", always_2d=True)
+            y, ebm, eam = _render_array(x, fs, margin_db, block_s, pctl,
+                                        minwin_s)
+            eb, ea = [ebm], [eam]
+        else:
+            ctx = int(minwin_s * fs)
+            step = int(chunk_s * fs)
+            xf = int(0.05 * fs)                      # 50 ms crossfade
+            fade_in = np.linspace(0.0, 1.0, xf, dtype=np.float32)[:, None]
+            pieces, eb, ea = [], [], []
+            start = int(t0 * fs)
+            pos = 0
+            while pos < total:
+                a = max(0, pos - ctx)
+                b = min(total, pos + step + ctx)
+                f.seek(start + a)
+                x = f.read(b - a, dtype="float32", always_2d=True)
+                yc, ebm, eam = _render_array(x, fs, margin_db, block_s,
+                                             pctl, minwin_s)
+                lo = pos - a                          # trim left context
+                hi = lo + min(step, total - pos)
+                keep = yc[max(0, lo - (xf if pieces else 0)):hi]
+                if pieces:                            # crossfade the join
+                    prev = pieces[-1]
+                    prev[-xf:] = (prev[-xf:] * (1 - fade_in)
+                                  + keep[:xf] * fade_in)
+                    keep = keep[xf:]
+                pieces.append(keep)
+                eb.append(ebm)
+                ea.append(eam)
+                pos += step
+            y = np.concatenate(pieces, axis=0)
     peak = float(np.abs(y).max()) + EPS
     if peak > 0.99:
         y *= 0.99 / peak
@@ -116,6 +157,7 @@ def run_session(sess, out_dir, margin_db: float = 12.0, t0: float = 0.0,
         "take": take.path.name,
         "margin_db": margin_db, "block_s": block_s, "pctl": pctl,
         "minwin_s": minwin_s, "t0_s": t0,
+        "chunk_s": chunk_s,
         "rendered_s": round(len(y) / fs, 1),
         "exceed_fraction_before": round(float(np.mean(eb)), 4),
         "exceed_fraction_after": round(float(np.mean(ea)), 4),
@@ -126,5 +168,71 @@ def run_session(sess, out_dir, margin_db: float = 12.0, t0: float = 0.0,
             "level, not the masked true background."),
     }
     (out_dir / "background_render.json").write_text(
+        json.dumps(doc, indent=2, default=float))
+    return doc
+
+
+def characteristic_excerpt(sess, F: dict, out_dir, dur_s: float = 60.0,
+                           hop_s: float = 5.0,
+                           event_weight_db: float = 20.0,
+                           out_path=None) -> dict:
+    """Export the excerpt that best characterizes the session's background.
+
+    Scans ``dur_s`` windows on a ``hop_s`` grid and scores each by (a) the
+    mean per-band distance between the window's median log-spectrum and the
+    session's background spectral profile (10th percentile per band), and
+    (b) the fraction of eventful seconds (broadband level more than 6 dB
+    over the session median), weighted by ``event_weight_db``. The winner
+    is exported **bit-exact from the original take** via
+    :func:`ambiscape.io.export_segment` — a soundscape thumbnail with no
+    processing artifacts. Needs cached features (a prior analyze run).
+    """
+    import json
+    from .io import export_segment
+
+    out_dir = Path(out_dir)
+    logspec = np.asarray(F["logspec"], np.float64)      # nsec x nband
+    with np.errstate(divide="ignore"):
+        spec_db = 10 * np.log10(logspec + EPS)
+    profile = np.percentile(spec_db, 10, axis=0)        # background profile
+    level = 10 * np.log10(np.asarray(F["rms_w"], np.float64) ** 2 + EPS)
+    eventful = level > np.median(level) + 6.0
+    t = np.asarray(F["t"], np.float64)
+
+    n = len(t)
+    w = int(round(dur_s))
+    if n <= w:
+        starts = [0]
+    else:
+        starts = list(range(0, n - w + 1, max(1, int(round(hop_s)))))
+    best = None
+    for i0 in starts:
+        win = slice(i0, i0 + min(w, n))
+        dist = float(np.mean(np.abs(
+            np.median(spec_db[win], axis=0) - profile)))
+        ev = float(np.mean(eventful[win]))
+        score = dist + event_weight_db * ev
+        if best is None or score < best[0]:
+            best = (score, i0, dist, ev)
+    _, i0, dist, ev = best
+    t0 = float(t[i0])
+    if out_path is None:
+        take = sess.takes[0]
+        out_path = out_dir / f"excerpt_{take.path.stem}_{int(dur_s)}s.wav"
+    out_path = Path(out_path)
+    export_segment(sess, t0, float(min(dur_s, t[-1] - t0 + 1.0)),
+                   str(out_path))
+    doc = {
+        "out_path": str(out_path), "t0_s": round(t0, 1),
+        "t0_in_take_s": round(t0 - sess.takes[0].start, 1),
+        "dur_s": dur_s, "clock": sess.clock(t0),
+        "spectral_distance_db": round(dist, 2),
+        "eventful_fraction": round(ev, 3),
+        "_method_note": (
+            "bit-exact excerpt (no processing): the window whose median "
+            "spectrum is closest to the session's 10th-percentile "
+            "background profile, penalized by eventful seconds."),
+    }
+    (out_dir / "background_excerpt.json").write_text(
         json.dumps(doc, indent=2, default=float))
     return doc

@@ -20,7 +20,7 @@ from . import (anthropophony, biophony, capture, catalog, compare, ecology,
                enf, figures, geophony, longitudinal, mechanical, resolve,
                states, taxonomy, vision, iso)
 
-__version__ = "0.20.0"
+__version__ = "0.21.0"
 __all__ = [
     "open_session", "open_recording", "read_bext", "read_span",
     "export_segment", "stereo_preview",

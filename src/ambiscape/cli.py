@@ -121,6 +121,10 @@ def main(argv=None):
     bg.add_argument("--out-wav", default=None, dest="out_wav",
                     help="output WAV path (default: "
                          "<analysis>/background_<take>_<margin>dB.wav)")
+    bg.add_argument("--excerpt", type=float, default=None, metavar="SEC",
+                    help="instead of rendering, export the SEC-second "
+                         "bit-exact excerpt that best characterizes the "
+                         "background (needs a prior analyze run)")
     ca = sub.add_parser("carillon",
                         help="which bells a carillon/bell instrument played: "
                              "strike-note inventory via bell-template salience "
@@ -644,6 +648,22 @@ def main(argv=None):
         sess = open_session(args.folder)
         out = Path(args.out) if args.out else Path(args.folder) / "analysis"
         out.mkdir(parents=True, exist_ok=True)
+        if args.excerpt:
+            from .features import load_features
+            from .render import characteristic_excerpt
+            feats = sorted((out / "features").glob("*.npz"))
+            if not feats:
+                print("no cached features - run 'ambiscape analyze' first")
+                return 1
+            F = load_features(feats)
+            doc = characteristic_excerpt(sess, F, out, dur_s=args.excerpt,
+                                         out_path=args.out_wav)
+            print(f"  excerpt at {doc['clock']} "
+                  f"({doc['t0_in_take_s']} s into take): spectral distance "
+                  f"{doc['spectral_distance_db']} dB, eventful "
+                  f"{doc['eventful_fraction']:.0%}")
+            print(f"wrote {doc['out_path']}")
+            return 0
         print(f"background render: {sess.name}")
         doc = run_session(sess, out, margin_db=args.margin_db, t0=args.t0,
                           dur=args.dur, out_path=args.out_wav)

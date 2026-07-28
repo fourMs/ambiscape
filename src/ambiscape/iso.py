@@ -47,6 +47,74 @@ def load_calibration(folder: str | Path) -> dict | None:
     return None
 
 
+def take_offset(cal: dict | None, take_name: str) -> float | None:
+    """The dbfs->dbspl offset for one take: per-take map, else global.
+
+    Multi-device sessions (a Zoom and a phone running side by side) need
+    different offsets per take; ``dbfs_to_dbspl_takes`` maps take filenames
+    to offsets, falling back to the session-wide ``dbfs_to_dbspl``.
+    """
+    if not cal:
+        return None
+    per = cal.get("dbfs_to_dbspl_takes", {})
+    if take_name in per:
+        return float(per[take_name])
+    if "dbfs_to_dbspl" in cal:
+        return float(cal["dbfs_to_dbspl"])
+    return None
+
+
+def derive_offset(F: dict, laeq_spl: float, t0: float | None = None,
+                  dur: float | None = None) -> dict:
+    """Derive ``dbfs_to_dbspl`` from a field SPL-meter reading.
+
+    ``laeq_spl`` is the LAeq in dB(A) read off a meter (or phone app) held
+    at the microphone position over some span of the recording; ``t0`` /
+    ``dur`` bound that span in seconds *from the start of the recording*
+    (defaults: all of it). The recording's own LAeq over the same span
+    comes from the cached A-weighted fast levels, and the offset is simply
+    their difference: a signal at −X dBFS corresponds to (offset − X)
+    dB SPL.
+    """
+    t = np.asarray(F["t_fast"], np.float64)
+    t = t - t[0]                              # relative to recording start
+    dba = np.asarray(F["fast_dba"], np.float64)
+    m = np.ones(len(t), bool)
+    if t0 is not None:
+        m &= t >= t0
+    if dur is not None:
+        m &= t < (t0 or 0.0) + dur
+    if not m.any():
+        raise ValueError("span selects no samples")
+    laeq_dbfs = 10 * np.log10(np.mean(10 ** (dba[m] / 10)) + 1e-30)
+    return {"dbfs_to_dbspl": round(float(laeq_spl - laeq_dbfs), 1),
+            "laeq_dbfs": round(float(laeq_dbfs), 1),
+            "laeq_spl": float(laeq_spl),
+            "span_s": [float(t[m][0]), float(t[m][-1])]}
+
+
+def write_calibration(folder: str | Path, offset: float, method: str = "",
+                      take: str | None = None) -> Path:
+    """Write/merge an offset into ``<folder>/calibration.json``.
+
+    Existing keys (``clock_offset_s`` etc.) are preserved. With ``take``,
+    the offset lands in the per-take map ``dbfs_to_dbspl_takes``;
+    otherwise it becomes the session-wide ``dbfs_to_dbspl``.
+    """
+    import datetime
+    p = Path(folder) / "calibration.json"
+    cal = json.loads(p.read_text()) if p.exists() else {}
+    if take is not None:
+        cal.setdefault("dbfs_to_dbspl_takes", {})[take] = float(offset)
+    else:
+        cal["dbfs_to_dbspl"] = float(offset)
+    if method:
+        cal["method"] = method
+    cal["date"] = datetime.date.today().isoformat()
+    p.write_text(json.dumps(cal, indent=2))
+    return p
+
+
 def to_pascal(x: np.ndarray, dbfs_to_dbspl: float) -> np.ndarray:
     return x.astype(np.float64) * P_REF * 10 ** (dbfs_to_dbspl / 20)
 
@@ -158,8 +226,11 @@ def segment_indicators(sess, F: dict, folder: str | Path,
             mode=(tk.mode if tk else "ambix"))
         seg = {"t0": sess.clock(pick["t0"]), "dur_s": dur,
                "binaural_method": method}
+        # multi-device sessions: a per-take offset overrides the global one
+        seg_offset = (take_offset(cal, tk.path.name)
+                      if tk and calibrated else None) or offset
         for ch, name in ((0, "left"), (1, "right")):
-            seg[name] = indicators(to_pascal(ears[:, ch], offset), fs)
+            seg[name] = indicators(to_pascal(ears[:, ch], seg_offset), fs)
         seg["N5_sone_max_ear"] = max(seg["left"]["N5_sone"],
                                      seg["right"]["N5_sone"])
         out["segments"][pick["kind"]] = seg

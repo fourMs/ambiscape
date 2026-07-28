@@ -125,6 +125,27 @@ def main(argv=None):
                     help="instead of rendering, export the SEC-second "
                          "bit-exact excerpt that best characterizes the "
                          "background (needs a prior analyze run)")
+    cb = sub.add_parser("calibrate",
+                        help="derive and store the dBFS->dB SPL offset "
+                             "from a field SPL-meter reading "
+                             "(writes/merges calibration.json)")
+    cb.add_argument("folder")
+    cb.add_argument("--spl", type=float, default=None,
+                    help="LAeq in dB(A) read at the mic position over the "
+                         "--t0/--dur span")
+    cb.add_argument("--offset", type=float, default=None,
+                    help="store this dBFS->dB SPL offset directly (skip "
+                         "derivation, e.g. from a 94 dB calibrator)")
+    cb.add_argument("--t0", type=float, default=None,
+                    help="span start, s from recording start (default 0)")
+    cb.add_argument("--dur", type=float, default=None,
+                    help="span length, s (default: whole recording)")
+    cb.add_argument("--take", default=None,
+                    help="take filename for a per-take offset "
+                         "(multi-device sessions)")
+    cb.add_argument("--method", default="",
+                    help='provenance note, e.g. "SPL app on bench, LAeq '
+                         'over first minute"')
     rs = sub.add_parser("resynth",
                         help="recreate the soundscape from layers of basic "
                              "synthesis models as a self-contained Web "
@@ -695,6 +716,34 @@ def main(argv=None):
               f"{doc['exceed_fraction_before']:.2%} -> "
               f"{doc['exceed_fraction_after']:.2%}")
         print(f"wrote {doc['out_path']}")
+        return 0
+
+    if args.cmd == "calibrate":
+        from .iso import derive_offset, write_calibration
+        if args.offset is None and args.spl is None:
+            print("give --spl (derive from a meter reading) or --offset")
+            return 1
+        if args.offset is not None:
+            off = args.offset
+        else:
+            from .features import load_features
+            feats = sorted((Path(args.folder) / "analysis" / "features")
+                           .glob("*.npz"))
+            if not feats:
+                print("no cached features - run 'ambiscape analyze' first "
+                      "(or pass --offset directly)")
+                return 1
+            doc = derive_offset(load_features(feats), args.spl,
+                                t0=args.t0, dur=args.dur)
+            off = doc["dbfs_to_dbspl"]
+            print(f"  recording LAeq {doc['laeq_dbfs']} dBFS over "
+                  f"{doc['span_s'][0]:.0f}-{doc['span_s'][1]:.0f} s; "
+                  f"meter said {args.spl} dB(A)")
+        p = write_calibration(args.folder, off, method=args.method,
+                              take=args.take)
+        where = f"take {args.take}" if args.take else "session"
+        print(f"  offset {off} dB ({where})")
+        print(f"wrote {p} — analyze/iso now report calibrated dB SPL")
         return 0
 
     if args.cmd == "resynth":

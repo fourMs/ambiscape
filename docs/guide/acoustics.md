@@ -31,6 +31,37 @@ With it, `analyze` adds `leq_db_spl`, `laeq_db_spl`, `L10/L50/L90_db_spl`
 to the summary (ISO 1996-comparable), and the ISO indicators below run in
 true pascals.
 
+### Deriving the offset in the field (`ambiscape calibrate`)
+
+You rarely know the offset — but any SPL meter (or a phone SPL app held
+next to the microphone) gives you a reading you can anchor to later:
+
+```bash
+ambiscape calibrate SESSION/ --spl 62.5 --t0 0 --dur 60 \
+    --method "Phone SPL app on the bench, LAeq over the first minute"
+ambiscape calibrate SESSION/ --offset 94.0 \
+    --method "1 kHz calibrator, 94 dB"          # skip derivation
+```
+
+The first form computes the recording's own LAeq (dBFS) over the stated
+span from the cached features and stores `meter reading − recording LAeq`
+as the offset; note the reading and the time window in your field notes
+and run the command whenever. Existing keys in `calibration.json` (clock
+corrections etc.) are preserved.
+
+**Multi-device sessions** (a Zoom and a phone running side by side) need
+different offsets per device: pass `--take <filename>` to store the
+offset in a per-take map, which the ISO indicators resolve per segment:
+
+```json
+{"dbfs_to_dbspl": 83.2,
+ "dbfs_to_dbspl_takes": {"260728_100056-station.m4a": 77.0}}
+```
+
+Field habit worth forming: at every session, note one SPL-app LAeq
+reading and when you took it. It costs ten seconds and turns every
+uncalibrated dBFS table into dB SPL, retroactively.
+
 The same file may carry a **clock correction**:
 
 ```json

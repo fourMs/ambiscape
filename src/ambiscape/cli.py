@@ -125,6 +125,13 @@ def main(argv=None):
                     help="instead of rendering, export the SEC-second "
                          "bit-exact excerpt that best characterizes the "
                          "background (needs a prior analyze run)")
+    rs = sub.add_parser("resynth",
+                        help="recreate the soundscape from layers of basic "
+                             "synthesis models as a self-contained Web "
+                             "Audio page (needs a prior analyze run)")
+    rs.add_argument("folder")
+    rs.add_argument("-o", "--out", default=None,
+                    help="output dir (default <folder>/resynthesis)")
     lp = sub.add_parser("loop",
                         help="export a seamlessly loopable prototype "
                              "segment: the window most typical of the "
@@ -688,6 +695,22 @@ def main(argv=None):
               f"{doc['exceed_fraction_before']:.2%} -> "
               f"{doc['exceed_fraction_after']:.2%}")
         print(f"wrote {doc['out_path']}")
+        return 0
+
+    if args.cmd == "resynth":
+        from .features import load_features
+        from .io import open_session
+        from .resynth import run_session as resynth_run
+        sess = open_session(args.folder)
+        analysis = Path(args.folder) / "analysis"
+        feats = sorted((analysis / "features").glob("*.npz"))
+        if not feats:
+            print("no cached features - run 'ambiscape analyze' first")
+            return 1
+        F = load_features(feats)
+        doc = resynth_run(sess, F, analysis, out_dir=args.out)
+        print(f"  layers: {', '.join(doc['layers'])}")
+        print(f"wrote {doc['out_path']} — open in a browser and press start")
         return 0
 
     if args.cmd == "loop":

@@ -39,6 +39,18 @@ ambiscape resolve SESSION/ --by diel --night 22,6      # day / night instead
 - **`machine_states`** — on/off from a machine band via
   [`states.state_segments`](states.md); the default 250–1000 Hz band suits
   ventilation, other bands suit other machines.
+
+    !!! warning "Machines outside the band are invisible"
+        The detector only sees energy inside `band`, and that includes the
+        automatic pass in `analyze`. In a Ghent kitchen overnight session
+        (July 2026) the auto states caught the dishwasher — a 2¼ h cycle
+        with a 188–428 Hz pump-harmonic comb, squarely in the default
+        band — but entirely missed the fridge, which cycled 8 min on /
+        36 min period all night: its energy sits at 2–8 kHz (+9 dB, with
+        a 9.2 kHz line) and leaves 250–1000 Hz flat. For fridges,
+        freezers, and other hissers, re-run with `--band 2000,8000`; when
+        two machines occupy different bands, run `resolve` once per band
+        and pass the intervals explicitly.
 - **`diel_states`** — day / night from the wall clock (`night=(22, 6)`
   wraps midnight), for outdoor and long sessions where the diurnal cycle is
   the state variable.

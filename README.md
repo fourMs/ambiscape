@@ -42,6 +42,8 @@ ambiscape schedule   <session-folder>   # match events against civic time grids
 ambiscape timbre     <session-folder>   # event timbre templates (no-ML clustering)
 ambiscape music      <session-folder>   # librosa tempogram + chromagram [music]
 ambiscape background <session-folder>   # background-only bed render, or --excerpt: a characteristic minute
+ambiscape loop       <session-folder>   # seamlessly loopable prototype segment (typical, not just calm)
+ambiscape resynth    <session-folder>   # recreate the soundscape from basic synthesis models (Web Audio page)
 ambiscape carillon   <session-folder>   # which bells a carillon played: strike-note inventory [music]
 ambiscape vision     <video-or-folder>  # per-frame visual features (multimodal companion)
 ambiscape iso        <session-folder>   # ISO 12913-3 indicators

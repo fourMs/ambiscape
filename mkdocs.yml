@@ -45,6 +45,7 @@ nav:
       - Tonality: guide/tonality.md
       - Event timbre: guide/timbre.md
       - Background bed & excerpt: guide/background-render.md
+      - Prototype loop: guide/loop.md
       - Music (tempo & chroma): guide/music.md
       - Carillon bell inventory: guide/carillon.md
   - Ecology & sources:
@@ -57,6 +58,7 @@ nav:
       - Machine listening: guide/ml.md
   - Interpretation & multimodal:
       - Taxonomy (Schaeffer & Schafer): guide/taxonomy.md
+      - Resynthesis (teaching): guide/resynth.md
       - Visual features (multimodal): guide/vision.md
   - Corpus & workflow:
       - Corpus catalog: guide/catalog.md

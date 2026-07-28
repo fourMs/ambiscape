@@ -125,6 +125,23 @@ def main(argv=None):
                     help="instead of rendering, export the SEC-second "
                          "bit-exact excerpt that best characterizes the "
                          "background (needs a prior analyze run)")
+    lp = sub.add_parser("loop",
+                        help="export a seamlessly loopable prototype "
+                             "segment: the window most typical of the "
+                             "session, tail cross-faded into the head "
+                             "(needs a prior analyze run)")
+    lp.add_argument("folder")
+    lp.add_argument("-o", "--out", default=None)
+    lp.add_argument("--dur", type=float, default=60.0,
+                    help="window length scanned, s; the written loop is "
+                         "dur - xfade long (default 60)")
+    lp.add_argument("--xfade", type=float, default=1.0,
+                    help="equal-power seam crossfade, s (default 1)")
+    lp.add_argument("--take", type=int, default=None,
+                    help="take index (default: the longest take)")
+    lp.add_argument("--out-wav", default=None, dest="out_wav",
+                    help="output WAV path (default: "
+                         "<analysis>/loop_<take>_<dur>s.wav)")
     ca = sub.add_parser("carillon",
                         help="which bells a carillon/bell instrument played: "
                              "strike-note inventory via bell-template salience "
@@ -670,6 +687,27 @@ def main(argv=None):
         print(f"  {doc['rendered_s']} s rendered, exceedance "
               f"{doc['exceed_fraction_before']:.2%} -> "
               f"{doc['exceed_fraction_after']:.2%}")
+        print(f"wrote {doc['out_path']}")
+        return 0
+
+    if args.cmd == "loop":
+        from .features import load_features
+        from .io import open_session
+        from .render import prototype_loop
+        sess = open_session(args.folder)
+        out = Path(args.out) if args.out else Path(args.folder) / "analysis"
+        out.mkdir(parents=True, exist_ok=True)
+        feats = sorted((out / "features").glob("*.npz"))
+        if not feats:
+            print("no cached features - run 'ambiscape analyze' first")
+            return 1
+        F = load_features(feats)
+        doc = prototype_loop(sess, F, out, dur_s=args.dur,
+                             xfade_s=args.xfade, take=args.take,
+                             out_path=args.out_wav)
+        print(f"  loop at {doc['clock']} ({doc['t0_in_take_s']} s into "
+              f"{doc['take']}): {doc['loop_len_s']} s, seam "
+              f"{doc['seam_db']} dB, scores {doc['scores']}")
         print(f"wrote {doc['out_path']}")
         return 0
 

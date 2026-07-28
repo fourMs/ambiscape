@@ -252,11 +252,18 @@ def extract_session(sess: Session, out_dir: str | Path, verbose=True) -> list[Pa
 
 def load_features(npz_paths: list[str | Path]) -> dict:
     """Concatenate per-take feature files onto one absolute time axis."""
-    parts = [np.load(str(p)) for p in npz_paths]
-    parts.sort(key=lambda p: float(p["start"]))
+    pairs = sorted(((np.load(str(p)), Path(p).stem) for p in npz_paths),
+                   key=lambda pn: float(pn[0]["start"]))
+    parts = [p for p, _ in pairs]
     out = {}
     out["t"] = np.concatenate([p["start"] + np.arange(len(p["rms_w"]))
                                for p in parts])
+    # per-row take identity: overlapping takes (Zoom + phone on one clock)
+    # interleave in time, so consumers must not slice rows by time range
+    out["take_names"] = [name for _, name in pairs]
+    out["take_of_row"] = np.concatenate(
+        [np.full(len(p["rms_w"]), i, np.int32)
+         for i, p in enumerate(parts)])
     fd = float(parts[0]["fast_dt"])
     out["t_fast"] = np.concatenate([p["start"] + fd * np.arange(len(p["fast_db"]))
                                     for p in parts])

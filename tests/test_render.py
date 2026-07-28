@@ -111,3 +111,83 @@ def test_characteristic_excerpt_avoids_events(tmp_path):
     orig = x[i0:i0 + len(y)].astype(np.float32)
     got = np.asarray(y, np.float32)
     assert np.max(np.abs(orig[:fs] - got[:fs])) < 2e-4   # 16-bit quantise
+
+
+def _typical_with_odd_stretch(tmp_path, fs=16000, dur=300):
+    """Steady 'typical' noise texture, but 60-120 s is loud and tonal."""
+    rng = np.random.default_rng(11)
+    x = 0.02 * rng.standard_normal(dur * fs)
+    n0, n1 = 60 * fs, 120 * fs
+    t = np.arange(n1 - n0) / fs
+    x[n0:n1] += 0.3 * np.sin(2 * np.pi * 700 * t)       # atypical minute
+    sf.write(tmp_path / "20260724_120000_take.wav", x.astype(np.float32), fs)
+    return x
+
+
+def test_prototype_loop_typical_and_seamless(tmp_path):
+    """The loop lands in the typical texture and wraps without a level jump."""
+    import ambiscape as asc
+    from ambiscape import features as afeat
+    _typical_with_odd_stretch(tmp_path)
+    sess = asc.open_session(tmp_path)
+    out = tmp_path / "analysis"
+    F = afeat.load_features(afeat.extract_session(sess, out / "features",
+                                                  verbose=False))
+    doc = render.prototype_loop(sess, F, out, dur_s=60.0, xfade_s=1.0)
+    rel = doc["t0_in_take_s"]
+    # avoids the atypical loud/tonal stretch (60-120 s)
+    assert rel + 60.0 <= 61.0 or rel >= 119.0
+    y, fs = sf.read(doc["out_path"], always_2d=True)
+    assert abs(len(y) / fs - 59.0) < 1.5                # dur - xfade
+    # seamless wrap: RMS of the 50 ms window straddling end->start is
+    # within 3 dB of the segment's median 50 ms RMS
+    w = int(0.05 * fs)
+    wrap = np.concatenate([y[-w // 2:, 0], y[:w // 2, 0]])
+    wrap_db = 10 * np.log10(np.mean(wrap ** 2) + 1e-12)
+    blocks = y[: (len(y) // w) * w, 0].reshape(-1, w)
+    med_db = 10 * np.log10(np.median(np.mean(blocks ** 2, axis=1)) + 1e-12)
+    assert abs(wrap_db - med_db) < 3.0
+    assert (out / "loop.json").exists()
+    assert np.isfinite(doc["seam_db"])
+
+
+def test_prototype_loop_overlapping_takes_score_one_take(tmp_path):
+    """With time-overlapping takes (Zoom + phone), scoring must use only
+    the chosen take's feature rows: the scored window spans exactly the
+    window length in wall time, and stats aren't diluted by the other
+    device's rows."""
+    import ambiscape as asc
+    from ambiscape import features as afeat
+    fs = 16000
+    rng = np.random.default_rng(5)
+    a = 0.02 * rng.standard_normal(400 * fs)
+    t = np.arange(100 * fs) / fs
+    a[: 100 * fs] += 0.3 * np.sin(2 * np.pi * 600 * t)  # loud head, take A
+    sf.write(tmp_path / "20260724_120000_a.wav", a.astype(np.float32), fs)
+    b = 0.02 * rng.standard_normal(200 * fs)            # overlaps 150-350 s
+    sf.write(tmp_path / "20260724_120230_b.wav", b.astype(np.float32), fs)
+    sess = asc.open_session(tmp_path)
+    out = tmp_path / "analysis"
+    F = afeat.load_features(afeat.extract_session(sess, out / "features",
+                                                  verbose=False))
+    doc = render.prototype_loop(sess, F, out, dur_s=60.0, xfade_s=1.0)
+    assert doc["take"] == "20260724_120000_a.wav"       # the longest take
+    # the scored feature window covers the full 60 s of wall time
+    assert abs(doc["rows_wall_s"] - 60.0) <= 3.0
+    assert doc["t0_in_take_s"] >= 99.0                  # avoids the loud head
+
+
+def test_prototype_loop_preserves_channels(tmp_path):
+    """A 4-channel AmbiX session loops in all four channels."""
+    import ambiscape as asc
+    from ambiscape import features as afeat
+    from .conftest import write_bwf, diffuse_noise
+    write_bwf(tmp_path / "take.wav", diffuse_noise(180 * 48000, level=0.05))
+    sess = asc.open_session(tmp_path)
+    out = tmp_path / "analysis"
+    F = afeat.load_features(afeat.extract_session(sess, out / "features",
+                                                  verbose=False))
+    doc = render.prototype_loop(sess, F, out, dur_s=30.0, xfade_s=0.5)
+    y, fs = sf.read(doc["out_path"], always_2d=True)
+    assert y.shape[1] == 4
+    assert abs(len(y) / fs - 29.5) < 1.5

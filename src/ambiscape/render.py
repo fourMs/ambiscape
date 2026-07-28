@@ -236,3 +236,125 @@ def characteristic_excerpt(sess, F: dict, out_dir, dur_s: float = 60.0,
     (out_dir / "background_excerpt.json").write_text(
         json.dumps(doc, indent=2, default=float))
     return doc
+
+
+def prototype_loop(sess, F: dict, out_dir, dur_s: float = 60.0,
+                   xfade_s: float = 1.0, hop_s: float = 5.0,
+                   take: int | None = None, out_path=None) -> dict:
+    """Export a seamlessly loopable *prototype* segment of the session.
+
+    Where :func:`characteristic_excerpt` seeks the background, this seeks
+    the **typical**: the ``dur_s`` window whose median spectrum, level, and
+    event density sit closest to the session's own medians, with a *seam*
+    term preferring windows that already end the way they begin. The
+    winning span is read at native channel count and the final ``xfade_s``
+    is equal-power cross-faded into the head, so the written WAV (length
+    ``dur_s - xfade_s``) loops without a click in any player. Needs cached
+    features (a prior analyze run).
+    """
+    import json
+
+    out_dir = Path(out_dir)
+    tk = (sess.takes[take] if take is not None
+          else max(sess.takes, key=lambda k: k.end - k.start))
+    t = np.asarray(F["t"], np.float64)
+    logspec = np.asarray(F["logspec"], np.float64)
+    with np.errstate(divide="ignore"):
+        spec_db = 10 * np.log10(logspec + EPS)
+    level = 10 * np.log10(np.asarray(F["rms_w"], np.float64) ** 2 + EPS)
+
+    # rows of the chosen take only: overlapping takes (Zoom + phone)
+    # interleave in time, and device levels differ, so both the candidate
+    # windows and the typicality targets stay within one take
+    if "take_of_row" in F and tk.path.stem in list(F.get("take_names", [])):
+        ti = list(F["take_names"]).index(tk.path.stem)
+        rows = np.where(np.asarray(F["take_of_row"]) == ti)[0]
+    else:
+        rows = np.where((t >= tk.start) & (t < tk.end))[0]
+
+    sess_spec = np.median(spec_db[rows], axis=0)
+    sess_level = float(np.median(level[rows]))
+    eventful = level > sess_level + 6.0
+    sess_event = float(np.mean(eventful[rows]))
+    w = int(round(dur_s))
+    w = min(w, len(rows))
+    seam_w = max(2, int(round(max(2.0, xfade_s))))
+    starts = list(range(0, len(rows) - w + 1, max(1, int(round(hop_s))))) or [0]
+
+    def seam_mismatch(win_rows):
+        head, tail = win_rows[:seam_w], win_rows[-seam_w:]
+        d = float(np.mean(np.abs(np.median(spec_db[head], axis=0)
+                                 - np.median(spec_db[tail], axis=0))))
+        return d + abs(float(np.mean(level[head]))
+                       - float(np.mean(level[tail])))
+
+    best = None
+    for s0 in starts:
+        win = rows[s0:s0 + w]
+        d_spec = float(np.mean(np.abs(np.median(spec_db[win], axis=0)
+                                      - sess_spec)))
+        d_level = abs(float(np.median(level[win])) - sess_level)
+        d_event = abs(float(np.mean(eventful[win])) - sess_event) * 20.0
+        d_seam = seam_mismatch(win)
+        score = d_spec + d_level + d_event + 0.5 * d_seam
+        if best is None or score < best[0]:
+            best = (score, s0, {"spec_db": round(d_spec, 2),
+                                "level_db": round(d_level, 2),
+                                "event": round(d_event, 2),
+                                "seam_db": round(d_seam, 2)})
+    _, s0, scores = best
+
+    # refine the end cut +/- 2 s on the per-second grid for the best seam
+    end_shift, end_best = 0, None
+    for ds in range(-2, 3):
+        if s0 + w + ds > len(rows) or w + ds < seam_w * 2:
+            continue
+        m = seam_mismatch(rows[s0:s0 + w + ds])
+        if end_best is None or m < end_best:
+            end_best, end_shift = m, ds
+
+    t0 = float(t[rows[s0]])
+    rows_wall_s = float(t[rows[s0 + w - 1]] - t[rows[s0]] + 1.0)
+    seg_dur = float(min(w + end_shift, tk.end - t0))
+    # read from the chosen take explicitly (read_span would pick the first
+    # take covering t0, which in an overlap need not be tk)
+    fs = tk.samplerate
+    off = int((t0 - tk.start) * fs)
+    n = min(int(seg_dur * fs), tk.frames - off)
+    with sf.SoundFile(str(tk.audio_path)) as f:
+        f.seek(off)
+        y = f.read(n, dtype="float32", always_2d=True)
+    xf = min(int(round(xfade_s * fs)), len(y) // 4)
+    th = (np.arange(xf, dtype=np.float64) + 0.5) / xf * (np.pi / 2)
+    out = np.array(y[xf:], dtype=np.float64)
+    out[:xf] = (np.cos(th)[:, None] * y[-xf:]
+                + np.sin(th)[:, None] * y[:xf])
+    peak = float(np.abs(out).max()) + EPS
+    if peak > 0.99:
+        out *= 0.99 / peak
+    head_db = 10 * np.log10(np.mean(np.asarray(y[:xf], np.float64) ** 2)
+                            + EPS)
+    tail_db = 10 * np.log10(np.mean(np.asarray(y[-xf:], np.float64) ** 2)
+                            + EPS)
+
+    if out_path is None:
+        out_path = out_dir / f"loop_{tk.path.stem}_{int(dur_s)}s.wav"
+    out_path = Path(out_path)
+    sf.write(str(out_path), out, fs, subtype="PCM_24")
+    doc = {
+        "out_path": str(out_path), "take": tk.path.name,
+        "t0_s": round(t0, 1), "t0_in_take_s": round(t0 - tk.start, 1),
+        "clock": sess.clock(t0), "dur_s": seg_dur,
+        "rows_wall_s": round(rows_wall_s, 1),
+        "xfade_s": xfade_s, "loop_len_s": round(len(out) / fs, 2),
+        "scores": scores,
+        "seam_db": round(abs(head_db - tail_db), 2),
+        "_method_note": (
+            "typicality-scored window (median spectrum/level/event density "
+            "closest to the session's) with a seam term; tail equal-power "
+            "cross-faded into the head, so end-to-start playback is "
+            "continuous."),
+    }
+    (out_dir / "loop.json").write_text(
+        json.dumps(doc, indent=2, default=float))
+    return doc

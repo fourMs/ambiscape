@@ -1,7 +1,9 @@
 # Ambiscape
 
+[![CI](https://github.com/fourMs/ambiscape/actions/workflows/ci.yml/badge.svg)](https://github.com/fourMs/ambiscape/actions/workflows/ci.yml)
+[![docs](https://github.com/fourMs/ambiscape/actions/workflows/docs.yml/badge.svg)](https://fourms.github.io/ambiscape/)
 [![PyPI version](https://img.shields.io/pypi/v/ambiscape)](https://pypi.org/project/ambiscape/)
-[![Documentation](https://img.shields.io/badge/docs-fourms.github.io%2Fambiscape-blue)](https://fourms.github.io/ambiscape/)
+[![Python](https://img.shields.io/pypi/pyversions/ambiscape.svg)](https://pypi.org/project/ambiscape/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Ambiscape is a toolbox for analysing *soundscapes*, with a particular focus on the sonic ambiences of rooms. It takes a holistic view, bringing together measurements of level, spectral, spatial, temporal, ecological, and source-domain descriptors so a place's sound can be described as a whole rather than one metric at a time.

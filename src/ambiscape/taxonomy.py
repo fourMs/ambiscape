@@ -1,14 +1,29 @@
-"""Schaeffer / Schafer taxonomy figures from per-session annotations.
+"""Figures for two separate sound taxonomies, from per-session annotations.
 
-The annotation file (``annotations.json`` or ``.yml`` in the session folder)
-is hand-authored: instruments detect *when* things sound, but assigning a
-sound to Schaeffer's typo-morphology or Schafer's functional categories is an
-interpretive act. This module turns that interpretation into two figures:
+Two traditions are represented here and their founders have nearly the same name. They ask different
+questions and neither constrains the other, so keep them apart.
 
-- ``schaeffer_map``  — objects on the facture x mass plane, colored by
-  Schafer function (keynote / signal / soundmark / figure);
-- ``schafer_timeline`` — one lane per object on the session clock, keynote
-  spans as bars, events as markers, lo-fi states shaded.
+Pierre Schaeffer (*Traité des objets musicaux*, 1966) asks what a sound IS in itself, heard through
+reduced listening and classified by its internal make-up. Here that is ``mass`` and ``facture``.
+
+R. Murray Schafer (*The Soundscape*, 1977) asks what a sound DOES in a place, classified by the role
+it plays for the people living among it. Here that is ``kind`` and ``soundmark``.
+
+A third scheme is present and belongs to neither. ``source`` (biophony, geophony, anthropophony) is
+soundscape ecology, after Krause and Pijanowski, and classifies by physical origin.
+
+One object carries all three labels independently. A ventilation drone is ``noise``/``unlimited`` to
+Schaeffer, a ``keynote`` to Schafer, and ``anthropophony`` to soundscape ecology.
+
+The annotation file (``annotations.json`` or ``.yml`` in the session folder) is hand-authored:
+instruments detect *when* things sound, but assigning a sound to any of the three schemes is an
+interpretive act. This module turns that interpretation into two figures, one per tradition:
+
+- ``schaeffer_map``  — objects on the facture x mass plane, which is Schaeffer's question. It is
+  colored by Schafer's ``kind`` only so you can see whether the two schemes happen to agree in a
+  given corpus; the colouring carries no classificatory weight;
+- ``schafer_timeline`` — one lane per object on the session clock, keynote spans as bars, events as
+  markers, lo-fi states shaded. Hi-fi and lo-fi are Schafer's terms too.
 
 Annotation schema (JSON; YAML accepted if PyYAML is installed)::
 

@@ -25,7 +25,8 @@ produces:
   direction of arrival, diffuseness and azimuthal concentration from
   ambisonics, a lateral left/right cue from stereo,
 - **source decomposition**: geophony, biophony, anthropophony, and
-  mechanical/transport indices, plus a Schaeffer/Schafer taxonomy layer,
+  mechanical/transport indices, plus two separate annotation layers, one for
+  Schaeffer's typo-morphology and one for Schafer's soundscape functions,
 - **figures** (session overview, percentile spectra, directograms,
   taxonomy maps and timelines),
 - **room acoustics** (T60 from claps or incidental impulses),

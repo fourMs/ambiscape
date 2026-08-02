@@ -16,7 +16,7 @@ through the same tested extractor as `analyze`, saves a feature `.npz`, and
 then deletes the audio. We keep audio for only one block at a time, which is
 both robust (a crash leaves the block on disk to reprocess) and
 privacy-preserving. At
-each midnight the day is rolled up into a catalog- and longitudinal-ready
+each midnight the day is rolled up into a catalogue- and longitudinal-ready
 `summary.json` (plus a non-identifying deposit unless `--no-deposit`):
 
 ```

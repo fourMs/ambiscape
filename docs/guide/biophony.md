@@ -27,7 +27,7 @@ biophony.summarize_biophony(F)
   band per minute (from the high-resolution per-minute PSD). Birdsong is
   narrowband and tonal; wind and machines are broadband.
 - **`band_temporal_entropy`**—Sueur Ht of the bird-band envelope: low
-  when energy is concentrated into vocalizations, near 1 for a flat band.
+  when energy is concentrated into vocalisations, near 1 for a flat band.
 - **`band_activity`**—active-second fraction and event rate where the
   bird band rises above its own running background (Towsey-style).
 - **`spatial_dispersion`**—the layer no other corpus tool has: the

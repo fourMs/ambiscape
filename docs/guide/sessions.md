@@ -24,7 +24,7 @@ ambiscape scenes CONTRIB/Microphone_1/   # one summary per WAV, keyed by filenam
 ambiscape catalog CONTRIB/Microphone_1/analysis/scenes/   # then compare them
 ```
 
-Each scene is written as a catalog-ready mini-session, so `catalog` and
+Each scene is written as a catalogue-ready mini-session, so `catalog` and
 `longitudinal` work across them unchanged.
 
 `read_span(session, t0, dur)` returns raw audio from anywhere on that

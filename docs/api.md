@@ -40,7 +40,7 @@
 
 ::: ambiscape.resolve
 
-## Corpus catalog
+## Corpus catalogue
 
 ::: ambiscape.catalog
 

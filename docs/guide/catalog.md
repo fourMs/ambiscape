@@ -1,4 +1,4 @@
-# Corpus catalog
+# Corpus catalogue
 
 Every `ambiscape analyze` writes `<session>/analysis/summary.json`. The
 `catalog` command aggregates them across a whole corpus into one table, the

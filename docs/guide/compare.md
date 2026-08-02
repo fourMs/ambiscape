@@ -1,6 +1,6 @@
 # Cross-session comparison
 
-The catalog answers *how do my places differ*; `compare` answers *how did this
+The catalogue answers *how do my places differ*; `compare` answers *how did this
 place differ between visits*, by laying two or more analysed sessions of one
 room onto a common clock, so machines, weather, parties and silences read
 against each other. It works entirely from the cached 1 Hz features and the

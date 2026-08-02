@@ -82,11 +82,11 @@ gracefully when a JSON is missing):
 Page: layer sections with comments teaching each synthesis model, master
 gain, "all off/on". Recipe embedded as `<script type="application/json">`.
 
-**CLI:** `ambiscape resynth <folder> [-o OUT]`; needs a prior analyze run;
+**CLI:** `ambiscape resynth <folder> [-o OUT]`; needs a prior analyse run;
 uses whatever module JSONs exist.
 
 **Tests** (`tests/test_resynth.py`): fixture session (conftest tone+noise)
-after analyze-equivalent feature extraction + minimal JSONs → recipe has
+after analyse-equivalent feature extraction + minimal JSONs → recipe has
 finite octave gains, the known tonal line within 2%, events/min ≥ 0;
 `index.html` written, contains the embedded recipe JSON (parseable) and
 one `<section>` per layer.

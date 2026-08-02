@@ -4,7 +4,7 @@ A soundscape is rhythmic on very different time scales at once: bell strikes
 and footsteps beat at a few hertz, traffic waves and surf breathe over tens
 of seconds, and machines and human activity switch on a duty cycle of
 minutes to hours. `ambiscape modspec` measures all three from the cached
-envelopes — no second pass over audio — as a **modulation profile**: a
+envelopes, with no second pass over audio, as a modulation profile: a
 log-frequency modulation spectrum per scale, plus a rhythm spectrogram of
 the whole session.
 
@@ -21,14 +21,18 @@ rhythm spectrogram, in dB relative to each window's median).
 
 ## The three scales
 
-- **micro** (0.5–20 Hz) from the 20 ms broadband envelope — strike
+- **micro** (0.5–20 Hz) from the 20 ms broadband envelope: strike
   patterns, footstep cadence, flutter. This needs the high-rate `env_hi`
   cache (extractor ≥ 0.2); on older caches micro falls back to the fast
   level and tops out at 4 Hz (flagged as `micro_limited` in the JSON).
-- **meso** (0.01–0.5 Hz) from the 125 ms fast level — traffic waves, surf,
+- **meso** (0.01–0.5 Hz) from the 125 ms fast level: traffic waves, surf,
   wind gusts, conversational turn-taking.
-- **macro** (below 0.01 Hz, floor set by session length) from the 1 s RMS —
+- **macro** (below 0.01 Hz, floor set by session length) from the 1 s RMS:
   ventilation and appliance duty cycles, diel activity.
+
+We take each scale from a different cached envelope, since no single
+envelope rate resolves both a footstep and a fridge that runs for eight
+minutes in every thirty-six.
 
 Each scale reports `peak_freq_hz`, `peak_period_s`, `peak_prominence_db`
 (peak over the band median) and `modulation_depth` (band-integrated
@@ -47,5 +51,5 @@ prof["scales"]["meso"]
 ```
 
 `modulation.modulation_spectrogram(env, dt)` returns the windowed version
-directly — `(t_centers, mod_freqs, S)` — if you want to build the rhythm
+directly, as `(t_centers, mod_freqs, S)`, if you want to build the rhythm
 spectrogram from a custom envelope.

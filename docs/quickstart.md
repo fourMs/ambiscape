@@ -66,6 +66,6 @@ versions of the level descriptors:
 
 The same file can correct a wrong recorder clock: add
 `"clock_offset_s": 665.0` (positive = clock was slow) and every
-clock-labeled output uses corrected time. See
+clock-labelled output uses corrected time. See
 [Room acoustics & ISO](guide/acoustics.md) for details, and
 [Strike-level rhythm](guide/rhythm.md) for the `rhythm` command.

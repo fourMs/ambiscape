@@ -13,7 +13,7 @@ extras enable the heavier subsystems:
 | `pip install "ambiscape[ml]"` | PANNs tag suggestions in drafts; `ambiscape speechgate` | torch (CPU is fine), panns-inference, silero-vad |
 | `pip install "ambiscape[viz]"` | HRIR binaural rendering; AEM visuals on excerpts | [ambiviz](https://github.com/fisheggg/ambiviz) |
 
-Everything degrades gracefully: without an extra installed, the
+We let everything degrade gracefully: without an extra installed, the
 corresponding feature is skipped or falls back (e.g., binaural rendering
 falls back to a documented cardioid pair).
 

@@ -1,9 +1,9 @@
 # Resynthesis (teaching)
 
-`ambiscape resynth` recreates a session's soundscape from **layers of
-basic synthesis models** and renders the result as one self-contained
-Web Audio page — no samples, no external resources, one HTML file you
-can open anywhere or hand to students.
+`ambiscape resynth` recreates a session's soundscape from layers of
+basic synthesis models and renders the result as one self-contained
+Web Audio page, with no samples and no external resources, one HTML file
+you can open anywhere or hand to students.
 
 ```bash
 ambiscape resynth SESSION/        # writes SESSION/resynthesis/index.html
@@ -17,7 +17,7 @@ when one is missing.
 
 The page is teaching material: a real place, decomposed into the four
 canonical building blocks of a synthesis course, with every starting
-value **measured** from the recording. Students toggle layers to hear
+value measured from the recording. Students toggle layers to hear
 how a soundscape is assembled, then drag sliders to exaggerate or delete
 each ingredient. Comparing two sessions' pages (say, a station and a
 train carriage) shows how few parameters carry a place's identity.
@@ -34,9 +34,9 @@ train carriage) shows how few parameters carry a place's identity.
 ## Recipe
 
 The mapping lives in `resynthesis/recipe.json` (also embedded in the
-page), produced by `resynth.build_recipe(sess, F, analysis_dir)`. The
-recipe is deliberately small and human-readable — it *is* the lesson:
-a place, reduced to a couple of dozen numbers, remains recognizable.
+page), produced by `resynth.build_recipe(sess, F, analysis_dir)`. We keep
+the recipe small and human-readable, since it *is* the lesson: a place,
+reduced to a couple of dozen numbers, remains recognisable.
 
 ```python
 from ambiscape import features, resynth

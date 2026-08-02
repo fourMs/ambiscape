@@ -4,10 +4,10 @@ How does a place sound across weeks, months, a year? Version 0.10 adds a
 layer above the single session: trend and seasonal analysis of *dated*
 session summaries across a corpus.
 
-The design point matters for anyone planning a long study. The unit is the
-**dated session summary**, not the audio. A year-long study is best run as
-many short sessions---one a day, as in the StillStanding archive---each
-analyzed to a small `summary.json`. A year is then 365 tiny rows, so the
+The design point matters for anyone planning a long study. We made the unit
+the dated session summary rather than the audio. A year-long study is best
+run as many short sessions, one a day, as in the StillStanding archive, each
+analysed to a small `summary.json`. A year is then 365 tiny rows, so the
 longitudinal analysis is inherently out-of-core no matter how large the
 underlying audio was. (A single *continuous* multi-month recording exceeds
 what the in-memory feature pipeline holds; segment it into per-day sessions
@@ -36,17 +36,17 @@ lg.summarize_longitudinal(s["dates"], s["series"]["..."])
 # {'trend_per_year': ..., 'seasonal_amplitude': ..., 'peak_month': 7, ...}
 ```
 
-- **`decompose`** splits a descriptor into an additive **trend** (a
+- **`decompose`** splits a descriptor into an additive trend (a
   day-windowed rolling median, default one year so the seasonal cycle
-  averages out), a repeating **seasonal** component (the monthly
-  climatology of the detrended series), and the **residual**.
-- **`seasonal_climatology`** and **`trend_slope`** give the two components
-  on their own; **`summarize_longitudinal`** reports trend-per-year,
+  averages out), a repeating seasonal component (the monthly
+  climatology of the detrended series), and the residual.
+- **`seasonal_climatology`** and `trend_slope` give the two components
+  on their own; `summarize_longitudinal` reports trend-per-year,
   seasonal amplitude, and the peak/trough months.
 - **`render`** draws the descriptor over time with its trend, beside the
   monthly climatology.
 
 The motivating example is already in the StillStanding data: bird mentions
-peak in July and fall to zero in winter---not because the birds leave, but
+peak in July and fall to zero in winter, not because the birds leave, but
 because the windows close. A longitudinal run on the biophony descriptors
 recovers exactly that seasonal signature from the audio alone.

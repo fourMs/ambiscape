@@ -1,9 +1,10 @@
 # Machine listening (`[ml]` extra)
 
-Two assistants, both deliberately positioned as *helpers around* the human
+Two assistants, both of which we position as *helpers around* the human
 ear rather than replacements for it. Both operate on the W (omni) channel,
-downmixed and resampled — the models are trained on 16/32 kHz mono internet
-audio, and quiet domestic material is out of their training distribution.
+downmixed and resampled, since the models are trained on 16/32 kHz mono
+internet audio, and quiet domestic material is out of their training
+distribution.
 
 ## AudioSet tagging (PANNs)
 
@@ -19,9 +20,9 @@ classes into the draft's listening hints:
 
 AudioSet's taxonomy includes remarkably apt classes for indoor soundscape
 work (*Air conditioning, Refrigerator, Church bell, Pigeon/dove, Water tap,
-Footsteps, Speech*). The intended reading: the tagger says **what**, the
-intensity vector says **from where** — together, a labeled spatial event.
-Confirm by ear; scores on low-SNR ambience are suggestions.
+Footsteps, Speech*). The intended reading is that the tagger says what and
+the intensity vector says from where, which together give a labelled
+spatial event. Confirm by ear; scores on low-SNR ambience are suggestions.
 
 ## Speech privacy gate (silero-vad)
 
@@ -31,11 +32,11 @@ ambiscape speechgate segments/ --threshold 0.01
 ```
 
 Reports the fraction of speech per file and a PASS/FAIL verdict (default:
-fail above 1 % speech). Run it on **every excerpt before publishing**
-(Freesound, Zenodo, supplementary material) — recordings made in homes
+fail above 1 % speech). Run it on every excerpt before publishing
+(Freesound, Zenodo, supplementary material), since recordings made in homes
 routinely catch a few words the recordist forgot. Exit code 2 on any
 failure, so it slots into scripts.
 
-The gate detects *voice activity*, not intelligibility — a conservative
-proxy. For a stricter check on borderline files, listen to the flagged
+The gate detects *voice activity*, not intelligibility, which makes it a
+conservative proxy. For a stricter check on borderline files, listen to the flagged
 regions (`first_speech_at_s` is reported).

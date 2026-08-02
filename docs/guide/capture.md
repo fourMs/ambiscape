@@ -13,8 +13,9 @@ ambiscape capture /data/room --device 2 --block-seconds 3600
 
 It captures each block (hourly by default) to a short-lived WAV, runs it
 through the same tested extractor as `analyze`, saves a feature `.npz`, and
-then **deletes the audio**. Audio exists only one block at a time---robust
-(a crash leaves the block on disk to reprocess) and privacy-preserving. At
+then deletes the audio. We keep audio for only one block at a time, which is
+both robust (a crash leaves the block on disk to reprocess) and
+privacy-preserving. At
 each midnight the day is rolled up into a catalog- and longitudinal-ready
 `summary.json` (plus a non-identifying deposit unless `--no-deposit`):
 
@@ -48,4 +49,4 @@ The daemon is a plain long-running process; on a Raspberry Pi run it under
 `systemd` for auto-start, restart-on-failure, and clean shutdown, log to an
 SSD (not the SD card), and keep the clock true with NTP. A complete
 hardware-and-setup guide for a year-long room logger (with an optional light
-sensor) lives in the companion **ambient-pi** repository.
+sensor) lives in the companion ambient-pi repository.

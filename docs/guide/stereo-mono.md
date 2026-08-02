@@ -1,11 +1,11 @@
 # Stereo & mono inputs
 
 ambiscape was built for four-channel AmbiX B-format, but from v0.13 it also
-analyses **stereo** and **mono** recordings, and ingests compressed audio (a
-phone's AAC `.m4a`, say) alongside WAV/FLAC. The channel count of a file
-picks a processing *mode*, and the mode decides how much direction can be
-reported. Everything else — levels, spectra, events, ecology indices,
-reverberation, the whole descriptor table — is computed the same way from a
+analyses stereo and mono recordings, and ingests compressed audio (a
+phone's AAC `.m4a`, say) alongside WAV/FLAC. We let the channel count of a
+file pick a processing *mode*, and the mode decides how much direction can
+be reported. Everything else (levels, spectra, events, ecology indices,
+reverberation, the whole descriptor table) is computed the same way from a
 single mono reference (the W channel for ambix, the L/R mean for stereo, the
 lone channel for mono).
 
@@ -39,13 +39,13 @@ directional descriptor is `null` and the directogram is skipped.
 
 The audio-reading follow-on modules are mode-aware too: `music` (tempo,
 chroma), `tonality`, `rhythm` and `timbre` run on the same mono reference, so
-they work on stereo and mono inputs — `rhythm` simply reports no source
+they work on stereo and mono inputs, though `rhythm` simply reports no source
 azimuth off ambisonics. `enf` (mains-hum tracking) reads the raw line and is
 channel-agnostic. In other words, a café phone recording can be characterised
-across *coexisting* layers at once — electricity (`ambiscape enf`), music
-(`ambiscape music` / `tonality`), and biophony (`analyze`'s bird band, though
-indoors that band responds to music, not birds — use the trained classifier
-via `ambiscape birdnet` to be sure).
+across *coexisting* layers at once: electricity (`ambiscape enf`), music
+(`ambiscape music` / `tonality`), and biophony (`analyze`'s bird band).
+Indoors that bird band responds to music, not birds, so use the trained
+classifier via `ambiscape birdnet` to be sure.
 
 ```bash
 ambiscape analyze path/to/cafe          # a folder with one stereo .m4a
@@ -68,8 +68,8 @@ Recordings need not be BWF WAVs. On ingest ambiscape:
 ## Caveats
 
 Lossy phone audio and a narrow stereo base make the directional read
-*indicative, not calibrated* — good for "is this centred or lateral, point-like
-or enveloping, and does the foreground come from where the background sits,"
-not for degree-accurate bearings. And remember the biophony/bird-band
+*indicative, not calibrated*. It is good for "is this centred or lateral,
+point-like or enveloping, and does the foreground come from where the
+background sits," not for degree-accurate bearings. And remember the biophony/bird-band
 descriptors key off spectral energy in the 2–8 kHz band: indoors they respond
 to music and machines, not birds. For true 3-D direction, record ambisonics.

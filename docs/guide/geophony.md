@@ -6,16 +6,16 @@ its descriptors ride in the `analyze` summary.
 
 ## What it measures
 
-- **Wind** — low-frequency (below ~200 Hz) energy that is *diffuse* and
+- **Wind**—low-frequency (below ~200 Hz) energy that is *diffuse* and
   non-directional. Wind on the capsules is incoherent between channels, so
-  ambisonic diffuseness rises; **`geo_wind_index`** is the low-band energy
-  weighted by median diffuseness (it falls back to plain low-band energy for
+  ambisonic diffuseness rises; `geo_wind_index` is the low-band energy
+  weighted by median diffuseness (we fall back to plain low-band energy for
   stereo/mono, which cannot resolve diffuseness).
-- **Rain / water** — broadband high-frequency hiss that is spectrally flat and
-  temporally steady (a shower, a fountain, a stream); **`geo_rain_index`** is
+- **Rain / water**—broadband high-frequency hiss that is spectrally flat and
+  temporally steady (a shower, a fountain, a stream); `geo_rain_index` is
   the 2–16 kHz energy fraction times median spectral flatness.
-- **`geo_lowfreq_fraction` / `geo_highband_fraction`** — the underlying band
-  shares; **`geophony_index`** is the larger of wind and rain.
+- **`geo_lowfreq_fraction` / `geo_highband_fraction`**—the underlying band
+  shares; `geophony_index` is the larger of wind and rain.
 
 ## Usage
 

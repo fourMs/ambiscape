@@ -1,8 +1,8 @@
 # Corpus catalog
 
 Every `ambiscape analyze` writes `<session>/analysis/summary.json`. The
-`catalog` command aggregates them across a whole corpus into one table —
-the cross-session view, built in milliseconds from cached summaries alone
+`catalog` command aggregates them across a whole corpus into one table, the
+cross-session view, built in milliseconds from cached summaries alone
 (no audio, no features).
 
 ```bash
@@ -15,14 +15,14 @@ ambiscape catalog CORPUS/ --sort diffuseness_median
 
 `catalog.csv` is session-per-row for analysis (pandas, R); `catalog.md` is
 the transposed descriptor-per-row table for a consolidated report. Sessions
-with different descriptor sets — older caches, optional modules — are
-handled by taking the union of keys and blanking where a session lacks one,
-so a growing corpus never breaks the table.
+come with different descriptor sets, from older caches or optional modules,
+and we handle that by taking the union of keys and blanking where a session
+lacks one, so that a growing corpus never breaks the table.
 
 Add `--states` (CLI) or `include_states=True` (`collect`) to expand each
 multi-state session into extra `"<session>::<state>"` rows drawn from its
-`states.json`, right after the pooled row — the state-resolved corpus view
-in one table.
+`states.json`, right after the pooled row, which gives the state-resolved
+corpus view in one table.
 
 ## In a notebook
 
@@ -37,8 +37,7 @@ catalog.outliers(col, "azimuth_R", z=1.5)   # what stands out, as z-scores
 
 `rank` returns `(session, value)` pairs sorted on any numeric descriptor;
 `outliers` flags sessions more than `z` standard deviations from the corpus
-mean — the cheap "which session is unusual, and on what axis" query that
-turns a growing database into a comparative instrument.
+mean, which is the cheap "which session is unusual, and on what axis" query.
 
 !!! note "Keep summaries current"
     The catalog reflects whatever is in each `summary.json`. After

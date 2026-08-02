@@ -3,11 +3,11 @@
 A soundscape repeats itself: the same door, the same cup, the same bird call
 recur through a session. `ambiscape timbre` finds those recurring event
 classes without any machine learning. Every transient gets a spectral
-fingerprint — the strike-triggered **rise spectrum** (what appeared) plus a
-per-band **decay slope** (how it faded) — and the fingerprints are clustered
-by correlation distance into transparent, corpus-comparable template
-classes. It complements the PANNs sound-event tagger (`[ml]`) with a fully
-inspectable, no-model alternative.
+fingerprint, which is the strike-triggered rise spectrum (what appeared)
+plus a per-band decay slope (how it faded), and the fingerprints are
+clustered by correlation distance into transparent, corpus-comparable
+template classes. It complements the PANNs sound-event tagger (`[ml]`) with
+a fully inspectable, no-model alternative.
 
 ![Event rise-spectrum fingerprints, grouped into timbre classes by white dividers.](../img/timbre.png)
 
@@ -24,16 +24,16 @@ list) and `timbre.png` (the fingerprints as a heatmap, grouped by class).
 
 Each entry in `classes` describes one recurring sound:
 
-- **`n`** — how many events fell into the class;
-- **`exemplar_t0_s`** — onset times of up to five members, to go and listen;
-- **`centroid_hz`** — the fingerprint's spectral centroid, a rough "how
+- **`n`**: how many events fell into the class;
+- **`exemplar_t0_s`**: onset times of up to five members, to go and listen;
+- **`centroid_hz`**: the fingerprint's spectral centroid, a rough "how
   bright";
-- **`decay_median_db_s`** — the median decay slope over the bands the event
+- **`decay_median_db_s`**: the median decay slope over the bands the event
   actually excited: sharply negative for a plucked or struck sound, near
   zero for a sustained one.
 
-Classes are sorted by count. Singletons that match nothing are left
-unclustered (`n_unclustered`) rather than forced into a class.
+Classes are sorted by count. We leave singletons that match nothing
+unclustered (`n_unclustered`) rather than forcing them into a class.
 
 ## In Python
 

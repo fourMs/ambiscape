@@ -1,10 +1,10 @@
 # Carillon bell inventory
 
 `ambiscape carillon` answers a musical question a swinging-bell rhythm analysis
-cannot: **which bells did a carillon play?** A carillon is a tuned, chromatic set
+cannot: which bells did a carillon play? A carillon is a tuned, chromatic set
 of cast bells played from a keyboard, so the object of interest is the *set of
-distinct strike notes* — the instrument's range in use, its tuning, and the
-pitch-class centre of the music.
+distinct strike notes*, which gives the instrument's range in use, its tuning,
+and the pitch-class centre of the music.
 
 ```bash
 ambiscape carillon <session-folder> --t0 60 --dur 3600   # needs the [music] extra
@@ -30,13 +30,13 @@ strike note (the prime):
 | nominal | 2 | octave above |
 
 The loud tierce and nominal make a naive pitch tracker report notes a minor third
-or an octave too high. `carillon` instead does **bell-template matching**: for
-every candidate strike note it sums the energy at all five partial positions, so
-a true strike note — which has energy at *all* of them — outscores any single
+or an octave too high. We chose bell-template matching instead: for
+every candidate strike note `carillon` sums the energy at all five partial positions, so
+a true strike note—which has energy at *all* of them—outscores any single
 partial. Accumulated over the onset frames of a whole recital, the peaks of that
 salience are the bells that were played.
 
-The minor-third **tierce is the bell fingerprint**: an octave-down "hum ghost" or
+The minor-third tierce is the bell fingerprint: an octave-down "hum ghost" or
 a tierce/quint ghost of a real bell lacks its *own* tierce, so a genuine-tierce
 gate removes them cleanly (validated on synthetic bells in the test suite).
 

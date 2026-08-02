@@ -6,14 +6,15 @@ Date: 2026-07-28. Approved by user in session (train-recordings analysis).
 
 Two user-facing needs from field practice:
 
-1. **Loop** — for each session, export one seamlessly loopable WAV that is a
+1. **Loop**: for each session, export one seamlessly loopable WAV that is a
    *prototype* of the place: typical spectrum, typical level, typical event
    density. Use: installations, ambience beds, quick auditioning of a corpus.
-2. **Resynth** — recreate a session's soundscape from layers of *basic
+2. **Resynth**: recreate a session's soundscape from layers of *basic
    synthesis models* (noise shaping, oscillator banks, stochastic events,
-   simple diffusion), parameterized from the session's analysis, rendered as
-   a self-contained Web Audio HTML page. Use: teaching material — students
-   deconstruct a real place into canonical synthesis blocks with sliders.
+   simple diffusion), parameterised from the session's analysis, rendered as
+   a self-contained Web Audio HTML page. Use: teaching material, where
+   students deconstruct a real place into canonical synthesis blocks with
+   sliders.
 
 ## 1. `ambiscape loop <session> [--dur 60] [--xfade 1.0] [--take N]`
 
@@ -26,7 +27,8 @@ to the chosen take; default take = longest):
 - `d_spec`: mean |median log-spectrum(win) − median log-spectrum(session)| dB
 - `d_level`: |L50(win) − L50(session)| dB
 - `d_event`: |eventful_fraction(win) − eventful_fraction(session)| × 20 dB
-  (eventful = fast level > session median + 6 dB) — *typicality*, not calm
+  (eventful = fast level > session median + 6 dB), which scores *typicality*,
+  not calm
 - `d_seam`: mean |median log-spectrum(first 2 s) − (last 2 s)| dB
   + |level(first 2 s) − level(last 2 s)| dB
 - score = d_spec + d_level + d_event + 0.5 · d_seam; lowest wins.
@@ -36,7 +38,7 @@ features interpolated) for minimum seam mismatch.
 
 **Export:** read winning span via `io.read_span` (native channel count),
 equal-power crossfade of the final `xfade_s` into the head, output length
-`dur − xfade`, peak-normalize to −1 dBFS if needed, write
+`dur − xfade`, peak-normalise to −1 dBFS if needed, write
 `analysis/loop_<takestem>_<dur>s.wav` (PCM_24) + `analysis/loop.json`
 (t0 session-time + clock, take, scores, seam residual dB, method note).
 
@@ -48,7 +50,7 @@ within 3 dB of segment median RMS; loop.json exists with finite fields.
 
 ## 2. `ambiscape resynth <session>`
 
-New module `resynth.py`: distill a **recipe** (plain dict → JSON) from
+New module `resynth.py`: distill a recipe (plain dict → JSON) from
 existing analysis outputs, then render `resynthesis/index.html` from a
 string template (no new Python deps; page has zero external resources).
 
@@ -66,8 +68,8 @@ gracefully when a JSON is missing):
 
 **Web Audio layers** (each: gain slider + mute; parameters shown inline):
 
-1. *Bed*: looped white-noise buffer → 10 peaking biquads at octave centers,
-   gains from background octave spectrum (dB, normalized).
+1. *Bed*: looped white-noise buffer → 10 peaking biquads at octave centres,
+   gains from background octave spectrum (dB, normalised).
 2. *Machine*: oscillators at tonal-track freqs (level ∝ prominence), slow
    sine AM (micro modulation peak freq/depth). Detuned pair per track.
 3. *Events*: scheduler firing Poisson at events/min; each event = noise
@@ -91,5 +93,6 @@ one `<section>` per layer.
 
 ## Out of scope
 
-Binaural/ambisonic resynthesis output, sample playback of extracted
-events, DAW loop metadata (cue chunks), per-state alternate recipes.
+We leave out binaural/ambisonic resynthesis output, sample playback of
+extracted events, DAW loop metadata (cue chunks), and per-state alternate
+recipes.

@@ -3,7 +3,7 @@
 The AMBIENT project treats a room as an audio-*visual* subject, and a room's
 *look* has a diurnal rhythm just as its sound does. `ambiscape.vision`
 (v0.12) extracts a compact descriptor from a single video frame, so a camera
-can log visual *behaviour* rather than store imagery — the same
+can log visual *behaviour* rather than store imagery. We take the same
 "features, not recordings" stance as the [capture daemon](capture.md). It is
 numpy-only (no camera or OpenCV dependency): frame *grabbing* lives in the
 capture rig, the feature *definitions* live here so they are versioned and
@@ -21,23 +21,23 @@ vision.summarize_vision(frames, motion=motions)   # a day -> vis_* summary
 
 Per frame:
 
-- **brightness / brightness_sd** — overall light level and its unevenness
+- **brightness / brightness_sd**: overall light level and its unevenness
   (Rec.709 luma);
-- **r_frac / g_frac / b_frac, warm_cool_ratio** — colour balance and a
+- **r_frac / g_frac / b_frac, warm_cool_ratio**: colour balance and a
   warm/cool proxy (daylight vs incandescent vs the blue of a screen);
-- **saturation, colourfulness** — how colourful the scene is
+- **saturation, colourfulness**: how colourful the scene is
   (Hasler–Süsstrunk), near zero for a grey room;
-- **spatial_entropy** — entropy of a coarse brightness grid: 1 when the room
-  is evenly lit, low when the light is concentrated — the visual analogue of
-  acoustic diffuseness;
-- **bright_centroid_x / _y** — the luma-weighted centre of light in the
+- **spatial_entropy**: entropy of a coarse brightness grid, 1 when the room
+  is evenly lit, low when a single desk lamp is on, which is the visual
+  analogue of acoustic diffuseness;
+- **bright_centroid_x / _y**: the luma-weighted centre of light in the
   frame: *where* the light comes from, a visual direction-of-arrival.
 
 `frame_delta` is a motion proxy; `summarize_vision` rolls a day of per-frame
 features into a `vis_`-prefixed summary that joins the audio `summary.json`,
 so a day's row can carry sound, light, and vision together.
 
-The companion **ambient-pi** repository wires this to a Raspberry Pi camera
+The companion ambient-pi repository wires this to a Raspberry Pi camera
 (`visual/frame_features.py`): grab a downscaled frame each second, extract,
-and discard the frame — a third 1 Hz stream aligned with the audio deposit
-and the light logger.
+and discard the frame, giving a third 1 Hz stream aligned with the audio
+deposit and the light logger.

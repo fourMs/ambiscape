@@ -31,7 +31,7 @@ TABLE_ROWS = [
     ("directional_entropy", "Directional entropy (azimuth)"),
     ("above_horizon_fraction", "Energy from above +10° elevation"),
     ("fgbg_az_overlap", "Foreground/background azimuth overlap"),
-    ("ndsi", "NDSI (−1 anthropophony … +1 biophony band)"),
+    ("ndsi", "NDSI (−1 anthrophony … +1 biophony band)"),
     ("adi", "Acoustic diversity ADI"),
     ("aci", "Acoustic complexity ACI (5-min mean)"),
     ("acoustic_entropy", "Acoustic entropy H"),

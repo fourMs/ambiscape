@@ -10,8 +10,8 @@ cached 1 Hz features — no audio pass:
 - **ADI / AEI** (diversity / evenness, Villanueva-Rivera et al. 2011):
   Shannon entropy / Gini coefficient of the occupancy of 1 kHz bins
   (fraction of cells above a threshold re the band maximum);
-- **NDSI** (Kasten et al. 2012): (biophony − anthropophony) /
-  (biophony + anthropophony) with the conventional bands 2–8 kHz vs
+- **NDSI** (Kasten et al. 2012): (biophony − anthrophony) /
+  (biophony + anthrophony) with the conventional bands 2–8 kHz vs
   1–2 kHz, in [−1, 1];
 - **BI** (bioacoustic index, Boelman et al. 2007): area of the mean
   2–8 kHz dB spectrum above its minimum;

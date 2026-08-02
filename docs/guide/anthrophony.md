@@ -1,10 +1,10 @@
-# Anthropophony
+# Anthrophony
 
 Beyond the privacy VAD gate ([Machine listening](ml.md)), a soundscape wants a
 *descriptor* of human presence. Speech and conversation carry two signatures
 the cached features already hold: energy in the voice band (~250–2000 Hz) and,
 above all, amplitude modulation at the 3–8 Hz syllabic rate, which is the
-strongest model-free speech cue. `anthropophony` reads the features (no audio
+strongest model-free speech cue. `anthrophony` reads the features (no audio
 pass, no ML) and its descriptors ride in the `analyze` summary.
 
 ## What it measures
@@ -14,19 +14,19 @@ pass, no ML) and its descriptors ride in the `analyze` summary.
   3–8 Hz (conversation / announcement cadence).
 - **`anthro_activity_fraction`**: seconds where the voice band rises above its
   own running background.
-- **`anthropophony_index`**: the three combined, in [0, 1].
+- **`anthrophony_index`**: the three combined, in [0, 1].
 
 ## Usage
 
 ```bash
 ambiscape analyze <session>        # anthro_* keys appear in the summary
-ambiscape anthropophony <session>  # detail: writes anthropophony.json
+ambiscape anthrophony <session>  # detail: writes anthrophony.json
 ```
 
 ```python
-from ambiscape import anthropophony, features
+from ambiscape import anthrophony, features
 F = features.load_features(sorted((out / "features").glob("*.npz")))
-anthropophony.summarize_anthropophony(F)
+anthrophony.summarize_anthrophony(F)
 ```
 
 ## Caveats

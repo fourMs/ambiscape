@@ -87,11 +87,15 @@ def main(argv=None):
     for dom, desc in (
             ("mechanical", "engines/machinery/traffic: low-freq fraction, "
                            "rumble, envelope periodicity"),
-            ("anthropophony", "human speech/activity: voice band, syllabic "
+            ("anthrophony", "human speech/activity: voice band, syllabic "
                               "modulation, activity"),
             ("geophony", "wind/rain/water: diffuse low-band and flat "
                          "high-band indices")):
-        dp = sub.add_parser(dom, help=desc + " (needs a prior analyze run)")
+        # `anthropophony` was the name until 0.22.0. Kept as a hidden alias so existing scripts
+        # and shell history keep working; the spelling now matches the soundscape-ecology
+        # literature, which writes anthrophony.
+        aliases = ["anthropophony"] if dom == "anthrophony" else []
+        dp = sub.add_parser(dom, help=desc + " (needs a prior analyze run)", aliases=aliases)
         dp.add_argument("folder")
         dp.add_argument("-o", "--out", default=None)
     to = sub.add_parser("tonality",
@@ -893,7 +897,9 @@ def main(argv=None):
             print(f"wrote {out/'tonality.png'} and {out/'tonality.json'}")
         return 0
 
-    if args.cmd in ("mechanical", "anthropophony", "geophony"):
+    if args.cmd == "anthropophony":
+        args.cmd = "anthrophony"          # the pre-0.22.0 spelling
+    if args.cmd in ("mechanical", "anthrophony", "geophony"):
         from . import features as feats
         from .io import open_session
         sess = open_session(args.folder)
@@ -902,8 +908,8 @@ def main(argv=None):
             print(f"no cached features in {out} — run 'ambiscape analyze' first")
             return 1
         F = feats.load_features(sorted((out / "features").glob("*.npz")))
-        from . import anthropophony, geophony, mechanical
-        mod = {"mechanical": mechanical, "anthropophony": anthropophony,
+        from . import anthrophony, geophony, mechanical
+        mod = {"mechanical": mechanical, "anthrophony": anthrophony,
                "geophony": geophony}[args.cmd]
         summ = getattr(mod, f"summarize_{args.cmd}")(F)
         (out / f"{args.cmd}.json").write_text(json.dumps(summ, indent=2))

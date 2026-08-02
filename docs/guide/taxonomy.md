@@ -19,10 +19,10 @@ a community. In this package that is `kind` and `soundmark`.
 
 A third, later tradition is also present and belongs to neither of them. Soundscape ecology, after
 Bernie Krause and Bryan Pijanowski, divides sound by its physical origin into biophony, geophony and
-anthropophony. That is the `source` field.
+anthrophony. That is the `source` field.
 
 So the same object carries up to three independent labels, and they do not constrain one another. A
-ventilation drone is `noise`/`unlimited` to Schaeffer, a `keynote` to Schafer, and `anthropophony` to
+ventilation drone is `noise`/`unlimited` to Schaeffer, a `keynote` to Schafer, and `anthrophony` to
 soundscape ecology. Nothing about the first determines the second or the third.
 
 ## The workflow
@@ -73,7 +73,7 @@ Soundscape ecology, where the sound physically comes from:
 
 | Field | Values |
 |---|---|
-| `source` (optional) | `anthropophony` \| `biophony` \| `geophony` |
+| `source` (optional) | `anthrophony` \| `biophony` \| `geophony` |
 
 Timing, ours:
 
@@ -110,6 +110,7 @@ hi-fi windows" directly visible.
 
 ## A note on spelling
 
-The `source` field uses `anthropophony`. Pijanowski and much of the soundscape-ecology literature
-write `anthrophony`, without the second `po`. Both appear in print. The field value is fixed by the
-schema; the prose here follows the field.
+The field value is `anthrophony`, which is the spelling Pijanowski and most of the soundscape-ecology
+literature use. It was `anthropophony` until version 0.22.0. Both forms appear in print, and the
+package still accepts the older one when reading an annotation file, so existing annotations keep
+working; everything it writes uses `anthrophony`.

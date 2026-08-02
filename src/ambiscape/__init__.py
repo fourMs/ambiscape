@@ -16,7 +16,7 @@ from .io import (open_session, open_recording, read_bext, read_span,
 from .features import extract_take, extract_session, load_features
 from .analysis import (summarize, detect_events, decay_time, decay_metrics,
                        intermittency_ratio, pick_segments)
-from . import (anthropophony, biophony, capture, catalog, compare, ecology,
+from . import (anthrophony, biophony, capture, catalog, compare, ecology,
                enf, figures, geophony, longitudinal, mechanical, resolve,
                states, taxonomy, vision, iso)
 
@@ -29,5 +29,10 @@ __all__ = [
     "intermittency_ratio", "pick_segments",
     "biophony", "capture", "catalog", "compare", "ecology", "enf", "figures",
     "longitudinal", "resolve", "states", "taxonomy", "vision", "iso",
-    "mechanical", "anthropophony", "geophony",
+    "mechanical", "anthrophony", "geophony",
 ]
+
+
+# Renamed in 0.22.0 to match the spelling used by Pijanowski and most of the soundscape-ecology
+# literature. The old name still resolves so that existing imports and scripts keep working.
+anthropophony = anthrophony

@@ -24,7 +24,7 @@ produces:
 - **spatial timelines** when the recording carries direction: full
   direction of arrival, diffuseness and azimuthal concentration from
   ambisonics, a lateral left/right cue from stereo,
-- **source decomposition**: geophony, biophony, anthropophony, and
+- **source decomposition**: geophony, biophony, anthrophony, and
   mechanical/transport indices, plus two separate annotation layers, one for
   Schaeffer's typo-morphology and one for Schafer's soundscape functions,
 - **figures** (session overview, percentile spectra, directograms,

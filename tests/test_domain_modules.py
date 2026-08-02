@@ -1,7 +1,7 @@
-"""mechanical / anthropophony / geophony detectors and their summary merge."""
+"""mechanical / anthrophony / geophony detectors and their summary merge."""
 import numpy as np
 
-from ambiscape import anthropophony, geophony, mechanical
+from ambiscape import anthrophony, geophony, mechanical
 from ambiscape.resolve import full_summary
 
 
@@ -38,12 +38,12 @@ def test_mechanical_periodicity_peak():
     assert per["strength"] > 0.1
 
 
-def test_anthropophony_syllabic_modulation():
+def test_anthrophony_syllabic_modulation():
     t = np.arange(2000) * 0.02
     voiced = _F(_oct(mid=1.0), env_hi=1 + 0.6 * np.sin(2 * np.pi * 4.0 * t))
     flat = _F(_oct(mid=1.0), env_hi=np.ones(2000))
-    assert anthropophony.syllabic_modulation(voiced) > 0.1
-    assert anthropophony.syllabic_modulation(flat) < 0.05
+    assert anthrophony.syllabic_modulation(voiced) > 0.1
+    assert anthrophony.syllabic_modulation(flat) < 0.05
 
 
 def test_geophony_wind_vs_rain():
@@ -56,6 +56,6 @@ def test_geophony_wind_vs_rain():
 def test_full_summary_merges_domain_indices(bell_features):
     _, _, F = bell_features
     s = full_summary(F)
-    for k in ("mechanical_index", "anthropophony_index", "geophony_index",
+    for k in ("mechanical_index", "anthrophony_index", "geophony_index",
               "mech_lowfreq_fraction", "anthro_syllabic_mod", "geo_wind_index"):
         assert k in s, f"missing {k}"

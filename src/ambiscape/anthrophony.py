@@ -1,4 +1,4 @@
-"""Anthropophony measures: human speech and activity by acoustic structure.
+"""Anthrophony measures: human speech and activity by acoustic structure.
 
 Beyond the privacy VAD gate (:func:`ambiscape.ml.speech_gate`), a soundscape
 wants a *descriptor* of human presence. Speech and conversation carry two
@@ -65,8 +65,8 @@ def activity_fraction(F: dict, k_db: float = 3.0) -> float:
     return float((env_db > bg + k_db).mean())
 
 
-def summarize_anthropophony(F: dict) -> dict:
-    """Anthropophony descriptors for the analyze summary."""
+def summarize_anthrophony(F: dict) -> dict:
+    """Anthrophony descriptors for the analyze summary."""
     vb = voice_band_fraction(F)
     syl = syllabic_modulation(F)
     act = activity_fraction(F)
@@ -75,5 +75,5 @@ def summarize_anthropophony(F: dict) -> dict:
         "anthro_voiceband_fraction": round(vb, 3),
         "anthro_syllabic_mod": round(syl, 3),
         "anthro_activity_fraction": round(act, 3),
-        "anthropophony_index": round(index, 3),
+        "anthrophony_index": round(index, 3),
     }

@@ -91,7 +91,7 @@ def slice_features(F: dict, intervals: list) -> dict:
 
 def full_summary(F: dict) -> dict:
     """The complete analyze descriptor set for any ``F`` (no calibration)."""
-    from . import (analysis, anthropophony, background, biophony, ecology,
+    from . import (analysis, anthrophony, background, biophony, ecology,
                    geophony, mechanical, spatial)
     s = analysis.summarize(F)
     s.update(background.summarize_foreground(F))
@@ -99,7 +99,7 @@ def full_summary(F: dict) -> dict:
     s.update(spatial.summarize_spatial(F))
     s.update(biophony.summarize_biophony(F))
     s.update(mechanical.summarize_mechanical(F))
-    s.update(anthropophony.summarize_anthropophony(F))
+    s.update(anthrophony.summarize_anthrophony(F))
     s.update(geophony.summarize_geophony(F))
     return s
 

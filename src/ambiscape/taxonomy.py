@@ -9,11 +9,11 @@ reduced listening and classified by its internal make-up. Here that is ``mass`` 
 R. Murray Schafer (*The Soundscape*, 1977) asks what a sound DOES in a place, classified by the role
 it plays for the people living among it. Here that is ``kind`` and ``soundmark``.
 
-A third scheme is present and belongs to neither. ``source`` (biophony, geophony, anthropophony) is
+A third scheme is present and belongs to neither. ``source`` (biophony, geophony, anthrophony) is
 soundscape ecology, after Krause and Pijanowski, and classifies by physical origin.
 
 One object carries all three labels independently. A ventilation drone is ``noise``/``unlimited`` to
-Schaeffer, a ``keynote`` to Schafer, and ``anthropophony`` to soundscape ecology.
+Schaeffer, a ``keynote`` to Schafer, and ``anthrophony`` to soundscape ecology.
 
 The annotation file (``annotations.json`` or ``.yml`` in the session folder) is hand-authored:
 instruments detect *when* things sound, but assigning a sound to any of the three schemes is an
@@ -33,7 +33,7 @@ Annotation schema (JSON; YAML accepted if PyYAML is installed)::
          "label": "air-pump drone (130 Hz comb, 9 h)",   # optional
          "kind": "keynote",             # keynote|signal|soundmark|figure
          "soundmark": "dwelling",       # optional: community|dwelling
-         "source": "anthropophony",     # optional: ...|biophony|geophony
+         "source": "anthrophony",       # optional: ...|biophony|geophony
          "mass": "noise",               # tonic|tonic-complex|complex|noise
          "facture": "unlimited",        # impulse|iteration|sustained|unlimited
          "spans": [["23:01:36", "1 07:53:55"]],   # and/or

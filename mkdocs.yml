@@ -71,6 +71,11 @@ nav:
 
 plugins:
   - search
+  # Old page URLs that must keep resolving. mkdocs-redirects writes a small
+  # meta-refresh page at each old path, so an external bookmark still lands.
+  - redirects:
+      redirect_maps:
+        guide/anthropophony.md: guide/anthrophony.md
   - mkdocstrings:
       handlers:
         python:

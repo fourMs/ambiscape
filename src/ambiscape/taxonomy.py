@@ -97,8 +97,17 @@ def schaeffer_map(ann: dict, out_path, title=""):
         for i in range(5):
             ax.axhline(i - 0.5, color=GRID, lw=0.8, zorder=0)
             ax.axvline(i - 0.5, color=GRID, lw=0.8, zorder=0)
+        # `draft` deliberately leaves facture and mass as "TODO" — they are listening judgements a
+        # detector should not guess — so a half-annotated object is the normal case here, not a
+        # broken one. Placing it on the grid would mean inventing the very coordinates the annotator
+        # has withheld, so it is left off the map and counted in the title instead. Before this, any
+        # such object raised ValueError from .index() and took the whole render down with it.
         cells: dict[tuple, list] = {}
+        n_unplaced = 0
         for o in ann["objects"]:
+            if o.get("facture") not in FACTURES or o.get("mass") not in MASSES:
+                n_unplaced += 1
+                continue
             key = (FACTURES.index(o["facture"]), MASSES.index(o["mass"]))
             cells.setdefault(key, []).append(o)
         offsets = [(0, .1), (-.18, -.12), (.18, -.12), (-.18, .3), (.18, .3)]
@@ -123,8 +132,10 @@ def schaeffer_map(ann: dict, out_path, title=""):
         ax.set_ylim(3.5, -0.5)
         ax.set_xlabel("facture / temporal sustainment  (Schaeffer typology) →")
         ax.set_ylabel("← mass  (Schaeffer morphology)")
+        note = (f"  ({n_unplaced} object{'s' if n_unplaced > 1 else ''} not yet typed, omitted)"
+                if n_unplaced else "")
         ax.set_title(f"{title} — sound objects in Schaeffer's typo-morphology,"
-                     " colored by Schafer function", loc="left", fontsize=10.5)
+                     f" colored by Schafer function{note}", loc="left", fontsize=10.5)
         names = {"keynote": "keynote (ground)", "signal": "signal (figure)",
                  "soundmark": "community soundmark",
                  "figure": "incidental figure"}

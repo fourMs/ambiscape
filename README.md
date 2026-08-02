@@ -114,3 +114,14 @@ MIT — see [LICENSE](LICENSE).
 ## Funding
 
 Developed as part of the [AMBIENT project](https://www.uio.no/ritmo/english/projects/ambient/index.html) at [fourMs / RITMO](https://www.uio.no/ritmo/english/), University of Oslo. Supported by the Research Council of Norway.
+
+## Related toolboxes
+
+These four toolboxes come out of the [fourMs lab](https://github.com/fourMs) at the University of
+Oslo. They are separate packages with separate release cycles, but they are built to be used
+together and share several implementations, so a measure computed in one agrees with the same
+measure computed in another.
+
+- [Musical Gestures Toolbox](https://github.com/fourMs/MGT-python) (`musicalgestures`) — video and audio: motiongrams, videograms, and motion analysis from ordinary video files
+- [musiscape](https://github.com/fourMs/musiscape) — music collections: comparing many tracks and albums held as audio files in folders
+- [micromotion](https://github.com/fourMs/micromotion) — human micromotion: quantity of motion from optical markers, accelerometers, respiration belts and force plates

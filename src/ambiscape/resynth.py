@@ -17,6 +17,34 @@ page, sliders change them live, and the mapping from measured descriptor
 to synthesis parameter is spelled out in comments. The recipe degrades
 gracefully — module JSONs that were never produced simply leave their
 layer at defaults.
+
+Corrected 2026-08-02, after reading the implementation against Andy Farnell's *Designing Sound*
+(MIT Press, 2010). Six defects, of which the first two were audible:
+
+1. the bed realised its measured spectrum through ten peaking biquads in SERIES at Q = 1. Modelled
+   with the Web Audio biquad formulas against a representative curve, the realised response was out
+   by up to 28.9 dB (rms 17.5) and put the top octave 6 dB above the one below it where the
+   measurement says 8 dB below. It is now a parallel bandpass bank at Q = 1.414, summed: max error
+   3.7 dB, rms 2.5, and the top-octave trend matches. The residual is smooth positive leakage from
+   adjacent bands and could be trimmed at build time in `build_recipe`;
+2. the space send bus was connected to the master as well as through its own wet path, so everything
+   sent to it was heard a second time dry and the bed reached the master three times;
+3. every event burst played the noise buffer from sample zero, so all events were the identical
+   waveform;
+4. the measured `event_median_dur_s` was multiplied by three;
+5. event amplitude was fixed, so bursts differed in neither waveform nor level;
+6. the tonal pair beat at 1.7 Hz whatever was measured, and every oscillator started at phase zero
+   together, so N lines summed as N rather than as sqrt(N).
+
+The event rate slider also capped at 20 per minute in the markup and silently clamped anything
+higher that the recording had measured.
+
+What Farnell would still add, and has not been done: a control layer for the bed, since `typical_gain_db`
+is computed, shipped in the recipe and never used by the page, and `typ - bg` per band is a measured
+modulation depth; a proper grain scheduler with a look-ahead against `ctx.currentTime` rather than
+`setTimeout`, degrading to a signal-domain texture above the density where discrete grains stop being
+affordable; and a `ConvolverNode` with a synthesised impulse response in place of the two cross-fed
+delays, which give about 50 echoes per second against the roughly 1000 that Schroeder suggests.
 """
 from __future__ import annotations
 
@@ -220,9 +248,13 @@ function noiseBuffer(seconds) {
   return buf;
 }
 
-function makeLayer(name) {
+function makeLayer(name, toMaster = true) {
   const g = ctx.createGain();
-  g.connect(nodes.master);
+  // The space layer is a SEND bus: it reaches the master through its own wet path and must not
+  // also be connected here. It was, so everything sent to space was heard a second time dry at
+  // unity, and the bed reached the master three times over. Toggling the space checkbox zeroed the
+  // bus and hid the symptom, which is probably why it survived.
+  if (toMaster) g.connect(nodes.master);
   nodes[name] = { in: g, on: true, gain: 1 };
   return g;
 }
@@ -235,7 +267,7 @@ function startAudio() {
 
   // ---- 4 · space: two cross-fed delays as a minimal diffusion network.
   // Feedback < 1 keeps it stable; wet level starts at measured psi.
-  const space = makeLayer("space");
+  const space = makeLayer("space", false);
   const wet = ctx.createGain();
   wet.gain.value = L.space.diffuseness * 0.5;
   const d1 = ctx.createDelay(); d1.delayTime.value = 0.031;
@@ -253,20 +285,32 @@ function startAudio() {
   nodes.space.wet = wet;
   const sendToSpace = node => node.connect(space);
 
-  // ---- 1 · bed: white noise -> one peaking biquad per octave band.
+  // ---- 1 · bed: white noise -> a PARALLEL bank of octave bandpasses, summed.
   // Gains are the measured 10th-percentile (background) spectrum.
+  //
+  // This used to be ten `peaking` biquads in SERIES at Q = 1. That does not realise the measured
+  // spectrum. A peaking biquad at Q = 1 is about 1.4 octaves wide, so at octave spacing every
+  // filter's gain leaks into its neighbours and the dB values accumulate down the chain. Measured
+  // against a representative curve the realised response was out by up to 28.9 dB, it exaggerated
+  // the overall tilt from 42 to 50 dB, and it put the top octave 6 dB ABOVE the one below it where
+  // the measurement says 8 dB below. The page claimed these gains were the recording's spectrum;
+  // they were not.
+  //
+  // A parallel bank is also the right structure for what is actually measured. `oct_pow` is per-band
+  // POWER, and incoherent bands power-sum, which is what summing separate filters does. Q = 1.414
+  // gives roughly one octave of bandwidth.
   const bed = makeLayer("bed");
   const src = ctx.createBufferSource();
   src.buffer = noiseBuffer(4); src.loop = true;
-  let head = src;
+  const bedSum = ctx.createGain();
   L.bed.octave_hz.forEach((f, i) => {
     const bq = ctx.createBiquadFilter();
-    bq.type = "peaking"; bq.frequency.value = f; bq.Q.value = 1.0;
-    bq.gain.value = L.bed.gain_db[i];
-    head.connect(bq); head = bq;
+    bq.type = "bandpass"; bq.frequency.value = f; bq.Q.value = 1.414;
+    const bg = ctx.createGain(); bg.gain.value = db2lin(L.bed.gain_db[i]);
+    src.connect(bq); bq.connect(bg); bg.connect(bedSum);
   });
   const bedTrim = ctx.createGain(); bedTrim.gain.value = 0.5;
-  head.connect(bedTrim); bedTrim.connect(bed); sendToSpace(bedTrim);
+  bedSum.connect(bedTrim); bedTrim.connect(bed); sendToSpace(bedTrim);
   src.start();
 
   // ---- 2 · machine: a detuned oscillator pair per tracked tonal line,
@@ -282,10 +326,15 @@ function startAudio() {
   L.machine.tones.forEach(t => {
     const lvl = ctx.createGain();
     lvl.gain.value = db2lin(-30 + Math.min(24, t.prominence_db));
-    [0, 1.7].forEach(det => {                    // pair beats at ~1.7 Hz
+    // The beat rate scales with the partial rather than being 1.7 Hz for every line regardless of
+    // what was measured, and the two oscillators start at independent times so that separate tonal
+    // lines sum incoherently. Starting every oscillator at phase 0 simultaneously makes N lines sum
+    // as N rather than as sqrt(N).
+    const beat = Math.max(0.3, Math.min(4.0, t.freq_hz * 0.004));
+    [0, beat].forEach(det => {
       const o = ctx.createOscillator();
       o.frequency.value = t.freq_hz + det;
-      o.connect(lvl); o.start();
+      o.connect(lvl); o.start(ctx.currentTime + Math.random() * 0.05);
     });
     lvl.connect(am); sendToSpace(lvl);
     const p = document.createElement("small");
@@ -296,7 +345,11 @@ function startAudio() {
 
   // ---- 3 · events: Poisson-scheduled enveloped noise bursts.
   const ev = makeLayer("events");
-  $(".rate", $('[data-layer="events"]')).value = L.events.per_min;
+  const rateEl = $(".rate", $('[data-layer="events"]'));
+  // the slider capped at 20/min in the markup and silently clamped anything the recording measured
+  // above that, so the page showed a rate the recording did not have
+  rateEl.max = Math.max(20, Math.ceil(L.events.per_min * 2));
+  rateEl.value = L.events.per_min;
   const evBuf = noiseBuffer(2);
   function burst() {
     const s = ctx.createBufferSource(); s.buffer = evBuf;
@@ -310,9 +363,18 @@ function startAudio() {
     s.connect(bp); bp.connect(env); env.connect(pan); pan.connect(ev);
     sendToSpace(env);
     const now = ctx.currentTime, dur = L.events.dur_s;
-    env.gain.linearRampToValueAtTime(0.7, now + 0.02);      // attack
-    env.gain.exponentialRampToValueAtTime(0.001, now + 0.02 + dur * 3);
-    s.start(now); s.stop(now + 0.05 + dur * 3);
+    // Amplitude varies per event. A fixed level made every burst identical in loudness as well as
+    // in waveform, which reads as a machine rather than as a room.
+    const peak = 0.4 + Math.random() * 0.5;
+    env.gain.linearRampToValueAtTime(peak, now + 0.02);      // attack
+    env.gain.exponentialRampToValueAtTime(0.001, now + 0.02 + dur);
+    // Start at a random offset into the noise buffer. Every burst used to play it from sample zero,
+    // so all events were the SAME waveform, and whatever spectral accident sat in the first 300 ms
+    // was repeated for the life of the page.
+    const off = Math.random() * Math.max(0, evBuf.duration - dur - 0.1);
+    // The measured median duration is used as measured. It was multiplied by three here, which
+    // silently undid `event_median_dur_s`.
+    s.start(now, off); s.stop(now + 0.05 + dur);
   }
   function passby() {
     const s = ctx.createBufferSource(); s.buffer = evBuf; s.loop = true;

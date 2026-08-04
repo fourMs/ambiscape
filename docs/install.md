@@ -12,6 +12,8 @@ extras enable the heavier subsystems:
 | `pip install "ambiscape[iso]"` | `ambiscape iso` — ISO 532-1 loudness, sharpness, roughness | [MoSQITo](https://github.com/Eomys/MoSQITo) |
 | `pip install "ambiscape[ml]"` | PANNs tag suggestions in drafts; `ambiscape speechgate` | torch (CPU is fine), panns-inference, silero-vad |
 | `pip install "ambiscape[viz]"` | HRIR binaural rendering; AEM visuals on excerpts | [ambiviz](https://github.com/fisheggg/ambiviz) |
+| `pip install "ambiscape[music]"` | `ambiscape music` and `ambiscape carillon` | [librosa](https://librosa.org) |
+| `pip install "ambiscape[capture]"` | `ambiscape capture` — recording from an attached input device | [sounddevice](https://python-sounddevice.readthedocs.io) |
 
 We let everything degrade gracefully: without an extra installed, the
 corresponding feature is skipped or falls back (e.g., binaural rendering

@@ -10,16 +10,6 @@ Ambiscape is a toolbox for analysing *soundscapes*, with a particular focus on t
 
 The toolbox works from many different types of recordings: mono, stereo, binaural, or first-order ambisonic, using whatever spatial information each format carries (see [Mono, stereo & binaural inputs](https://fourms.github.io/ambiscape/guide/stereo-mono/)). It is built to be useful to different people: acousticians and soundscape ecologists, sound artists and composers, students, and anyone curious about the sound of a place.
 
-## Scope: ambiscape and MGT
-
-ambiscape and [MGT-python](https://github.com/fourMs/MGT-python) are sister
-toolboxes: **ambiscape owns the samples**, **MGT owns the pixels**. The
-built-in `vision` module extracts only lightweight per-frame features as a
-multimodal companion to the audio; for real video analysis (motion, pose,
-360° stitching) use MGT, which can ingest ambiscape sessions directly via
-`pip install "musicalgestures[soundscape]"`. ambiscape itself stays
-dependency-light and never imports MGT.
-
 ## Install
 
 ```bash
@@ -92,6 +82,16 @@ ml.birdnet_session(sess, F=F, hifi_max_diffuse=0.75, lat=52.4, lon=4.6)
 ```
 
 See the [machine-states guide](https://fourms.github.io/ambiscape/guide/states/) and the executable session report it was built for.
+
+## Scope: ambiscape and MGT
+
+ambiscape and [MGT-python](https://github.com/fourMs/MGT-python) are sister
+toolboxes: **ambiscape owns the samples**, **MGT owns the pixels**. The
+built-in `vision` module extracts only lightweight per-frame features as a
+multimodal companion to the audio; for real video analysis (motion, pose,
+360° stitching) use MGT, which can ingest ambiscape sessions directly via
+`pip install "musicalgestures[soundscape]"`. ambiscape itself stays
+dependency-light and never imports MGT.
 
 ## Documentation
 

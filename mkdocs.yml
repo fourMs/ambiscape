@@ -38,6 +38,7 @@ nav:
   - Space & acoustics:
       - Spatial analysis: guide/spatial.md
       - Room acoustics & ISO: guide/acoustics.md
+      - Impulse response & auralization: guide/impulse.md
   - Time & rhythm:
       - Strike-level rhythm: guide/rhythm.md
       - Modulation profile: guide/modulation.md

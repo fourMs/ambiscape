@@ -70,7 +70,11 @@ def decay_metrics(x: np.ndarray, fs: int, bands=((250, 500), (500, 1000),
     standard companions: EDT from the 0…−10 dB fit (perceived
     reverberance), clarity C50/C80 = 10·log10 of the early/late energy
     ratio at 50/80 ms, and definition D50 = early fraction at 50 ms.
-    Returns ``{band: {"T60", "EDT", "C50", "C80", "D50", "dr_db"}}``.
+    When the dynamic range allows (ISO 3382: floor at least 10 dB below
+    the fit end), the fixed-range extrapolations T20 (−5…−25 dB) and T30
+    (−5…−35 dB) are reported alongside the adaptive-range T60.
+    Returns ``{band: {"T60", "T20", "T30", "EDT", "C50", "C80", "D50",
+    "dr_db"}}`` (T20/T30 present only when supported by the range).
     """
     from scipy import signal as sg
     pk_i = int(np.abs(x).argmax())
@@ -97,8 +101,13 @@ def decay_metrics(x: np.ndarray, fs: int, bands=((250, 500), (500, 1000),
         sch_db = 10 * np.log10(sch / (sch[0] + EPS) + 1e-15)
         tax = np.arange(len(sch_db)) / fs
         res = {"dr_db": round(float(dr), 0)}
-        for key, hi_db, lo_db in (("T60", -5.0, max(-35.0, -dr + 8)),
-                                  ("EDT", 0.0, -10.0)):
+        for key, hi_db, lo_db, need_dr in (
+                ("T60", -5.0, max(-35.0, -dr + 8), 0.0),
+                ("T20", -5.0, -25.0, 35.0),
+                ("T30", -5.0, -35.0, 45.0),
+                ("EDT", 0.0, -10.0, 0.0)):
+            if dr < need_dr:
+                continue
             m = (sch_db <= hi_db) & (sch_db >= lo_db)
             if m.sum() < 150:
                 continue

@@ -39,6 +39,9 @@ ambiscape resynth    <session-folder>   # recreate the soundscape from basic syn
 ambiscape carillon   <session-folder>   # which bells a carillon played: strike-note inventory [music]
 ambiscape vision     <video-or-folder>  # per-frame visual features (multimodal companion)
 ambiscape iso        <session-folder>   # ISO 12913-3 indicators
+ambiscape sweep                         # exponential sine sweep + inverse filter for IR measurement
+ambiscape impulse    <recorded.wav>     # sweep -> impulse response; T60/EDT/C50/C80/D50, STI, IACC
+ambiscape auralize   <dry.wav> --ir ir.wav  # play dry audio through a measured room (convolution)
 ambiscape calibrate  <session-folder>   # store dBFS->dB SPL offset from a field SPL reading
 ambiscape speechgate <wav-or-folder>    # privacy check before publishing
 ambiscape deposit    <session-folder>   # non-identifying 1 Hz TSV export

@@ -323,6 +323,54 @@ def main(argv=None):
     cmp_p.add_argument("--state", default="machine_on",
                        help="state name to shade / mask by "
                             "(default machine_on)")
+    sw = sub.add_parser("sweep",
+                        help="generate an exponential sine sweep + matched "
+                             "inverse filter for impulse-response "
+                             "measurement (Farina method)")
+    sw.add_argument("-o", "--out", default="sweep.wav",
+                    help="output WAV (default sweep.wav); the inverse "
+                         "filter and a JSON parameter sidecar are written "
+                         "alongside")
+    sw.add_argument("--duration", type=float, default=10.0,
+                    help="sweep length, s (default 10)")
+    sw.add_argument("--f0", type=float, default=40.0,
+                    help="start frequency, Hz (default 40)")
+    sw.add_argument("--f1", type=float, default=18000.0,
+                    help="end frequency, Hz (default 18000)")
+    sw.add_argument("--fs", type=int, default=48000,
+                    help="sample rate (default 48000)")
+    sw.add_argument("--amplitude", type=float, default=0.5,
+                    help="peak amplitude; 0.5 = -6 dBFS headroom (default)")
+    im = sub.add_parser("impulse",
+                        help="deconvolve a recorded sweep to an impulse "
+                             "response; octave-band T60/T20/T30, EDT, "
+                             "C50/C80, D50, STI, IACC")
+    im.add_argument("recording",
+                    help="WAV of the sweep as played back in the room")
+    im.add_argument("--inverse", default=None,
+                    help="matched inverse-filter WAV (from 'ambiscape "
+                         "sweep')")
+    im.add_argument("--params", default=None,
+                    help="sweep JSON sidecar to regenerate the inverse "
+                         "from (default: sweep.json next to the recording)")
+    im.add_argument("-o", "--out", default=None,
+                    help="output IR path (default <recording dir>/ir.wav)")
+    im.add_argument("--pre-ms", type=float, default=5.0, dest="pre_ms",
+                    help="milliseconds kept before the direct sound "
+                         "(default 5); earlier material — pre-ringing and "
+                         "harmonic-distortion images — is trimmed")
+    im.add_argument("--dur", type=float, default=None,
+                    help="cap the IR tail, s (default: to the end)")
+    au = sub.add_parser("auralize",
+                        help="convolve dry audio with a measured impulse "
+                             "response (partitioned FFT convolution)")
+    au.add_argument("dry", help="dry (anechoic-ish) WAV to place in the room")
+    au.add_argument("--ir", required=True, help="impulse-response WAV")
+    au.add_argument("-o", "--out", default=None,
+                    help="output WAV (default <dry stem>_wet.wav)")
+    au.add_argument("--no-normalize", action="store_true",
+                    help="keep raw convolution gain instead of matching "
+                         "the dry input's peak")
     iso_p = sub.add_parser("iso",
                            help="ISO 12913-3 psychoacoustic indicators "
                                 "(MoSQITo) on representative segments")
@@ -916,6 +964,58 @@ def main(argv=None):
         for k, v in summ.items():
             print(f"  {k}: {v}")
         print(f"wrote {out}/{args.cmd}.json")
+        return 0
+
+    if args.cmd == "sweep":
+        from .impulse import write_sweep
+        r = write_sweep(args.out, duration=args.duration, f0=args.f0,
+                        f1=args.f1, fs=args.fs, amplitude=args.amplitude)
+        print(f"  {args.duration:g} s exponential sweep, "
+              f"{args.f0:g}-{args.f1:g} Hz @ {args.fs} Hz, peak "
+              f"{20*np.log10(args.amplitude):.1f} dBFS")
+        print(f"wrote {r['sweep']}, {r['inverse']} and {r['params']}\n"
+              f"  play {Path(args.out).name} in the room, record it, then: "
+              f"ambiscape impulse <recording.wav> --params {r['params']}")
+        return 0
+
+    if args.cmd == "impulse":
+        from .impulse import measure
+        doc = measure(args.recording, inverse=args.inverse,
+                      params=args.params, out_path=args.out,
+                      pre_ms=args.pre_ms, dur=args.dur)
+        print(f"  direct sound at {doc['direct_in_recording_s']} s; IR "
+              f"{doc['ir_s']} s, {doc['channels']} ch @ {doc['fs']} Hz")
+        for c, b in doc["bands"].items():
+            extra = "".join(f", {k} {b[k]}" for k in ("T30", "T20")
+                            if k in b)
+            print(f"  {c} Hz: T60 {b.get('T60')} s{extra}, "
+                  f"EDT {b.get('EDT')}, C50 {b.get('C50')} dB, "
+                  f"C80 {b.get('C80')} dB, D50 {b.get('D50')}")
+        if doc.get("sti") is not None:
+            print(f"  STI {doc['sti']} (indirect method, male weights; "
+                  f"noise-free assumption — reverberation only)")
+        if doc.get("iacc_early") is not None:
+            print(f"  IACC(early, 0-80 ms) {doc['iacc_early']}")
+        out_dir = Path(doc["ir_path"]).parent
+        print(f"wrote {doc['ir_path']} and {out_dir/'impulse.json'}")
+        return 0
+
+    if args.cmd == "auralize":
+        import soundfile as sf
+        from .impulse import auralize
+        dry, fs = sf.read(args.dry, dtype="float64", always_2d=True)
+        ir, fs_ir = sf.read(args.ir, dtype="float64", always_2d=True)
+        wet, gain_db = auralize(
+            dry, fs, ir, fs_ir,
+            normalize=None if args.no_normalize else "match")
+        out = Path(args.out) if args.out else \
+            Path(args.dry).with_name(Path(args.dry).stem + "_wet.wav")
+        sf.write(str(out), wet.astype(np.float32), fs, subtype="FLOAT")
+        print(f"  {wet.shape[1]} ch, {len(wet)/fs:.2f} s"
+              + (f" (IR resampled {fs_ir} -> {fs} Hz)" if fs_ir != fs
+                 else "")
+              + f", make-up gain {gain_db} dB")
+        print(f"wrote {out}")
         return 0
 
     if args.cmd == "taxonomy":

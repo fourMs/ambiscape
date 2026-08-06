@@ -44,6 +44,9 @@ produces:
 - **strike-level rhythm** of quasi-periodic sources such as bells and
   machines, with periodicity, phase, and repetition-vs-variation statistics,
 - **ISO 12913-3 psychoacoustic indicators** and a calibration hook,
+- **ISO 12913-2 perceptual surveys**: Method-A questionnaire responses
+  projected onto the 12913-3 circumplex (per-respondent points, mean,
+  95% ellipse), joined into the session summary for perceptual ranking,
 - **machine-listening assists** (AudioSet tagging, a speech privacy gate),
 - **publication exports** (non-identifying 1 Hz features; curated segment
   selection),

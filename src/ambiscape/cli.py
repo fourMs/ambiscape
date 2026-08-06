@@ -333,7 +333,35 @@ def main(argv=None):
                        help="seconds per segment (default 30)")
     iso_p.add_argument("--offset", type=float, default=None,
                        help="dBFS->dB SPL offset override")
+    sv = sub.add_parser("survey",
+                        help="ISO 12913-2 Method A questionnaire responses "
+                             "-> 12913-3 circumplex (per-respondent points, "
+                             "mean, 95%% ellipse) + srv_ keys in summary.json")
+    sv.add_argument("folder")
+    sv.add_argument("--responses", required=True, metavar="CSV",
+                    help="one row per respondent; columns = the eight "
+                         "12913-2 scales (5- or 100-point, auto-detected), "
+                         "extra columns kept")
+    sv.add_argument("-o", "--out", default=None,
+                    help="output dir (default <folder>/analysis)")
     args = ap.parse_args(argv)
+
+    if args.cmd == "survey":
+        from . import survey as srv_mod
+        doc = srv_mod.run_survey(args.folder, args.responses, out_dir=args.out)
+        out = Path(args.out) if args.out else Path(args.folder) / "analysis"
+        print(f"  {doc['n']} respondent(s) ({doc['scale']}"
+              + (f", {doc['n_skipped']} skipped" if doc["n_skipped"] else "")
+              + f"): pleasantness {doc['pleasantness_mean']:+.3f}, "
+              f"eventfulness {doc['eventfulness_mean']:+.3f} "
+              f"-> {doc['quadrant']} quadrant, dispersion {doc['dispersion']}")
+        if "vs_measurement" in doc:
+            from .survey import vs_table
+            print("\n".join("  " + l
+                            for l in vs_table(doc["vs_measurement"]).splitlines()))
+        print(f"wrote {out/'survey.json'}, {out/'survey.png'}; "
+              f"srv_ keys merged into {out/'summary.json'}")
+        return 0
 
     if args.cmd == "deposit":
         from .deposit import export_session

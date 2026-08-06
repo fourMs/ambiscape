@@ -39,6 +39,7 @@ ambiscape resynth    <session-folder>   # recreate the soundscape from basic syn
 ambiscape carillon   <session-folder>   # which bells a carillon played: strike-note inventory [music]
 ambiscape vision     <video-or-folder>  # per-frame visual features (multimodal companion)
 ambiscape iso        <session-folder>   # ISO 12913-3 indicators
+ambiscape survey     <session-folder>   # ISO 12913-2 responses -> 12913-3 circumplex
 ambiscape calibrate  <session-folder>   # store dBFS->dB SPL offset from a field SPL reading
 ambiscape speechgate <wav-or-folder>    # privacy check before publishing
 ambiscape deposit    <session-folder>   # non-identifying 1 Hz TSV export

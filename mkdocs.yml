@@ -38,6 +38,7 @@ nav:
   - Space & acoustics:
       - Spatial analysis: guide/spatial.md
       - Room acoustics & ISO: guide/acoustics.md
+      - Perceptual survey (ISO 12913-2): guide/survey.md
   - Time & rhythm:
       - Strike-level rhythm: guide/rhythm.md
       - Modulation profile: guide/modulation.md

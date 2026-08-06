@@ -7,6 +7,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/); the
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) loosely, in that the minor number has
 been carrying feature work throughout a pre-1.0 life.
 
+## [Unreleased]
+
+### Added
+- **Perceptual survey module (`ambiscape survey`).** ISO 12913-2 Method-A questionnaire responses
+  (CSV, one row per respondent; 5-point or 100-point scales auto-detected, extra columns such as
+  loudness ratings kept) are projected onto the ISO/TS 12913-3 pleasantness–eventfulness
+  circumplex: per-respondent points, mean, 95% ellipse, and a `survey.png` circumplex plot.
+  `srv_`-prefixed keys join `summary.json` so `catalog` can rank sessions perceptually next to the
+  acoustic descriptors, and sessions with an existing acoustic summary get a short
+  perception-vs-measurement table (LAeq vs pleasantness, events/min vs eventfulness). Until now
+  ISO 12913-2 was supported by protocol rather than software; this closes the data-handling half
+  of that gap (collection remains a protocol matter).
+
 ## [0.22.0] — 2026-08-03
 
 Five versions' worth of work that had been tagged only locally. The version had been bumped in

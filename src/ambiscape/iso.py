@@ -15,7 +15,7 @@ convert to pascals for psychoacoustic metrics.
 The same file may carry ``clock_offset_s`` — seconds added to every take's
 start time when the recorder clock was found to be off (positive = clock was
 slow; e.g. calibrated against a known external time reference). Applied in
-:func:`ambiscape.io.open_session`, so all clock-labeled outputs agree. Both
+:func:`ambiscape.io.open_session`, so all clock-labelled outputs agree. Both
 keys are optional.
 
 Indicators (via MoSQITo, optional dependency)
@@ -188,7 +188,7 @@ def indicators(x_pa: np.ndarray, fs: int, rough_dur: float = 10.0) -> dict:
 
     MoSQITo runs ~5x slower than realtime, and roughness is the costliest
     metric; it is therefore computed on a central `rough_dur`-second slice
-    (roughness is a texture measure and stabilizes within seconds).
+    (roughness is a texture measure and stabilises within seconds).
     Fluctuation strength is not in MoSQITo (≤ 1.2.x) and comes from the
     local :func:`fluctuation_strength` approximation instead.
     """
@@ -504,7 +504,7 @@ def summarize_psycho(F: dict) -> dict:
     45681-style tone (``tonal_prominence_db`` / ``_hz``, None when the
     scene has no prominent tone), the count of persistent tones, and the
     broadband :func:`fluctuation_index`. All are level-difference or
-    normalized quantities, meaningful without SPL calibration. Degrades
+    normalised quantities, meaningful without SPL calibration. Degrades
     gracefully (None / 0) when the cache predates ``minspec``/``env_hi``.
     """
     out = {"tonal_prominence_db": None, "tonal_prominence_hz": None,
@@ -547,7 +547,7 @@ NC_FREQS = (63, 125, 250, 500, 1000, 2000, 4000, 8000)
 def room_criteria(oct_spl_db: dict) -> dict:
     """NR, NC, and RC ratings of an octave-band SPL spectrum.
 
-    ``oct_spl_db`` maps octave center frequency (Hz) to band SPL (dB).
+    ``oct_spl_db`` maps octave centre frequency (Hz) to band SPL (dB).
     Ratings are only physically meaningful for *calibrated* levels
     (``dbfs_to_dbspl`` in ``calibration.json``); on uncalibrated dBFS they
     are relative numbers, comparable within one recorder+gain setup only.

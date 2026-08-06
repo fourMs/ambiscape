@@ -8,7 +8,7 @@ DOA, diffuseness) — no audio pass:
 - ``passby_events`` — level events whose azimuth sweeps monotonically
   through the event: moving sources, with sweep rate and direction;
 - ``azimuth_organization`` — windowed, energy-weighted circular
-  concentration R(t): how directionally organized the scene is over time.
+  concentration R(t): how directionally organised the scene is over time.
 
 ``run_session`` writes ``spatial.json`` + ``spatial.png``.
 """
@@ -77,7 +77,7 @@ def azimuth_organization(F: dict, win_s=60.0, step_s=20.0):
     """Windowed energy-weighted circular concentration of the azimuth.
 
     Returns (t_centers, R): R near 1 = one dominant direction, near 0 =
-    directionally disorganized. Window in seconds (per-second features).
+    directionally disorganised. Window in seconds (per-second features).
     """
     p = F["rms_w"].astype(np.float64) ** 2
     az = np.radians(F["az"])

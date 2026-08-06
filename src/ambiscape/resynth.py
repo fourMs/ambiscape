@@ -138,6 +138,8 @@ def write_page(recipe: dict, out_path) -> Path:
 
 
 def run_session(sess, F: dict, analysis_dir, out_dir=None) -> dict:
+    """Build the recipe and Web Audio page for a session; write
+    ``recipe.json`` and ``index.html`` (default ``<session>/resynthesis``)."""
     out_dir = (Path(out_dir) if out_dir
                else Path(analysis_dir).parent / "resynthesis")
     recipe = build_recipe(sess, F, analysis_dir)

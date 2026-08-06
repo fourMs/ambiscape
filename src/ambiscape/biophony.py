@@ -11,7 +11,7 @@ features, no audio pass:
   band per minute (from the per-minute high-resolution PSD): birdsong is
   narrowband and tonal, wind and machines are broadband;
 - ``band_temporal_entropy`` — Sueur temporal entropy of the bird-band
-  envelope: structured vocalization concentrates energy in time (low Ht),
+  envelope: structured vocalisation concentrates energy in time (low Ht),
   a steady noise floor spreads it evenly (Ht → 1);
 - ``band_activity`` — fraction of seconds and event rate where the bird
   band rises above its own running background (Towsey-style acoustic
@@ -91,7 +91,7 @@ def narrowband_activity(F: dict, band=BIRD_BAND, min_prom_db: float = 6.0,
 def band_temporal_entropy(F: dict, band=BIRD_BAND) -> float:
     """Sueur temporal entropy Ht of the bird-band envelope, in [0, 1].
 
-    Low = energy concentrated in time (structured vocalization); near 1 =
+    Low = energy concentrated in time (structured vocalisation); near 1 =
     even over time (steady band, no biophonic events).
     """
     env = _band_envelope(F, band)
@@ -139,7 +139,7 @@ def spatial_dispersion(F: dict, band=BIRD_BAND, nbins: int = 36,
 
     The azimuth histogram is weighted by the per-second bird-band
     foreground energy (band level above its running background), so only
-    seconds carrying biophonic energy contribute. Returns the normalized
+    seconds carrying biophonic energy contribute. Returns the normalised
     directional entropy (0 = one bearing, 1 = all around) and the fraction
     of that foreground energy arriving from above ``limit_deg`` elevation
     (birds aloft) versus at/below the horizon.

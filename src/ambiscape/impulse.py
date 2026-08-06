@@ -1,9 +1,9 @@
-"""Sweep-based impulse response measurement and auralization.
+"""Sweep-based impulse response measurement and auralisation.
 
 The measurement chain is Farina's exponential sine sweep (ESS) method:
 
 1. :func:`exp_sweep` generates a logarithmic sweep plus its *matched
-   inverse filter* (the time-reversed sweep with a −3 dB/octave amplitude
+   inverse filter* (the time-reversed sweep with a −6 dB/octave amplitude
    envelope, scaled so sweep ⊛ inverse peaks at exactly 1). Play the sweep
    in the room, record it.
 2. :func:`deconvolve` convolves the recording with the inverse filter.
@@ -11,13 +11,13 @@ The measurement chain is Farina's exponential sine sweep (ESS) method:
    (the point of the ESS method), so trimming everything earlier than a few
    milliseconds before the direct-sound peak (:func:`extract_ir`) removes
    both pre-ringing and loudspeaker distortion.
-3. :func:`ir_metrics`, :func:`sti`, and :func:`iacc_early` characterize the
+3. :func:`ir_metrics`, :func:`sti`, and :func:`iacc_early` characterise the
    room from the IR; :func:`auralize` convolves dry material with it
    (uniformly partitioned FFT convolution).
 
 Headroom: sweeps are written at peak −6 dBFS (``amplitude=0.5``) so a
 playback chain with a mild bass boost or resonance does not clip; the
-deconvolution normalization is documented per function.
+deconvolution normalisation is documented per function.
 
 STI here is the *indirect* method of IEC 60268-16: modulation transfer
 functions computed from the measured IR (Schroeder's integral), which
@@ -237,7 +237,7 @@ def sti(ir: np.ndarray, fs: int) -> dict:
 def iacc_early(ir: np.ndarray, fs: int, window_ms=80.0, max_lag_ms=1.0):
     """Early interaural cross-correlation of a stereo/binaural IR.
 
-    IACC_E per ISO 3382-1: the maximum of the normalized cross-correlation
+    IACC_E per ISO 3382-1: the maximum of the normalised cross-correlation
     between the two channels over the first ``window_ms`` (default 0–80 ms
     after the direct sound), searched over lags of ±``max_lag_ms``
     (default 1 ms). Broadband (no octave filtering). 1 = the two ears hear
@@ -299,7 +299,7 @@ def auralize(dry: np.ndarray, fs: int, ir: np.ndarray, fs_ir: int,
     a mono IR is applied to each dry channel; any other mismatch mono-sums
     the dry signal first and fans out through the IR channels.
 
-    Normalization policy: raw convolution gain is arbitrary (it scales
+    Normalisation policy: raw convolution gain is arbitrary (it scales
     with the IR's level), so ``normalize="match"`` (default) rescales the
     wet result so its absolute peak equals the dry input's peak — the
     output is clip-safe iff the input was, and A/B comparisons sit at

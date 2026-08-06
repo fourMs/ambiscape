@@ -20,7 +20,7 @@ instruments detect *when* things sound, but assigning a sound to any of the thre
 interpretive act. This module turns that interpretation into two figures, one per tradition:
 
 - ``schaeffer_map``  — objects on the facture x mass plane, which is Schaeffer's question. It is
-  colored by Schafer's ``kind`` only so you can see whether the two schemes happen to agree in a
+  coloured by Schafer's ``kind`` only so you can see whether the two schemes happen to agree in a
   given corpus; the colouring carries no classificatory weight;
 - ``schafer_timeline`` — one lane per object on the session clock, keynote spans as bars, events as
   markers, lo-fi states shaded. Hi-fi and lo-fi are Schafer's terms too.
@@ -105,7 +105,7 @@ def _marker(obj) -> str:
 
 
 def schaeffer_map(ann: dict, out_path, title=""):
-    """Objects on the facture x mass grid, colored by Schafer function."""
+    """Objects on the facture x mass grid, coloured by Schafer function."""
     with plt.rc_context(RC):
         fig, ax = plt.subplots(figsize=(9.6, 6.4), dpi=130)
         ax.grid(False)

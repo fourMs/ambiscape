@@ -91,8 +91,8 @@ def main(argv=None):
                               "modulation, activity"),
             ("geophony", "wind/rain/water: diffuse low-band and flat "
                          "high-band indices")):
-        # `anthropophony` was the name until 0.22.0. Kept as a hidden alias so existing scripts
-        # and shell history keep working; the spelling now matches the soundscape-ecology
+        # `anthropophony` is kept as a hidden alias so existing scripts and
+        # shell history keep working; the spelling matches the soundscape-ecology
         # literature, which writes anthrophony.
         aliases = ["anthropophony"] if dom == "anthrophony" else []
         dp = sub.add_parser(dom, help=desc + " (needs a prior analyze run)", aliases=aliases)

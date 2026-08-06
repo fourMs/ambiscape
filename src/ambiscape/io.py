@@ -33,7 +33,7 @@ AMBIX_CHANNELS = ("W", "Y", "Z", "X")  # Zoom H3-VR AmbiX (ACN/SN3D)
 _NEEDS_TRANSCODE = {".m4a", ".aac", ".mp4", ".m4b", ".mov", ".3gp", ".wma",
                     ".opus", ".webm",
                     # 360-camera containers (Insta360, GoPro): plain MP4s
-                    # with the first audio stream where we expect it
+                    # with the first audio stream in the expected place
                     ".insv", ".lrv", ".glv", ".360"}
 _AUDIO_SUFFIXES = {".wav", ".flac", ".ogg", ".mp3", ".aiff", ".aif", ".w64",
                    ".rf64", ".caf", ".au"} | _NEEDS_TRANSCODE

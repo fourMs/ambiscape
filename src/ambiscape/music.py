@@ -8,7 +8,7 @@ counterpart of :func:`ambiscape.tonality.pitch_class_profile`).
 
 Three circular-statistics views build on :mod:`ambiscape.circstats`:
 :func:`pulse_clarity` (metric lock of onsets, robust where plain BPM fails
-on rubato material), :func:`fifths_center` (tonal center + focus of a
+on rubato material), :func:`fifths_center` (tonal centre + focus of a
 chroma vector on the circle of fifths), and
 :func:`tonal_center_spread` (how tightly a set of recordings clusters in
 key space — a between-recording statistic with no linear equivalent).
@@ -143,10 +143,10 @@ def pulse_clarity(y, sr, hop=512, bpm_range=(40.0, 200.0)) -> dict:
 
 
 def fifths_center(chroma) -> dict:
-    """Tonal center and focus of a chroma vector on the circle of fifths.
+    """Tonal centre and focus of a chroma vector on the circle of fifths.
 
     The 12 pitch classes are placed a fifth apart around the circle and the
-    chroma-weighted resultant taken: the mean angle is the tonal center
+    chroma-weighted resultant taken: the mean angle is the tonal centre
     (returned as the nearest note name and as an angle in fifths steps),
     R the tonal focus — diatonic material concentrates on one arc, chromatic
     or inharmonic material smears. Complements
@@ -164,11 +164,11 @@ def fifths_center(chroma) -> dict:
 
 
 def tonal_center_spread(chromas) -> dict:
-    """Concentration of many recordings' tonal centers on the fifths circle.
+    """Concentration of many recordings' tonal centres on the fifths circle.
 
     Feed one mean-chroma vector per recording; returns the resultant length
-    R of their centers — near 1 when a corpus stays in neighbouring keys
-    (a suite), near 0 when it wanders the whole circle. Key centers have no
+    R of their centres — near 1 when a corpus stays in neighbouring keys
+    (a suite), near 0 when it wanders the whole circle. Key centres have no
     meaningful linear mean, so this is inherently a circular statistic.
     """
     from .circstats import circular_sd, mean_resultant

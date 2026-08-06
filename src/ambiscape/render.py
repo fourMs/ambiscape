@@ -176,7 +176,7 @@ def characteristic_excerpt(sess, F: dict, out_dir, dur_s: float = 60.0,
                            hop_s: float = 5.0,
                            event_weight_db: float = 20.0,
                            out_path=None) -> dict:
-    """Export the excerpt that best characterizes the session's background.
+    """Export the excerpt that best characterises the session's background.
 
     Scans ``dur_s`` windows on a ``hop_s`` grid and scores each by (a) the
     mean per-band distance between the window's median log-spectrum and the
@@ -185,7 +185,7 @@ def characteristic_excerpt(sess, F: dict, out_dir, dur_s: float = 60.0,
     over the session median), weighted by ``event_weight_db``. The winner
     is exported **bit-exact from the original take** via
     :func:`ambiscape.io.export_segment` — a soundscape thumbnail with no
-    processing artifacts. Needs cached features (a prior analyze run).
+    processing artefacts. Needs cached features (a prior analyze run).
     """
     import json
     from .io import export_segment

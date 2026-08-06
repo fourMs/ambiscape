@@ -1,7 +1,7 @@
 """Cross-session comparison: the same place on different days.
 
 The catalog answers "how do my *places* differ"; this module answers "how
-did *this place* differ between visits" — two or more analyzed sessions of
+did *this place* differ between visits" — two or more analysed sessions of
 one room laid onto a common clock so that machines, weather, parties and
 silences can be read against each other. Everything works from the cached
 1 Hz features and ``summary.json``/``states.json`` of a prior ``analyze``
@@ -49,7 +49,7 @@ EPS = 1e-12
 
 
 def load_comparison(folders: list[str | Path]) -> list[dict]:
-    """Features + summary + states per analyzed session.
+    """Features + summary + states per analysed session.
 
     Each entry: ``{"name", "folder", "date" (day-0 date or None),
     "F" (features), "summary", "states" (or None)}``. Sessions without a
@@ -99,7 +99,7 @@ def state_mask(sess: dict, state: str, min_s: float = 0.0) -> np.ndarray | None:
 
 
 def laeq_timeline(F: dict, bin_s: float = 60.0):
-    """(bin centers s, LAeq per bin) from the fast A-weighted track.
+    """(bin centres s, LAeq per bin) from the fast A-weighted track.
 
     Bins with under 75 % coverage (the gaps between takes) are NaN so a
     plotted line breaks instead of bridging silence.
@@ -203,10 +203,10 @@ def timeline_figure(sessions: list[dict], out_path: str | Path,
 
 
 def band_centers(F: dict) -> np.ndarray:
-    """Geometric center frequencies of the log-spaced spectrum bands.
+    """Geometric centre frequencies of the log-spaced spectrum bands.
 
     ``logf`` holds the band *edges* (one more than the ``logspec`` width);
-    the centers are the geometric means of consecutive edges.
+    the centres are the geometric means of consecutive edges.
     """
     logf = F["logf"]
     if len(logf) == F["logspec"].shape[1] + 1:
@@ -229,7 +229,7 @@ def ltas_figure(sessions: list[dict], out_path: str | Path,
                 min_state_s: float = 0.0, fmin: float = 90.0, colors=None):
     """Overlay per-state median spectra of every session on one axis.
 
-    Sessions keep their color; the whole-session curve is drawn only when a
+    Sessions keep their colour; the whole-session curve is drawn only when a
     session has no states, and states are distinguished by line style.
     """
     import matplotlib
@@ -439,7 +439,7 @@ _TABLE_KEYS = ["duration_min", "leq_dbfs", "laeq_dbfs", "L10", "L50", "L90",
 def run_compare(folders: list[str | Path], out_dir: str | Path,
                 lines=None, band=None, hours=None,
                 state: str = "machine_on") -> dict:
-    """Compare analyzed sessions of one place; write figures + compare.json.
+    """Compare analysed sessions of one place; write figures + compare.json.
 
     Always: clock-aligned LAeq timelines, per-state LTAS overlay, azimuth
     roses, and a pooled + state-resolved descriptor table. Optional:

@@ -66,7 +66,7 @@ def _occupancy(F: dict, fmax: float = 10000.0, bin_hz: float = 1000.0,
 
 
 def adi_aei(F: dict, **kw):
-    """Acoustic diversity (Shannon, normalized) and evenness (Gini)."""
+    """Acoustic diversity (Shannon, normalised) and evenness (Gini)."""
     occ = _occupancy(F, **kw)
     p = occ / (occ.sum() + EPS)
     adi = float(-(p * np.log(p + EPS)).sum() / np.log(len(p) + EPS))

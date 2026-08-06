@@ -166,7 +166,7 @@ def speech_fraction(x: np.ndarray, fs: int) -> dict:
 
 
 def speech_gate(path: str | Path, threshold: float = 0.01) -> dict:
-    """Privacy gate for a WAV file (any channel count; W/ch0 is analyzed).
+    """Privacy gate for a WAV file (any channel count; W/ch0 is analysed).
 
     Returns the speech statistics plus a pass/fail verdict against
     `threshold` (default: fail if more than 1 % of the file is speech).

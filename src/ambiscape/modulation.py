@@ -33,7 +33,7 @@ def modulation_spectrum(env: np.ndarray, dt: float, fmin: float, fmax: float,
                         n_bins: int = 48):
     """Welch modulation spectrum of a linear-power envelope, log-resampled.
 
-    The envelope is normalized to zero-mean unit-mean (x = env/mean − 1) so
+    The envelope is normalised to zero-mean unit-mean (x = env/mean − 1) so
     spectra are comparable across levels; returns (freqs, power density).
     """
     x = env.astype(np.float64) / (env.mean() + EPS) - 1.0

@@ -38,7 +38,7 @@ def hum_peak(w: np.ndarray, fs: int, nominal: float = 50.0,
     Zero-padded FFT of the Hann-windowed mono signal, parabolic
     interpolation of the log-power peak within ``nominal ± search_hz``.
     Returns ``(freq_hz, rise_db)``; rise is measured against the median
-    power in a ±1.5 Hz-widened neighborhood, so a genuine line scores
+    power in a ±1.5 Hz-widened neighbourhood, so a genuine line scores
     high even on a rumble shoulder.
     """
     n = len(w)

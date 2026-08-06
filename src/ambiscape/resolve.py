@@ -1,4 +1,4 @@
-"""State-resolved descriptors: summarize each state of a session separately.
+"""State-resolved descriptors: summarise each state of a session separately.
 
 A single descriptor row for a multi-state session is a duration-weighted
 average of things that never coexisted — the Haarlem loft's row is dominated

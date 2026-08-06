@@ -2,7 +2,7 @@
 
 The unit here is the *dated session summary*, not the audio. A year-long
 study is best run as many short sessions---one a day, say, as in the
-StillStanding archive---each analyzed to a small ``summary.json``; a year is
+StillStanding archive---each analysed to a small ``summary.json``; a year is
 then 365 tiny rows, so the longitudinal analysis is inherently out-of-core
 however large the underlying audio was. (A single *continuous* multi-month
 recording exceeds what the in-memory feature pipeline can hold; the

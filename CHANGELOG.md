@@ -7,6 +7,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/); the
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) loosely, in that the minor number has
 been carrying feature work throughout a pre-1.0 life.
 
+## [Unreleased]
+
+### Added
+- **Fluctuation strength.** MoSQITo (≤ 1.2.x) does not provide it, so `iso.fluctuation_strength`
+  implements the Fastl & Zwicker envelope-modulation approximation (~4 Hz weighting, anchored to
+  the 1 kHz / 100 % AM at 4 Hz ≙ 1 vacil reference) — documented as an approximation, not a
+  standard. Pure numpy/scipy; `ambiscape iso` now reports it per ear alongside loudness, sharpness
+  and roughness, and the `analyze` summary gains the always-available broadband
+  `fluctuation_index` from the cached 20 ms envelope.
+- **Tonal prominence.** DIN 45681-style tone detection (`iso.tone_prominence` /
+  `iso.prominent_tones`): spectral peaks vs masking-band level, decibel prominence ΔL per tone,
+  aggregated over the per-minute spectra — the ventilation/appliance-hum detector. New
+  `ambiscape tones` command writes `tones.json`; the `analyze` summary and README gain
+  `tonal_prominence_db` / `tonal_prominence_hz` / `n_prominent_tones` (also per state), and the
+  percentile-LTAS figure marks the top persistent tones.
+
 ## [0.22.0] — 2026-08-03
 
 Five versions' worth of work that had been tagged only locally. The version had been bumped in

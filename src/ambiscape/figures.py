@@ -138,7 +138,11 @@ def overview(F, out_path, title="", clock=None):
 
 
 def ltas_percentiles(F, out_path, title=""):
-    """10/50/90th percentile long-term spectra (background vs foreground)."""
+    """10/50/90th percentile long-term spectra (background vs foreground).
+
+    Persistent DIN 45681-style prominent tones (ventilation hums, appliance
+    whines) are marked with their frequency and decibel prominence ΔL.
+    """
     with plt.rc_context(RC):
         nonempty = F["logspec"].sum(0) > 0
         S = db(F["logspec"][:, nonempty])
@@ -149,6 +153,17 @@ def ltas_percentiles(F, out_path, title=""):
         ax.plot(fc, p50, color=BLUE, lw=1.5)
         ax.plot(fc, p10, color=MUT, lw=0.8)
         ax.plot(fc, p90, color=MAGENTA, lw=1.0)
+        if "minspec" in F and len(F["minspec"]):
+            from .iso import prominent_tones
+            for k, tn in enumerate(prominent_tones(F["minspec"],
+                                                   F["freqs"])[:5]):
+                ax.axvline(tn["f_hz"], color=YELLOW, lw=0.9, ls=":",
+                           alpha=0.85, zorder=1)
+                ax.annotate(f"{tn['f_hz']:.0f} Hz +{tn['dL_median_db']:.0f} dB",
+                            (tn["f_hz"], 1.0 - 0.06 * k),
+                            xycoords=("data", "axes fraction"),
+                            color=SEC, fontsize=7, rotation=0,
+                            xytext=(3, 0), textcoords="offset points")
         ax.annotate("90th pct (foreground)", (fc[-30], p90[-30]), color=MAGENTA,
                     fontsize=8, xytext=(0, 6), textcoords="offset points")
         ax.annotate("10th pct (background)", (fc[-30], p10[-30]), color=MUT,

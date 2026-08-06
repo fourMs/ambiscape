@@ -26,6 +26,17 @@ been carrying feature work throughout a pre-1.0 life.
   perception-vs-measurement table (LAeq vs pleasantness, events/min vs eventfulness). Until now
   ISO 12913-2 was supported by protocol rather than software; this closes the data-handling half
   of that gap (collection remains a protocol matter).
+- **Impulse-response module** (`ambiscape.impulse`), three CLI commands. `sweep` generates a
+  Farina exponential sine sweep with matched inverse filter (peak −6 dBFS for playback headroom,
+  raised-cosine fades, JSON parameter sidecar from which the inverse regenerates bit-identically).
+  `impulse` deconvolves a recorded sweep to `ir.wav` (pre-ringing and harmonic-distortion images
+  trimmed ahead of the direct sound) and reports octave-band T60/T20/T30, EDT, C50/C80 and D50
+  through the existing truncated-Schroeder machinery, plus STI (IEC 60268-16 indirect method —
+  noise-free assumption documented) and early IACC (0–80 ms) for binaural IRs. `auralize`
+  convolves dry audio with a measured IR via uniformly partitioned FFT convolution, resampling
+  the IR to the dry material's rate and peak-matching the output by default.
+- `analysis.decay_metrics` also reports the ISO 3382 fixed-range T20 and T30 when the band's
+  dynamic range supports them (`decay_time` remains frozen).
 
 ## [0.22.0] — 2026-08-03
 

@@ -12,6 +12,10 @@
 
 ::: ambiscape.analysis
 
+## Impulse response & auralization
+
+::: ambiscape.impulse
+
 ## Figures
 
 ::: ambiscape.figures

@@ -19,6 +19,10 @@ sources as ±20 % (they ring structurally, which reads as extra decay,
 especially below 250 Hz). A balloon pop at ≥ 2 m with 5 s of stillness
 around it approaches ISO 3382-2 survey grade.
 
+For a deliberate measurement, a swept sine buys far more dynamic range
+than any clap and adds STI, IACC and auralization — see
+[Impulse response & auralization](impulse.md).
+
 ## Calibration
 
 `calibration.json` in the session folder defines the offset `O` such that a

@@ -32,7 +32,7 @@ Each entry in `classes` describes one recurring sound:
   actually excited: sharply negative for a plucked or struck sound, near
   zero for a sustained one.
 
-Classes are sorted by count. We leave singletons that match nothing
+Classes are sorted by count. Singletons that match nothing are left
 unclustered (`n_unclustered`) rather than forcing them into a class.
 
 ## In Python

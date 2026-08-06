@@ -5,8 +5,16 @@ and harmonics, with magnetostriction strongest at 100 Hz. The grid's
 *actual* frequency wanders by tens of millihertz as load and generation
 balance, and that wandering value is the electric network frequency, or
 ENF. A long recording carries the wander as a continuous, involuntary log
-of the grid. Version 0.4 adds a reader for it, which we developed on the
-Haarlem-loft case study (9 h of hum tracked to ±50 mHz).
+of the grid. The `enf` module reads it; a whole night of domestic hum
+tends to track the grid to within tens of millihertz.
+
+```bash
+ambiscape enf SESSION/ --nominal 50      # 60 in the Americas
+```
+
+`--step` and `--win` set the seconds between windows (default 300) and
+the window length (default 60); the command writes `enf.json` and
+`enf.png` into `analysis/`.
 
 The cached per-minute spectra are far too coarse for this (5.9 Hz bins);
 `ambiscape.enf` makes its own pass over the raw W channel.

@@ -5,9 +5,11 @@ rooms, streets, and landscapes, from any recording: mono, stereo,
 binaural, or first-order ambisonic. It brings level, spectral, spatial,
 temporal, ecological, and source-domain descriptors into one picture, and
 streams recordings of any length (minutes to whole nights) in constant memory.
-We built it for several kinds of reader at once: acousticians and soundscape
+It is built for several kinds of reader at once: acousticians and soundscape
 ecologists, sound artists and composers, students, and anyone curious about
 the sound of a place.
+
+![Session overview figure: level timeline, spectrogram, anglegram, and diffuseness lane on one clock.](img/overview.png)
 
 ## Why
 
@@ -15,9 +17,9 @@ Most audio analysis tooling assumes a file you can load whole. Long-form
 field recording produces something else: tens of gigabytes per session,
 split into 2 GB files by the recorder, in which the interesting structure
 lives at time scales of minutes to hours, such as machine duty cycles,
-diurnal traffic envelopes and day/night state changes. We made the *session*
-(a folder of WAVs on one absolute clock) the unit of analysis, and ambiscape
-produces:
+diurnal traffic envelopes and day/night state changes. The *session*—a
+folder of WAVs on one absolute clock—is therefore the unit of analysis,
+and ambiscape produces:
 
 - **descriptors** in the environmental-acoustics idiom (Leq, LAeq,
   L10/L50/L90, event statistics),
@@ -29,7 +31,9 @@ produces:
   Schaeffer's typo-morphology and one for Schafer's soundscape functions,
 - **figures** (session overview, percentile spectra, directograms,
   taxonomy maps and timelines),
-- **room acoustics** (T60 from claps or incidental impulses),
+- **room acoustics**: T60 from claps or incidental impulses, swept-sine
+  impulse-response measurement (T60/EDT, clarity, STI, IACC), and
+  auralization through a measured room,
 - **machine states**: on/off segmentation, duty cycles, source spectral
   fingerprints, and targeted civic-grid scans (church clocks, sirens),
 - **mains hum / ENF**: millihertz tracking of the electric network
@@ -48,6 +52,8 @@ produces:
   projected onto the 12913-3 circumplex (per-respondent points, mean,
   95% ellipse), joined into the session summary for perceptual ranking,
 - **machine-listening assists** (AudioSet tagging, a speech privacy gate),
+- **multimodal joins**: per-frame visual features from a companion camera,
+  and sound–motion entrainment against a body-worn accelerometer,
 - **publication exports** (non-identifying 1 Hz features; curated segment
   selection),
 - **corpus aggregation**: one cross-session table (CSV + Markdown) from
@@ -60,14 +66,15 @@ ambiscape is the streaming companion to
 spatial visuals (AEM spherical energy maps, anglegrams, directograms) from
 audio it can load whole; ambiscape summarises recordings too long for that,
 and selects the short representative excerpts that ambiviz then visualises
-in detail. We follow ambiviz's plot names and conventions where the two
-overlap.
+in detail. ambiscape follows ambiviz's plot names and conventions where the
+two overlap.
 
 ## Where things are documented
 
-- **This site**—user guide and API reference, versioned with the code.
+- **This site**—user guide, [command overview](cli.md), and API
+  reference, versioned with the code.
 - **[README](https://github.com/fourMs/ambiscape#readme)**—install and
   a one-page overview.
-- **[Wiki](https://github.com/fourMs/ambiscape/wiki)**—research context,
-  field-recording protocol, design decisions, recipes, and roadmap: the
-  living material that evolves independently of releases.
+- **[Wiki](https://github.com/fourMs/ambiscape/wiki)**—field-recording
+  protocol, recipes, worked case studies, design rationale, and research
+  context.

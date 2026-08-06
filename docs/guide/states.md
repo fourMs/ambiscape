@@ -3,10 +3,10 @@
 Domestic and mechanical sources such as ventilation units, fridges, pumps
 and HVAC structure a soundscape as *states* rather than events: a
 band-limited floor that is either present or absent, sometimes for hours.
-Version 0.3 adds a notebook-oriented toolbox for working with them,
-developed on the 2026 Haarlem-loft case study (an air pump droning for nine
-hours, a fridge cycling every ~24 minutes, a church clock at the noise
-floor).
+The `states` module is a notebook-oriented toolbox for working with
+them, developed on the Haarlem-loft case study (an air pump droning for
+nine hours, a fridge cycling every ~24 minutes, a church clock at the
+noise floor).
 
 All of it runs from the cached features of a prior `ambiscape analyze`,
 with no audio pass except segment export.
@@ -40,6 +40,8 @@ mean PSDs, which is the source's own spectrum with the room ambience
 subtracted:
 
 ```python
+from ambiscape import background
+
 fp = background.source_fingerprint(F, active_minutes, quiet_minutes)
 fp["rise_max_db"], fp["rise_max_hz"]   # the broadband turbulence hump
 fp["peaks"]                            # narrowband lines riding on it
@@ -77,7 +79,7 @@ export_segment(sess, t0, 600.0, "seg6_vent_switchoff.wav")   # bit-exact AmbiX
 st = stereo_preview(x)                                       # ±90° cardioids
 ```
 
-We copy samples in `export_segment` using the source's own PCM subtype,
+`export_segment` copies samples using the source's own PCM subtype,
 with no float round trip, so that a report's representative segments stay
 citable against the raw takes. `stereo_preview` decodes an AmbiX block to
 side-facing cardioids for listenable previews; write the result with

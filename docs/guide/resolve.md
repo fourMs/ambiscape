@@ -21,8 +21,8 @@ res["machine_off"]["ndsi"], res["machine_on"]["ndsi"]
 when a session is genuinely two-state (both states last long enough and the
 machine band steps by ≥ 4 dB between them) it writes `analysis/states.json`
 and appends a state-resolved table to the session README. Steady,
-single-state sessions get no state rows, since we would rather report one
-honest row than two spurious ones. Disable with `analyze --no-resolve`.
+single-state sessions get no state rows, since one
+honest row beats two spurious ones. Disable with `analyze --no-resolve`.
 
 For an explicit split (a specific band, or day/night), the standalone
 command writes the same `states.json`:

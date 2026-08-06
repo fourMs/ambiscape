@@ -9,11 +9,11 @@ Time    level_dbfs    centroid_hz    low_frac    high_frac
 1       -44.9         135            0.966       0.007
 ```
 
-We consider these files safe for open deposits (Zenodo and similar) where
+These files are considered safe for open deposits (Zenodo and similar) where
 the WAVs are withheld, since a 1 Hz loudness/spectral envelope is far below
 speech timescales and carries no intelligible content.
 
-We follow the schema of the StillStanding365 deposit (365 daily
+The export follows the schema of the StillStanding365 deposit (365 daily
 standstill sessions, fourMs/RITMO), which makes corpora that use it directly
 poolable. Method deltas against that deposit's original extractor are
 documented in the `deposit` module (W-channel at native rate vs an 8 kHz

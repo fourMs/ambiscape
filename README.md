@@ -6,127 +6,43 @@
 [![Python](https://img.shields.io/pypi/pyversions/ambiscape.svg)](https://pypi.org/project/ambiscape/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Ambiscape is a toolbox for analysing *soundscapes*, with a particular focus on the sonic ambiences of rooms. It takes a holistic view, bringing together measurements of level, spectral, spatial, temporal, ecological, and source-domain descriptors so a place's sound can be described as a whole rather than one metric at a time.
-
-The toolbox works from many different types of recordings: mono, stereo, binaural, or first-order ambisonic, using whatever spatial information each format carries (see [Mono, stereo & binaural inputs](https://fourms.github.io/ambiscape/guide/stereo-mono/)). It is built to be useful to different people: acousticians and soundscape ecologists, sound artists and composers, students, and anyone curious about the sound of a place.
+Ambiscape is a Python toolbox for analysing soundscapes—the sonic ambiences of rooms and other places. It reads mono, stereo, binaural, or first-order ambisonic recordings of any length and describes a place's sound as a whole: level, spectrum, space, rhythm, sources, and more.
 
 ## Install
 
 ```bash
-pip install ambiscape            # core
-pip install "ambiscape[iso]"     # + ISO 532-1 loudness/sharpness/roughness
-pip install "ambiscape[ml]"      # + AudioSet tagging, speech privacy gate
-pip install "ambiscape[viz]"     # + ambiviz (HRIR binaural, AEM visuals)
+pip install ambiscape
 ```
+
+Optional extras add psychoacoustic indicators, machine listening, music analysis, live capture, and spatial visuals. See the [install guide](https://fourms.github.io/ambiscape/install/).
 
 ## Quickstart
 
+Point `analyze` at a *session*—a folder of WAV files from one recording occasion:
+
 ```bash
-ambiscape probe      <session-folder>   # metadata
-ambiscape analyze    <session-folder>   # features, descriptors, figures, README
-ambiscape draft      <session-folder>   # pre-fill taxonomy annotations
-ambiscape taxonomy   <session-folder>   # Schaeffer map + Schafer timeline
-ambiscape rhythm     <session-folder>   # strike-level rhythm of periodic sources
-ambiscape modspec    <session-folder>   # micro/meso/macro modulation profile
-ambiscape tonality   <session-folder>   # tonal tracks, harmonicity, pitch classes
-ambiscape spatial    <session-folder>   # direct/diffuse split, pass-bys, azimuth R(t)
-ambiscape schedule   <session-folder>   # match events against civic time grids
-ambiscape timbre     <session-folder>   # event timbre templates (no-ML clustering)
-ambiscape music      <session-folder>   # librosa tempogram + chromagram [music]
-ambiscape background <session-folder>   # background-only bed render, or --excerpt: a characteristic minute
-ambiscape loop       <session-folder>   # seamlessly loopable prototype segment (typical, not just calm)
-ambiscape resynth    <session-folder>   # recreate the soundscape from basic synthesis models (Web Audio page)
-ambiscape carillon   <session-folder>   # which bells a carillon played: strike-note inventory [music]
-ambiscape vision     <video-or-folder>  # per-frame visual features (multimodal companion)
-ambiscape entrain    <session-folder> --motion <csv>  # sound-motion entrainment vs a body-worn accelerometer
-ambiscape iso        <session-folder>   # ISO 12913-3 indicators
-ambiscape survey     <session-folder>   # ISO 12913-2 responses -> 12913-3 circumplex
-ambiscape sweep                         # exponential sine sweep + inverse filter for IR measurement
-ambiscape impulse    <recorded.wav>     # sweep -> impulse response; T60/EDT/C50/C80/D50, STI, IACC
-ambiscape auralize   <dry.wav> --ir ir.wav  # play dry audio through a measured room (convolution)
-ambiscape calibrate  <session-folder>   # store dBFS->dB SPL offset from a field SPL reading
-ambiscape speechgate <wav-or-folder>    # privacy check before publishing
-ambiscape deposit    <session-folder>   # non-identifying 1 Hz TSV export
-ambiscape resolve    <session-folder>   # per-state descriptors (on/off, day/night)
-ambiscape catalog    <corpus-folder>    # aggregate all summary.json -> CSV
-ambiscape longitudinal <corpus-folder>  # trend + seasonal over dated sessions
-ambiscape scenes     <folder>           # analyze each WAV as an independent scene
-ambiscape capture    <root>             # always-on feature-extraction daemon [capture]
+ambiscape analyze my-session/
 ```
 
-A *session* is a folder of WAVs on one absolute clock (BWF timestamps, parsed natively); a single one-off recording opens as its own scene with `open_recording(path)`. `analyze` produces a per-session `README.md` with a descriptor table (Leq, LAeq, L10/L50/L90, events, diffuseness ψ, azimuthal concentration R, …) and overview figures (level + spectrogram + anglegram + ψ timeline, percentile spectra, directogram).
+This streams the audio in constant memory, however long it is. It extracts features, computes descriptors (Leq, LAeq, percentile levels, event statistics, diffuseness, and more), renders overview figures, and writes a `README.md` summarising the session. Start by reading that README and looking at `analysis/overview.png`:
 
-## In notebooks
+![Session overview figure: level timeline, spectrogram, anglegram, and diffuseness lane on one clock.](docs/img/overview.png) The [quickstart guide](https://fourms.github.io/ambiscape/quickstart/) continues from there, on the command line and in Python.
 
-Everything the CLI does is a library call. From version 0.3 there has been a notebook-oriented case-study toolbox — machine on/off states, source fingerprints, civic-grid scans, bit-exact segment export:
+## Commands
 
-```python
-import ambiscape as asc
-from ambiscape import background, features, schedule, states
-
-sess = asc.open_session("2026-07-15-Haarlem-loft")
-F = features.load_features(
-    features.extract_session(sess, "analysis/features"))
-
-segs = states.state_segments(states.band_level(F, (250, 1000)))  # vent on/off
-fp = background.source_fingerprint(F, night_minutes, morning_minutes)
-bells = schedule.grid_scan(F, 900.0, band=(350, 800))            # church clock
-asc.export_segment(sess, t0, 600.0, "seg6_vent_switchoff.wav")
-
-from ambiscape import enf                       # v0.4: grid-frequency traces
-enf.enf_summary(enf.enf_track(sess))            # mains ENF wander, mHz-level
-
-from ambiscape import ecology, iso              # v0.5: ratings & indices
-ecology.indices(F)                              # ACI, ADI/AEI, NDSI, BI, H
-iso.room_criteria(iso.background_octaves_db(F)) # NR / NC / RC (HVAC idiom)
-asc.decay_metrics(x[:, 0], fs)                  # T60 + EDT, C50/C80, D50
-
-from ambiscape import biophony, ml              # v0.6: nature & animals
-biophony.summarize_biophony(F)                  # narrowband/temporal/spatial
-ml.birdnet_session(sess, F=F, hifi_max_diffuse=0.75, lat=52.4, lon=4.6)
-```
-
-See the [machine-states guide](https://fourms.github.io/ambiscape/guide/states/) and the executable session report it was built for.
-
-## Scope: ambiscape and MGT
-
-ambiscape and [MGT-python](https://github.com/fourMs/MGT-python) are sister
-toolboxes: **ambiscape owns the samples**, **MGT owns the pixels**. The
-built-in `vision` module extracts only lightweight per-frame features as a
-multimodal companion to the audio; for real video analysis (motion, pose,
-360° stitching) use MGT, which can ingest ambiscape sessions directly via
-`pip install "musicalgestures[soundscape]"`. ambiscape itself stays
-dependency-light and never imports MGT.
+`analyze` is one of nearly forty subcommands. The others cover taxonomy annotation, rhythm and tonality, room acoustics and impulse responses, ecological and source-domain indices, perceptual surveys, corpus aggregation, and privacy-aware publishing. The [command overview](https://fourms.github.io/ambiscape/cli/) lists them all; `ambiscape --help` prints the same list.
 
 ## Documentation
 
-- **[User guide & API reference](https://fourms.github.io/ambiscape/)** —
-  the session model and conventions, feature/descriptor definitions, room
-  acoustics and ISO indicators, the taxonomy workflow, machine listening,
-  deposit export.
-- **[Wiki](https://github.com/fourMs/ambiscape/wiki)** — research context,
-  field-recording protocol, design decisions, recipes, roadmap.
+- **[User guide & API reference](https://fourms.github.io/ambiscape/)**—the session model, feature and descriptor definitions, and a page per analysis module.
+- **[Wiki](https://github.com/fourMs/ambiscape/wiki)**—field-recording protocol, recipes, worked case studies, design rationale, and research context.
 
-## Dependencies
+Ambiscape analyses sound; its sister toolbox [MGT-python](https://github.com/fourMs/MGT-python) analyses video. The two meet at file boundaries—see [Working with other packages](https://fourms.github.io/ambiscape/interop/).
 
-- [ambiviz](https://github.com/fisheggg/ambiviz) renders rich spatial visuals from ambisonic files
-- [librosa](https://librosa.org/)
+## Licence
 
-## License
+MIT—see [LICENSE](LICENSE).
 
-MIT — see [LICENSE](LICENSE). 
+## Credits
 
-## Funding
-
-Developed as part of the [AMBIENT project](https://www.uio.no/ritmo/english/projects/ambient/index.html) at [fourMs / RITMO](https://www.uio.no/ritmo/english/), University of Oslo. Supported by the Research Council of Norway.
-
-## Related toolboxes
-
-These four toolboxes come out of the [fourMs lab](https://github.com/fourMs) at the University of
-Oslo. They are separate packages with separate release cycles, but they are built to be used
-together and share several implementations, so a measure computed in one agrees with the same
-measure computed in another.
-
-- [Musical Gestures Toolbox](https://github.com/fourMs/MGT-python) (`musicalgestures`) — video and audio: motiongrams, videograms, and motion analysis from ordinary video files
-- [musiscape](https://github.com/fourMs/musiscape) — music collections: comparing many tracks and albums held as audio files in folders
-- [micromotion](https://github.com/fourMs/micromotion) — human micromotion: quantity of motion from optical markers, accelerometers, respiration belts and force plates
+Ambiscape is developed as part of the [AMBIENT project](https://www.uio.no/ritmo/english/projects/ambient/index.html) at [fourMs / RITMO](https://www.uio.no/ritmo/english/), University of Oslo, supported by the Research Council of Norway. It is the streaming companion to [ambiviz](https://github.com/fisheggg/ambiviz), which renders rich spatial visuals from short ambisonic files.

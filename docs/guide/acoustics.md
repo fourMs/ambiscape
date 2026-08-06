@@ -4,8 +4,8 @@
 
 Any sufficiently loud impulse, whether a deliberate calibration clap, a
 balloon pop or an incidental bang, yields octave-band T60 estimates via
-truncated Schroeder integration. We added two safeguards after learning
-the hard way that they were needed:
+truncated Schroeder integration. Two safeguards protect the estimate,
+each guarding against a failure mode common in field recordings:
 
 1. **noise-floor truncation**: the decay fit runs from −5 dB down to
    `max(−35 dB, floor + 8 dB)`, so a high ambient floor cannot masquerade
@@ -83,15 +83,20 @@ recording. Both keys are optional and independent.
 
 ## ISO 12913-3 indicators (`ambiscape iso`)
 
-Computes, per ear, on each representative segment:
+Computes, per ear, on each representative segment (`--dur` seconds each,
+default 30; `--offset` overrides the calibration offset):
 
 - **N5, N50**: ISO 532-1 time-varying loudness percentiles (sone),
 - **sharpness**: DIN 45692 (acum),
 - **roughness**: Daniel & Weber (asper),
 - **fluctuation strength** (vacil, approximate — see below),
 
-via [MoSQITo](https://github.com/Eomys/MoSQITo) (validated against the
-1 kHz / 60 dB ≙ 4 sone reference). Ear signals come from ambiviz's HRIR
+the first three via [MoSQITo](https://github.com/Eomys/MoSQITo), whose
+loudness implementation follows the 1 kHz / 60 dB ≙ 4 sone reference;
+fluctuation strength is computed locally (see below). Results are written
+to `analysis/iso_indicators.json`, one block per segment with per-ear
+values, the `binaural_method` used, and a `calibrated` flag.
+Ear signals come from ambiviz's HRIR
 binauralizer when installed, else a documented ±90° cardioid-pair fallback
 (no pinna cues). Uncalibrated sessions run with an assumed offset and are
 flagged: segment-to-segment ratios stay meaningful, absolute sones do
@@ -102,12 +107,15 @@ not.
     with roughness on a central 10 s slice (roughness is a texture measure
     and stabilises within seconds).
 
-We do not claim full 12913-2 conformance, since that also implies a
-calibrated Class-1 chain, which consumer recorders are not. The honest
-claim is *"ISO 12913-informed collection and 12913-3-style indicators"*
-with the protocol documented. The questionnaire half of 12913-2 —
-Method A responses projected onto the 12913-3 circumplex — is covered
-by the [perceptual survey](survey.md) module.
+The toolbox does not claim full 12913-2 conformance, since that also
+implies a calibrated Class-1 chain, which consumer recorders are not. The
+honest claim is *"ISO 12913-informed collection and 12913-3-style
+indicators"* with the protocol documented. The questionnaire half of
+12913-2 — Method A responses projected onto the 12913-3 circumplex — is
+covered by the [perceptual survey](survey.md) module. Two related rating
+families live on the [ratings & global indices](indices.md) page:
+NR/NC/RC room criteria (`iso.room_criteria`) and DIN 45681-style
+prominent tones (`ambiscape tones`, `iso.prominent_tones`).
 
 ### Fluctuation strength (approximation)
 

@@ -47,6 +47,6 @@ spatial.fg_bg_az_overlap(F)        # do figure and ground share a direction?
 ```
 
 `directional_entropy` is the spatial analogue of an acoustic diversity
-index, which is something only an ambisonic corpus can report. We report azimuth
-measures for ambix and (lateral) stereo but not mono, and the horizon split
+index, which is something only an ambisonic corpus can report. Azimuth
+measures cover ambix and (lateral) stereo but not mono, and the horizon split
 requires ambix, since neither stereo nor mono resolves elevation.

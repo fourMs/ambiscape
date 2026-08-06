@@ -5,9 +5,9 @@
 A session is a folder of WAV files. ambiscape parses each file's BWF `bext`
 chunk natively (no ffmpeg needed) for its origination date/time, and places
 all *takes* on one absolute clock, counting seconds since the session's
-first midnight. Recorder splits (2 GB FAT limits) chain seamlessly. We keep
-genuinely separate takes (a gap larger than ten minutes) on the same clock
-but render them as separate panels in figures, since a morning walk and an
+first midnight. Recorder splits (2 GB FAT limits) chain seamlessly. Genuinely
+separate takes (a gap larger than ten minutes) stay on the same clock
+but render as separate panels in figures, since a morning walk and an
 evening one belong to the same day without belonging to the same scene.
 
 ### Sessions vs. scenes
@@ -40,8 +40,8 @@ FuMa map feeds the near-empty Z channel into the horizontal decode and
 collapses all azimuth estimates onto a 0°/180° axis.
 
 !!! warning
-    If you inherit B-format files of unknown provenance, run
-    `ambiscape probe`, which reports the detected convention. An azimuth
+    For B-format files of unknown provenance, check each take with
+    `io.channel_order`, which reads the recorder's `zTRK` tags. An azimuth
     distribution that hugs one axis across different rooms is the
     tell-tale sign of a convention mismatch.
 

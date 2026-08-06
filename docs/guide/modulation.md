@@ -30,7 +30,7 @@ rhythm spectrogram, in dB relative to each window's median).
 - **macro** (below 0.01 Hz, floor set by session length) from the 1 s RMS:
   ventilation and appliance duty cycles, diel activity.
 
-We take each scale from a different cached envelope, since no single
+Each scale comes from a different cached envelope, since no single
 envelope rate resolves both a footstep and a fridge that runs for eight
 minutes in every thirty-six.
 

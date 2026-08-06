@@ -69,8 +69,8 @@ circle and takes the chroma-weighted resultant: the mean angle is the tonal
 centre, R the tonal focus (diatonic material concentrates, chromatic or
 inharmonic material smears). `tonal_center_spread` applies the same
 resultant to *many* recordings' centres, near 1 for a repertoire that stays
-in neighbouring keys, near 0 for one that wanders the circle. We had to make
-this between-recording statistic circular, since key centres have no
+in neighbouring keys, near 0 for one that wanders the circle. The
+between-recording statistic must be circular, since key centres have no
 meaningful linear mean: the average of C and B is not F sharp.
 
 ## Object-level Schaeffer profile

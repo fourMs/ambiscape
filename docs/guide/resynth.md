@@ -34,8 +34,8 @@ train carriage) shows how few parameters carry a place's identity.
 ## Recipe
 
 The mapping lives in `resynthesis/recipe.json` (also embedded in the
-page), produced by `resynth.build_recipe(sess, F, analysis_dir)`. We keep
-the recipe small and human-readable, since it *is* the lesson: a place,
+page), produced by `resynth.build_recipe(sess, F, analysis_dir)`. The recipe
+stays small and human-readable, since it *is* the lesson: a place,
 reduced to a couple of dozen numbers, remains recognisable.
 
 ```python

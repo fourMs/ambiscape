@@ -15,8 +15,10 @@ ambiscape loop SESSION/ --dur 90 --xfade 4 # longer, softer seam
 ambiscape loop SESSION/ --take 1           # a specific take
 ```
 
-Needs a prior `analyze` run (cached features). Output:
-`analysis/loop_<take>_<dur>s.wav` (24-bit, native channel count, so 4-ch
+Needs a prior `analyze` run (cached features). `--take` is an integer
+index into the session's takes (default: the longest take). Output:
+`analysis/loop_<take>_<dur>s.wav`, where `<take>` is that take's
+filename stem (24-bit, native channel count, so 4-ch
 AmbiX stays AmbiX) and `analysis/loop.json` with the scores and seam
 residual.
 
@@ -29,7 +31,7 @@ feature cache, scored by four distances (dB, lower is better):
    log-spectrum and the take's median spectrum;
 2. **level typicality**: |window L50 − take L50|;
 3. **event-density typicality**: |window eventful-fraction − take
-   eventful-fraction|, weighted ×20. We score for typicality rather than
+   eventful-fraction|, weighted ×20. The scoring targets typicality rather than
    calm, so a window with the *representative* amount of activity beats
    both dead air and a burst of events;
 4. **seam** (half weight): mismatch between the window's own first and

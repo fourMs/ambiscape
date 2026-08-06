@@ -4,7 +4,7 @@
 
 ## Streaming feature extraction
 
-We read files in 60-second blocks and never hold one whole in memory.
+Files are read in 60-second blocks and never held whole in memory.
 Per take, cached as `.npz`:
 
 | Rate | Features |
@@ -32,8 +32,8 @@ Foreground/background splits use energy quartiles (loudest vs quietest
 
 ## Session descriptors (`summarize`)
 
-We follow the conventions frozen for the Intercontinental-database reports,
-so that rows stay comparable across studies:
+The conventions are frozen (matching the Intercontinental-database
+reports), so that rows stay comparable across studies:
 
 - **Leq, LAeq** (energy means of the fast level), L10/L50/L90
   exceedance percentiles, dynamics L10−L90;

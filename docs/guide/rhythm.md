@@ -67,7 +67,7 @@ mechanical-synchronisation observation.
 
 Blind partial detection needs the source to dominate the active-vs-quiet
 spectral rise. At two blocks' distance, under birds, bikes and traffic, it
-fails, since foreground events swamp the rise. We therefore let you supply
+fails, since foreground events swamp the rise. Supply
 a fixed prior instead:
 
 ```bash

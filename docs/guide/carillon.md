@@ -10,8 +10,13 @@ and the pitch-class centre of the music.
 ambiscape carillon <session-folder> --t0 60 --dur 3600   # needs the [music] extra
 ```
 
-Writes `carillon.json` (detected bells with note names, frequencies and cents,
-range, pitch-class profile, strike count) and `carillon.png` (the bell-salience
+`--fmin` sets the lowest candidate strike note (default 110 Hz = A2),
+`--octaves` the CQT range above it (default 5), and `--events`
+additionally transcribes per-strike events (time plus bell note(s) per
+onset) into `carillon.json`.
+
+Writes `carillon.json` (detected bells with note names, frequencies and
+cents, the range in use, and a folded `chroma_profile`) and `carillon.png` (the bell-salience
 inventory with note labels, over a pitch-class profile).
 
 ![Bell-salience inventory: template-matched strike notes with their note labels, above the folded 12-bin pitch-class profile of the recital.](../img/carillon.png)
@@ -30,7 +35,7 @@ strike note (the prime):
 | nominal | 2 | octave above |
 
 The loud tierce and nominal make a naive pitch tracker report notes a minor third
-or an octave too high. We chose bell-template matching instead: for
+or an octave too high. Bell-template matching avoids the trap: for
 every candidate strike note `carillon` sums the energy at all five partial positions, so
 a true strike note—which has energy at *all* of them—outscores any single
 partial. Accumulated over the onset frames of a whole recital, the peaks of that

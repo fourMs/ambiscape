@@ -1,9 +1,9 @@
 # Stereo & mono inputs
 
-ambiscape was built for four-channel AmbiX B-format, but from v0.13 it also
+ambiscape was built for four-channel AmbiX B-format, but it also
 analyses stereo and mono recordings, and ingests compressed audio (a
-phone's AAC `.m4a`, say) alongside WAV/FLAC. We let the channel count of a
-file pick a processing *mode*, and the mode decides how much direction can
+phone's AAC `.m4a`, say) alongside WAV/FLAC. The channel count of a
+file picks a processing *mode*, and the mode decides how much direction can
 be reported. Everything else (levels, spectra, events, ecology indices,
 reverberation, the whole descriptor table) is computed the same way from a
 single mono reference (the W channel for ambix, the L/R mean for stereo, the
@@ -49,7 +49,8 @@ classifier via `ambiscape birdnet` to be sure.
 
 ```bash
 ambiscape analyze path/to/cafe          # a folder with one stereo .m4a
-#   2-channel stereo. azimuth is a lateral L/R balance; no elevation.
+# the generated session README.md records the mode:
+#   "2-channel stereo. azimuth is a lateral L/R balance; no elevation."
 #   ... full descriptor table, overview + LTAS + directogram ...
 ```
 
@@ -59,7 +60,8 @@ Recordings need not be BWF WAVs. On ingest ambiscape:
 
 - **Transcodes** containers libsndfile cannot open (`.m4a`, `.aac`, `.opus`,
   …) to a cached WAV under `<folder>/.ambiscape_decoded/` with ffmpeg (native
-  rate and channels, 16-bit PCM), reused while newer than the source. ffmpeg
+  rate and channels, 16-bit PCM, or 24-bit when the source is deeper),
+  reused while newer than the source. ffmpeg
   must be on `PATH`.
 - **Dates** a take from its BWF timestamp if present, else a
   `YYYYMMDD_HHMMSS` / `YYMMDD_HHMMSS` stamp in the filename (phones and field

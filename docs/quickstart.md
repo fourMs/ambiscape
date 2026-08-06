@@ -34,6 +34,12 @@ After `analyze`, the session folder contains a `README.md` (metadata,
 descriptor table, figures) and an `analysis/` folder (cached features,
 `summary.json`, PNGs).
 
+This is the core pipeline, not the whole toolbox: the
+[command overview](cli.md) lists every subcommand, including `survey`
+(questionnaire responses onto the 12913-3 circumplex), `sweep`/`impulse`
+(measured impulse responses, STI, auralization), and `entrain`
+(sound–motion coupling with a body-worn accelerometer).
+
 ## The same from Python
 
 ```python

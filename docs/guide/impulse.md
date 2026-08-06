@@ -15,7 +15,8 @@ convolve any dry sound with it and it plays in that room.
 ambiscape sweep --duration 10 --f0 40 --f1 18000 -o sweep.wav
 ```
 
-writes three files:
+(`--fs` sets the sample rate, default 48000; `--amplitude` the peak,
+default 0.5.) The command writes three files:
 
 - `sweep.wav` — the exponential sweep, equal time per octave, with
   raised-cosine fades (100 ms in, 20 ms out) so the loudspeaker is not
@@ -47,13 +48,15 @@ ambiscape impulse recorded.wav     # finds sweep.json next to the recording
 The recording is convolved with the inverse filter; everything earlier
 than 5 ms before the direct-sound peak (`--pre-ms`) is trimmed —
 deconvolution pre-ringing and the harmonic-distortion images both live
-there. The IR is written as float32 `ir.wav`, rescaled to peak −6 dBFS
+there — and `--dur` caps the kept IR tail in seconds (default: to the
+end of the recording). The IR is written as float32 `ir.wav`, rescaled to peak −6 dBFS
 (the applied gain is logged in `impulse.json`; every reported metric is
 level-invariant). Alongside it, `impulse.json` holds:
 
 - **octave-band decay** (125 Hz – 8 kHz): T60, and where the dynamic range
   supports the ISO 3382 fixed ranges, T20 (−5…−25 dB) and T30 (−5…−35 dB);
-  EDT; clarity C50/C80; definition D50. These reuse the toolbox's
+  EDT; clarity C50/C80; definition D50; and the usable dynamic range
+  `dr_db` behind each fit. These reuse the toolbox's
   truncated-Schroeder machinery (`analysis.decay_metrics`) — the same
   noise-floor and re-attack safeguards as the clap path, now fed a proper
   excitation.
@@ -69,9 +72,10 @@ level-invariant). Alongside it, `impulse.json` holds:
         will have a lower effective STI. Treat it as a room descriptor,
         not an occupancy-condition prediction.
 
-- **IACC (early)** for two-channel IRs: the maximum interaural
+- **IACC (early)** for two-channel IRs: the maximum *absolute* interaural
   cross-correlation over 0–80 ms after the direct sound, lags ±1 ms,
-  broadband. Meaningful for binaural (ear-signal) IRs; for an ordinary
+  broadband (ISO 3382-1 takes the signed maximum; the absolute value
+  differs only for strongly anti-correlated channels). Meaningful for binaural (ear-signal) IRs; for an ordinary
   spaced stereo pair it is a channel-similarity figure, not a perceptual
   one. Multichannel decay/STI metrics are computed on channel 0 (the
   omni/W channel of a B-format IR).

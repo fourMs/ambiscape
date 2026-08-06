@@ -2,12 +2,12 @@
 
 The ecoacoustic battery ([ratings & indices](indices.md)) reads *energy in
 a band*. Indoors a 4 kHz ventilation hiss scores as "biophony", and even
-outdoors NDSI cannot tell a dawn chorus from cicadas from wind. Version 0.6
-adds measures that capture biophony by its structure: narrowband,
+outdoors NDSI cannot tell a dawn chorus from cicadas from wind. The
+`biophony` module instead captures biophony by its structure: narrowband,
 tonal, bursty in time, and, where the recording is ambisonic, arriving from
 many elevated bearings at once.
 
-We split this into two layers: a cache-based structural set
+The measures come in two layers: a cache-based structural set
 (`ambiscape.biophony`, no ML, scales to a whole global corpus) and an
 optional species detector (BirdNET via `ambiscape.ml`, `[ml]` extra) for
 ground truth on the good windows.

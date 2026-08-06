@@ -1,6 +1,6 @@
 # Machine listening (`[ml]` extra)
 
-Two assistants, both of which we position as *helpers around* the human
+Two assistants, both of which are positioned as *helpers around* the human
 ear rather than replacements for it. Both operate on the W (omni) channel,
 downmixed and resampled, since the models are trained on 16/32 kHz mono
 internet audio, and quiet domestic material is out of their training

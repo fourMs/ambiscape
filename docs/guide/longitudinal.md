@@ -1,10 +1,10 @@
 # Longitudinal analysis
 
-How does a place sound across weeks, months, a year? Version 0.10 adds a
-layer above the single session: trend and seasonal analysis of *dated*
+How does a place sound across weeks, months, a year? The `longitudinal`
+module is a layer above the single session: trend and seasonal analysis of *dated*
 session summaries across a corpus.
 
-The design point matters for anyone planning a long study. We made the unit
+The design point matters for anyone planning a long study. The unit is
 the dated session summary rather than the audio. A year-long study is best
 run as many short sessions, one a day, as in the StillStanding archive, each
 analysed to a small `summary.json`. A year is then 365 tiny rows, so the

@@ -2,7 +2,7 @@
 
 For a study that runs for months---a year in one room---recording raw
 ambisonic audio is impractical (terabytes) and a privacy hazard (speech).
-The `capture` daemon (v0.11, optional `[capture]` extra) extracts *features*
+The `capture` daemon (optional `[capture]` extra) extracts *features*
 continuously on a small always-on computer and keeps only those.
 
 ```bash
@@ -13,7 +13,7 @@ ambiscape capture /data/room --device 2 --block-seconds 3600
 
 It captures each block (hourly by default) to a short-lived WAV, runs it
 through the same tested extractor as `analyze`, saves a feature `.npz`, and
-then deletes the audio. We keep audio for only one block at a time, which is
+then deletes the audio. Audio exists for only one block at a time, which is
 both robust (a crash leaves the block on disk to reprocess) and
 privacy-preserving. At
 each midnight the day is rolled up into a catalogue- and longitudinal-ready

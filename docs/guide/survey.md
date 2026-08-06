@@ -25,6 +25,10 @@ ambiscape survey SESSION/ --responses responses.csv
 #   wrote SESSION/analysis/survey.json, survey.png; srv_ keys merged into summary.json
 ```
 
+`-o` picks the output directory (default `SESSION/analysis`).
+
+![Survey circumplex: one point per respondent, the mean as a diamond, and the 95% covariance ellipse.](../img/survey.png)
+
 ## The response CSV
 
 One row per respondent; the eight scale names as columns
@@ -63,8 +67,8 @@ ambiscape catalog CORPUS/ --sort srv_pleasantness_mean
 When the session already has an acoustic `summary.json` (from
 `analyze`), the command also prints a short **perception-vs-measurement
 table** pairing each available descriptor with the coordinate it is
-classically regressed against — LAeq and L90 vs pleasantness, event
-rate vs eventfulness — and stores the rows in `survey.json` under
+classically regressed against — LAeq, L90, and NDSI vs pleasantness,
+event rate vs eventfulness — and stores the rows in `survey.json` under
 `vs_measurement`. That is the dose–response view in miniature: does the
 quieter session actually *feel* more pleasant?
 

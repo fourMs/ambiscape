@@ -20,7 +20,7 @@ resultant length `R`, circular SD, `rayleigh_p`, the event count `n`, and
 ## Reading a match
 
 A meaningful match needs both a high `R` and enough events spread over
-several grid cycles. We report `n_cycles` next to `R` because `R` is
+several grid cycles. `n_cycles` appears next to `R` because `R` is
 trivially 1 when every event falls inside a single cycle, and a period of
 3600 s that only spans one hour proves nothing. `rayleigh_p` guards against
 the same trap statistically.

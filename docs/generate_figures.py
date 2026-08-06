@@ -124,7 +124,43 @@ COLLECT = {
     "enf.png": "enf.png",
     "schaeffer_map.png": "schaeffer_map.png",
     "schafer_timeline.png": "schafer_timeline.png",
+    "survey.png": "survey.png",
+    "entrain.png": "entrain.png",
 }
+
+# ISO 12913-2 Method-A responses (5-point) for the survey circumplex: a
+# calm-leaning place with one dissenting respondent, so the ellipse is visible.
+SURVEY_ROWS = [
+    (4, 2, 2, 1, 2, 3, 4, 4), (4, 3, 2, 2, 2, 2, 3, 4),
+    (5, 2, 1, 1, 1, 3, 4, 5), (3, 3, 3, 2, 2, 2, 3, 3),
+    (4, 2, 2, 1, 2, 4, 4, 4), (2, 2, 4, 4, 4, 2, 2, 2),
+    (4, 3, 2, 2, 1, 3, 4, 4), (5, 2, 2, 1, 2, 3, 4, 4),
+]
+
+
+def write_survey_responses(path):
+    head = ("respondent,pleasant,vibrant,eventful,chaotic,"
+            "annoying,monotonous,uneventful,calm")
+    lines = [head] + [f"r{i+1:02d}," + ",".join(str(v) for v in row)
+                      for i, row in enumerate(SURVEY_ROWS)]
+    Path(path).write_text("\n".join(lines) + "\n")
+    return Path(path)
+
+
+def write_motion_csv(path, dur=DUR, fs_m=50.0, seed=5):
+    """Accelerometer series whose sway tracks the scene's 0.5 Hz
+    amplitude-modulated lateral source, so entrainment has something to find."""
+    t = np.arange(int(dur * fs_m)) / fs_m
+    rng = np.random.default_rng(seed)
+    envelope = (np.sin(2 * np.pi * 0.5 * t) > 0).astype(float)
+    ax = 0.6 * envelope * np.sin(2 * np.pi * 0.5 * t) + 0.05 * rng.standard_normal(len(t))
+    ay = 0.3 * envelope * np.cos(2 * np.pi * 0.5 * t) + 0.05 * rng.standard_normal(len(t))
+    az = 9.81 + 0.05 * rng.standard_normal(len(t))
+    lines = ["time,acc_x,acc_y,acc_z"]
+    lines += [f"{ti:.3f},{x:.4f},{y:.4f},{z:.4f}"
+              for ti, x, y, z in zip(t, ax, ay, az)]
+    Path(path).write_text("\n".join(lines) + "\n")
+    return Path(path)
 
 ANNOTATIONS = {
     "session": "docs-demo",
@@ -158,6 +194,11 @@ def main():
     import json
     (sess / "annotations.json").write_text(json.dumps(ANNOTATIONS, indent=2))
     run("taxonomy", str(sess))
+
+    responses = write_survey_responses(tmp / "responses.csv")
+    run("survey", str(sess), "--responses", str(responses))
+    motion = write_motion_csv(tmp / "motion.csv")
+    run("entrain", str(sess), "--motion", str(motion), "--surrogates", "100")
 
     # rhythm needs clean sustained partials (like the test fixture), which the
     # busy scene above masks -- so render it from a bells-only sub-session.

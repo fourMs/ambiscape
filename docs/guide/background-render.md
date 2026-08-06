@@ -58,7 +58,7 @@ Every 60 s window (5 s hop) is scored by two things: the mean per-band
 distance between its median log-spectrum and the session's background
 spectral profile (the 10th percentile per band over the whole take), and
 the fraction of eventful seconds (broadband level more than 6 dB over the
-session median), weighted at 20 dB. We export the winner bit-exact from
+session median), weighted at 20 dB. The winner is exported bit-exact from
 the original take, with no processing whatsoever, together with
 `background_excerpt.json` recording the wall-clock position and scores.
 

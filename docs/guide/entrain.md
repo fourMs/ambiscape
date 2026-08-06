@@ -10,6 +10,9 @@ project's sound–motion join.
 ambiscape entrain <session-folder> --motion motion.csv   # needs a prior analyze run
 ```
 
+`--surrogates N` sets the number of circular-shift surrogates per p-value
+(default 200); `-o` picks the output directory.
+
 There is no audio pass: the sound side comes from the cached 125 ms fast
 level and per-second azimuth. Writes `entrain.json` and `entrain.png`
 (aligned level/QoM timelines, an azimuth-vs-sway rose, and PLV by
@@ -17,6 +20,14 @@ modulation band with the surrogate significance floor), and folds
 `ent_`-prefixed descriptors into an existing `summary.json` — the same
 multimodal join as the [vision module](vision.md), so the corpus catalog
 picks them up.
+
+![Entrainment overview: aligned level and QoM timelines, azimuth-versus-sway rose, and per-band PLV with the surrogate floor.](../img/entrain.png)
+
+`entrain.json` holds four blocks — `temporal`, `directional`, `plv`, and
+`summary` — plus a `_method_note`. The `summary` block is what lands in
+`summary.json`: `ent_overlap_min`, `ent_r_level_qom` and `ent_r_p`,
+`ent_az_sway_rho` and `ent_az_sway_p`, and `ent_plv_max` with
+`ent_plv_max_band_hz` and `ent_plv_max_p`.
 
 ## Motion input
 

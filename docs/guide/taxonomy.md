@@ -28,7 +28,7 @@ soundscape ecology. Nothing about the first determines the second or the third.
 ## The workflow
 
 Instruments detect *when* things sound. Deciding what they are, in any of the three schemes, is a
-listening judgement. We split the work accordingly:
+listening judgement. The work is split accordingly:
 
 ```
 ambiscape draft <folder>      # machine proposes
@@ -111,6 +111,6 @@ hi-fi windows" directly visible.
 ## A note on spelling
 
 The field value is `anthrophony`, which is the spelling Pijanowski and most of the soundscape-ecology
-literature use. It was `anthropophony` until version 0.22.0. Both forms appear in print, and the
-package still accepts the older one when reading an annotation file, so existing annotations keep
-working; everything it writes uses `anthrophony`.
+literature use. Both forms appear in print, and the package also accepts
+the older `anthropophony` spelling when reading an annotation file, so
+existing annotations keep working; everything it writes uses `anthrophony`.

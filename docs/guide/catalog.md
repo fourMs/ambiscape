@@ -16,7 +16,7 @@ ambiscape catalog CORPUS/ --sort diffuseness_median
 `catalog.csv` is session-per-row for analysis (pandas, R); `catalog.md` is
 the transposed descriptor-per-row table for a consolidated report. Sessions
 come with different descriptor sets, from older caches or optional modules,
-and we handle that by taking the union of keys and blanking where a session
+handled by taking the union of keys and blanking where a session
 lacks one, so that a growing corpus never breaks the table.
 
 Add `--states` (CLI) or `include_states=True` (`collect`) to expand each

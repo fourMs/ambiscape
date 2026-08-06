@@ -9,7 +9,7 @@ its descriptors ride in the `analyze` summary.
 - **Wind**—low-frequency (below ~200 Hz) energy that is *diffuse* and
   non-directional. Wind on the capsules is incoherent between channels, so
   ambisonic diffuseness rises; `geo_wind_index` is the low-band energy
-  weighted by median diffuseness (we fall back to plain low-band energy for
+  weighted by median diffuseness (falling back to plain low-band energy for
   stereo/mono, which cannot resolve diffuseness).
 - **Rain / water**—broadband high-frequency hiss that is spectrally flat and
   temporally steady (a shower, a fountain, a stream); `geo_rain_index` is

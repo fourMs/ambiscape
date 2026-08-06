@@ -1,10 +1,10 @@
 # Ratings and global indices
 
-Version 0.5 makes sessions reportable in three established idioms beyond
+Sessions are reportable in three established idioms beyond
 the corpus's own descriptor set: HVAC/room criteria, environmental-noise
 descriptors, and soundscape-ecology indices. There are also spatial
-descriptors that only an ambisonic corpus can supply. We report in these
-borrowed idioms because a building-services engineer, a noise consultant
+descriptors that only an ambisonic corpus can supply. The borrowed
+idioms earn their place because a building-services engineer, a noise consultant
 and a soundscape ecologist each want the same recording expressed in the
 numbers their own field argues in. Everything except the room criteria is
 appended automatically to the `analyze` summary and README table.
@@ -72,7 +72,7 @@ drone, high for a ~4 Hz wobble) — the cheap companion to the approximate
 
 ACI, ADI/AEI, NDSI, BI, and acoustic entropy H make up the standard
 soundscape-ecology battery, computed from the cached 96-band spectrogram.
-We report them for cross-corpus comparability. Indoors, read NDSI/BI as
+They are reported for cross-corpus comparability. Indoors, read NDSI/BI as
 "energy in the 2–8 kHz band", not as proof of biophony, since a
 ventilation hiss scores as birds. Combine with the taxonomy layer before
 interpreting.

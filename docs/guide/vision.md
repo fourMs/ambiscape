@@ -2,12 +2,21 @@
 
 The AMBIENT project treats a room as an audio-*visual* subject, and a room's
 *look* has a diurnal rhythm just as its sound does. `ambiscape.vision`
-(v0.12) extracts a compact descriptor from a single video frame, so a camera
-can log visual *behaviour* rather than store imagery. We take the same
+extracts a compact descriptor from a single video frame, so a camera
+can log visual *behaviour* rather than store imagery. It takes the same
 "features, not recordings" stance as the [capture daemon](capture.md). It is
 numpy-only (no camera or OpenCV dependency): frame *grabbing* lives in the
 capture rig, the feature *definitions* live here so they are versioned and
 tested with ambiscape.
+
+```bash
+ambiscape vision video.mp4 --fps 1                # or a folder of frames
+ambiscape vision video.mp4 --merge SESSION/analysis/summary.json
+```
+
+`--fps` sets the sampling rate (default one frame per second); `--merge`
+folds the `vis_` keys into an existing audio `summary.json`. The command
+writes `vision.json` and `vision.png`.
 
 ```python
 from ambiscape import vision

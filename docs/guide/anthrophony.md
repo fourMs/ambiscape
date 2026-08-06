@@ -34,5 +34,5 @@ anthrophony.summarize_anthrophony(F)
 Proxies, not detection. Music, radio, and TV also fill the voice band and
 modulate syllabically, so a radio left on in an empty room reads much like a
 conversation. Confirm actual speech with `ambiscape.ml.speech_fraction`
-(silero-VAD, `[ml]` extra) before treating this as human talk. Our privacy
+(silero-VAD, `[ml]` extra) before treating this as human talk. The privacy
 stance is the deposit module's: publish features, not audio.

@@ -2,9 +2,9 @@
 
 Engines, machinery, and rail/road traffic are broadband but
 low-frequency-weighted, and temporally steady or quasi-periodic (engine
-firing, bogies over rail joints, a compressor duty cycle). We had these pieces
-scattered across `rhythm`, `spatial`, `states`, and `compare`, and
-`mechanical` now gives the domain a first-class home. It reads the cached
+firing, bogies over rail joints, a compressor duty cycle). Pieces of this live in
+`rhythm`, `spatial`, `states`, and `compare`;
+`mechanical` gives the domain a first-class home. It reads the cached
 features (no audio pass) and its descriptors ride in the `analyze` summary.
 
 ## What it measures

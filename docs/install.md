@@ -15,7 +15,7 @@ extras enable the heavier subsystems:
 | `pip install "ambiscape[music]"` | `ambiscape music` and `ambiscape carillon` | [librosa](https://librosa.org) |
 | `pip install "ambiscape[capture]"` | `ambiscape capture` — recording from an attached input device | [sounddevice](https://python-sounddevice.readthedocs.io) |
 
-We let everything degrade gracefully: without an extra installed, the
+Everything degrades gracefully: without an extra installed, the
 corresponding feature is skipped or falls back (e.g., binaural rendering
 falls back to a documented cardioid pair).
 

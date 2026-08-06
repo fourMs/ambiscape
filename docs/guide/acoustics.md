@@ -100,4 +100,6 @@ not.
 We do not claim full 12913-2 conformance, since that also implies a
 calibrated Class-1 chain, which consumer recorders are not. The honest
 claim is *"ISO 12913-informed collection and 12913-3-style indicators"*
-with the protocol documented.
+with the protocol documented. The questionnaire half of 12913-2 —
+Method A responses projected onto the 12913-3 circumplex — is covered
+by the [perceptual survey](survey.md) module.

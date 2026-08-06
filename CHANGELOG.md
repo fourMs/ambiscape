@@ -17,6 +17,15 @@ been carrying feature work throughout a pre-1.0 life.
   circular time-shift surrogate significance. Writes `entrain.json` + `entrain.png` and folds
   `ent_` descriptors into `summary.json`. Adds `circ_corr` (Jammalamadaka–SenGupta) to
   `circstats`.
+- **Perceptual survey module (`ambiscape survey`).** ISO 12913-2 Method-A questionnaire responses
+  (CSV, one row per respondent; 5-point or 100-point scales auto-detected, extra columns such as
+  loudness ratings kept) are projected onto the ISO/TS 12913-3 pleasantness–eventfulness
+  circumplex: per-respondent points, mean, 95% ellipse, and a `survey.png` circumplex plot.
+  `srv_`-prefixed keys join `summary.json` so `catalog` can rank sessions perceptually next to the
+  acoustic descriptors, and sessions with an existing acoustic summary get a short
+  perception-vs-measurement table (LAeq vs pleasantness, events/min vs eventfulness). Until now
+  ISO 12913-2 was supported by protocol rather than software; this closes the data-handling half
+  of that gap (collection remains a protocol matter).
 
 ## [0.22.0] — 2026-08-03
 

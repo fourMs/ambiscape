@@ -1,6 +1,8 @@
 """Tests for the psychoacoustics beyond loudness/sharpness/roughness:
 fluctuation strength (Fastl & Zwicker approximation) and DIN 45681-style
 tonal prominence — synthetic ground truth throughout."""
+import sys
+
 import numpy as np
 import pytest
 
@@ -163,3 +165,59 @@ def test_full_summary_carries_psycho_keys(bell_features):
                 "n_prominent_tones", "fluctuation_index"):
         assert key in s
     assert s["fluctuation_index"] is not None
+
+
+# ----------------------------- optional dependency and segment bookkeeping
+
+def test_indicators_without_mosqito_names_the_extra(monkeypatch):
+    """A stock install must say which extra is missing, not raise a bare
+    ModuleNotFoundError from inside the loudness call."""
+    monkeypatch.setitem(sys.modules, "mosqito", None)
+    monkeypatch.setitem(sys.modules, "mosqito.sq_metrics", None)
+    assert iso.mosqito_available() is False
+    with pytest.raises(ImportError, match=r"ambiscape\[iso\]"):
+        iso.indicators(np.zeros(FS, np.float64), FS)
+
+
+def _stub_indicators(monkeypatch):
+    monkeypatch.setattr(iso, "indicators", lambda x_pa, fs, **kw: {
+        "N5_sone": 1.0, "N50_sone": 1.0, "sharpness_median_acum": 1.0,
+        "roughness_median_asper": 0.0, "fluctuation_strength_vacil": 0.0})
+
+
+def _flat_features(sess, dur_s, dt=0.125):
+    """Steady fast-level frames in session time, covering one take."""
+    n = int(round(dur_s / dt))
+    return {"t_fast": sess.takes[0].start + np.arange(n) * dt,
+            "fast_db": np.full(n, -40.0)}
+
+
+def test_segment_dur_reports_audio_delivered(tmp_path, monkeypatch):
+    """read_span clamps at the end of a take; the JSON must record the
+    audio delivered, not the length requested."""
+    import ambiscape as asc
+    from .conftest import diffuse_noise, write_bwf
+    _stub_indicators(monkeypatch)
+    write_bwf(tmp_path / "short.wav", diffuse_noise(5 * FS))
+    sess = asc.open_session(tmp_path)
+    res = iso.segment_indicators(sess, _flat_features(sess, 5.0), tmp_path,
+                                 dur=30.0)
+    seg = res["segments"]["whole"]
+    assert seg["dur_s"] == pytest.approx(5.0, abs=0.01)
+    assert seg["dur_requested_s"] == 30.0
+
+
+def test_coincident_segments_computed_once(tmp_path, monkeypatch):
+    """One-window session: quietest/most_active/typical land on the same
+    audio, and the degeneracy is stated rather than repeated three times."""
+    import ambiscape as asc
+    from .conftest import diffuse_noise, write_bwf
+    _stub_indicators(monkeypatch)
+    write_bwf(tmp_path / "flat.wav", diffuse_noise(30 * FS))
+    sess = asc.open_session(tmp_path)
+    res = iso.segment_indicators(sess, _flat_features(sess, 30.0), tmp_path,
+                                 dur=30.0)
+    assert list(res["segments"]) == ["quietest"]
+    seg = res["segments"]["quietest"]
+    assert set(seg["also_kinds"]) == {"most_active", "typical"}
+    assert "dur_requested_s" not in seg

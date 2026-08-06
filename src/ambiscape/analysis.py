@@ -71,8 +71,11 @@ def decay_metrics(x: np.ndarray, fs: int, bands=((250, 500), (500, 1000),
     reverberance), clarity C50/C80 = 10·log10 of the early/late energy
     ratio at 50/80 ms, and definition D50 = early fraction at 50 ms.
     When the dynamic range allows (ISO 3382: floor at least 10 dB below
-    the fit end), the fixed-range extrapolations T20 (−5…−25 dB) and T30
-    (−5…−35 dB) are reported alongside the adaptive-range T60.
+    the fit end) *and* the decay was observed that far before the signal
+    ends, the fixed-range extrapolations T20 (−5…−25 dB) and T30
+    (−5…−35 dB) are reported alongside the adaptive-range T60. The second
+    condition matters for trimmed impulse responses, whose absent noise
+    floor leaves the range guard unable to fire.
     Returns ``{band: {"T60", "T20", "T30", "EDT", "C50", "C80", "D50",
     "dr_db"}}`` (T20/T30 present only when supported by the range).
     """
@@ -100,6 +103,14 @@ def decay_metrics(x: np.ndarray, fs: int, bands=((250, 500), (500, 1000),
         sch = np.cumsum(seg[::-1])[::-1]
         sch_db = 10 * np.log10(sch / (sch[0] + EPS) + 1e-15)
         tax = np.arange(len(sch_db)) / fs
+        # An impulse response that has been trimmed (archive material, or
+        # any IR cut before its decay finished) ends while still well above
+        # the fixed fits' lower limit: the dynamic-range guard cannot fire,
+        # because the truncated file has no noise floor to measure. Level
+        # of the last 20 ms re the peak says how far the decay was actually
+        # observed; below that, T20/T30 would extrapolate off the end.
+        tail = env[pk:pk + cut][-max(1, int(0.02 * fs)):]
+        obs_db = 10 * np.log10(float(tail.mean()) / (env[pk] + EPS) + EPS)
         res = {"dr_db": round(float(dr), 0)}
         for key, hi_db, lo_db, need_dr in (
                 ("T60", -5.0, max(-35.0, -dr + 8), 0.0),
@@ -108,6 +119,8 @@ def decay_metrics(x: np.ndarray, fs: int, bands=((250, 500), (500, 1000),
                 ("EDT", 0.0, -10.0, 0.0)):
             if dr < need_dr:
                 continue
+            if key in ("T20", "T30") and obs_db > lo_db:
+                continue                    # range not present in the file
             m = (sch_db <= hi_db) & (sch_db >= lo_db)
             if m.sum() < 150:
                 continue
@@ -236,7 +249,15 @@ def decay_time(x: np.ndarray, fs: int, bands=((250, 500), (500, 1000),
 
 def pick_segments(F: dict, n=4, seg_s=600.0) -> list[dict]:
     """Suggest representative windows: quietest, most active, median-typical,
-    and (if present) the strongest state transition."""
+    and (if present) the strongest state transition.
+
+    Kinds can coincide: a session barely longer than one window has only
+    one window to offer, and a stationary room has no most-active minute
+    to distinguish from its quietest one. Coincident kinds are returned
+    once, the window keeping the first kind's name and listing the others
+    under ``also`` — so the degeneracy is visible rather than presented as
+    several identical "representative" segments.
+    """
     t, fast = F["t_fast"], F["fast_db"]
     dt = float(np.median(np.diff(t)))
     win = max(1, int(seg_s / dt))
@@ -245,15 +266,20 @@ def pick_segments(F: dict, n=4, seg_s=600.0) -> list[dict]:
     k = np.ones(win) / win
     m_lvl = np.convolve(10 ** (fast.astype(np.float64) / 10), k, "valid")
     var = np.convolve((fast - fast.mean()) ** 2, k, "valid")
-    picks = []
-    for kind, idx in (("quietest", int(np.argmin(m_lvl))),
-                      ("most_active", int(np.argmax(var))),
-                      ("typical", int(np.argmin(np.abs(db(m_lvl) - np.median(db(m_lvl))))))):
-        picks.append(dict(kind=kind, t0=float(t[idx]), dur=seg_s))
+    cands = [("quietest", float(t[int(np.argmin(m_lvl))])),
+             ("most_active", float(t[int(np.argmax(var))])),
+             ("typical", float(t[int(np.argmin(np.abs(
+                 db(m_lvl) - np.median(db(m_lvl)))))]))]
     smooth = median_filter(fast, size=max(3, int(30 / dt)) | 1)
     jump = np.abs(np.diff(smooth))
     if jump.max() > 6:
-        picks.append(dict(kind="transition",
-                          t0=float(max(t[0], t[int(np.argmax(jump))] - seg_s / 2)),
-                          dur=seg_s))
+        cands.append(("transition",
+                      float(max(t[0], t[int(np.argmax(jump))] - seg_s / 2))))
+    picks: list[dict] = []
+    for kind, t0 in cands:
+        same = next((p for p in picks if abs(p["t0"] - t0) <= dt), None)
+        if same is None:
+            picks.append(dict(kind=kind, t0=t0, dur=seg_s))
+        else:
+            same.setdefault("also", []).append(kind)
     return picks[:n]

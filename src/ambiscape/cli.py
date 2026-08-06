@@ -705,6 +705,9 @@ def main(argv=None):
         from .features import load_features
         from .io import open_session
         from . import iso as iso_mod
+        if not iso_mod.mosqito_available():
+            print("MoSQITo not installed — pip install 'ambiscape[iso]'")
+            return 1
         sess = open_session(args.folder)
         base = Path(args.out) if args.out else Path(args.folder) / "analysis"
         fdir = base / "features"
@@ -720,7 +723,11 @@ def main(argv=None):
         if not res["calibrated"]:
             print("WARNING:", res["warning"])
         for kind, seg in res["segments"].items():
-            print(f"  {kind} @ {seg['t0']}: N5 {seg['N5_sone_max_ear']} sone "
+            if seg.get("also_kinds"):
+                print(f"  note: {', '.join(seg['also_kinds'])} fall on the "
+                      f"same window as {kind} — computed once")
+            print(f"  {kind} ({seg['dur_s']} s) @ {seg['t0']}: "
+                  f"N5 {seg['N5_sone_max_ear']} sone "
                   f"(max ear), sharpness {seg['left']['sharpness_median_acum']}"
                   f"/{seg['right']['sharpness_median_acum']} acum, "
                   f"FS {seg['left']['fluctuation_strength_vacil']}"

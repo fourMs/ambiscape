@@ -9,6 +9,33 @@ been carrying feature work throughout a pre-1.0 life.
 
 ## [Unreleased]
 
+## [0.23.1] — 2026-08-06
+
+### Fixed
+Five faults found by running the toolbox over public material (the MIT IR Survey, ESC-50 sessions
+built at four durations, and xeno-canto recordings against synthetic ventilation):
+
+- `ambiscape iso` raised a bare `ModuleNotFoundError` for `mosqito` on a stock install. The CLI now
+  checks `iso.mosqito_available()` and exits with `MoSQITo not installed — pip install
+  'ambiscape[iso]'`, and `iso.indicators` raises an `ImportError` naming the same extra, matching
+  how the other optional-dependency subcommands behave.
+- `ecology.aci` returned `0.0` for any recording shorter than one 300 s chunk — silently
+  indistinguishable from a measured minimum, and the case for every clip corpus (ESC-50,
+  UrbanSound8K, AudioSet, DCASE/TAU) as well as for archive recordings under five minutes. It now
+  returns `None`, as does the `aci` key of `ecology.indices`.
+- `iso.segment_indicators` labelled every segment with the requested duration even where less audio
+  existed (`io.read_span` clamps at the end of a take). `dur_s` now reports the audio delivered,
+  with the request kept as `dur_requested_s` when the two differ.
+- `analysis.pick_segments` returned quietest, most-active and typical as separate entries when they
+  resolved to the same window — a session only one segment long, or a stationary room with no
+  distinct most-active minute. Coincident kinds are now returned once, listing the others under
+  `also` (`also_kinds` in the `iso` output, and a note on the CLI), so the degeneracy is visible
+  and the window is measured once rather than three times.
+- `analysis.decay_metrics` reported T20/T30 on pre-trimmed impulse responses, whose absent noise
+  floor leaves the dynamic-range guard unable to fire; 77 of the 270 MIT survey IRs returned a T30
+  longer than the file itself. The fixed-range fits are now withheld unless the decay was observed
+  as far as −25 / −35 dB before the signal ends. T60 (adaptive range) and EDT are unaffected.
+
 ## [0.23.0] — 2026-08-06
 
 ### Added

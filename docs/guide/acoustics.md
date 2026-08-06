@@ -4,7 +4,7 @@
 
 Any sufficiently loud impulse, whether a deliberate calibration clap, a
 balloon pop or an incidental bang, yields octave-band T60 estimates via
-truncated Schroeder integration. Two safeguards protect the estimate,
+truncated Schroeder integration. Three safeguards protect the estimate,
 each guarding against a failure mode common in field recordings:
 
 1. **noise-floor truncation**: the decay fit runs from −5 dB down to
@@ -12,7 +12,12 @@ each guarding against a failure mode common in field recordings:
    as long reverberation;
 2. **re-attack truncation**: integration stops at the first point where the
    envelope rises ≥ 8 dB above its running minimum, since movement right
-   after a clap otherwise contaminates the tail.
+   after a clap otherwise contaminates the tail;
+3. **unmeasured range**: T20 and T30 are withheld unless the decay was
+   observed as far as −25 / −35 dB before the signal ends. A trimmed
+   impulse response from an archive has no noise floor for safeguard 1 to
+   find, so the fixed-range fits would otherwise extrapolate past the end
+   of the file; T60 (adaptive range) and EDT still stand.
 
 Report T20/T30-style extrapolations only when they agree; treat impact
 sources as ±20 % (they ring structurally, which reads as extra decay,

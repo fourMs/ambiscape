@@ -77,6 +77,10 @@ They are reported for cross-corpus comparability. Indoors, read NDSI/BI as
 ventilation hiss scores as birds. Combine with the taxonomy layer before
 interpreting.
 
+ACI is averaged over complete 5-minute chunks, and its magnitude depends on
+the chunk length, so a recording shorter than one chunk has no comparable
+value: `aci` is then `None`. Clip corpora of 5–30 s carry no ACI at all.
+
 ## Spatial descriptors (`ambiscape.spatial`)
 
 - **Directional entropy**: how many directions the place sounds from

@@ -177,3 +177,56 @@ def test_azimuth_organization_short_take():
     ts, Rs = spatial.azimuth_organization(F)
     assert len(Rs) == 1 and len(ts) == 1
     assert np.isfinite(Rs[0]) and Rs[0] > 0.9   # one dominant direction
+
+
+# ------------------------------------------------------- short-audio guards
+
+def test_aci_below_one_chunk_is_none_not_zero():
+    """ACI sums over a whole 300 s chunk, so a shorter recording has no
+    comparable value; the previous 0.0 was indistinguishable from a
+    measured minimum on clip corpora (5-60 s sessions)."""
+    assert ecology.aci(_F_spec(None, nsec=60)) is None
+    assert ecology.indices(_F_spec(None, nsec=60))["aci"] is None
+    assert ecology.indices(_F_spec(None, nsec=600))["aci"] is not None
+
+
+def test_pick_segments_one_window_flags_coincidence():
+    """A session exactly one segment long has a single window to offer:
+    it is returned once, naming the kinds that coincide on it."""
+    dt = 0.125
+    t = np.arange(int(30 / dt)) * dt
+    F = {"t_fast": t, "fast_db": np.full(len(t), -40.0)}
+    picks = analysis.pick_segments(F, seg_s=30.0)
+    assert len(picks) == 1
+    assert picks[0]["kind"] == "quietest"
+    assert set(picks[0]["also"]) == {"most_active", "typical"}
+
+
+def test_pick_segments_keeps_distinct_windows_distinct():
+    dt = 0.125
+    n = int(600 / dt)
+    t = np.arange(n) * dt
+    rng = np.random.default_rng(4)
+    fast = np.full(n, -60.0) + 0.5 * rng.standard_normal(n)
+    fast[n // 2:] = -30.0 + 8 * rng.standard_normal(n // 2)   # loud, varying
+    picks = analysis.pick_segments({"t_fast": t, "fast_db": fast},
+                                   seg_s=60.0)
+    assert [p["kind"] for p in picks[:3]] == ["quietest", "most_active",
+                                              "typical"]
+    assert len({p["t0"] for p in picks}) == len(picks)
+
+
+def test_decay_metrics_trimmed_ir_drops_unmeasured_ranges():
+    """A pre-trimmed IR has no noise floor, so the dynamic-range guard
+    cannot fire. T20/T30 must be withheld when the decay never reached
+    -25/-35 dB inside the file (77 of 270 MIT survey IRs returned a T30
+    longer than the file itself)."""
+    fs = 48000
+    T60 = 1.2
+    t = np.arange(int(0.3 * fs)) / fs        # cut ~15 dB into the decay
+    rng = np.random.default_rng(7)
+    x = np.concatenate([np.zeros(fs // 2),
+                        rng.standard_normal(len(t)) * 10 ** (-3 * t / T60)])
+    band = analysis.decay_metrics(x, fs)["500-1000"]
+    assert "T60" in band and "EDT" in band
+    assert "T20" not in band and "T30" not in band

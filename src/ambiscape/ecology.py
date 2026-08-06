@@ -6,7 +6,8 @@ cached 1 Hz features — no audio pass:
 
 - **ACI** (acoustic complexity, Pieretti et al. 2011): per-band temporal
   variation |ΔP|/ΣP summed over bands, averaged over 5-min chunks —
-  sensitive to biophonic modulation, blind to steady drones;
+  sensitive to biophonic modulation, blind to steady drones, and
+  undefined (``None``) for recordings shorter than one chunk;
 - **ADI / AEI** (diversity / evenness, Villanueva-Rivera et al. 2011):
   Shannon entropy / Gini coefficient of the occupancy of 1 kHz bins
   (fraction of cells above a threshold re the band maximum);
@@ -36,16 +37,26 @@ def _band_centers(logf):
     return np.sqrt(logf[:-1] * logf[1:])
 
 
-def aci(F: dict, chunk_s: float = 300.0) -> float:
-    """Acoustic complexity index, mean over ``chunk_s`` chunks."""
+def aci(F: dict, chunk_s: float = 300.0) -> float | None:
+    """Acoustic complexity index, mean over ``chunk_s`` chunks.
+
+    ACI accumulates |ΔP| over a whole chunk, so its magnitude is a
+    function of the chunk length: values are comparable only between
+    recordings analysed with complete chunks of the same size. A
+    recording shorter than one chunk therefore has no ACI, and ``None``
+    is returned — a numeric zero would be indistinguishable from a
+    measured minimum (clip corpora of 5–30 s are the common case).
+    """
     S = np.asarray(F["logspec"], float)
     n = max(2, int(chunk_s))
+    if S.shape[0] < n:
+        return None
     vals = []
     for i0 in range(0, S.shape[0] - n + 1, n):
         c = S[i0:i0 + n]
         vals.append(float((np.abs(np.diff(c, axis=0)).sum(0)
                            / (c.sum(0) + EPS)).sum()))
-    return float(np.mean(vals)) if vals else 0.0
+    return float(np.mean(vals)) if vals else None
 
 
 def _occupancy(F: dict, fmax: float = 10000.0, bin_hz: float = 1000.0,
@@ -109,8 +120,9 @@ def acoustic_entropy(F: dict) -> float:
 def indices(F: dict) -> dict:
     """The full battery as one dict."""
     adi_, aei_ = adi_aei(F)
+    aci_ = aci(F)                     # None below one full chunk (5 min)
     return {
-        "aci": round(aci(F), 1),
+        "aci": None if aci_ is None else round(aci_, 1),
         "adi": round(adi_, 3),
         "aei": round(aei_, 3),
         "ndsi": round(ndsi(F), 3),

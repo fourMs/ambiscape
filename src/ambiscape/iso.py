@@ -181,6 +181,15 @@ def binaural(x: np.ndarray, fs: int, order: str = "ambix",
         return np.stack([left, right], axis=1), "cardioid-pair-fallback"
 
 
+def mosqito_available() -> bool:
+    """True if MoSQITo (the ``ambiscape[iso]`` extra) is importable."""
+    try:
+        import mosqito  # noqa: F401
+        return True
+    except ImportError:
+        return False
+
+
 def indicators(x_pa: np.ndarray, fs: int, rough_dur: float = 10.0) -> dict:
     """ISO 532-1 loudness (N5/N50), DIN 45692 sharpness, D&W roughness,
     and (approximate) fluctuation strength for one calibrated (pascal)
@@ -191,10 +200,17 @@ def indicators(x_pa: np.ndarray, fs: int, rough_dur: float = 10.0) -> dict:
     (roughness is a texture measure and stabilises within seconds).
     Fluctuation strength is not in MoSQITo (≤ 1.2.x) and comes from the
     local :func:`fluctuation_strength` approximation instead.
+
+    Raises ``ImportError`` naming the extra when MoSQITo is missing.
     """
-    from mosqito.sq_metrics import (loudness_zwtv,
-                                    sharpness_din_from_loudness,
-                                    roughness_dw)
+    try:
+        from mosqito.sq_metrics import (loudness_zwtv,
+                                        sharpness_din_from_loudness,
+                                        roughness_dw)
+    except ImportError as e:                      # optional dependency
+        raise ImportError(
+            "MoSQITo is required for ISO 532-1 loudness/sharpness/"
+            "roughness: pip install 'ambiscape[iso]'") from e
     N, N_spec, _bark, _t = loudness_zwtv(x_pa, fs, field_type="diffuse")
     S = sharpness_din_from_loudness(N, N_spec)
     n_r = int(rough_dur * fs)
@@ -216,6 +232,13 @@ def segment_indicators(sess, F: dict, folder: str | Path,
 
     Segments come from analysis.pick_segments (typical / quietest /
     most_active / transition); `dur` seconds from the start of each.
+
+    ``dur_s`` reports the audio actually delivered, which is shorter than
+    ``dur`` when the take ends first (``read_span`` clamps); the request is
+    then kept alongside it as ``dur_requested_s``. Kinds that resolve to
+    the same window — a session only one segment long, or a stationary
+    room with no distinct most-active window — are computed once and the
+    coincident kinds listed under ``also_kinds``.
     """
     from .analysis import pick_segments
     from .io import read_span
@@ -236,14 +259,21 @@ def segment_indicators(sess, F: dict, folder: str | Path,
             x, fs = read_span(sess, pick["t0"], dur)
         except ValueError:
             continue
+        got = len(x) / fs
+        if got <= 0:
+            continue
         tk = next((t for t in sess.takes
                    if t.start <= pick["t0"] < t.end), None)
         ears, method = binaural(
             x, fs,
             order=(tk.order if tk else "ambix"),
             mode=(tk.mode if tk else "ambix"))
-        seg = {"t0": sess.clock(pick["t0"]), "dur_s": dur,
+        seg = {"t0": sess.clock(pick["t0"]), "dur_s": round(got, 2),
                "binaural_method": method}
+        if got < dur - 1.0 / fs:            # read_span clamped to the take
+            seg["dur_requested_s"] = dur
+        if pick.get("also"):
+            seg["also_kinds"] = list(pick["also"])
         # multi-device sessions: a per-take offset overrides the global one
         seg_offset = (take_offset(cal, tk.path.name)
                       if tk and calibrated else None) or offset

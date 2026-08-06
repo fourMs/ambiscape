@@ -9,6 +9,8 @@ been carrying feature work throughout a pre-1.0 life.
 
 ## [Unreleased]
 
+## [0.23.0] — 2026-08-06
+
 ### Added
 - **Sound–motion entrainment module** (`ambiscape entrain <session> --motion <csv>`): joins an
   analysed session with a body-worn accelerometer series on one common clock and computes the

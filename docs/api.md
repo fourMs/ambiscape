@@ -52,6 +52,10 @@
 
 ::: ambiscape.vision
 
+## Sound–motion entrainment
+
+::: ambiscape.entrain
+
 ## Circular statistics
 
 ::: ambiscape.circstats

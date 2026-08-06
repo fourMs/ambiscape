@@ -33,6 +33,22 @@ def rayleigh_p(R: float, n: int) -> float:
                          0.0, 1.0))
 
 
+def circ_corr(a: np.ndarray, b: np.ndarray) -> float:
+    """Jammalamadaka–SenGupta circular–circular correlation coefficient.
+
+    ``sum sin(a - ā) sin(b - b̄) / sqrt(sum sin²(a - ā) sum sin²(b - b̄))``
+    with ā, b̄ the circular means. In [-1, 1]; invariant under rotations of
+    either variable, so two angle series may live in different reference
+    frames (a mic's azimuth and a body-worn sensor's sway direction).
+    """
+    a = np.asarray(a, float)
+    b = np.asarray(b, float)
+    sa = np.sin(a - mean_resultant(a)[0])
+    sb = np.sin(b - mean_resultant(b)[0])
+    return float((sa * sb).sum()
+                 / (np.sqrt((sa ** 2).sum() * (sb ** 2).sum()) + EPS))
+
+
 def phase_stats(times: np.ndarray, period: float) -> dict:
     """Circular statistics of event times folded at ``period``.
 

@@ -61,6 +61,7 @@ nav:
       - Taxonomy (Schaeffer & Schafer): guide/taxonomy.md
       - Resynthesis (teaching): guide/resynth.md
       - Visual features (multimodal): guide/vision.md
+      - Sound–motion entrainment: guide/entrain.md
   - Corpus & workflow:
       - Corpus catalog: guide/catalog.md
       - Cross-session comparison: guide/compare.md

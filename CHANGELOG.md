@@ -7,6 +7,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/); the
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) loosely, in that the minor number has
 been carrying feature work throughout a pre-1.0 life.
 
+## [Unreleased]
+
+### Added
+- **Sound–motion entrainment module** (`ambiscape entrain <session> --motion <csv>`): joins an
+  analysed session with a body-worn accelerometer series on one common clock and computes the
+  Guo–Riaz–Jensenius crossmodal measures — fast-level × quantity-of-motion correlation, audio-azimuth
+  × sway-direction circular correlation, and per-band phase-locking values (0.1–4 Hz), all with
+  circular time-shift surrogate significance. Writes `entrain.json` + `entrain.png` and folds
+  `ent_` descriptors into `summary.json`. Adds `circ_corr` (Jammalamadaka–SenGupta) to
+  `circstats`.
+
 ## [0.22.0] — 2026-08-03
 
 Five versions' worth of work that had been tagged only locally. The version had been bumped in

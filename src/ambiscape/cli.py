@@ -218,6 +218,21 @@ def main(argv=None):
                     help="frames per second to sample (default 1)")
     vi.add_argument("--merge", default=None,
                     help="an audio summary.json to fold the vis_ keys into")
+    et = sub.add_parser("entrain",
+                        help="sound-motion entrainment: join a body-motion "
+                             "accelerometer series with the session and "
+                             "compute level/QoM correlation, azimuth/sway "
+                             "coupling, and per-band phase locking "
+                             "(needs a prior analyze run)")
+    et.add_argument("folder")
+    et.add_argument("--motion", required=True,
+                    help="CSV/TSV with a timestamp column (ISO 8601 or "
+                         "seconds) and accelerometer x/y/z columns (g or "
+                         "m/s^2; gravity is removed internally)")
+    et.add_argument("-o", "--out", default=None)
+    et.add_argument("--surrogates", type=int, default=200,
+                    help="circular-shift surrogates per p-value "
+                         "(default 200)")
     for name, help_ in (("spatial", "direct/diffuse split, pass-by events, "
                                     "azimuth organization timeline"),
                         ("schedule", "match event streams against civic "
@@ -842,6 +857,32 @@ def main(argv=None):
         if args.merge:
             print(f"  merged vis_ keys into {args.merge}")
         print(f"wrote {out/'vision.json'} and {out/'vision.png'}")
+        return 0
+
+    if args.cmd == "entrain":
+        from .io import open_session
+        from .entrain import analyze_entrainment
+        sess = open_session(args.folder)
+        out = Path(args.out) if args.out else Path(args.folder) / "analysis"
+        if not (out / "features").exists():
+            print(f"no cached features in {out} — run 'ambiscape analyze' first")
+            return 1
+        doc = analyze_entrainment(sess, args.motion, out_dir=out,
+                                  n_surrogates=args.surrogates)
+        tc = doc["temporal"]
+        print(f"  {doc['overlap_s']} s joined at {doc['motion_fs_hz']} Hz "
+              f"motion rate")
+        print(f"  level x QoM: r {tc['r']} (p {tc['p']})")
+        dc = doc["directional"]
+        if dc and dc.get("rho") is not None:
+            print(f"  azimuth x sway: rho {dc['rho']} (p {dc['p']}, "
+                  f"n {dc['n']})")
+        best = doc["summary"]["ent_plv_max"]
+        if best is not None:
+            b = max(doc["plv"], key=lambda x: x["plv"])
+            print(f"  PLV max {b['plv']} in {b['band_hz'][0]:g}-"
+                  f"{b['band_hz'][1]:g} Hz (p {b['p']})")
+        print(f"wrote {out/'entrain.png'} and {out/'entrain.json'}")
         return 0
 
     if args.cmd in ("spatial", "schedule", "timbre"):

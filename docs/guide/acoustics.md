@@ -88,6 +88,7 @@ Computes, per ear, on each representative segment:
 - **N5, N50**: ISO 532-1 time-varying loudness percentiles (sone),
 - **sharpness**: DIN 45692 (acum),
 - **roughness**: Daniel & Weber (asper),
+- **fluctuation strength** (vacil, approximate — see below),
 
 via [MoSQITo](https://github.com/Eomys/MoSQITo) (validated against the
 1 kHz / 60 dB ≙ 4 sone reference). Ear signals come from ambiviz's HRIR
@@ -107,3 +108,20 @@ claim is *"ISO 12913-informed collection and 12913-3-style indicators"*
 with the protocol documented. The questionnaire half of 12913-2 —
 Method A responses projected onto the 12913-3 circumplex — is covered
 by the [perceptual survey](survey.md) module.
+
+### Fluctuation strength (approximation)
+
+MoSQITo (≤ 1.2.x) offers no fluctuation strength, and no standard exists
+for it, so `iso.fluctuation_strength` implements the Fastl & Zwicker
+envelope-modulation model in spirit: per Zwicker critical band, the
+< 32 Hz envelope level depth ΔL is weighted by the band-pass
+modulation-frequency weighting that peaks at **4 Hz** (the slow wobble
+sitting between level drift and roughness) and by the coherence of the
+dominant modulation, then summed over Bark bands and scaled so the classic
+reference — a 1 kHz tone, 100 % AM at 4 Hz — reads **1 vacil**. Treat
+absolute values as indicative and same-pipeline comparisons as the
+meaningful output; masking-based depth and level dependence are
+simplified. It is pure numpy/scipy (no `[iso]` extra needed on its own)
+and also feeds the always-available `fluctuation_index` in the `analyze`
+summary, computed from the cached 20 ms broadband envelope without an
+audio pass.

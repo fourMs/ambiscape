@@ -38,6 +38,36 @@ Compute them per machine state (`states.state_segments` masks) to rate
 - **Emergence** LAeq − LA90: how far the energetic mean sits above the
   background, which is the classic "how eventful" number.
 
+## Prominent tones (`ambiscape tones`)
+
+DIN 45681-style tone detection on the cached per-minute mean spectra:
+each narrowband spectral peak is compared against the masking-noise level
+of its surrounding critical band, giving a decibel prominence
+**ΔL = L_tone − L_noise** per tone (≥ 6 dB, the decisive audibility
+criterion of DIN 45681, counts as prominent). Detections are aggregated
+over time, so a ventilation or appliance hum shows up as one persistent
+line with its presence fraction, while a passing siren does not:
+
+```bash
+ambiscape tones SESSION/          # needs a prior analyze run
+#   152.3 Hz: ΔL 35.5 dB (max 35.5), present 100% (180 min)
+```
+
+The strongest persistent tone lands in the `analyze` summary and README
+as `tonal_prominence_db` / `tonal_prominence_hz` (with
+`n_prominent_tones`), per state in the state-resolved table — rate "vent
+on" vs "vent off" tones separately — and the percentile-LTAS figure marks
+the top tones. ΔL is a level *difference*, so it is meaningful without
+SPL calibration. This follows the method of DIN 45681, not a certified
+implementation (no frequency-dependent masking index or uncertainty
+term); pure numpy/scipy, always available.
+
+The summary also carries `fluctuation_index`, a broadband 4 Hz-weighted
+modulation-depth index from the cached 20 ms envelope (≈ 0 for a steady
+drone, high for a ~4 Hz wobble) — the cheap companion to the approximate
+`iso.fluctuation_strength` (vacil) computed per ear by `ambiscape iso`
+(see the room-acoustics page).
+
 ## Ecoacoustic indices (`ambiscape.ecology`)
 
 ACI, ADI/AEI, NDSI, BI, and acoustic entropy H make up the standard

@@ -103,6 +103,20 @@ def main(argv=None):
                              "(needs a prior analyze run)")
     to.add_argument("folder")
     to.add_argument("-o", "--out", default=None)
+    tn = sub.add_parser("tones",
+                        help="DIN 45681-style prominent tones: spectral "
+                             "peaks vs masking-band level, ΔL in dB, "
+                             "time-aggregated — ventilation/appliance hums "
+                             "(needs a prior analyze run)")
+    tn.add_argument("folder")
+    tn.add_argument("-o", "--out", default=None)
+    tn.add_argument("--min-dl", type=float, default=6.0, dest="min_dl",
+                    help="decibel prominence threshold ΔL (default 6, the "
+                         "DIN 45681 decisive audibility criterion)")
+    tn.add_argument("--min-fraction", type=float, default=0.1,
+                    dest="min_fraction",
+                    help="minimum fraction of minutes a tone must be "
+                         "present in (default 0.1)")
     mu = sub.add_parser("music",
                         help="librosa tempogram + chromagram "
                              "(needs ambiscape[music]; reads audio directly)")
@@ -708,9 +722,35 @@ def main(argv=None):
         for kind, seg in res["segments"].items():
             print(f"  {kind} @ {seg['t0']}: N5 {seg['N5_sone_max_ear']} sone "
                   f"(max ear), sharpness {seg['left']['sharpness_median_acum']}"
-                  f"/{seg['right']['sharpness_median_acum']} acum "
+                  f"/{seg['right']['sharpness_median_acum']} acum, "
+                  f"FS {seg['left']['fluctuation_strength_vacil']}"
+                  f"/{seg['right']['fluctuation_strength_vacil']} vacil "
                   f"[{seg['binaural_method']}]")
         print(f"wrote {out}")
+        return 0
+
+    if args.cmd == "tones":
+        from .features import load_features
+        from . import iso as iso_mod
+        base = Path(args.out) if args.out else Path(args.folder) / "analysis"
+        paths = sorted((base / "features").glob("*.npz"))
+        if not paths:
+            print(f"no cached features in {base} — run 'ambiscape analyze' first")
+            return 1
+        F = load_features(paths)
+        tones = iso_mod.prominent_tones(F["minspec"], F["freqs"],
+                                        min_fraction=args.min_fraction,
+                                        min_dl_db=args.min_dl)
+        doc = {"min_dl_db": args.min_dl, "min_fraction": args.min_fraction,
+               "n_prominent_tones": len(tones), "tones": tones}
+        (base / "tones.json").write_text(json.dumps(doc, indent=2))
+        if not tones:
+            print(f"  no persistent tones with ΔL ≥ {args.min_dl} dB")
+        for tn in tones:
+            print(f"  {tn['f_hz']:>8.1f} Hz: ΔL {tn['dL_median_db']} dB "
+                  f"(max {tn['dL_max_db']}), present "
+                  f"{tn['present_fraction']:.0%} ({tn['n_minutes']} min)")
+        print(f"wrote {base/'tones.json'}")
         return 0
 
     if args.cmd == "draft":

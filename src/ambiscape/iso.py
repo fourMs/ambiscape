@@ -28,10 +28,23 @@ back-to-back cardioid pair at ±90° — a pseudo-binaural approximation
 without pinna/ILD spectral cues. Uncalibrated sessions are computed with an
 assumed offset and flagged: absolute sone/acum values are then indicative
 only (their *ratios* between segments remain meaningful).
+
+Beyond the MoSQITo set (pure numpy/scipy, always available)
+-----------------------------------------------------------
+MoSQITo (≤ 1.2.x) provides no fluctuation strength, so
+:func:`fluctuation_strength` implements the Fastl & Zwicker
+envelope-modulation *approximation* (~4 Hz weighting) — clearly not a
+standardised metric — and :func:`fluctuation_index` is its cheap
+broadband companion on the cached 20 ms envelope. :func:`tone_prominence`
+/ :func:`prominent_tones` detect DIN 45681-style prominent tones
+(spectral peak vs masking-band level, ΔL in dB) in the per-minute mean
+spectra — the ventilation/appliance-hum detector.
+:func:`summarize_psycho` folds both into the ``analyze`` summary.
 """
 from __future__ import annotations
 
 import json
+from functools import lru_cache
 from pathlib import Path
 
 import numpy as np
@@ -169,12 +182,15 @@ def binaural(x: np.ndarray, fs: int, order: str = "ambix",
 
 
 def indicators(x_pa: np.ndarray, fs: int, rough_dur: float = 10.0) -> dict:
-    """ISO 532-1 loudness (N5/N50), DIN 45692 sharpness, D&W roughness
-    for one calibrated (pascal) channel.
+    """ISO 532-1 loudness (N5/N50), DIN 45692 sharpness, D&W roughness,
+    and (approximate) fluctuation strength for one calibrated (pascal)
+    channel.
 
     MoSQITo runs ~5x slower than realtime, and roughness is the costliest
     metric; it is therefore computed on a central `rough_dur`-second slice
     (roughness is a texture measure and stabilizes within seconds).
+    Fluctuation strength is not in MoSQITo (≤ 1.2.x) and comes from the
+    local :func:`fluctuation_strength` approximation instead.
     """
     from mosqito.sq_metrics import (loudness_zwtv,
                                     sharpness_din_from_loudness,
@@ -189,6 +205,8 @@ def indicators(x_pa: np.ndarray, fs: int, rough_dur: float = 10.0) -> dict:
         "N50_sone": round(float(np.percentile(N, 50)), 2),
         "sharpness_median_acum": round(float(np.median(S)), 2),
         "roughness_median_asper": round(float(np.median(R)), 3),
+        "fluctuation_strength_vacil": round(
+            fluctuation_strength(x_pa, fs), 3),
     }
 
 
@@ -234,6 +252,272 @@ def segment_indicators(sess, F: dict, folder: str | Path,
         seg["N5_sone_max_ear"] = max(seg["left"]["N5_sone"],
                                      seg["right"]["N5_sone"])
         out["segments"][pick["kind"]] = seg
+    return out
+
+
+# ------------------------------------- fluctuation strength (approximation)
+
+# Zwicker critical-band (Bark) edges in Hz; adjacent pairs are ~1 Bark wide
+BARK_EDGES = (20.0, 100.0, 200.0, 300.0, 400.0, 510.0, 630.0, 770.0, 920.0,
+              1080.0, 1270.0, 1480.0, 1720.0, 2000.0, 2320.0, 2700.0, 3150.0,
+              3700.0, 4400.0, 5300.0, 6400.0, 7700.0, 9500.0, 12000.0, 15500.0)
+
+
+def _fluctuation_weight(f_mod):
+    """Fastl & Zwicker band-pass weighting of modulation frequency.
+
+    ``2 / (f/4 + 4/f)`` — peaks at 1 for f = 4 Hz, falling toward slow
+    level drifts on one side and roughness-rate modulation on the other.
+    """
+    f = np.maximum(np.asarray(f_mod, np.float64), 1e-6)
+    return 2.0 / (f / 4.0 + 4.0 / f)
+
+
+def _fluctuation_raw(x, fs, fmin_mod, fmax_mod, dl_cap):
+    """Unnormalized Fastl-style sum: ΔL_band × w(f_mod) over Bark bands."""
+    from scipy import signal as sg
+    x = np.asarray(x, np.float64)
+    frame = max(8, int(round(fs / 200.0)))          # ~5 ms envelope frames
+    env_fs = fs / frame
+    lp = sg.butter(4, min(32.0, 0.45 * env_fs), "low", fs=env_fs,
+                   output="sos")
+    envs, band_pow = [], []
+    for lo, hi in zip(BARK_EDGES[:-1], BARK_EDGES[1:]):
+        if hi >= 0.95 * fs / 2:
+            break
+        sos = sg.butter(4, (lo, hi), "bandpass", fs=fs, output="sos")
+        y = sg.sosfilt(sos, x)
+        n = (len(y) // frame) * frame
+        e = (y[:n].reshape(-1, frame) ** 2).mean(1)
+        if len(e) < 64:
+            return 0.0
+        e = np.maximum(sg.sosfiltfilt(lp, e), 0.0)  # keep < 32 Hz: fluctuation,
+        envs.append(e)                              # not roughness, modulation
+        band_pow.append(float(e.mean()))
+    gate = (max(band_pow) if band_pow else 0.0) * 1e-4   # −40 dB energy gate
+    raw = 0.0
+    for e, p in zip(envs, band_pow):
+        if p <= gate or p <= 0.0:
+            continue          # filter leakage: dB depth is level-invariant,
+        # so near-empty bands must not contribute
+        L = 10 * np.log10(np.maximum(e, p * 1e-6))
+        dl = float(np.clip(np.percentile(L, 95) - np.percentile(L, 5),
+                           0.0, dl_cap))
+        if dl <= 0.0:
+            continue
+        xm = e / p - 1.0
+        nper = int(min(len(xm), max(64, round(8.0 * env_fs / fmin_mod))))
+        f, P = sg.welch(xm, fs=env_fs, nperseg=nper, noverlap=nper // 2,
+                        detrend="linear")
+        m = (f >= fmin_mod) & (f <= fmax_mod)
+        if not m.any() or not P[m].any():
+            continue
+        Pm = P[m]
+        i = int(np.argmax(Pm))
+        f_mod = float(f[m][i])
+        # coherence of the modulation: share of modulation power at the
+        # dominant frequency (±1 bin). ~1 for periodic AM, small for the
+        # random envelope fluctuation of unmodulated noise.
+        coh = float(Pm[max(0, i - 1):i + 2].sum() / Pm.sum())
+        raw += dl * coh * float(_fluctuation_weight(f_mod))
+    return raw
+
+
+@lru_cache(maxsize=8)
+def _fluctuation_reference(fs, fmin_mod, fmax_mod, dl_cap):
+    """Raw model value for the 1-vacil reference: 1 kHz tone, 100 % AM at
+    4 Hz (level-invariant model, so the amplitude is arbitrary)."""
+    t = np.arange(int(4.0 * fs)) / fs
+    ref = 0.5 * (1.0 + np.sin(2 * np.pi * 4.0 * t)) \
+        * np.sin(2 * np.pi * 1000.0 * t)
+    return _fluctuation_raw(ref, fs, fmin_mod, fmax_mod, dl_cap)
+
+
+def fluctuation_strength(x: np.ndarray, fs: int, fmin_mod: float = 0.25,
+                         fmax_mod: float = 32.0, dl_cap: float = 30.0) -> float:
+    """Fluctuation strength, vacil — an *approximation*, not a standard.
+
+    MoSQITo (≤ 1.2.x) offers no fluctuation strength, so this follows the
+    Fastl & Zwicker envelope-modulation model in spirit: per Zwicker
+    critical band, the envelope level depth ΔL (5th–95th percentile of the
+    < 32 Hz band envelope, capped at ``dl_cap`` dB) is weighted by the
+    band-pass modulation-frequency weighting ``2/(f/4 + 4/f)`` that peaks
+    at 4 Hz, and summed over Bark bands. The sum is scaled so that the
+    classic reference — a 1 kHz tone, 100 % amplitude-modulated at 4 Hz —
+    reads 1 vacil.
+
+    It is **not** an implementation of any standard (none exists for
+    fluctuation strength): masking-based envelope depth, the level
+    dependence, and interaction effects are all simplified, so treat
+    absolute values as indicative and comparisons between recordings made
+    with the same pipeline as the meaningful output. Needs ≥ ~2 s of
+    signal; steady signals read ≈ 0.
+    """
+    ref = _fluctuation_reference(int(fs), float(fmin_mod), float(fmax_mod),
+                                 float(dl_cap))
+    if ref <= 0.0:
+        return 0.0
+    return float(_fluctuation_raw(x, fs, fmin_mod, fmax_mod, dl_cap) / ref)
+
+
+def fluctuation_index(env: np.ndarray, dt: float, fmin: float = 0.25,
+                      fmax: float = 20.0) -> float | None:
+    """Broadband fluctuation index from a cached power envelope (unitless).
+
+    The 4 Hz-weighted modulation depth of the unit-mean envelope:
+    ``sqrt(∫ P(f) · w(f)² df)`` with the same Fastl-style weighting as
+    :func:`fluctuation_strength`, computed from the cached 20 ms broadband
+    envelope (``env_hi``) so ``analyze`` needs no audio pass. A relative
+    index that tracks fluctuation strength (≈ 0 steady drone, high for
+    ~4 Hz wobble), **not** vacil: no critical-band split, no absolute
+    anchoring. Returns None when the envelope is too short.
+    """
+    from scipy import signal as sg
+    env = np.asarray(env, np.float64)
+    if len(env) < 64 or env.mean() <= 0.0:
+        return None
+    fmax = min(fmax, 0.45 / dt)
+    if fmax <= fmin * 1.5:
+        return None
+    x = env / env.mean() - 1.0
+    nper = int(min(len(x), max(64, round(8.0 / (fmin * dt)))))
+    f, P = sg.welch(x, fs=1.0 / dt, nperseg=nper, noverlap=nper // 2,
+                    detrend="linear")
+    m = (f >= fmin) & (f <= fmax)
+    if not m.any():
+        return None
+    w = _fluctuation_weight(f[m])
+    return float(np.sqrt(max(np.trapezoid(P[m] * w ** 2, f[m]), 0.0)))
+
+
+# --------------------------------------- tonal prominence (DIN 45681-style)
+
+def critical_bandwidth(f_hz):
+    """Zwicker & Terhardt (1980) critical bandwidth at ``f_hz``, in Hz."""
+    f = np.asarray(f_hz, np.float64)
+    return 25.0 + 75.0 * (1.0 + 1.4 * (f / 1000.0) ** 2) ** 0.69
+
+
+def tone_prominence(spec_row: np.ndarray, freqs: np.ndarray,
+                    fmin: float = 50.0, fmax: float = 10000.0,
+                    min_dl_db: float = 6.0, max_n: int = 12) -> list[dict]:
+    """DIN 45681-style prominent tones in one mean power spectrum.
+
+    For each narrowband spectral peak, the decibel prominence
+    ``ΔL = L_tone − L_noise`` compares the tone power (main-lobe bins,
+    noise-corrected) against the masking-noise level in the surrounding
+    critical band (median bin level × band width, i.e. the level the band
+    would have without the tone). Tones with ``ΔL ≥ min_dl_db`` (default
+    6 dB, the decisive audibility criterion of DIN 45681) are returned as
+    ``{"f_hz", "dL_db"}``, strongest first.
+
+    This follows the *method* of DIN 45681 (tone vs masking-band level)
+    but is not a certified implementation: no frequency-dependent masking
+    index, no uncertainty term. Pure numpy/scipy; expects a linear power
+    spectrum on a uniform frequency grid (a ``minspec`` row).
+    """
+    from scipy.ndimage import median_filter
+    from scipy.signal import find_peaks
+    spec = np.asarray(spec_row, np.float64)
+    freqs = np.asarray(freqs, np.float64)
+    if len(freqs) < 32 or spec.max() <= 0.0:
+        return []
+    df = float(freqs[1] - freqs[0])
+    eps = spec.max() * 1e-12
+    ls = 10 * np.log10(spec + eps)
+    floor = median_filter(ls, size=min(101, 2 * (len(ls) // 2) - 1),
+                          mode="nearest")
+    # cheap pre-filter: a band ΔL of 6 dB implies a much larger per-bin rise
+    cand, _ = find_peaks(ls - floor, height=min_dl_db, distance=3)
+    cand = cand[(freqs[cand] >= fmin) & (freqs[cand] <= fmax)]
+    idx = np.arange(len(freqs))
+    tones = []
+    for i in cand:
+        f0 = float(freqs[i])
+        hw = max(float(critical_bandwidth(f0)) / 2.0, 6 * df)
+        band = (freqs >= f0 - hw) & (freqs <= f0 + hw)
+        tone = band & (np.abs(idx - i) <= 3)         # Hann main lobe + slack
+        noise = band & (np.abs(idx - i) > 5)         # guard bins excluded
+        if noise.sum() < 4:
+            continue
+        med = float(np.median(spec[noise]))          # masking noise per bin
+        p_tone = float(spec[tone].sum()) - med * int(tone.sum())
+        p_noise = med * int(band.sum())              # noise level of the band
+        if p_tone <= 0.0 or p_noise <= 0.0:
+            continue
+        dl = 10 * np.log10(p_tone / p_noise)
+        if dl >= min_dl_db:
+            tones.append({"f_hz": round(f0, 1), "dL_db": round(float(dl), 1)})
+    tones.sort(key=lambda t: -t["dL_db"])
+    return tones[:max_n]
+
+
+def prominent_tones(minspec: np.ndarray, freqs: np.ndarray,
+                    min_fraction: float = 0.1, tol_cents: float = 50.0,
+                    **tone_kw) -> list[dict]:
+    """Time-aggregated prominent tones across the per-minute spectra.
+
+    Runs :func:`tone_prominence` per minute and groups detections within
+    ``tol_cents`` (or 2.5 bins at low frequency) into persistent tones.
+    Tones present in at least ``min_fraction`` of the minutes are returned
+    as ``{"f_hz", "dL_median_db", "dL_max_db", "present_fraction",
+    "n_minutes"}``, strongest first — a ventilation hum shows up as one
+    high-fraction line, a passing siren does not.
+    """
+    minspec = np.asarray(minspec, np.float64)
+    freqs = np.asarray(freqs, np.float64)
+    nrow = minspec.shape[0]
+    if nrow == 0 or len(freqs) < 32:
+        return []
+    df = float(freqs[1] - freqs[0])
+    groups: list[dict] = []
+    for r in range(nrow):
+        for t in tone_prominence(minspec[r], freqs, **tone_kw):
+            for g in groups:
+                fg = float(np.median(g["f"]))
+                tol = max(fg * (2 ** (tol_cents / 1200.0) - 1.0), 2.5 * df)
+                if abs(t["f_hz"] - fg) <= tol:
+                    g["f"].append(t["f_hz"])
+                    g["dl"].append(t["dL_db"])
+                    g["rows"].add(r)
+                    break
+            else:
+                groups.append({"f": [t["f_hz"]], "dl": [t["dL_db"]],
+                               "rows": {r}})
+    out = []
+    for g in groups:
+        frac = len(g["rows"]) / nrow
+        if frac < min_fraction:
+            continue
+        out.append({"f_hz": round(float(np.median(g["f"])), 1),
+                    "dL_median_db": round(float(np.median(g["dl"])), 1),
+                    "dL_max_db": round(float(np.max(g["dl"])), 1),
+                    "present_fraction": round(frac, 2),
+                    "n_minutes": len(g["rows"])})
+    return sorted(out, key=lambda t: -t["dL_median_db"])
+
+
+def summarize_psycho(F: dict) -> dict:
+    """Psychoacoustic summary keys from cached features (no audio pass).
+
+    Adds to the ``analyze`` summary: the strongest persistent DIN
+    45681-style tone (``tonal_prominence_db`` / ``_hz``, None when the
+    scene has no prominent tone), the count of persistent tones, and the
+    broadband :func:`fluctuation_index`. All are level-difference or
+    normalized quantities, meaningful without SPL calibration. Degrades
+    gracefully (None / 0) when the cache predates ``minspec``/``env_hi``.
+    """
+    out = {"tonal_prominence_db": None, "tonal_prominence_hz": None,
+           "n_prominent_tones": 0, "fluctuation_index": None}
+    if "minspec" in F and len(F["minspec"]):
+        tones = prominent_tones(F["minspec"], F["freqs"])
+        out["n_prominent_tones"] = len(tones)
+        if tones:
+            out["tonal_prominence_db"] = tones[0]["dL_median_db"]
+            out["tonal_prominence_hz"] = tones[0]["f_hz"]
+    if "env_hi" in F and "hi_dt" in F and len(F["env_hi"]):
+        fi = fluctuation_index(F["env_hi"], float(F["hi_dt"]))
+        out["fluctuation_index"] = round(fi, 3) if fi is not None else None
     return out
 
 

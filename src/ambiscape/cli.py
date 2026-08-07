@@ -368,6 +368,29 @@ def main(argv=None):
                      help="lag search half-range, s (default 4)")
     net.add_argument("--threshold", type=float, default=0.35,
                      help="coupling needed for a graph edge (default 0.35)")
+    arr = sub.add_parser("array",
+                         help="spaced-microphone array analysis of one "
+                              "multichannel WAV (SINS-style linear MEMS "
+                              "node): GCC-PHAT TDOAs, bearing track, "
+                              "coherence vs the diffuse-field curve")
+    arr.add_argument("recording", help="multichannel WAV, one channel per mic")
+    arr.add_argument("--geometry", default=None, metavar="JSON",
+                     help='mic geometry file: {"mics": [[x, y], ...], '
+                          '"c": 343} in metres (or a flat on-axis list)')
+    arr.add_argument("--spacing", type=float, default=None, metavar="M",
+                     help="uniform linear spacing in metres (alternative "
+                          "to --geometry; mic count from the file)")
+    arr.add_argument("-o", "--out", default=None,
+                     help="output dir (default <recording dir>/analysis)")
+    arr.add_argument("--frame", type=float, default=0.1,
+                     help="GCC-PHAT frame length, s (default 0.1)")
+    arr.add_argument("--hop", type=float, default=None,
+                     help="frame hop, s (default half a frame)")
+    arr.add_argument("--win", type=float, default=4.0,
+                     help="coherence window, s (default 4)")
+    arr.add_argument("--min-conf", type=float, default=0.2, dest="min_conf",
+                     help="confidence needed for a frame to count as a "
+                          "reliable bearing (default 0.2)")
     sw = sub.add_parser("sweep",
                         help="generate an exponential sine sweep + matched "
                              "inverse filter for impulse-response "
@@ -741,6 +764,41 @@ def main(argv=None):
             print(f"  strongest edge {sp['nodes'][0]} -> {sp['nodes'][1]}: "
                   f"coupling {sp['coupling']}, lag {sp['lag_s']} s")
         print(f"wrote {out}/network.json and {out}/network.png")
+        return 0
+
+    if args.cmd == "array":
+        from . import array as arr_mod
+        if (args.geometry is None) == (args.spacing is None):
+            print("give exactly one of --geometry or --spacing")
+            return 1
+        if args.geometry:
+            geom = args.geometry
+        else:
+            import soundfile as sf
+            nch = sf.info(args.recording).channels
+            geom = {"mics": [[k * args.spacing, 0.0] for k in range(nch)]}
+        doc = arr_mod.run_array(args.recording, geom, out_dir=args.out,
+                                frame_s=args.frame, hop_s=args.hop,
+                                win_s=args.win, min_conf=args.min_conf)
+        out = Path(args.out) if args.out else \
+            Path(args.recording).parent / "analysis"
+        npairs = len(doc["tdoa_median_ms"])
+        print(f"  {doc['n_mics']} mics, {npairs} pairs, "
+              f"{doc['n_frames']} frames of {doc['params']['frame_s']:.3f} s")
+        if doc["bearing"]:
+            b = doc["bearing"]
+            print(f"  bearing median {b['median_deg']}° from the axis "
+                  f"(IQR {b['iqr_deg']}°), confident frames "
+                  f"{b['confident_fraction']:.0%} — front-back ambiguous, "
+                  f"endfire-blind")
+        else:
+            print("  geometry not linear — no bearing track (TDOAs and "
+                  "coherence only)")
+        print(f"  gamma_array median {doc['gamma_array_median']} "
+              f"(0 = direct wavefront, 1 = diffuse; spaced-omni proxy, "
+              f"not the FOA psi)")
+        print(f"wrote {out/'array.json'} and "
+              f"{len(doc['figures'])} figure(s)")
         return 0
 
     if args.cmd == "birdnet":

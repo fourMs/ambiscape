@@ -10,8 +10,9 @@ day — a closed door thins an edge, a shared ventilation run thickens one, and
 the room everything couples to is the acoustic hub. Where
 [`compare`](compare.md) aligns visits to one room across occasions, `network`
 aligns rooms within one occasion; where [spatial analysis](spatial.md)
-resolves directions inside a room, the network resolves couplings between
-rooms.
+resolves directions inside a room and a [spaced-microphone
+array](array.md) recovers bearings from a few spaced omnis, the network
+resolves couplings between rooms.
 
 ![Acoustic network of a three-room test house: kitchen and hall coupled with a 0.5 s lag, the bedroom separate; below, edge density falling to zero when activity stops (documentation demo data).](../img/network.png)
 

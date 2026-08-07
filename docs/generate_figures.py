@@ -140,6 +140,76 @@ def synth_network(root, seed=7):
     return root
 
 
+def synth_array(folder, seed=3, fs=16000, dur=60.0, spacing=0.05, c=343.0):
+    """One SINS-style node WAV for the array figures: a band-noise source
+    sweeping 20°–160° past a four-mic linear array, silent over 25–35 s so
+    only the decorrelated floor remains (the confidence dip and the diffuse
+    reading), plus that floor throughout. Returns (wav_path, geometry_path).
+    """
+    import json as _json
+    import soundfile as sf
+    folder.mkdir(parents=True, exist_ok=True)
+    pos = np.array([[k * spacing, 0.0] for k in range(4)])
+    n = int(dur * fs)
+    rng = np.random.default_rng(seed)
+    src = rng.standard_normal(n)
+    S = np.fft.rfft(src)
+    fr = np.fft.rfftfreq(n, 1 / fs)
+    S[(fr < 200) | (fr > 6000)] = 0
+    src = np.fft.irfft(S, n)
+    src /= src.std()
+    t = np.arange(n) / fs
+    src *= np.clip(np.minimum(np.abs(t - 25.0), np.abs(t - 35.0)), 0, 1) \
+        ** 2 * ((t < 25.0) | (t > 35.0))          # smooth silent interval
+    data = np.zeros((n, 4))
+    block = int(0.25 * fs)                        # piecewise-constant angle
+    fb = np.fft.rfftfreq(block, 1 / fs)
+    for b0 in range(0, n - block + 1, block):
+        theta = np.radians(20.0 + 140.0 * b0 / n)
+        v = np.array([np.cos(theta), np.sin(theta)])
+        Sb = np.fft.rfft(src[b0:b0 + block])
+        for m in range(4):
+            tau = -float(pos[m] @ v) / c
+            data[b0:b0 + block, m] += np.fft.irfft(
+                Sb * np.exp(-2j * np.pi * fb * tau), block)
+    data += 0.1 * rng.standard_normal((n, 4))     # decorrelated floor
+    wav = folder / "node.wav"
+    sf.write(str(wav), (0.2 * data).astype(np.float32), fs, subtype="FLOAT")
+    geom = folder / "geometry.json"
+    geom.write_text(_json.dumps({"mics": pos.tolist(), "c": c}))
+    return wav, geom
+
+
+def array_triangulation(tmp):
+    """Three-node triangulation of a source walking across a floor plan
+    (the library-call side of the array module). Three nodes, because with
+    two the mirror rays of a bearing pair also intersect exactly and many
+    fixes are honestly flagged ambiguous; a third ray breaks the tie."""
+    from ambiscape import array as arr
+    plan = {"nodes": [{"name": "living", "pos": [0.0, 0.0], "axis_deg": 0.0},
+                      {"name": "kitchen", "pos": [4.0, 0.0],
+                       "axis_deg": 90.0},
+                      {"name": "hall", "pos": [2.0, 3.5],
+                       "axis_deg": -30.0}]}
+    rng = np.random.default_rng(11)
+    tt = np.arange(60.0)
+    path = np.stack([0.8 + (3.2 - 0.8) * tt / tt[-1],
+                     2.8 - (2.8 - 1.2) * tt / tt[-1]], 1)
+    streams = []
+    for nd in plan["nodes"]:
+        v = path - np.asarray(nd["pos"])
+        world = np.degrees(np.arctan2(v[:, 1], v[:, 0]))
+        theta = np.abs((world - nd["axis_deg"] + 180) % 360 - 180)
+        streams.append({"t": tt,
+                        "bearing_deg": theta + 0.8 * rng.standard_normal(60),
+                        "confidence": np.full(60, 0.85),
+                        "clipped": np.zeros(60, bool)})
+    tri = arr.triangulate(streams, plan)
+    out = tmp / "array_triangulate.png"
+    arr.triangulate_figure(tri, plan, out, title="three nodes")
+    return out
+
+
 # --------------------------------------------------------------- driving
 def run(*args, cwd=None):
     print("  $ ambiscape", *args)
@@ -168,6 +238,9 @@ COLLECT = {
     "survey.png": "survey.png",
     "entrain.png": "entrain.png",
     "network.png": "network.png",
+    "array_bearing.png": "array_bearing.png",
+    "array_coherence.png": "array_coherence.png",
+    "array_triangulate.png": "array_triangulate.png",
 }
 
 # ISO 12913-2 Method-A responses (5-point) for the survey circumplex: a
@@ -269,6 +342,17 @@ def main():
     net_png = house / "analysis" / "network.png"
     if net_png.exists():
         produced["network.png"] = net_png
+    # spaced-mic array: one node WAV through the CLI, triangulation as the
+    # library call it is
+    wav, geom = synth_array(tmp / "arraynode")
+    run("array", str(wav), "--geometry", str(geom))
+    for name in ("array_bearing.png", "array_coherence.png"):
+        p = tmp / "arraynode" / "analysis" / name
+        if p.exists():
+            produced[name] = p
+    tri_png = array_triangulation(tmp)
+    if tri_png.exists():
+        produced["array_triangulate.png"] = tri_png
     got, missing = [], []
     for src_name, dst_name in COLLECT.items():
         if src_name in produced:

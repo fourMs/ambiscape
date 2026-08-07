@@ -56,6 +56,10 @@
 
 ::: ambiscape.network
 
+## Spaced-microphone array
+
+::: ambiscape.array
+
 ## Visual features
 
 ::: ambiscape.vision

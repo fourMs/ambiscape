@@ -10,6 +10,26 @@ been carrying feature work throughout a pre-1.0 life.
 ## [Unreleased]
 
 ### Added
+- `array` module and `ambiscape array <recording.wav> --geometry <json>` command: spatial
+  analysis from spaced-microphone recordings (SINS-style linear MEMS nodes) — the third spatial
+  paradigm next to `spatial` (a soundfield sampled at one point) and `network` (one mic per
+  room). Per frame, pairwise GCC-PHAT time differences of arrival searched over physically
+  possible lags with parabolic refinement (`tdoa`); for linear arrays, a prominence-weighted
+  least-squares bearing in 0–180° from the array axis with a GCC-prominence confidence stream
+  (`bearing`) — front–back ambiguous and endfire-blind by construction, and documented as such.
+  Per window, inter-channel magnitude-squared coherence versus frequency against the analytic
+  diffuse-field curve for each spacing (`sinc(2fd/c)²`), yielding `gamma_array`, an
+  energy-weighted direct/diffuse proxy deliberately named apart from the ambisonic diffuseness
+  psi (`coherence_profile`). Across two or more nodes on a floor plan, `triangulate` intersects
+  bearing streams by least squares over all front/back sign combinations, rejects fixes behind
+  a node, reports the RMS ray residual as coarse uncertainty, and flags fixes `ambiguous` when
+  mirror-symmetric geometry genuinely cannot resolve the fold; `triangulate_figure` draws the
+  floor-plan scatter. The CLI writes `array.json`, `array_bearing.png` (time × bearing, colour
+  = confidence) and `array_coherence.png`; triangulation is a library call with a worked
+  synthetic example in the docs. Verified on synthetic ground truth: fractional-delay plane
+  waves recover pair TDOAs within half a sample and bearings within 3°; decorrelated noise
+  yields high `gamma_array` and low bearing confidence; a two-node fixture recovers a known
+  position and a parallel-axes fixture is flagged ambiguous.
 - DCASE STARSS support (`starss` module, `ambiscape doavalidate <folder> --annotations <dir>`):
   the toolbox now ingests STARSS22/23-format data — first-order ambisonic WAV clips (24 kHz,
   ACN/SN3D) with per-clip annotation CSVs of headerless 100 ms rows

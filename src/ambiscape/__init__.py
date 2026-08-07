@@ -16,9 +16,10 @@ from .io import (open_session, open_recording, open_clips, read_bext,
 from .features import extract_take, extract_session, load_features
 from .analysis import (summarize, detect_events, decay_time, decay_metrics,
                        intermittency_ratio, pick_segments)
-from . import (anthrophony, biophony, capture, catalog, compare, ecology,
-               enf, figures, geophony, impulse, longitudinal, mechanical,
-               network, resolve, starss, states, taxonomy, vision, iso)
+from . import (anthrophony, array, biophony, capture, catalog, compare,
+               ecology, enf, figures, geophony, impulse, longitudinal,
+               mechanical, network, resolve, starss, states, taxonomy,
+               vision, iso)
 
 __version__ = "0.24.0"
 __all__ = [
@@ -27,7 +28,8 @@ __all__ = [
     "extract_take", "extract_session", "load_features",
     "summarize", "detect_events", "decay_time", "decay_metrics",
     "intermittency_ratio", "pick_segments",
-    "biophony", "capture", "catalog", "compare", "ecology", "enf", "figures",
+    "array", "biophony", "capture", "catalog", "compare", "ecology", "enf",
+    "figures",
     "impulse", "longitudinal", "network", "resolve", "starss", "states",
     "taxonomy", "vision", "iso", "mechanical", "anthrophony", "geophony",
 ]

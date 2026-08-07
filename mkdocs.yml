@@ -39,6 +39,7 @@ nav:
   - Space & acoustics:
       - Spatial analysis: guide/spatial.md
       - Multi-room acoustic network: guide/network.md
+      - Spaced-microphone array: guide/array.md
       - Room acoustics & ISO: guide/acoustics.md
       - Perceptual survey (ISO 12913-2): guide/survey.md
       - Impulse response & auralization: guide/impulse.md

@@ -51,7 +51,11 @@ index, which is something only an ambisonic corpus can report. Azimuth
 measures cover ambix and (lateral) stereo but not mono, and the horizon split
 requires ambix, since neither stereo nor mono resolves elevation.
 
-All of this describes one point of observation. When several recorders
-cover several rooms of one building at once, the
-[multi-room acoustic network](network.md) makes the building itself the
-spatial object—rooms as nodes, walls and doors as edges.
+All of this describes one point of observation, read from a soundfield.
+The toolbox holds two sibling paradigms for other microphone layouts: a
+[spaced-microphone array](array.md) recovers bearings and a diffuseness
+proxy from the arrival-time differences and coherence of a few spaced
+omnis in one room, and when several recorders cover several rooms of one
+building at once, the [multi-room acoustic network](network.md) makes the
+building itself the spatial object—rooms as nodes, walls and doors as
+edges.

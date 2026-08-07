@@ -20,6 +20,7 @@ See [Sessions & conventions](guide/sessions.md), [Features & descriptors](guide/
 | Command | What it does |
 |---|---|
 | `ambiscape spatial <session>` | Direct/diffuse split, pass-by events, azimuth organisation timeline (*cache*). |
+| `ambiscape array <recording.wav> --geometry <json>` | Spaced-microphone array analysis: GCC-PHAT TDOAs, bearing track, coherence against the diffuse-field curve. |
 | `ambiscape iso <session>` | ISO 12913-3 psychoacoustic indicators on representative segments (*cache*, `[iso]`). |
 | `ambiscape survey <session> --responses <csv>` | ISO 12913-2 Method-A questionnaire responses projected onto the 12913-3 circumplex. |
 | `ambiscape calibrate <session> --spl <dB>` | Derive and store the dBFS to dB SPL offset from a field SPL reading. |
@@ -27,7 +28,7 @@ See [Sessions & conventions](guide/sessions.md), [Features & descriptors](guide/
 | `ambiscape impulse <recording.wav>` | Deconvolve a recorded sweep to an impulse response; octave-band T60/T20/T30, EDT, C50/C80, D50, STI, IACC. |
 | `ambiscape auralize <dry.wav> --ir <ir.wav>` | Convolve dry audio with a measured impulse response. |
 
-See [Spatial analysis](guide/spatial.md), [Room acoustics & ISO](guide/acoustics.md), [Perceptual survey](guide/survey.md), and [Impulse response & auralization](guide/impulse.md).
+See [Spatial analysis](guide/spatial.md), [Spaced-microphone array](guide/array.md), [Room acoustics & ISO](guide/acoustics.md), [Perceptual survey](guide/survey.md), and [Impulse response & auralization](guide/impulse.md).
 
 ## Time & rhythm
 

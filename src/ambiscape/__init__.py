@@ -11,25 +11,25 @@ researchers, artists, and students alike.
 spatial visuals — AEM, anglegram, directogram — on the short excerpts
 ambiscape selects from hours of audio.)
 """
-from .io import (open_session, open_recording, read_bext, read_span,
-                 export_segment, stereo_preview)
+from .io import (open_session, open_recording, open_clips, read_bext,
+                 read_span, export_segment, stereo_preview)
 from .features import extract_take, extract_session, load_features
 from .analysis import (summarize, detect_events, decay_time, decay_metrics,
                        intermittency_ratio, pick_segments)
 from . import (anthrophony, biophony, capture, catalog, compare, ecology,
                enf, figures, geophony, impulse, longitudinal, mechanical,
-               network, resolve, states, taxonomy, vision, iso)
+               network, resolve, starss, states, taxonomy, vision, iso)
 
 __version__ = "0.24.0"
 __all__ = [
-    "open_session", "open_recording", "read_bext", "read_span",
-    "export_segment", "stereo_preview",
+    "open_session", "open_recording", "open_clips", "read_bext",
+    "read_span", "export_segment", "stereo_preview",
     "extract_take", "extract_session", "load_features",
     "summarize", "detect_events", "decay_time", "decay_metrics",
     "intermittency_ratio", "pick_segments",
     "biophony", "capture", "catalog", "compare", "ecology", "enf", "figures",
-    "impulse", "longitudinal", "network", "resolve", "states", "taxonomy",
-    "vision", "iso", "mechanical", "anthrophony", "geophony",
+    "impulse", "longitudinal", "network", "resolve", "starss", "states",
+    "taxonomy", "vision", "iso", "mechanical", "anthrophony", "geophony",
 ]
 
 

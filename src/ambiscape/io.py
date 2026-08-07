@@ -355,6 +355,42 @@ def open_session(folder: str | Path) -> Session:
     return sess
 
 
+def open_clips(folder: str | Path) -> Session:
+    """Open a folder of dataset clips as takes on a synthetic clock.
+
+    Corpus clips — a DCASE STARSS fold, a folder of contributed excerpts —
+    typically carry no BWF ``bext`` chunk and no filename timestamp, so
+    :func:`open_session` would fall back to file modification times: download
+    times, which say nothing about capture and usually pile every clip onto
+    one meaningless, overlapping stretch of timeline. Here the clips are
+    instead chained end-to-end in sorted filename order from midnight of a
+    nominal day 0 (1970-01-01). Positions on the session timeline are
+    deterministic and reproducible across machines, but clock-of-day
+    readings carry no meaning for these takes. ``calibration.json`` is not
+    consulted (there is no real clock to correct).
+    """
+    folder = Path(folder)
+    paths = sorted(p for p in folder.iterdir()
+                   if p.suffix.lower() in _AUDIO_SUFFIXES and p.is_file())
+    if not paths:
+        raise FileNotFoundError(f"no audio files in {folder}")
+    sess = Session(folder=folder, day0=_dt.date(1970, 1, 1))
+    cursor = 0.0
+    for p in paths:
+        m = _probe_recording(p)
+        info = m["info"]
+        c = int(cursor)
+        sess.takes.append(Take(
+            path=p, audio_path=m["audio_path"], start=cursor,
+            duration=info.frames / info.samplerate, frames=info.frames,
+            samplerate=info.samplerate, channels=info.channels,
+            date=sess.day0.isoformat(),
+            clock=f"{c // 3600:02d}:{c % 3600 // 60:02d}:{c % 60:02d}",
+            order=m["order"], mode=channel_mode(info.channels)))
+        cursor = sess.takes[-1].end
+    return sess
+
+
 def open_recording(path: str | Path, mode: str | None = None) -> Session:
     """Open a single recording as a one-take session ("scene").
 

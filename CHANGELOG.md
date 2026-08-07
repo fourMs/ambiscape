@@ -9,6 +9,28 @@ been carrying feature work throughout a pre-1.0 life.
 
 ## [Unreleased]
 
+### Added
+- DCASE STARSS support (`starss` module, `ambiscape doavalidate <folder> --annotations <dir>`):
+  the toolbox now ingests STARSS22/23-format data — first-order ambisonic WAV clips (24 kHz,
+  ACN/SN3D) with per-clip annotation CSVs of headerless 100 ms rows
+  (`frame, class, source, azimuth, elevation[, distance]`; the distance column is STARSS23-only
+  and both shapes are read) — and validates its own energy-based direction estimate against the
+  labelled DOAs. Per clip, the pseudo-intensity azimuth is taken on the 100 ms label grid
+  (band-passed to the corpus 80–3000 Hz DOA band) and compared with the labelled azimuth on
+  single-source frames only; multi-source frames are excluded because a single broadband energy
+  direction points at the energy-weighted mixture, not at either source. Reports circular error
+  statistics (median and IQR of |error|, circular bias and SD, fraction within 20°, per-class
+  and per-clip breakdowns) to `doavalidate.json`, with an error rose + per-class chart in
+  `doavalidate.png`. Verified on synthetic ground truth: a generated FOA clip with a known
+  panned source and matching CSV recovers near-zero error; the same clip against labels rotated
+  by 90° recovers the rotation.
+- `open_clips(folder)`: opens a folder of dataset clips (STARSS folds, contributed excerpt
+  collections) as takes chained end-to-end on a synthetic clock from midnight of a nominal
+  day 0 (1970-01-01). Such clips carry no BWF `bext` chunk and no filename timestamp, so
+  `open_session`'s fallback would use file modification times — download times, which pile
+  every clip onto one meaningless overlapping timeline. Session-time positions are deterministic
+  and reproducible; clock-of-day readings are documented as meaningless for these takes.
+
 ## [0.24.1] — 2026-08-07
 
 ### Fixed

@@ -112,6 +112,10 @@
 
 ::: ambiscape.survey
 
+## DCASE STARSS validation
+
+::: ambiscape.starss
+
 ## Machine listening
 
 ::: ambiscape.ml

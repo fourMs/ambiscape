@@ -87,5 +87,6 @@ See [Resynthesis](guide/resynth.md), [Visual features](guide/vision.md), and [So
 | `ambiscape capture <root>` | Always-on feature-extraction daemon; audio discarded per block (`[capture]`). |
 | `ambiscape speechgate <wav-or-folder>` | Speech privacy check before publishing (`[ml]`). |
 | `ambiscape deposit <session>` | Non-identifying 1 Hz TSV export for open deposits (*cache*). |
+| `ambiscape doavalidate <folder> --annotations <dir>` | Validate the energy-based direction estimate against DCASE STARSS labels: per-frame azimuth error on single-source frames, circular statistics, error rose. |
 
-See [Corpus catalog](guide/catalog.md), [Cross-session comparison](guide/compare.md), [Multi-room acoustic network](guide/network.md), [Longitudinal analysis](guide/longitudinal.md), [Always-on capture](guide/capture.md), and [Deposit export](guide/deposit.md).
+See [Corpus catalog](guide/catalog.md), [Cross-session comparison](guide/compare.md), [Multi-room acoustic network](guide/network.md), [Longitudinal analysis](guide/longitudinal.md), [Always-on capture](guide/capture.md), [Deposit export](guide/deposit.md), and [DCASE STARSS validation](guide/starss.md).

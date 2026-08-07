@@ -72,6 +72,7 @@ nav:
       - Longitudinal analysis: guide/longitudinal.md
       - Always-on capture: guide/capture.md
       - Deposit export: guide/deposit.md
+      - DCASE STARSS validation: guide/starss.md
   - API reference: api.md
 
 plugins:

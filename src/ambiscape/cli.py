@@ -437,7 +437,44 @@ def main(argv=None):
                          "extra columns kept")
     sv.add_argument("-o", "--out", default=None,
                     help="output dir (default <folder>/analysis)")
+    dv = sub.add_parser("doavalidate",
+                        help="validate the energy-based direction estimate "
+                             "against DCASE STARSS annotations: per-frame "
+                             "azimuth error on single-source frames, "
+                             "circular statistics + error-rose figure")
+    dv.add_argument("folder",
+                    help="folder of FOA WAV clips (e.g. a STARSS foa_dev "
+                         "fold)")
+    dv.add_argument("--annotations", required=True, metavar="DIR",
+                    help="folder of STARSS metadata CSVs matching the "
+                         "clips by file stem")
+    dv.add_argument("-o", "--out", default=None,
+                    help="output dir (default <folder>/analysis)")
+    dv.add_argument("--frame", type=float, default=0.1,
+                    help="label frame length in seconds (default 0.1, "
+                         "the STARSS grid)")
     args = ap.parse_args(argv)
+
+    if args.cmd == "doavalidate":
+        from . import starss
+        try:
+            doc = starss.run_validation(args.folder, args.annotations,
+                                        out_dir=args.out,
+                                        frame_s=args.frame)
+        except FileNotFoundError as e:
+            print(e)
+            return 1
+        for stem, s in doc["per_clip"].items():
+            print(f"  {stem}: {s['n_frames']} single-source frames, "
+                  f"median |err| {s['median_abs_deg']}°")
+        o = doc["overall"]
+        print(f"  overall: n={o['n_frames']}, median |err| "
+              f"{o['median_abs_deg']}° (IQR {o['iqr_deg']}°), bias "
+              f"{o['bias_deg']}°, within 20°: {o['within_20deg']*100:.0f}%"
+              f"; {doc['n_multi_excluded']} multi-source frame(s) excluded")
+        out = Path(args.out) if args.out else Path(args.folder) / "analysis"
+        print(f"wrote {out/'doavalidate.json'}, {out/'doavalidate.png'}")
+        return 0
 
     if args.cmd == "survey":
         from . import survey as srv_mod

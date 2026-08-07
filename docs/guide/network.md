@@ -7,7 +7,13 @@ which fabric*: how strongly, and with what delay, does activity in one room
 appear in the others. The rooms become nodes, the walls, doors and corridors
 become edges, and the building reads as a graph whose shape changes over the
 day — a closed door thins an edge, a shared ventilation run thickens one, and
-the room everything couples to is the acoustic hub.
+the room everything couples to is the acoustic hub. Where
+[`compare`](compare.md) aligns visits to one room across occasions, `network`
+aligns rooms within one occasion; where [spatial analysis](spatial.md)
+resolves directions inside a room, the network resolves couplings between
+rooms.
+
+![Acoustic network of a three-room test house: kitchen and hall coupled with a 0.5 s lag, the bedroom separate; below, edge density falling to zero when activity stops (documentation demo data).](../img/network.png)
 
 Everything works from the cached 8 Hz fast A-weighted level streams of a
 prior `analyze` run on each node session; no audio is reopened.

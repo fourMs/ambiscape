@@ -5,6 +5,9 @@ place differ between visits*, by laying two or more analysed sessions of one
 room onto a common clock, so machines, weather, parties and silences read
 against each other. It works entirely from the cached 1 Hz features and the
 `summary.json` / `states.json` of a prior `analyze` run; no audio is reopened.
+For several recorders running *simultaneously* in different rooms of one
+building, [`network`](network.md) reads the sessions as a coupling graph
+instead.
 
 ```bash
 ambiscape compare 2026-07-15-loft 2026-07-19-loft-night 2026-07-19-loft-day \

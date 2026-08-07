@@ -99,6 +99,47 @@ def synth_session(folder, seed=0):
     return folder
 
 
+def synth_network(root, seed=7):
+    """Three coupled node sessions (a SINS-style house) for the network figure.
+
+    Envelope ground truth mirrors the network test fixture: the kitchen's
+    activity envelope reappears in the hall 0.5 s later at reduced strength,
+    and the bedroom carries an unrelated envelope. In the last third of the
+    deployment every room falls back to its own independent quiet floor, so
+    the density timeline shows the house decoupling when activity stops. The
+    node WAVs are written at 16 kHz to keep regeneration cheap; the network
+    reads only the 8 Hz level streams, so nothing downstream changes.
+    """
+    rate, dur, shift, fs = 8.0, 1800.0, 4, 16000   # 0.5 s lag = 4 samples
+    m = int(dur * rate) + shift
+
+    def env(sd, smooth=2):
+        rng = np.random.default_rng(sd)
+        pad = 8 * smooth
+        e = np.convolve(rng.standard_normal(m + 2 * pad),
+                        np.hanning(2 * smooth + 1), "same")[pad:pad + m]
+        return 12 * (e - e.mean()) / e.std()
+
+    e1, e2 = env(seed), env(seed + 1)
+    rooms = (("kitchen", e1[shift:m], 30.0),           # leads
+             ("hall", 0.8 * e1[:m - shift], 120.0),    # lags kitchen by 0.5 s
+             ("bedroom", e2[shift:m], -60.0))          # uncoupled
+    quiet = np.arange(m - shift) > 2 * (m - shift) / 3
+    for k, (name, e_db, az) in enumerate(rooms):
+        e_db = np.where(quiet, 0.2 * env(seed + 20 + k)[:m - shift] - 14.0,
+                        e_db)                          # activity stops
+        folder = root / name
+        folder.mkdir(parents=True, exist_ok=True)
+        n = int(dur * fs)
+        rng = np.random.default_rng(seed + 10 + k)
+        amp = np.interp(np.arange(n) / fs, np.arange(len(e_db)) / rate,
+                        10 ** (e_db / 20))
+        data = (plane_wave(0.03 * rng.standard_normal(n) * amp, az)
+                + 0.001 * rng.standard_normal((n, 4)))
+        write_bwf(folder / "take.wav", data, fs=fs, time="07:00:00")
+    return root
+
+
 # --------------------------------------------------------------- driving
 def run(*args, cwd=None):
     print("  $ ambiscape", *args)
@@ -126,6 +167,7 @@ COLLECT = {
     "schafer_timeline.png": "schafer_timeline.png",
     "survey.png": "survey.png",
     "entrain.png": "entrain.png",
+    "network.png": "network.png",
 }
 
 # ISO 12913-2 Method-A responses (5-point) for the survey circumplex: a
@@ -213,11 +255,20 @@ def main():
     run("analyze", str(rsess))
     run("rhythm", str(rsess))
 
+    # multi-recorder network: three coupled node sessions of one house
+    house = synth_network(tmp / "house")
+    for room in ("kitchen", "hall", "bedroom"):
+        run("analyze", str(house / room), "--no-resolve")
+    run("network", str(house), "--win", "30", "--max-lag", "2")
+
     # gather produced PNGs: everything from the rich scene, rhythm from bells
     produced = {p.name: p for p in sess.rglob("*.png")}
     for p in rsess.rglob("*.png"):
         if p.name == "rhythm_overview.png":
             produced[p.name] = p
+    net_png = house / "analysis" / "network.png"
+    if net_png.exists():
+        produced["network.png"] = net_png
     got, missing = [], []
     for src_name, dst_name in COLLECT.items():
         if src_name in produced:

@@ -22,7 +22,9 @@ folder of WAVs on one absolute clock—is therefore the unit of analysis,
 and ambiscape produces:
 
 - **descriptors** in the environmental-acoustics idiom (Leq, LAeq,
-  L10/L50/L90, event statistics),
+  L10/L50/L90, event statistics), with a sensor-noise-floor guard that
+  flags bands whose low-percentile levels measure the recorder's
+  self-noise rather than the room,
 - **spatial timelines** when the recording carries direction: full
   direction of arrival, diffuseness and azimuthal concentration from
   ambisonics, a lateral left/right cue from stereo,
@@ -56,6 +58,10 @@ and ambiscape produces:
   and sound–motion entrainment against a body-worn accelerometer,
 - **publication exports** (non-identifying 1 Hz features; curated segment
   selection),
+- **multi-recorder networks**: one recorder per room of a building on a
+  common clock, read as a coupling graph—edge strengths and lead/lag
+  directions between rooms, the acoustic hub, and the graph's density
+  over the day,
 - **corpus aggregation**: one cross-session table (CSV + Markdown) from
   every session's cached summary, with ranking and outlier queries.
 

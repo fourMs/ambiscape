@@ -50,3 +50,8 @@ spatial.fg_bg_az_overlap(F)        # do figure and ground share a direction?
 index, which is something only an ambisonic corpus can report. Azimuth
 measures cover ambix and (lateral) stereo but not mono, and the horizon split
 requires ambix, since neither stereo nor mono resolves elevation.
+
+All of this describes one point of observation. When several recorders
+cover several rooms of one building at once, the
+[multi-room acoustic network](network.md) makes the building itself the
+spatial object—rooms as nodes, walls and doors as edges.

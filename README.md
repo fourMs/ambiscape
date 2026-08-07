@@ -6,7 +6,7 @@
 [![Python](https://img.shields.io/pypi/pyversions/ambiscape.svg)](https://pypi.org/project/ambiscape/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Ambiscape is a Python toolbox for analysing soundscapes—the sonic ambiences of rooms and other places. It reads mono, stereo, binaural, or first-order ambisonic recordings of any length and describes a place's sound as a whole: level, spectrum, space, rhythm, sources, and more.
+Ambiscape is a Python toolbox for analysing soundscapes—the sonic ambiences of rooms and other places. It reads mono, stereo, binaural, or first-order ambisonic recordings of any length and describes a place's sound as a whole: level, spectrum, space, rhythm, sources, and more. Several recorders spread through a building can be read together as one acoustic network.
 
 ## Install
 
@@ -30,7 +30,7 @@ This streams the audio in constant memory, however long it is. It extracts featu
 
 ## Commands
 
-`analyze` is one of nearly forty subcommands. The others cover taxonomy annotation, rhythm and tonality, room acoustics and impulse responses, ecological and source-domain indices, perceptual surveys, corpus aggregation, and privacy-aware publishing. The [command overview](https://fourms.github.io/ambiscape/cli/) lists them all; `ambiscape --help` prints the same list.
+`analyze` is one of nearly forty subcommands. The others cover taxonomy annotation, rhythm and tonality, room acoustics and impulse responses, ecological and source-domain indices, perceptual surveys, multi-recorder building networks (`network`), corpus aggregation, and privacy-aware publishing. The [command overview](https://fourms.github.io/ambiscape/cli/) lists them all; `ambiscape --help` prints the same list.
 
 ## Documentation
 

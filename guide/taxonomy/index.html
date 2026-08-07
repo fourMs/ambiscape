@@ -1617,6 +1617,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#human-activity-ground-truth-activities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Human activity ground truth (--activities)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#a-note-on-spelling" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2063,6 +2074,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#human-activity-ground-truth-activities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Human activity ground truth (--activities)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#a-note-on-spelling" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2240,6 +2262,29 @@ uses — at most eight bed lanes plus "other beds", each labelled with its level
 — so the figure height stays bounded however many regimes a long session proposes. Hand-authored
 objects are never merged.</p>
 <p><img alt="Schafer timeline: one lane per object on the session clock, with keynote bars, signal and soundmark event markers, and shaded lo-fi states." src="../../img/schafer_timeline.png" /></p>
+<h2 id="human-activity-ground-truth-activities">Human activity ground truth (<code>--activities</code>)</h2>
+<p>Some datasets ship human annotations of what the people in the space were <em>doing</em>. The SINS
+database (Dekkers et al. 2017) provides per-room activity logs as semicolon-separated CSVs with a
+<code>Class;Start time;Stop time</code> header and absolute timestamps, and classes such as <code>absence</code>,
+<code>sleeping</code>, <code>cooking</code>, <code>vacuumcleaner</code> or <code>watching_tv</code>. Both figures can overlay them:</p>
+<div class="highlight"><pre><span></span><code>ambiscape taxonomy &lt;folder&gt; --activities living_labels.csv
+</code></pre></div>
+<p>(or <code>taxonomy.render(folder, activities=...)</code> / the <code>activities</code> parameter of <code>schaeffer_map</code> and
+<code>schafer_timeline</code> in the library, taking the list returned by <code>taxonomy.load_activities</code>). The
+spans are aligned to the session clock via the session's day 0; if the file is missing the figures
+render exactly as without the option.</p>
+<p>On the timeline this adds a compact activity ribbon along the top — coloured spans per class with a
+legend, <code>absence</code> and <code>other</code> deliberately muted so that colour means somebody was doing something —
+and each machine-drafted keynote bed's label gains its dominant concurrent activities by time share:
+<code>"quiet bed, -60 to -54 dBFS, 23 spans — during: absence 71%, sleeping 22%"</code>. The day's
+human-labelled structure then reads directly above the acoustic beds, which is the quickest check of
+whether the beds mean anything.</p>
+<p>On the map, points that carry text (sparse maps, or cell-singleton outliers) also say during which
+activity they occur (<code>"— during cooking"</code>).</p>
+<p>The two provenances are never conflated. The activities are <strong>data</strong> — human annotations shipped
+with the dataset, attributed in the caption (<code>activities: human annotations, Dekkers et al. 2017</code>) —
+while mass/facture and the bed structure remain machine-drafted listening proposals and keep their
+"listen to confirm" marking.</p>
 <h2 id="a-note-on-spelling">A note on spelling</h2>
 <p>The field value is <code>anthrophony</code>, which is the spelling Pijanowski and most of the soundscape-ecology
 literature use. Both forms appear in print, and the package also accepts
@@ -2267,7 +2312,7 @@ existing annotations keep working; everything it writes uses <code>anthrophony</
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 7, 2026 11:56:59 UTC">August 7, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 7, 2026 12:59:23 UTC">August 7, 2026</span>
   </span>
 
     

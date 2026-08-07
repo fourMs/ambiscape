@@ -20,6 +20,24 @@ been carrying feature work throughout a pre-1.0 life.
   tail before saving, and `load_features` caps each take's fast/envelope streams at the filled
   whole-second span, so caches written by 0.24.1 and earlier are cleaned on load without
   re-analysis.
+- Modulation profile: the nearly featureless meso line sitting ~15 dB above its neighbours in
+  pre-fix figures was this same take-tail click. After the meso band's dB→linear conversion,
+  the fake 0 dBFS frames (~60 dB above a quiet room; 92 frames on a SINS day) form a periodic
+  impulse train at the per-take rate whose flat harmonic comb buried the entire 0.01–0.5 Hz
+  band. The load-time cap removes it and meso recovers real structure (verified on Node02:
+  spectrum range 0.9 → 12 dB). Macro (from the 1 s RMS, which never had the tail bug) and
+  micro (`env_hi` is linear power, so its unfilled zeros were silence, ~0.2 dB effect) were
+  essentially unaffected.
+- Modulation profile figure no longer draws three disjoint per-scale segments at incomparable
+  offsets. All three scales are now computed identically — unit-mean linear-power envelope
+  PSD (the pre-0.2-cache micro fallback previously fed raw dB values) — on a single
+  "PSD (dB re 1/Hz), unit-mean power envelope" axis, and each scale extends half a decade past
+  its nominal band edges so adjacent scales overlap (drawn faint outside the nominal band,
+  solid inside; dotted guides at the 0.01 and 0.5 Hz band edges). The curves joining in the
+  overlaps is the visible check that the shared normalisation holds; reported statistics stay
+  within the nominal band. The log-frequency grid now averages the Welch bins falling in each
+  cell instead of picking single bins, which stabilises the single-segment macro estimate
+  (macro/meso overlap agreement on Node02: ~4 → ~1.6 dB median).
 
 ### Added
 - Cross-node day comparison helpers in `compare`: `xnode_day_matrix` (clock-binned heatmap

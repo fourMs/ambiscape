@@ -34,6 +34,21 @@ Each scale comes from a different cached envelope, since no single
 envelope rate resolves both a footstep and a fridge that runs for eight
 minutes in every thirty-six.
 
+## One spectrum, one normalisation
+
+All three scales are computed identically: the source stream is converted
+to a linear-power envelope, normalised to unit mean, and its Welch power
+spectral density taken (Welch bins averaged into a log-frequency grid).
+The three curves therefore share one axis — PSD in dB re 1/Hz of the
+unit-mean power envelope — and are directly comparable in level, with no
+per-band offsets. Each scale is additionally computed half a decade past
+its nominal band edges, so adjacent scales overlap; in the figure the
+overlap is drawn faint and the nominal band solid, and the curves joining
+where they meet is the visible check that the shared normalisation holds
+(on the SINS reference sessions, adjacent scales agree to within a couple
+of dB in the overlaps). The reported statistics are always taken within
+the nominal band only.
+
 Each scale reports `peak_freq_hz`, `peak_period_s`, `peak_prominence_db`
 (peak over the band median) and `modulation_depth` (band-integrated
 modulation power of the unit-mean envelope). A sharp, prominent peak means

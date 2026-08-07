@@ -11,8 +11,16 @@ no audio pass:
 - **meso** (0.01–0.5 Hz) from the 125 ms fast level;
 - **macro** (below 0.01 Hz, floor set by session length) from the 1 s RMS.
 
+All three scales are computed the same way: the source stream is converted
+to a linear-power envelope, normalised to unit mean, and its Welch power
+spectral density taken. One normalisation, so the per-scale curves live on a
+single comparable dB axis; each scale is additionally computed half a decade
+past its nominal band edges, so neighbouring scales overlap and their
+agreement where they meet is visible rather than assumed.
+
 ``profile`` returns, per scale, a log-frequency modulation spectrum with the
-dominant modulation frequency, its prominence, and the band modulation depth.
+dominant modulation frequency, its prominence, and the band modulation depth
+(all three statistics taken within the nominal band, not the overlap).
 ``modulation_spectrogram`` computes the windowed version — the "rhythm
 spectrogram of the day" — and ``render`` writes the combined figure.
 """
@@ -27,6 +35,9 @@ EPS = 1e-20
 
 SCALES = ("micro", "meso", "macro")
 BANDS = {"micro": (0.5, 20.0), "meso": (0.01, 0.5), "macro": (None, 0.01)}
+# Each scale's spectrum is computed this factor past its nominal band edges
+# (half a decade), so adjacent scales overlap and can be compared directly.
+EXT = 10 ** 0.5
 
 
 def modulation_spectrum(env: np.ndarray, dt: float, fmin: float, fmax: float,
@@ -35,14 +46,22 @@ def modulation_spectrum(env: np.ndarray, dt: float, fmin: float, fmax: float,
 
     The envelope is normalised to zero-mean unit-mean (x = env/mean − 1) so
     spectra are comparable across levels; returns (freqs, power density).
+    Welch bins are averaged into each log-grid cell (nearest bin where a
+    cell is empty), which keeps the estimate stable even when the record
+    only allows a single Welch segment.
     """
     x = env.astype(np.float64) / (env.mean() + EPS) - 1.0
     nper = int(min(len(x), max(64, round(8.0 / (fmin * dt)))))
     f, P = signal.welch(x, fs=1.0 / dt, nperseg=nper,
                         noverlap=nper // 2, detrend="linear")
     grid = np.geomspace(fmin, fmax, n_bins)
-    idx = np.clip(np.searchsorted(f, grid), 1, len(f) - 1)
-    return grid, P[idx]
+    edges = np.geomspace(fmin, fmax, n_bins + 1)
+    lo = np.searchsorted(f, edges[:-1])
+    hi = np.searchsorted(f, edges[1:])
+    near = np.clip(np.searchsorted(f, grid), 1, len(f) - 1)
+    out = np.array([P[a:b].mean() if b > a else P[n]
+                    for a, b, n in zip(lo, hi, near)])
+    return grid, out
 
 
 def _scale_stats(f, P):
@@ -60,31 +79,41 @@ def _scale_stats(f, P):
 
 
 def profile(F: dict) -> dict:
-    """Three-scale modulation profile from cached features."""
+    """Three-scale modulation profile from cached features.
+
+    Every scale is a unit-mean linear-power envelope PSD (see
+    ``modulation_spectrum``), so the three spectra share one normalisation
+    and are directly comparable in level. Each is computed ``EXT`` past its
+    nominal band edges (clipped to the record length and the stream's
+    Nyquist); statistics are taken within the nominal band only.
+    """
     dur = float(len(F["t"]))
     out = {"scales": {}, "spectra": {}}
+    fast_pow = 10 ** (F["fast_db"].astype(np.float64) / 10)  # dB -> lin power
+    meso_dt = float(np.median(np.diff(F["t_fast"])))
     sources = {
-        "meso": (F["fast_db"], float(np.median(np.diff(F["t_fast"])))),
-        "macro": (F["rms_w"] ** 2, 1.0),
+        "meso": (fast_pow, meso_dt),
+        "macro": (F["rms_w"].astype(np.float64) ** 2, 1.0),
     }
     if "env_hi" in F:
         sources["micro"] = (F["env_hi"], float(F["hi_dt"]))
     else:
-        sources["micro"] = (F["fast_db"], sources["meso"][1])
+        sources["micro"] = (fast_pow, meso_dt)
         out["micro_limited"] = "no env_hi in cache; micro band tops out at 4 Hz"
     for scale in SCALES:
         env, dt = sources[scale]
-        if scale in ("meso", "macro"):     # dB level -> linear power
-            env = 10 ** (env.astype(np.float64) / 10) if scale == "meso" else env
         lo, hi = BANDS[scale]
         lo = max(lo or 4.0 / dur, 4.0 / dur)
-        hi = min(hi, 0.45 / dt)
-        if hi <= lo * 1.5:
+        clo = max(lo / EXT, 4.0 / dur)
+        chi = min(hi * EXT, 0.45 / dt)
+        if chi <= clo * 1.5:
             continue
-        f, P = modulation_spectrum(env, dt, lo, hi)
+        f, P = modulation_spectrum(env, dt, clo, chi)
         out["spectra"][scale] = {"freq_hz": [round(float(v), 5) for v in f],
                                  "power": [float(v) for v in P]}
-        out["scales"][scale] = _scale_stats(f, P)
+        band = (f >= lo) & (f <= min(hi, chi))
+        if band.any():
+            out["scales"][scale] = _scale_stats(f[band], P[band])
     return out
 
 
@@ -122,12 +151,21 @@ def render(F: dict, prof: dict, out_path, title="", clock=None):
         if not sp:
             continue
         f = np.array(sp["freq_hz"])
-        P = np.array(sp["power"])
-        ax0.plot(f, 10 * np.log10(P + EPS), color=colors[scale], lw=1.4,
-                 label=f"{scale} (peak {prof['scales'][scale]['peak_period_s']} s)")
+        db = 10 * np.log10(np.array(sp["power"]) + EPS)
+        lo, hi = BANDS[scale]
+        band = (f >= (lo or 0.0)) & (f <= hi)
+        # full curve faint (the half-decade overlap into neighbouring
+        # scales), nominal band solid on top
+        ax0.plot(f, db, color=colors[scale], lw=1.0, alpha=0.35)
+        st = prof["scales"].get(scale)
+        lab = f"{scale} (peak {st['peak_period_s']} s)" if st else scale
+        ax0.plot(f[band], db[band], color=colors[scale], lw=1.6, label=lab)
+    for edge in (0.01, 0.5):
+        ax0.axvline(edge, color="0.75", lw=0.8, ls=":", zorder=0)
     ax0.set(xscale="log", xlabel="modulation frequency (Hz)",
-            ylabel="power (dB)", title=f"{title} — envelope modulation "
-            "spectra by scale")
+            ylabel="PSD (dB re 1/Hz)\nunit-mean power envelope",
+            title=f"{title} — envelope modulation spectrum "
+            "(macro | meso | micro, shared normalisation)")
     ax0.legend(fontsize=8)
     ax0.grid(alpha=0.2, which="both")
 

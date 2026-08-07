@@ -58,7 +58,7 @@ level-invariant). Alongside it, `impulse.json` holds:
   EDT; clarity C50/C80; definition D50; and the usable dynamic range
   `dr_db` behind each fit. These reuse the toolbox's
   truncated-Schroeder machinery (`analysis.decay_metrics`) — the same
-  noise-floor and re-attack safeguards as the clap path, now fed a proper
+  noise-floor and re-attack safeguards as the clap path, here fed a proper
   excitation.
 - **STI** (IEC 60268-16, *indirect method*): modulation transfer functions
   from Schroeder's integral of the squared IR at the 14 standard

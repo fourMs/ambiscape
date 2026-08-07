@@ -21,9 +21,9 @@ ambiscape longitudinal CORPUS/ --key ndsi --key leq_dbfs
 #   wrote CORPUS/analysis/longitudinal_ndsi.png ... and longitudinal.json
 ```
 
-Each session needs a date. `ambiscape analyze` now writes one into
-`summary.json` (from the recording's BWF timestamp); for older summaries the
-date is parsed from the session folder name (`YYYY-MM-DD…` or `YYYYMMDD…`).
+Each session needs a date. `ambiscape analyze` writes one into
+`summary.json` (from the recording's BWF timestamp); when a summary lacks a
+date, it is parsed from the session folder name (`YYYY-MM-DD…` or `YYYYMMDD…`).
 
 ## In a notebook
 

@@ -2129,6 +2129,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#ambiscape.analysis.floor_suspicion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        floor_suspicion
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#ambiscape.analysis.circular_stats" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4957,6 +4968,17 @@
     <span class="md-ellipsis">
       
         decay_metrics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.analysis.floor_suspicion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        floor_suspicion
       
     </span>
   </a>
@@ -9393,51 +9415,50 @@ Returns <code>{band: {"T60", "T20", "T30", "EDT", "C50", "C80", "D50",
 <div class="doc doc-object doc-function">
 
 
-<h2 id="ambiscape.analysis.circular_stats" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">circular_stats</span><span class="p">(</span><span class="n">az_deg</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<h2 id="ambiscape.analysis.floor_suspicion" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">floor_suspicion</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">chunk_s</span><span class="o">=</span><span class="mf">300.0</span><span class="p">,</span> <span class="n">pct</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">spread_thresh_db</span><span class="o">=</span><span class="n">FLOOR_SPREAD_THRESH_DB</span><span class="p">,</span> <span class="n">min_chunks</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">hf_min_hz</span><span class="o">=</span><span class="mf">2000.0</span><span class="p">)</span></code>
 
 </h2>
 
 
     <div class="doc doc-contents ">
 
-        <p>Energy-weighted circular mean (deg) and resultant length R.</p>
+        <p>Flag high-frequency band floors that look like recorder self-noise.</p>
+<p>A genuine room background breathes: its low-percentile level moves with
+the day, the weather and the building. A microphone's self-noise floor
+does not — it is abnormally flat over time (and typically spectrally
+smooth). In the SINS sensor-network corpus the 4–8 kHz floor of a
+living room is flat to 0.8 dB across a full week (0.56 dB between six
+separate nights), while every band below 1 kHz varies by 2.4–5.3 dB
+over the same nights: the top of the spectrum is the instrument, and
+any L90-derived descriptor weighted towards it (LA90 in particular)
+measures the recorder rather than the room.</p>
+<p>The check works on the cached 1 s octave-band powers: the session is
+cut into <code>chunk_s</code> chunks, each chunk's <code>pct</code>-percentile band level
+is that chunk's floor, and the temporal spread of the floor is taken as
+the median minus the 5th-percentile chunk floor — a low-tail statistic,
+so chunks whose floor is raised by activity (television, dishes) do not
+hide a pinned quiet-time floor. A band centred at or above
+<code>hf_min_hz</code> whose spread is below <code>spread_thresh_db</code> is suspect.
+The 1.5 dB default sits between the SINS self-noise band (≤ 0.8 dB
+over a week) and the quietest genuinely acoustic bands there
+(≥ 2.4 dB), with at least 0.7 dB of margin to each side. Bands with no
+content below the Nyquist frequency, and sessions shorter than
+<code>min_chunks</code> chunks (30 min at the defaults), are never flagged.</p>
+<p>This is an annotation, not a correction: no descriptor value changes.
+Returns <code>floor_suspect</code> (bool), the affected band range
+<code>floor_suspect_lo_hz</code>/<code>floor_suspect_hi_hz</code> (band edges, Hz), and
+<code>floor_spread_db</code> (the smallest spread among the flagged bands);
+the last three are None when nothing is flagged.</p>
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">144</span>
-<span class="normal">145</span>
-<span class="normal">146</span>
-<span class="normal">147</span>
-<span class="normal">148</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">circular_stats</span><span class="p">(</span><span class="n">az_deg</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Energy-weighted circular mean (deg) and resultant length R.&quot;&quot;&quot;</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">.circstats</span><span class="w"> </span><span class="kn">import</span> <span class="n">mean_resultant</span>
-    <span class="n">mu</span><span class="p">,</span> <span class="n">R</span> <span class="o">=</span> <span class="n">mean_resultant</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">az_deg</span><span class="p">,</span> <span class="nb">float</span><span class="p">)),</span> <span class="n">weights</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">mu</span><span class="p">)),</span> <span class="n">R</span>
-</code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-<h2 id="ambiscape.analysis.summarize" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">summarize</span><span class="p">(</span><span class="n">F</span><span class="p">)</span></code>
-
-</h2>
-
-
-    <div class="doc doc-contents ">
-
-        <p>Session descriptor dict from concatenated features (see features.load_features).</p>
-
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">151</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
 <span class="normal">152</span>
 <span class="normal">153</span>
 <span class="normal">154</span>
@@ -9490,7 +9511,184 @@ Returns <code>{band: {"T60", "T20", "T30", "EDT", "C50", "C80", "D50",
 <span class="normal">201</span>
 <span class="normal">202</span>
 <span class="normal">203</span>
-<span class="normal">204</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">summarize</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">floor_suspicion</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">chunk_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">300.0</span><span class="p">,</span> <span class="n">pct</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+                    <span class="n">spread_thresh_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">FLOOR_SPREAD_THRESH_DB</span><span class="p">,</span>
+                    <span class="n">min_chunks</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">hf_min_hz</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2000.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Flag high-frequency band floors that look like recorder self-noise.</span>
+
+<span class="sd">    A genuine room background breathes: its low-percentile level moves with</span>
+<span class="sd">    the day, the weather and the building. A microphone&#39;s self-noise floor</span>
+<span class="sd">    does not — it is abnormally flat over time (and typically spectrally</span>
+<span class="sd">    smooth). In the SINS sensor-network corpus the 4–8 kHz floor of a</span>
+<span class="sd">    living room is flat to 0.8 dB across a full week (0.56 dB between six</span>
+<span class="sd">    separate nights), while every band below 1 kHz varies by 2.4–5.3 dB</span>
+<span class="sd">    over the same nights: the top of the spectrum is the instrument, and</span>
+<span class="sd">    any L90-derived descriptor weighted towards it (LA90 in particular)</span>
+<span class="sd">    measures the recorder rather than the room.</span>
+
+<span class="sd">    The check works on the cached 1 s octave-band powers: the session is</span>
+<span class="sd">    cut into ``chunk_s`` chunks, each chunk&#39;s ``pct``-percentile band level</span>
+<span class="sd">    is that chunk&#39;s floor, and the temporal spread of the floor is taken as</span>
+<span class="sd">    the median minus the 5th-percentile chunk floor — a low-tail statistic,</span>
+<span class="sd">    so chunks whose floor is raised by activity (television, dishes) do not</span>
+<span class="sd">    hide a pinned quiet-time floor. A band centred at or above</span>
+<span class="sd">    ``hf_min_hz`` whose spread is below ``spread_thresh_db`` is suspect.</span>
+<span class="sd">    The 1.5 dB default sits between the SINS self-noise band (≤ 0.8 dB</span>
+<span class="sd">    over a week) and the quietest genuinely acoustic bands there</span>
+<span class="sd">    (≥ 2.4 dB), with at least 0.7 dB of margin to each side. Bands with no</span>
+<span class="sd">    content below the Nyquist frequency, and sessions shorter than</span>
+<span class="sd">    ``min_chunks`` chunks (30 min at the defaults), are never flagged.</span>
+
+<span class="sd">    This is an annotation, not a correction: no descriptor value changes.</span>
+<span class="sd">    Returns ``floor_suspect`` (bool), the affected band range</span>
+<span class="sd">    ``floor_suspect_lo_hz``/``floor_suspect_hi_hz`` (band edges, Hz), and</span>
+<span class="sd">    ``floor_spread_db`` (the smallest spread among the flagged bands);</span>
+<span class="sd">    the last three are None when nothing is flagged.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">OCT_CENTERS</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;floor_suspect&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;floor_suspect_lo_hz&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+           <span class="s2">&quot;floor_suspect_hi_hz&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;floor_spread_db&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+    <span class="n">op</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;oct_pow&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">op</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">op</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">out</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">chunk_s</span><span class="p">)))</span>          <span class="c1"># 1 s frames per chunk</span>
+    <span class="n">nchunk</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">op</span><span class="p">)</span> <span class="o">//</span> <span class="n">rows</span>
+    <span class="k">if</span> <span class="n">nchunk</span> <span class="o">&lt;</span> <span class="n">min_chunks</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">out</span>
+    <span class="n">lvl</span> <span class="o">=</span> <span class="n">db</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">op</span><span class="p">[:</span><span class="n">nchunk</span> <span class="o">*</span> <span class="n">rows</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
+    <span class="n">floors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">lvl</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">nchunk</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">lvl</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                           <span class="n">pct</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>         <span class="c1"># (nchunk, nband)</span>
+    <span class="n">spread</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">floors</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+              <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">floors</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+    <span class="n">centers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">OCT_CENTERS</span><span class="p">,</span> <span class="nb">float</span><span class="p">)[:</span><span class="n">lvl</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+    <span class="n">nyq</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">,</span> <span class="mi">48000</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">med</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">floors</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">flagged</span> <span class="o">=</span> <span class="p">((</span><span class="n">centers</span> <span class="o">&gt;=</span> <span class="n">hf_min_hz</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">centers</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">nyq</span><span class="p">)</span>
+               <span class="o">&amp;</span> <span class="p">(</span><span class="n">spread</span> <span class="o">&lt;</span> <span class="n">spread_thresh_db</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">med</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mf">119.0</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">flagged</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">flagged</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s2">&quot;floor_suspect&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;floor_suspect_lo_hz&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">centers</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">))),</span>
+            <span class="s2">&quot;floor_suspect_hi_hz&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">centers</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+                                                 <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">nyq</span><span class="p">))),</span>
+            <span class="s2">&quot;floor_spread_db&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">spread</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()),</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="p">})</span>
+    <span class="k">return</span> <span class="n">out</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ambiscape.analysis.circular_stats" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">circular_stats</span><span class="p">(</span><span class="n">az_deg</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Energy-weighted circular mean (deg) and resultant length R.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">circular_stats</span><span class="p">(</span><span class="n">az_deg</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Energy-weighted circular mean (deg) and resultant length R.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.circstats</span><span class="w"> </span><span class="kn">import</span> <span class="n">mean_resultant</span>
+    <span class="n">mu</span><span class="p">,</span> <span class="n">R</span> <span class="o">=</span> <span class="n">mean_resultant</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">az_deg</span><span class="p">,</span> <span class="nb">float</span><span class="p">)),</span> <span class="n">weights</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">mu</span><span class="p">)),</span> <span class="n">R</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ambiscape.analysis.summarize" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">summarize</span><span class="p">(</span><span class="n">F</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Session descriptor dict from concatenated features (see features.load_features).</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">summarize</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Session descriptor dict from concatenated features (see features.load_features).&quot;&quot;&quot;</span>
     <span class="n">fast</span><span class="p">,</span> <span class="n">fasta</span> <span class="o">=</span> <span class="n">F</span><span class="p">[</span><span class="s2">&quot;fast_db&quot;</span><span class="p">],</span> <span class="n">F</span><span class="p">[</span><span class="s2">&quot;fast_dba&quot;</span><span class="p">]</span>
     <span class="n">dt</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">F</span><span class="p">[</span><span class="s2">&quot;t_fast&quot;</span><span class="p">])))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">F</span><span class="p">[</span><span class="s2">&quot;t_fast&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mf">0.125</span>
@@ -9543,6 +9741,7 @@ Returns <code>{band: {"T60", "T20", "T30", "EDT", "C50", "C80", "D50",
         <span class="s2">&quot;n_events&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">events</span><span class="p">),</span>
         <span class="s2">&quot;emergence_db&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">laeq</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">fasta</span><span class="p">,</span> <span class="mi">10</span><span class="p">)),</span> <span class="mi">1</span><span class="p">),</span>
         <span class="s2">&quot;intermittency_ratio_pct&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">intermittency_ratio</span><span class="p">(</span><span class="n">fasta</span><span class="p">,</span> <span class="n">dt</span><span class="p">),</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="o">**</span><span class="n">floor_suspicion</span><span class="p">(</span><span class="n">F</span><span class="p">),</span>
     <span class="p">}</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -9570,47 +9769,47 @@ Returns {band: (T60, dynamic_range_db)}.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">207</span>
-<span class="normal">208</span>
-<span class="normal">209</span>
-<span class="normal">210</span>
-<span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span>
-<span class="normal">214</span>
-<span class="normal">215</span>
-<span class="normal">216</span>
-<span class="normal">217</span>
-<span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
-<span class="normal">225</span>
-<span class="normal">226</span>
-<span class="normal">227</span>
-<span class="normal">228</span>
-<span class="normal">229</span>
-<span class="normal">230</span>
-<span class="normal">231</span>
-<span class="normal">232</span>
-<span class="normal">233</span>
-<span class="normal">234</span>
-<span class="normal">235</span>
-<span class="normal">236</span>
-<span class="normal">237</span>
-<span class="normal">238</span>
-<span class="normal">239</span>
-<span class="normal">240</span>
-<span class="normal">241</span>
-<span class="normal">242</span>
-<span class="normal">243</span>
-<span class="normal">244</span>
-<span class="normal">245</span>
-<span class="normal">246</span>
-<span class="normal">247</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">decay_time</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bands</span><span class="o">=</span><span class="p">((</span><span class="mi">250</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span> <span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">decay_time</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bands</span><span class="o">=</span><span class="p">((</span><span class="mi">250</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span> <span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>
                <span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">),</span> <span class="p">(</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">),</span> <span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="mi">8000</span><span class="p">)))</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;T60 estimates from an impulse via truncated Schroeder integration.</span>
 
@@ -9680,42 +9879,42 @@ several identical "representative" segments.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">250</span>
-<span class="normal">251</span>
-<span class="normal">252</span>
-<span class="normal">253</span>
-<span class="normal">254</span>
-<span class="normal">255</span>
-<span class="normal">256</span>
-<span class="normal">257</span>
-<span class="normal">258</span>
-<span class="normal">259</span>
-<span class="normal">260</span>
-<span class="normal">261</span>
-<span class="normal">262</span>
-<span class="normal">263</span>
-<span class="normal">264</span>
-<span class="normal">265</span>
-<span class="normal">266</span>
-<span class="normal">267</span>
-<span class="normal">268</span>
-<span class="normal">269</span>
-<span class="normal">270</span>
-<span class="normal">271</span>
-<span class="normal">272</span>
-<span class="normal">273</span>
-<span class="normal">274</span>
-<span class="normal">275</span>
-<span class="normal">276</span>
-<span class="normal">277</span>
-<span class="normal">278</span>
-<span class="normal">279</span>
-<span class="normal">280</span>
-<span class="normal">281</span>
-<span class="normal">282</span>
-<span class="normal">283</span>
-<span class="normal">284</span>
-<span class="normal">285</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pick_segments</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">seg_s</span><span class="o">=</span><span class="mf">600.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pick_segments</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">seg_s</span><span class="o">=</span><span class="mf">600.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Suggest representative windows: quietest, most active, median-typical,</span>
 <span class="sd">    and (if present) the strongest state transition.</span>
 

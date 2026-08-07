@@ -583,6 +583,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#sensor-noise-floor-guard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sensor-noise-floor guard
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#modulation-profile-modspec" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2034,6 +2045,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#sensor-noise-floor-guard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sensor-noise-floor guard
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#modulation-profile-modspec" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2215,6 +2237,29 @@ no audio pass. On top of it:</p>
 </ul>
 <p><code>analyze</code> appends <code>fg_fraction_median</code>, <code>fg_fraction_p90</code>,
 <code>spectral_events_per_min</code>, and <code>spectral_event_median_dur_s</code> to the summary.</p>
+<h2 id="sensor-noise-floor-guard">Sensor-noise-floor guard</h2>
+<p>A low-percentile level can measure the recorder rather than the room. In
+the SINS sensor-network corpus the 4–8 kHz background floor of a living
+room is flat to 0.8 dB across a full week (0.56 dB between six separate
+nights), while every band below 1 kHz varies by 2.4–5.3 dB over the same
+nights: the top of the spectrum is microphone self-noise, and A-weighting
+emphasises exactly that region, so LA90 there measures the instrument.</p>
+<p><code>analysis.floor_suspicion</code> (run as part of every <code>summarize</code>) checks each
+octave band centred at 2 kHz and above: the session is cut into 300 s
+chunks, each chunk's 10th-percentile band level is its floor, and the
+temporal spread is taken as the median minus the 5th-percentile chunk
+floor — a low-tail statistic, so chunks whose floor is raised by activity
+do not hide a pinned quiet-time floor. A spread under <strong>1.5 dB</strong> flags the
+band: the threshold sits between the SINS self-noise band (≤ 0.8 dB) and
+the quietest genuinely acoustic bands there (≥ 2.4 dB), with at least
+0.7 dB of margin to each side. <code>summary.json</code> gains <code>floor_suspect</code>
+(boolean), the affected band range <code>floor_suspect_lo_hz</code> /
+<code>floor_suspect_hi_hz</code>, and <code>floor_spread_db</code>; when the flag fires, the
+session README carries a warning that L90-derived descriptors in that
+range may reflect the instrument, not the room.</p>
+<p>This is an annotation, not a correction — no descriptor value changes.
+Sessions shorter than six chunks (30 min) are never flagged, and bands
+with no content below the Nyquist frequency are excluded.</p>
 <h2 id="modulation-profile-modspec">Modulation profile (<code>modspec</code>)</h2>
 <p>Environmental rhythm at three scales from cached envelopes: micro
 (0.5–20 Hz strike/speech-rate rhythm, from the 20 ms <code>env_hi</code> envelope),
@@ -2284,7 +2329,7 @@ typical, and (when a &gt;6 dB state change exists) the transition.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 6, 2026 15:21:37 UTC">August 6, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 7, 2026 05:40:32 UTC">August 7, 2026</span>
   </span>
 
     

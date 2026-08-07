@@ -1,7 +1,8 @@
 """Draft-annotation generator.
 
 Pre-fills ``annotations.draft.json`` for a session from its cached features:
-steady level regimes become keynote candidates (with spans), detected
+steady level regimes are clustered into a handful of keynote *beds* (one
+object per ~6 dB level band, carrying all of that band's spans), detected
 transient events become one unclassified "figure" object whose entries carry
 listening hints (clock time, exceedance, azimuth/elevation, diffuseness).
 ``mass`` and ``facture`` — the two Schaeffer axes the taxonomy map plots —
@@ -23,6 +24,7 @@ from scipy.ndimage import median_filter
 
 from .analysis import detect_events, db
 from .figures import _gap_split
+from .taxonomy import BED_BAND_DB, MAX_BED_LANES, bed_name
 
 MIN_STATE_S = 120.0     # regimes shorter than this are merged away
 STATE_STEP_DB = 5.0     # level change that separates regimes
@@ -87,6 +89,32 @@ def _labels():
     for n in count(1):
         for letters in product(ascii_uppercase, repeat=n):
             yield "".join(letters)
+
+
+def _beds(regs: list) -> list:
+    """Cluster (start, end, level) regimes into keynote beds.
+
+    Same rule as :func:`ambiscape.taxonomy.merge_keynote_beds`: sort by
+    level, band greedily at ``BED_BAND_DB``, keep the ``MAX_BED_LANES``
+    longest beds by total duration and pool the remainder into one "other"
+    bed — so a 60-regime domestic day drafts as a handful of objects, not 60.
+    """
+    beds: list[dict] = []
+    for a, b, lvl in sorted(regs, key=lambda r: r[2]):
+        if beds and lvl - beds[-1]["lo"] <= BED_BAND_DB:
+            beds[-1]["regs"].append((a, b, lvl))
+            beds[-1]["hi"] = lvl
+        else:
+            beds.append({"lo": lvl, "hi": lvl, "regs": [(a, b, lvl)]})
+    beds.sort(key=lambda bd: -sum(b - a for a, b, _ in bd["regs"]))
+    keep, spill = beds[:MAX_BED_LANES], beds[MAX_BED_LANES:]
+    if spill:
+        pooled = [r for bd in spill for r in bd["regs"]]
+        keep.append({"lo": min(r[2] for r in pooled),
+                     "hi": max(r[2] for r in pooled),
+                     "regs": pooled, "other": True})
+    keep.sort(key=lambda bd: -(bd["lo"] + bd["hi"]) / 2)
+    return keep
 
 
 MAX_TAGGED = 40  # PANNs windows per draft (model runs ~1-3 s each on CPU)
@@ -155,28 +183,48 @@ def draft_annotations(F: dict, folder: str | Path,
     tag = _tagger(session)
     n_tagged = 0
 
-    # --- steady-state keynote candidates, per contiguous take-group
-    label = _labels()
+    # --- steady-state keynote beds: regimes clustered by level similarity
+    regs = []
     for i0, i1 in _gap_split(F["t"]):
         m = (tf >= F["t"][i0]) & (tf <= F["t"][i1 - 1] + 1)
-        for a, b, lvl in _regimes(tf[m], fast[m], dt):
-            hint = schaeffer_hint(F, a, b)
-            obj = {
-                "name": f"steady state {next(label)} ({lvl:.0f} dBFS)",
-                "kind": "keynote",
-                "mass": hint["mass"], "facture": hint["facture"],
-                "label": "AUTO — mass/facture proposed from features; "
-                         f"listen to confirm (median {lvl:.0f} dBFS)",
-                "spans": [[_fmt(a), _fmt(b)]],
-            }
-            if "_schaeffer" in hint:
-                obj["_schaeffer"] = hint["_schaeffer"]
-            if tag and n_tagged < MAX_TAGGED:
-                tags = tag((a + b) / 2)
-                n_tagged += 1
-                if tags:
-                    obj["_tags"] = tags
-            objects.append(obj)
+        regs += _regimes(tf[m], fast[m], dt)
+    for bed in _beds(regs):
+        spans = sorted(bed["regs"])
+        n = len(spans)
+        med = float(np.median([lvl for _, _, lvl in spans]))
+        # duration-weighted modal mass, facture from the bed's session share
+        hints = [schaeffer_hint(F, a, b) for a, b, _ in spans]
+        w: dict[str, float] = {}
+        for (a, b, _), h in zip(spans, hints):
+            w[h["mass"]] = w.get(h["mass"], 0) + (b - a)
+        mass = max(w, key=w.get)
+        total = float(F["t"][-1] - F["t"][0]) if len(F["t"]) > 1 else 1.0
+        share = sum(b - a for a, b, _ in spans) / max(total, 1.0)
+        obj = {
+            "name": bed_name(bed["lo"], bed["hi"], n)
+                    if not bed.get("other") else f"other beds ({n} spans)",
+            "kind": "keynote", "mass": mass,
+            "facture": "unlimited" if share >= 0.8 else "sustained",
+            "spans": [[_fmt(a), _fmt(b)] for a, b, _ in spans],
+            "_auto": True,
+            "_level_dbfs": round(med, 1),
+        }
+        flats = [h["_schaeffer"]["flatness"] for h in hints
+                 if "_schaeffer" in h]
+        if flats:
+            obj["_schaeffer"] = {"flatness": round(float(np.median(flats)), 3),
+                                 "level_band_db": [round(bed["lo"], 1),
+                                                   round(bed["hi"], 1)]}
+        if tag and n_tagged < MAX_TAGGED:
+            a, b, _ = max(spans, key=lambda r: r[1] - r[0])
+            tags = tag((a + b) / 2)
+            n_tagged += 1
+            if tags:
+                obj["_tags"] = tags
+                top = max(tags, key=lambda t: t["p"])
+                obj["label"] = (f"machine hint: {top['label']} "
+                                "(PANNs, unverified)")
+        objects.append(obj)
 
     # --- transient events with listening hints
     events, _bg = detect_events(fast, dt)
@@ -213,9 +261,12 @@ def draft_annotations(F: dict, folder: str | Path,
 
     doc = {
         "_instructions": (
-            "DRAFT generated by ambiscape. mass/facture are auto-proposed "
-            "from features (evidence under _schaeffer) — confirm or correct "
-            "them by ear. For each object also set kind (keynote|signal|"
+            "DRAFT generated by ambiscape. Steady regimes are clustered into "
+            "keynote beds (~6 dB level bands; all spans of a band on one "
+            "object); mass/facture are auto-proposed from features (evidence "
+            "under _schaeffer) and any 'machine hint' label is an unverified "
+            "PANNs tag — confirm or correct everything by ear. For each "
+            "object also set kind (keynote|signal|"
             "soundmark|figure) — mass is (tonic|tonic-complex|complex|noise), "
             "facture (impulse|iteration|sustained|unlimited); rename it; "
             "split 'events (unclassified)' "

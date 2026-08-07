@@ -51,6 +51,28 @@ been carrying feature work throughout a pre-1.0 life.
   every clip onto one meaningless overlapping timeline. Session-time positions are deterministic
   and reproducible; clock-of-day readings are documented as meaningless for these takes.
 
+### Changed
+- `draft` clusters steady-state regimes into keynote *beds* (~6 dB level bands): one object per
+  bed carrying all of that band's spans, named `"quiet bed, -60 to -54 dBFS, 23 spans"`, the eight
+  longest beds kept and the remainder pooled into "other beds". A full domestic day drafts as a
+  handful of keynote candidates instead of 60+ per-regime objects. Beds carry `_level_dbfs` and
+  `_auto`; where PANNs tags are available the dominant tag of the bed's longest span becomes a
+  `machine hint: … (PANNs, unverified)` label. The per-object
+  "AUTO — mass/facture proposed…" boilerplate label is gone.
+- `taxonomy` timeline (`schafer_timeline`): machine-drafted keynote regimes are merged at render
+  time into the same level-banded bed lanes (`merge_keynote_beds`), capped at eight beds plus
+  "other beds", so figure height is bounded at any regime count — a real SINS domestic day now
+  renders as a handful of bed lanes instead of a ~4000 px staircase of 60+ mostly empty lanes.
+  Hand-authored objects always keep one lane each. Figures with machine-drafted content carry a
+  single "machine-drafted labels; listen to confirm" note under the title.
+
+### Fixed
+- `taxonomy` map (`schaeffer_map`): per-point machine boilerplate is never printed (it overplotted
+  into illegible smears on drafted sessions); point labels appear only on maps with few objects or
+  for points alone in their grid cell. Cells with more than five objects — whose extra points were
+  previously silently dropped by the fixed offset list — now draw every object with deterministic
+  jitter, count-scaled marker size, and an `n=` count in the cell corner.
+
 ## [0.24.1] — 2026-08-07
 
 ### Fixed

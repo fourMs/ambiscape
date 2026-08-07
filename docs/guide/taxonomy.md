@@ -40,9 +40,16 @@ ambiscape taxonomy <folder>   # machine renders
 
 From the cached features, `draft` pre-fills:
 
-- steady-state keynote candidates: level regimes found by change-point detection with a fixed
+- steady-state keynote *beds*: level regimes found by change-point detection with a fixed
   per-regime reference (median of the regime's first two minutes) and a two-minute confirmation
-  window, so a slammed door does not split a regime but switching off the ventilation does;
+  window, so a slammed door does not split a regime but switching off the ventilation does. The
+  regimes are then clustered by level similarity into beds (~6 dB bands), one draft object per bed
+  carrying all of that band's spans, named by the bed's character and extent
+  (`"quiet bed, -60 to -54 dBFS, 23 spans"`); the eight longest beds are kept and any remainder is
+  pooled into one "other beds" object. A full domestic day therefore drafts as a handful of keynote
+  candidates rather than one object per regime. With the `[ml]` extra, each bed also carries a
+  `machine hint:` label with the dominant PANNs tag of its longest span, explicitly marked
+  unverified;
 - detected events, each with listening hints: clock time, exceedance, level, azimuth and elevation,
   diffuseness, and, with the `[ml]` extra, AudioSet tag suggestions from PANNs. Treat those as
   suggestions to confirm by ear, not as ground truth.
@@ -96,15 +103,27 @@ The Schaeffer map places every object on the facture by mass plane, which is his
 alone. It is coloured by Schafer's `kind` only as a convenience, so that you can see whether the two
 schemes happen to agree in your corpus. Keynotes tend to crowd the sustained and unlimited columns
 and signals the impulse and iteration columns, but that is a finding about the material rather than
-anything the classification enforces.
+anything the classification enforces. Points carry text only where it stays legible: on maps with
+few objects every point is labelled, on crowded maps only points that sit alone in their grid cell
+(the notable outliers) are. Cells with more objects than fit the regular layout switch to jittered,
+smaller points with an `n=` count in the cell corner. Machine-drafted boilerplate is never printed
+per point; a single "machine-drafted labels; listen to confirm" note under the title covers every
+drafted object.
 
 ![Schaeffer map: annotated objects placed on the facture by mass plane, coloured by Schafer soundscape function.](../img/schaeffer_map.png)
 
-The Schafer timeline gives one lane per object on the real session clock: keynote bars,
-signal and soundmark event markers, lo-fi states shaded, and gap-aware panels for multi-take
+The Schafer timeline gives one lane per hand-authored object on the real session clock: keynote
+bars, signal and soundmark event markers, lo-fi states shaded, and gap-aware panels for multi-take
 sessions. This is where his question is answered, since a sound's function is a claim about how it
 sits in time and in a place. It makes statements like "the community soundmark is audible only in
 hi-fi windows" directly visible.
+
+Machine-drafted steady-state regimes are the one exception to one-lane-per-object: when an
+annotation file still contains many of them (an unedited draft, or an older per-regime one), they
+are merged at render time into keynote-bed lanes by the same ~6 dB level banding the draft stage
+uses — at most eight bed lanes plus "other beds", each labelled with its level range and span count
+— so the figure height stays bounded however many regimes a long session proposes. Hand-authored
+objects are never merged.
 
 ![Schafer timeline: one lane per object on the session clock, with keynote bars, signal and soundmark event markers, and shaded lo-fi states.](../img/schafer_timeline.png)
 

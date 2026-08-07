@@ -54,17 +54,97 @@ def _many_regime_F(n_regimes=20, regime_s=300.0, dt=0.5):
             "diffuse": np.full(n, 0.5)}
 
 
-def test_draft_survives_more_than_16_regimes(tmp_path):
-    # regression: a 16-letter label iterator raised StopIteration here
+def test_draft_clusters_regimes_into_beds(tmp_path):
+    # 20 alternating regimes at two levels must draft as two keynote beds
+    # (all spans kept), not one object per regime
+    from ambiscape.taxonomy import MAX_BED_LANES, render
     out = draft_annotations(_many_regime_F(), tmp_path)
     doc = json.loads(out.read_text())
     keynotes = [o for o in doc["objects"] if o["kind"] == "keynote"]
-    assert len(keynotes) > 16
+    assert 1 <= len(keynotes) <= MAX_BED_LANES + 1
+    assert sum(len(o["spans"]) for o in keynotes) > 16  # every regime kept
     names = [o["name"] for o in keynotes]
-    assert len(set(names)) == len(names)  # every regime uniquely labelled
-    # and the taxonomy figures render from the oversized draft
-    from ambiscape.taxonomy import render
+    assert len(set(names)) == len(names)
+    assert all("bed" in n and "spans" in n for n in names)
+    # no per-object boilerplate label
+    assert not any(str(o.get("label", "")).startswith("AUTO")
+                   for o in doc["objects"])
+    # and the taxonomy figures render from the draft
     doc["states"] = []  # the human-edit step drops the TODO template
     (tmp_path / "annotations.json").write_text(json.dumps(doc))
     smap, timeline = render(tmp_path)
     assert smap.exists() and timeline.exists()
+
+
+def _auto_objects(n=65, seed=7):
+    """Synthetic machine-drafted regimes shaped like a real SINS draft."""
+    rng = np.random.default_rng(seed)
+    labels = itertools.islice(_labels(), n)
+    objs = []
+    for i, lab in enumerate(labels):
+        lvl = float(rng.uniform(-62, -28))
+        objs.append({
+            "name": f"steady state {lab} ({lvl:.0f} dBFS)",
+            "kind": "keynote", "mass": "complex", "facture": "sustained",
+            "label": "AUTO — mass/facture proposed from features; "
+                     f"listen to confirm (median {lvl:.0f} dBFS)",
+            "spans": [[i * 300.0, i * 300.0 + 280.0]],
+        })
+    return objs
+
+
+def test_merge_keynote_beds_bounded():
+    from ambiscape.taxonomy import MAX_BED_LANES, merge_keynote_beds
+    objs = _auto_objects()
+    merged = merge_keynote_beds(objs)
+    keynotes = [o for o in merged if o["kind"] == "keynote"]
+    assert len(keynotes) <= MAX_BED_LANES + 1          # beds + "other"
+    assert sum(len(o["spans"]) for o in keynotes) == 65  # no span lost
+    assert all("spans" in o["name"] for o in keynotes)   # count in the label
+    # beds respect the ~6 dB banding rule
+    import re
+    for o in keynotes:
+        m = re.match(r".*?(-\d+) to (-\d+) dBFS", o["name"])
+        if m:
+            assert float(m.group(2)) - float(m.group(1)) <= 6.5
+
+
+def test_hand_annotations_keep_their_lanes():
+    from ambiscape.taxonomy import merge_keynote_beds
+    objs = [{"name": "air-pump drone", "kind": "keynote",
+             "spans": [[0, 100]]},
+            {"name": "church bells", "kind": "soundmark",
+             "events": [50]}]
+    assert merge_keynote_beds(objs) == objs
+
+
+def test_many_regime_session_renders_bounded(tmp_path):
+    # regression: 60+ regimes gave a ~4000 px staircase timeline and a map
+    # smeared with per-point AUTO boilerplate
+    import matplotlib.pyplot as plt
+    from ambiscape.taxonomy import schaeffer_map, schafer_timeline
+    ann = {"objects": _auto_objects()
+           + [{"name": "events (unclassified)", "kind": "figure",
+               "events": [123.0, 4567.0]}]}
+    tl = tmp_path / "schafer_timeline.png"
+    schafer_timeline(ann, tl, title="synthetic")
+    assert plt.imread(tl).shape[0] < 1600  # bounded height, was ~4000 px
+    smap = tmp_path / "schaeffer_map.png"
+    schaeffer_map(ann, smap, title="synthetic")
+    assert smap.exists()
+
+
+def test_map_point_labels_never_boilerplate():
+    from ambiscape.taxonomy import _point_label
+    auto = {"name": "steady state A (-58 dBFS)", "kind": "keynote",
+            "label": "AUTO — mass/facture proposed from features; "
+                     "listen to confirm (median -58 dBFS)"}
+    # crowded map, crowded cell: no per-point text at all
+    assert _point_label(auto, cell_n=9, n_placed=60) is None
+    # crowded map, cell singleton (outlier): named, but never the boilerplate
+    assert _point_label(auto, cell_n=1, n_placed=60) == \
+        "steady state A (-58 dBFS)"
+    # small map: hand labels drawn as before
+    hand = {"name": "bells", "label": "cathedral bells (hourly)"}
+    assert _point_label(hand, cell_n=2, n_placed=4) == \
+        "cathedral bells (hourly)"

@@ -22,8 +22,10 @@ interpretive act. This module turns that interpretation into two figures, one pe
 - ``schaeffer_map``  — objects on the facture x mass plane, which is Schaeffer's question. It is
   coloured by Schafer's ``kind`` only so you can see whether the two schemes happen to agree in a
   given corpus; the colouring carries no classificatory weight;
-- ``schafer_timeline`` — one lane per object on the session clock, keynote spans as bars, events as
-  markers, lo-fi states shaded. Hi-fi and lo-fi are Schafer's terms too.
+- ``schafer_timeline`` — one lane per hand-authored object on the session clock, keynote spans as
+  bars, events as markers, lo-fi states shaded. Hi-fi and lo-fi are Schafer's terms too.
+  Machine-drafted steady-state regimes are merged into a bounded set of keynote-bed lanes
+  (see :func:`merge_keynote_beds`) so the figure height does not grow with the regime count.
 
 Annotation schema (JSON; YAML accepted if PyYAML is installed)::
 
@@ -52,6 +54,7 @@ after the session's first day (or plain seconds as a number).
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import matplotlib
@@ -73,6 +76,11 @@ MASS_LABELS = ["tonic\n(pitched)", "tonic-complex\n(pitch + noise)",
 KIND_COLOR = {"keynote": BLUE, "signal": GREEN, "soundmark": MAGENTA,
               "figure": MUT}
 LOFI = "#f0efec"
+
+BED_BAND_DB = 6.0     # level band that groups steady regimes into one bed
+MAX_BED_LANES = 8     # keynote-bed lanes on the timeline; the rest -> "other"
+MAX_POINT_LABELS = 12  # above this, only cell-singleton outliers get map text
+AUTO_NOTE = "machine-drafted labels; listen to confirm"
 
 
 def parse_time(x) -> float:
@@ -104,6 +112,99 @@ def _marker(obj) -> str:
     return "o"
 
 
+def _is_auto(o: dict) -> bool:
+    """Machine-drafted object (from ``draft``), as opposed to hand-authored."""
+    return bool(o.get("_auto")) \
+        or str(o.get("label", "")).startswith("AUTO") \
+        or str(o.get("name", "")).startswith("steady state ")
+
+
+def _level_of(o: dict):
+    """The object's median level in dBFS, or None if not recoverable."""
+    if "_level_dbfs" in o:
+        return float(o["_level_dbfs"])
+    for s in (o.get("name", ""), o.get("label", "")):
+        m = re.search(r"(-\d+(?:\.\d+)?)\s*dBFS", str(s))
+        if m:
+            return float(m.group(1))
+    return None
+
+
+def bed_name(lo: float, hi: float, n_spans: int) -> str:
+    """Human name for a keynote bed: 'quiet bed, -60 to -54 dBFS, 23 spans'."""
+    mid = (lo + hi) / 2
+    desc = ("quiet bed" if mid <= -50 else
+            "moderate bed" if mid <= -38 else "loud bed")
+    lo_i, hi_i = round(lo), round(hi)
+    rng = f"{lo_i} dBFS" if lo_i == hi_i else f"{lo_i} to {hi_i} dBFS"
+    return f"{desc}, {rng}, {n_spans} span{'s' if n_spans != 1 else ''}"
+
+
+def _spans_s(o: dict):
+    return [(parse_time(a), parse_time(b)) for a, b in o.get("spans", [])]
+
+
+def merge_keynote_beds(objects: list, max_beds: int = MAX_BED_LANES) -> list:
+    """Cluster machine-drafted keynote regimes into level beds for the timeline.
+
+    A domestic day yields 60+ steady-state regimes; one lane each gave a
+    mostly-empty staircase thousands of pixels tall. Here auto-drafted
+    keynotes (and only those — hand-authored objects always keep their own
+    lane) are grouped into beds of similar level (~``BED_BAND_DB``-wide
+    bands), one lane per bed carrying all of its spans, capped at
+    ``max_beds`` lanes by total duration with the remainder pooled into
+    "other beds". Returns the list unchanged when there is nothing to merge.
+    """
+    auto = [o for o in objects
+            if o.get("kind") == "keynote" and _is_auto(o)
+            and o.get("spans") and _level_of(o) is not None]
+    if len(auto) <= max_beds:
+        return list(objects)
+    beds: list[dict] = []
+    for o in sorted(auto, key=_level_of):
+        lv = _level_of(o)
+        if beds and lv - beds[-1]["lo"] <= BED_BAND_DB:
+            beds[-1]["objs"].append(o)
+            beds[-1]["hi"] = lv
+        else:
+            beds.append({"lo": lv, "hi": lv, "objs": [o]})
+
+    def dur(b):
+        return sum(t1 - t0 for o in b["objs"] for t0, t1 in _spans_s(o))
+
+    beds.sort(key=dur, reverse=True)
+    keep, spill = beds[:max_beds], beds[max_beds:]
+    merged = []
+    for b in sorted(keep, key=lambda b: -(b["lo"] + b["hi"]) / 2):
+        spans = [s for o in b["objs"] for s in o.get("spans", [])]
+        merged.append({"name": bed_name(b["lo"], b["hi"], len(spans)),
+                       "kind": "keynote", "spans": spans, "_auto": True})
+    if spill:
+        spans = [s for b in spill for o in b["objs"]
+                 for s in o.get("spans", [])]
+        merged.append({"name": f"other beds ({len(spans)} spans)",
+                       "kind": "keynote", "spans": spans, "_auto": True})
+    auto_ids = {id(o) for o in auto}
+    rest = [o for o in objects if id(o) not in auto_ids]
+    return merged + rest
+
+
+def _point_label(o: dict, cell_n: int, n_placed: int):
+    """Text to draw beside a map point, or None to leave it unlabelled.
+
+    Per-point text only where there are few points overall, or where a point
+    sits alone in its grid cell (a notable outlier). Machine boilerplate
+    ("AUTO — ...") is never drawn; the one ``AUTO_NOTE`` in the title covers
+    every drafted point.
+    """
+    if n_placed > MAX_POINT_LABELS and cell_n > 1:
+        return None
+    text = str(o.get("label", o["name"]))
+    if text.startswith("AUTO"):
+        text = str(o["name"])
+    return text
+
+
 def schaeffer_map(ann: dict, out_path, title=""):
     """Objects on the facture x mass grid, coloured by Schafer function."""
     with plt.rc_context(RC):
@@ -126,21 +227,35 @@ def schaeffer_map(ann: dict, out_path, title=""):
             key = (FACTURES.index(o["facture"]), MASSES.index(o["mass"]))
             cells.setdefault(key, []).append(o)
         offsets = [(0, .1), (-.18, -.12), (.18, -.12), (-.18, .3), (.18, .3)]
+        n_placed = sum(len(v) for v in cells.values())
         kinds_seen, bio_seen, ring_seen = set(), False, False
         for (x, y), objs in cells.items():
-            for o, (dx, dy) in zip(objs, offsets):
+            n = len(objs)
+            if n <= len(offsets):
+                pos = offsets[:n]
+                size, alpha = 170, 1.0
+            else:
+                # crowded cell: deterministic jitter, points shrunk, count shown
+                rng = np.random.default_rng(97 + 13 * x + 5 * y)
+                pos = rng.uniform(-0.33, 0.33, size=(n, 2))
+                size, alpha = max(40, int(850 / n)), 0.75
+                ax.annotate(f"n={n}", (x + 0.42, y - 0.4), ha="right",
+                            fontsize=8.5, color=SEC, zorder=4)
+            for o, (dx, dy) in zip(objs, pos):
                 ring = "soundmark" in o and o["kind"] != "soundmark"
                 ring_seen |= ring
                 bio_seen |= o.get("source") == "biophony"
                 kinds_seen.add(o["kind"])
-                ax.scatter(x + dx, y + dy, s=170, marker=_marker(o),
-                           color=KIND_COLOR[o["kind"]], zorder=3,
+                ax.scatter(x + dx, y + dy, s=size, marker=_marker(o),
+                           color=KIND_COLOR[o["kind"]], zorder=3, alpha=alpha,
                            edgecolors=MAGENTA if ring else "none",
                            linewidths=2.2)
-                ax.annotate(o.get("label", o["name"]), (x + dx, y + dy),
-                            xytext=(0, -15), ha="center",
-                            textcoords="offset points", fontsize=8.3,
-                            color=INK, zorder=4)
+                text = _point_label(o, n, n_placed)
+                if text:
+                    ax.annotate(text, (x + dx, y + dy),
+                                xytext=(0, -15), ha="center",
+                                textcoords="offset points", fontsize=8.3,
+                                color=INK, zorder=4)
         ax.set_xticks(range(4), FACTURE_LABELS)
         ax.set_yticks(range(4), MASS_LABELS)
         ax.set_xlim(-0.5, 3.5)
@@ -149,8 +264,11 @@ def schaeffer_map(ann: dict, out_path, title=""):
         ax.set_ylabel("← mass  (Schaeffer morphology)")
         note = (f"  ({n_unplaced} object{'s' if n_unplaced > 1 else ''} not yet typed, omitted)"
                 if n_unplaced else "")
-        ax.set_title(f"{title} — sound objects in Schaeffer's typo-morphology,"
-                     f" colored by Schafer function{note}", loc="left", fontsize=10.5)
+        head = (f"{title} — sound objects in Schaeffer's typo-morphology,"
+                f" colored by Schafer function{note}")
+        if any(_is_auto(o) for o in ann["objects"]):
+            head += f"\n{AUTO_NOTE}"
+        ax.set_title(head, loc="left", fontsize=10.5)
         names = {"keynote": "keynote (ground)", "signal": "signal (figure)",
                  "soundmark": "community soundmark",
                  "figure": "incidental figure"}
@@ -194,8 +312,13 @@ def _panels(ann: dict, session=None):
 
 
 def schafer_timeline(ann: dict, out_path, title="", session=None):
-    """Lane timeline of annotated objects; lo-fi states shaded."""
-    objects = ann["objects"]
+    """Lane timeline of annotated objects; lo-fi states shaded.
+
+    Machine-drafted steady-state regimes are merged into keynote beds by
+    :func:`merge_keynote_beds`, so the lane count — and with it the figure
+    height — stays bounded however many regimes a long session proposes.
+    """
+    objects = merge_keynote_beds(ann["objects"])
     states = ann.get("states", [])
     lanes = ["state"] + [o["name"] for o in objects] if states else \
             [o["name"] for o in objects]
@@ -264,11 +387,15 @@ def schafer_timeline(ann: dict, out_path, title="", session=None):
             o = next((o for o in objects if o["name"] == lab.get_text()), None)
             if o and o["kind"] == "keynote":
                 lab.set_color("#1c5cab")
-        fig.suptitle(f"{title} — Schafer soundscape timeline: keynotes (blue "
-                     "lanes), signals (green), soundmarks (magenta), "
-                     "incidental figures (grey)", x=0.01, ha="left",
-                     fontsize=10.5, color=INK)
-        fig.tight_layout(rect=(0, 0, 1, 0.96))
+        head = (f"{title} — Schafer soundscape timeline: keynotes (blue "
+                "lanes), signals (green), soundmarks (magenta), "
+                "incidental figures (grey)")
+        top = 0.96
+        if any(_is_auto(o) for o in objects):
+            head += f"\n{AUTO_NOTE}"
+            top = 0.93
+        fig.suptitle(head, x=0.01, ha="left", fontsize=10.5, color=INK)
+        fig.tight_layout(rect=(0, 0, 1, top))
         fig.savefig(out_path, bbox_inches="tight")
         plt.close(fig)
 

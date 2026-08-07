@@ -9,6 +9,20 @@ been carrying feature work throughout a pre-1.0 life.
 
 ## [Unreleased]
 
+### Added
+- Sensor-noise-floor guard (`analysis.floor_suspicion`, run inside every `summarize`). Motivated by
+  the SINS sensor-network corpus, where the 4–8 kHz background floor of a living room is flat to
+  0.8 dB across a full week — microphone self-noise, so low-percentile descriptors there measure
+  the instrument, not the room. Per octave band from 2 kHz up, the session is cut into 300 s
+  chunks and the temporal spread of the chunkwise 10th-percentile floor is taken as the median
+  minus the 5th-percentile chunk floor (a low-tail statistic, immune to activity-elevated chunks);
+  a spread under 1.5 dB flags the band (SINS self-noise ≤ 0.8 dB over a week, quietest genuinely
+  acoustic bands ≥ 2.4 dB — at least 0.7 dB of margin to each side). `summary.json` gains
+  `floor_suspect`, `floor_suspect_lo_hz`/`floor_suspect_hi_hz` and `floor_spread_db`; the session
+  README carries a warning that L90-derived descriptors in that range may reflect the instrument,
+  not the room. Annotation only — no descriptor value changes. Sessions under six chunks (30 min)
+  and bands with no content below the Nyquist frequency are never flagged.
+
 ## [0.23.1] — 2026-08-06
 
 ### Fixed

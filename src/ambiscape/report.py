@@ -72,6 +72,28 @@ def _recording_note(sess: Session) -> str:
             "Levels are uncalibrated dBFS; directions are mic-relative.")
 
 
+def _khz(hz: float) -> str:
+    """Compact kHz label: 2828 -> '2.8', 16000 -> '16'."""
+    s = f"{hz / 1000:.1f}"
+    return s[:-2] if s.endswith(".0") else s
+
+
+def _floor_warning(summary: dict) -> str:
+    """README warning line when the noise-floor guard fired (see
+    :func:`ambiscape.analysis.floor_suspicion`)."""
+    lo, hi = (summary.get("floor_suspect_lo_hz"),
+              summary.get("floor_suspect_hi_hz"))
+    rng = (f"{_khz(lo)}–{_khz(hi)} kHz" if lo and hi
+           else "the high-frequency bands")
+    spread = summary.get("floor_spread_db")
+    detail = (f" (band floor spread {spread} dB across the session)"
+              if spread is not None else "")
+    return (f"> **Warning.** Low-percentile levels in {rng} are consistent "
+            f"with recorder self-noise{detail}: the band floor barely moves "
+            "over time. L90-derived descriptors (L90, LA90, emergence) may "
+            "reflect the instrument, not the room.")
+
+
 def _json_safe(o):
     """Recursively replace NaN/inf floats with None for valid JSON."""
     if isinstance(o, float):
@@ -153,6 +175,8 @@ def write_readme(sess: Session, summary: dict, out_dir: Path,
         v = summary.get(key)
         if v is not None:
             lines.append(f"| {label} | {v} |")
+    if summary.get("floor_suspect"):
+        lines += ["", _floor_warning(summary)]
     fig_lines = [ln for fname, ln in _FIGURES if (out_dir / fname).exists()]
     if fig_lines:
         lines += ["", "## Figures", ""] + fig_lines + [""]

@@ -141,6 +141,75 @@ def decay_metrics(x: np.ndarray, fs: int, bands=((250, 500), (500, 1000),
     return out
 
 
+FLOOR_SPREAD_THRESH_DB = 1.5
+
+
+def floor_suspicion(F: dict, chunk_s: float = 300.0, pct: float = 10.0,
+                    spread_thresh_db: float = FLOOR_SPREAD_THRESH_DB,
+                    min_chunks: int = 6, hf_min_hz: float = 2000.0) -> dict:
+    """Flag high-frequency band floors that look like recorder self-noise.
+
+    A genuine room background breathes: its low-percentile level moves with
+    the day, the weather and the building. A microphone's self-noise floor
+    does not — it is abnormally flat over time (and typically spectrally
+    smooth). In the SINS sensor-network corpus the 4–8 kHz floor of a
+    living room is flat to 0.8 dB across a full week (0.56 dB between six
+    separate nights), while every band below 1 kHz varies by 2.4–5.3 dB
+    over the same nights: the top of the spectrum is the instrument, and
+    any L90-derived descriptor weighted towards it (LA90 in particular)
+    measures the recorder rather than the room.
+
+    The check works on the cached 1 s octave-band powers: the session is
+    cut into ``chunk_s`` chunks, each chunk's ``pct``-percentile band level
+    is that chunk's floor, and the temporal spread of the floor is taken as
+    the median minus the 5th-percentile chunk floor — a low-tail statistic,
+    so chunks whose floor is raised by activity (television, dishes) do not
+    hide a pinned quiet-time floor. A band centred at or above
+    ``hf_min_hz`` whose spread is below ``spread_thresh_db`` is suspect.
+    The 1.5 dB default sits between the SINS self-noise band (≤ 0.8 dB
+    over a week) and the quietest genuinely acoustic bands there
+    (≥ 2.4 dB), with at least 0.7 dB of margin to each side. Bands with no
+    content below the Nyquist frequency, and sessions shorter than
+    ``min_chunks`` chunks (30 min at the defaults), are never flagged.
+
+    This is an annotation, not a correction: no descriptor value changes.
+    Returns ``floor_suspect`` (bool), the affected band range
+    ``floor_suspect_lo_hz``/``floor_suspect_hi_hz`` (band edges, Hz), and
+    ``floor_spread_db`` (the smallest spread among the flagged bands);
+    the last three are None when nothing is flagged.
+    """
+    from .features import OCT_CENTERS
+    out = {"floor_suspect": False, "floor_suspect_lo_hz": None,
+           "floor_suspect_hi_hz": None, "floor_spread_db": None}
+    op = F.get("oct_pow")
+    if op is None or len(op) == 0:
+        return out
+    rows = max(1, int(round(chunk_s)))          # 1 s frames per chunk
+    nchunk = len(op) // rows
+    if nchunk < min_chunks:
+        return out
+    lvl = db(np.asarray(op[:nchunk * rows], np.float64))
+    floors = np.percentile(lvl.reshape(nchunk, rows, lvl.shape[1]),
+                           pct, axis=1)         # (nchunk, nband)
+    spread = (np.percentile(floors, 50, axis=0)
+              - np.percentile(floors, 5, axis=0))
+    centers = np.asarray(OCT_CENTERS, float)[:lvl.shape[1]]
+    nyq = float(F.get("fs", 48000)) / 2
+    med = np.median(floors, axis=0)
+    flagged = ((centers >= hf_min_hz) & (centers / np.sqrt(2) < nyq)
+               & (spread < spread_thresh_db) & (med > -119.0))
+    if flagged.any():
+        idx = np.flatnonzero(flagged)
+        out.update({
+            "floor_suspect": True,
+            "floor_suspect_lo_hz": int(round(centers[idx[0]] / np.sqrt(2))),
+            "floor_suspect_hi_hz": int(round(min(centers[idx[-1]]
+                                                 * np.sqrt(2), nyq))),
+            "floor_spread_db": round(float(spread[idx].min()), 2),
+        })
+    return out
+
+
 def circular_stats(az_deg, weights=None):
     """Energy-weighted circular mean (deg) and resultant length R."""
     from .circstats import mean_resultant
@@ -201,6 +270,7 @@ def summarize(F: dict) -> dict:
         "n_events": len(events),
         "emergence_db": round(float(laeq - np.percentile(fasta, 10)), 1),
         "intermittency_ratio_pct": round(intermittency_ratio(fasta, dt), 1),
+        **floor_suspicion(F),
     }
 
 

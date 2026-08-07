@@ -68,6 +68,33 @@ no audio pass. On top of it:
 `analyze` appends `fg_fraction_median`, `fg_fraction_p90`,
 `spectral_events_per_min`, and `spectral_event_median_dur_s` to the summary.
 
+## Sensor-noise-floor guard
+
+A low-percentile level can measure the recorder rather than the room. In
+the SINS sensor-network corpus the 4–8 kHz background floor of a living
+room is flat to 0.8 dB across a full week (0.56 dB between six separate
+nights), while every band below 1 kHz varies by 2.4–5.3 dB over the same
+nights: the top of the spectrum is microphone self-noise, and A-weighting
+emphasises exactly that region, so LA90 there measures the instrument.
+
+`analysis.floor_suspicion` (run as part of every `summarize`) checks each
+octave band centred at 2 kHz and above: the session is cut into 300 s
+chunks, each chunk's 10th-percentile band level is its floor, and the
+temporal spread is taken as the median minus the 5th-percentile chunk
+floor — a low-tail statistic, so chunks whose floor is raised by activity
+do not hide a pinned quiet-time floor. A spread under **1.5 dB** flags the
+band: the threshold sits between the SINS self-noise band (≤ 0.8 dB) and
+the quietest genuinely acoustic bands there (≥ 2.4 dB), with at least
+0.7 dB of margin to each side. `summary.json` gains `floor_suspect`
+(boolean), the affected band range `floor_suspect_lo_hz` /
+`floor_suspect_hi_hz`, and `floor_spread_db`; when the flag fires, the
+session README carries a warning that L90-derived descriptors in that
+range may reflect the instrument, not the room.
+
+This is an annotation, not a correction — no descriptor value changes.
+Sessions shorter than six chunks (30 min) are never flagged, and bands
+with no content below the Nyquist frequency are excluded.
+
 ## Modulation profile (`modspec`)
 
 Environmental rhythm at three scales from cached envelopes: micro

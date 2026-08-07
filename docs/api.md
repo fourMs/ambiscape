@@ -52,6 +52,10 @@
 
 ::: ambiscape.longitudinal
 
+## Multi-room acoustic network
+
+::: ambiscape.network
+
 ## Visual features
 
 ::: ambiscape.vision

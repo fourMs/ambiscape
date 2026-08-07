@@ -352,6 +352,22 @@ def main(argv=None):
     cmp_p.add_argument("--state", default="machine_on",
                        help="state name to shade / mask by "
                             "(default machine_on)")
+    net = sub.add_parser("network",
+                         help="multi-recorder acoustic network: pairwise "
+                              "coupling, lags and graph measures across "
+                              "the analysed node sessions of one building "
+                              "on a common clock")
+    net.add_argument("folder",
+                     help="folder whose subfolders are the analysed node "
+                          "sessions (one recorder per room)")
+    net.add_argument("-o", "--out", default=None,
+                     help="output dir (default <folder>/analysis)")
+    net.add_argument("--win", type=float, default=120.0,
+                     help="cross-correlation window, s (default 120)")
+    net.add_argument("--max-lag", type=float, default=4.0, dest="max_lag",
+                     help="lag search half-range, s (default 4)")
+    net.add_argument("--threshold", type=float, default=0.35,
+                     help="coupling needed for a graph edge (default 0.35)")
     sw = sub.add_parser("sweep",
                         help="generate an exponential sine sweep + matched "
                              "inverse filter for impulse-response "
@@ -670,6 +686,24 @@ def main(argv=None):
                 print(f"    lines {name}: {pr}")
         print(f"wrote {out}/compare.json and "
               f"{len(doc['figures'])} figure(s)")
+        return 0
+
+    if args.cmd == "network":
+        from . import network as net_mod
+        out = Path(args.out) if args.out else Path(args.folder) / "analysis"
+        doc = net_mod.run_network(args.folder, out_dir=out, win_s=args.win,
+                                  max_lag_s=args.max_lag,
+                                  threshold=args.threshold)
+        print(f"  {len(doc['nodes'])} nodes, {doc['n_windows']} windows "
+              f"of {args.win:.0f} s")
+        print(f"  edge density median {doc['density_median']}, "
+              f"hub {doc['hub_node']} "
+              f"(strength {doc['strength_median'][doc['hub_node']]})")
+        if doc.get("strongest_pair"):
+            sp = doc["strongest_pair"]
+            print(f"  strongest edge {sp['nodes'][0]} -> {sp['nodes'][1]}: "
+                  f"coupling {sp['coupling']}, lag {sp['lag_s']} s")
+        print(f"wrote {out}/network.json and {out}/network.png")
         return 0
 
     if args.cmd == "birdnet":

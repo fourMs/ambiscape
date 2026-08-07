@@ -9,6 +9,23 @@ been carrying feature work throughout a pre-1.0 life.
 
 ## [Unreleased]
 
+### Added
+- `network` module and `ambiscape network <folder>` command: multi-recorder acoustic-network
+  analysis of one building — several recorders in different rooms on a common clock (the SINS
+  deployment style), the inverse paradigm of ambisonics. Works entirely from the cached 8 Hz fast
+  A-weighted level streams: all nodes are placed on one uniform clock grid, and every pair's
+  detrended dB envelopes are cross-correlated in non-overlapping windows (default 120 s) with a
+  ±4 s lag search, giving per-window coupling (adjacency) and antisymmetric lag matrices
+  (positive lag = the first room leads). Numpy-only graph measures per window and per hour of
+  day: node strength (the acoustic-hub reading), edge density, and transitivity as a simple
+  clustering indicator. Outputs `network.json` (median coupling/lag matrices, strength, hub,
+  density, hourly breakdown, strongest pair), `network.png` (house graphs at the quietest, median
+  and busiest hours — node size = strength, edge width = coupling, arrows = lag direction — over
+  a density-of-the-day timeline), and `net_` keys folded into the building's `summary.json`
+  (`net_density_median`, `net_hub_node`, …) so it joins the corpus catalogue as one row.
+  Verified on synthetic trios: two known edges with 0.5 s lags recover coupling, direction and
+  hub; an independence null recovers no edges.
+
 ## [0.23.3] — 2026-08-07
 
 ### Fixed

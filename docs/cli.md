@@ -82,9 +82,10 @@ See [Resynthesis](guide/resynth.md), [Visual features](guide/vision.md), and [So
 |---|---|
 | `ambiscape catalog <corpus>` | Aggregate every session's `summary.json` into one CSV and Markdown table. |
 | `ambiscape compare <session> <session> …` | Cross-session comparison of the same place: clock-aligned timelines, per-state LTAS, azimuth roses. |
+| `ambiscape network <folder>` | Multi-recorder acoustic network of one building: pairwise coupling, lags, hub and density across node sessions (*cache*). |
 | `ambiscape longitudinal <corpus>` | Trend and seasonal analysis of dated session summaries. |
 | `ambiscape capture <root>` | Always-on feature-extraction daemon; audio discarded per block (`[capture]`). |
 | `ambiscape speechgate <wav-or-folder>` | Speech privacy check before publishing (`[ml]`). |
 | `ambiscape deposit <session>` | Non-identifying 1 Hz TSV export for open deposits (*cache*). |
 
-See [Corpus catalog](guide/catalog.md), [Cross-session comparison](guide/compare.md), [Longitudinal analysis](guide/longitudinal.md), [Always-on capture](guide/capture.md), and [Deposit export](guide/deposit.md).
+See [Corpus catalog](guide/catalog.md), [Cross-session comparison](guide/compare.md), [Multi-room acoustic network](guide/network.md), [Longitudinal analysis](guide/longitudinal.md), [Always-on capture](guide/capture.md), and [Deposit export](guide/deposit.md).

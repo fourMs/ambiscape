@@ -38,6 +38,7 @@ nav:
       - State-resolved descriptors: guide/resolve.md
   - Space & acoustics:
       - Spatial analysis: guide/spatial.md
+      - Multi-room acoustic network: guide/network.md
       - Room acoustics & ISO: guide/acoustics.md
       - Perceptual survey (ISO 12913-2): guide/survey.md
       - Impulse response & auralization: guide/impulse.md

@@ -62,6 +62,27 @@ been carrying feature work throughout a pre-1.0 life.
   ("activities: human annotations, Dekkers et al. 2017"), while mass/facture remain
   machine-drafted "listen to confirm" proposals. A missing or absent CSV leaves both figures
   exactly as before.
+- Activity-first Schafer timeline: whenever `--activities` is given the timeline now inverts
+  by default, making the human activities the organising structure instead of an overlay on
+  the acoustic level-beds. One lane per activity class (ordered by total duration within the
+  session, classes under ~0.5% of the labelled time pooled into `other`), each span's fill
+  coloured by its measured fast level in dB re the day median (magma, the same palette and
+  scale as the cross-node day figures, with a colourbar) so loud cooking and quiet cooking
+  read differently at a glance; lane labels carry the acoustic summary from the session's
+  feature cache (`"watching tv — 2.1 h, median −41 dBFS"`, typographic minus). Hand-authored
+  signals/soundmarks keep their lanes and markers, the machine keynote-bed structure compacts
+  to a single strip coloured by bed level, and the events lane stays at the foot. The
+  acoustic-first lane timeline is unchanged without activities and stays available with them
+  via `--layout acoustic` (library: `schafer_timeline(..., F=..., layout=...)`;
+  `render(..., layout=...)` loads the cached features itself). Caption provenance unchanged:
+  activities are dataset annotations (Dekkers et al. 2017), levels are measured, machine
+  drafts keep their "listen to confirm" note. Guide: both layouts and when each applies in
+  `docs/guide/taxonomy.md`.
+- Schaeffer map de-anonymised: crowded cells no longer collapse to bare jittered points with
+  a count. Their points are grouped into ~6 dB level bands, each group labelled concisely
+  with its band and count (`"−46 to −40, n=17"`); with `--activities`, points are coloured by
+  their dominant concurrent activity (class colours shared with the timeline, legend
+  included) instead of Schafer kind. The single machine-drafted caption note is kept.
 - `array` module and `ambiscape array <recording.wav> --geometry <json>` command: spatial
   analysis from spaced-microphone recordings (SINS-style linear MEMS nodes) — the third spatial
   paradigm next to `spatial` (a soundfield sampled at one point) and `network` (one mic per

@@ -196,8 +196,8 @@ def test_dominant_activity_spans_and_events():
 
 
 def test_timeline_ribbon_and_bed_activity_labels(tmp_path):
-    # synthetic session + synthetic activity CSV: the timeline renders with
-    # an activity ribbon and legend (taller figure), beds gain "during:" text
+    # the acoustic-first layout (explicit opt-out from activity-first) keeps
+    # its activity ribbon and legend (taller figure) and "during:" bed text
     import matplotlib.pyplot as plt
     from ambiscape.taxonomy import schafer_timeline
     acts = _acts(tmp_path)
@@ -205,7 +205,8 @@ def test_timeline_ribbon_and_bed_activity_labels(tmp_path):
     plain = tmp_path / "plain.png"
     schafer_timeline(ann, plain, title="synthetic")
     withact = tmp_path / "withact.png"
-    schafer_timeline(ann, withact, title="synthetic", activities=acts)
+    schafer_timeline(ann, withact, title="synthetic", activities=acts,
+                     layout="acoustic")
     assert withact.exists()
     assert plt.imread(withact).shape[0] > plt.imread(plain).shape[0]
 
@@ -224,8 +225,9 @@ def test_schaeffer_map_with_activities(tmp_path):
 
 
 def test_render_activities_csv_and_missing_csv(tmp_path):
-    # via the library/CLI entry point: with the CSV both figures render; a
-    # missing path is identical to not passing one at all
+    # via the library/CLI entry point: with the CSV both figures render
+    # (activity-first timeline by default); a missing path is identical to
+    # not passing one at all
     from ambiscape.taxonomy import render
     ann = {"objects": _auto_objects(12), "states": []}
     (tmp_path / "annotations.json").write_text(json.dumps(ann))
@@ -236,4 +238,123 @@ def test_render_activities_csv_and_missing_csv(tmp_path):
     import matplotlib.pyplot as plt
     h_with = plt.imread(tl).shape[0]
     smap2, tl2 = render(tmp_path, activities=tmp_path / "nope.csv")
-    assert plt.imread(tl2).shape[0] < h_with   # no ribbon, no legend
+    h_missing = plt.imread(tl2).shape[0]
+    smap3, tl3 = render(tmp_path)              # no activities at all
+    assert h_missing == plt.imread(tl3).shape[0]
+    assert h_with != h_missing                 # different layout entirely
+
+
+# --- activity-first timeline layout ---------------------------------------
+
+
+def _F_fast(n_s=6 * 3600, quiet=-60.0, loud=-30.0, loud_span=(1800, 3000)):
+    """Synthetic feature cache: quiet day with one loud stretch."""
+    tf = np.arange(0.0, n_s, 0.125)
+    fast = np.where((tf >= loud_span[0]) & (tf < loud_span[1]), loud, quiet)
+    return {"t_fast": tf, "fast_db": fast}
+
+
+def test_activity_lanes_order_and_pooling():
+    from ambiscape.taxonomy import _activity_lanes
+    acts = [{"class": "absence", "start": 0, "stop": 10000},
+            {"class": "cooking", "start": 10000, "stop": 12000},
+            {"class": "watching tv", "start": 12000, "stop": 17000},
+            {"class": "vacuumcleaner", "start": 17000, "stop": 17010},
+            {"class": "other", "start": 17010, "stop": 17100}]
+    lanes = _activity_lanes(acts)
+    # ordered by total duration; the 10 s minor class and the dataset's own
+    # "other" pool into one "other" lane at the bottom
+    assert [c for c, _ in lanes] == ["absence", "watching tv", "cooking",
+                                     "other"]
+    assert {a["class"] for a in dict(lanes)["other"]} == \
+        {"vacuumcleaner", "other"}
+
+
+def test_lane_label_duration_and_level_stats():
+    from ambiscape.taxonomy import _lane_label
+    F = _F_fast()
+    lab = _lane_label("cooking",
+                      [{"class": "cooking", "start": 1800.0, "stop": 3000.0}],
+                      F)
+    assert lab == "cooking — 20 min, median −30 dBFS"   # typographic minus
+    long = _lane_label("absence", [{"class": "absence", "start": 3600.0,
+                                    "stop": 3600.0 + 2.1 * 3600}], F)
+    assert long == "absence — 2.1 h, median −60 dBFS"
+    # without a feature cache the level stat is omitted, never invented
+    assert _lane_label("cooking", [{"class": "cooking", "start": 0,
+                                    "stop": 600}]) == "cooking — 10 min"
+
+
+def test_span_level_colouring():
+    # spans are coloured by their fast level re the day median: a loud span
+    # and a quiet span of the same class must map to different colours
+    import matplotlib.pyplot as plt
+    from ambiscape.taxonomy import LEVEL_CMAP, _level_context, _span_level
+    F = _F_fast()
+    med, norm = _level_context(F)
+    assert med == -60.0
+    loud = _span_level(F, 1800, 3000)
+    quiet = _span_level(F, 4000, 5000)
+    assert loud == -30.0 and quiet == -60.0
+    cmap = plt.get_cmap(LEVEL_CMAP)
+    assert cmap(norm(loud - med)) != cmap(norm(quiet - med))
+    assert _span_level(F, 1e6, 1e6 + 10) is None        # no coverage
+
+
+def test_activity_first_layout_default_and_optout(tmp_path):
+    # with activities the default layout inverts: one lane per class + one
+    # compact bed strip + the events lane at the foot — far fewer lanes than
+    # the acoustic-first lane-per-bed layout of the same annotations
+    import matplotlib.pyplot as plt
+    from ambiscape.taxonomy import schafer_timeline
+    acts = _acts(tmp_path)
+    ann = {"objects": _auto_objects(12)
+           + [{"name": "events (unclassified)", "kind": "figure",
+               "events": [123.0, 4567.0]}]}
+    afirst = tmp_path / "afirst.png"
+    schafer_timeline(ann, afirst, title="s", activities=acts, F=_F_fast())
+    acoustic = tmp_path / "acoustic.png"
+    schafer_timeline(ann, acoustic, title="s", activities=acts,
+                     layout="acoustic")
+    assert afirst.exists()
+    assert plt.imread(afirst).shape[0] < plt.imread(acoustic).shape[0]
+    # hand-authored soundmarks keep their lane (taller by one lane)
+    ann2 = {"objects": ann["objects"]
+            + [{"name": "church bells", "kind": "soundmark",
+                "events": [1234.0]}]}
+    withmark = tmp_path / "withmark.png"
+    schafer_timeline(ann2, withmark, title="s", activities=acts, F=_F_fast())
+    assert plt.imread(withmark).shape[0] > plt.imread(afirst).shape[0]
+
+
+# --- Schaeffer map: level-band groups + activity colouring -----------------
+
+
+def test_map_band_groups_and_labels():
+    from ambiscape.taxonomy import _band_groups, _band_label
+    objs = _auto_objects(20)
+    groups = _band_groups(objs)
+    assert sum(len(g["objs"]) for g in groups) == 20    # nothing dropped
+    for g in groups:
+        assert g["hi"] - g["lo"] <= 6.0 + 1e-9          # ~6 dB bands
+    assert _band_label(-46.0, -40.2, 17) == "−46 to −40, n=17"
+    assert _band_label(-27.0, -27.0, 2) == "−27, n=2"
+    # levelless objects pool into a final level-free group
+    tail = _band_groups([{"name": "hum", "kind": "keynote"}])
+    assert tail[-1]["lo"] is None and _band_label(None, None, 3) == "n=3"
+
+
+def test_map_activity_colouring_shared_with_timeline(tmp_path):
+    import matplotlib.pyplot as plt
+    from ambiscape.figures import BLUE
+    from ambiscape.taxonomy import (_activity_colors, _point_color,
+                                    schaeffer_map)
+    acts = _acts(tmp_path)
+    ac = _activity_colors(acts)
+    o = _auto_objects(1)[0]                 # spans [0, 280] -> absence
+    assert _point_color(o, acts, ac) == (ac["absence"], "absence")
+    assert _point_color(o) == (BLUE, None)  # no activities: kind colour
+    ann = {"objects": _auto_objects(20)}
+    out = tmp_path / "map.png"
+    schaeffer_map(ann, out, title="synthetic", activities=acts)
+    assert out.exists()

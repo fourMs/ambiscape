@@ -22,10 +22,15 @@ interpretive act. This module turns that interpretation into two figures, one pe
 - ``schaeffer_map``  — objects on the facture x mass plane, which is Schaeffer's question. It is
   coloured by Schafer's ``kind`` only so you can see whether the two schemes happen to agree in a
   given corpus; the colouring carries no classificatory weight;
-- ``schafer_timeline`` — one lane per hand-authored object on the session clock, keynote spans as
-  bars, events as markers, lo-fi states shaded. Hi-fi and lo-fi are Schafer's terms too.
-  Machine-drafted steady-state regimes are merged into a bounded set of keynote-bed lanes
-  (see :func:`merge_keynote_beds`) so the figure height does not grow with the regime count.
+- ``schafer_timeline`` — the session clock. Two layouts. The acoustic-first layout (the only one
+  without activity data) gives one lane per hand-authored object: keynote spans as bars, events as
+  markers, lo-fi states shaded. Hi-fi and lo-fi are Schafer's terms too. Machine-drafted
+  steady-state regimes are merged into a bounded set of keynote-bed lanes (see
+  :func:`merge_keynote_beds`) so the figure height does not grow with the regime count. The
+  activity-first layout (the default whenever activities are provided) inverts this: the human
+  activities become the organising structure, one lane per activity class, each span's fill
+  coloured by its measured fast level in dB re the day median (same palette as the cross-node day
+  figures), with the machine keynote-bed structure compacted to a single strip.
 
 Annotation schema (JSON; YAML accepted if PyYAML is installed)::
 
@@ -92,6 +97,11 @@ LOFI = "#f0efec"
 BED_BAND_DB = 6.0     # level band that groups steady regimes into one bed
 MAX_BED_LANES = 8     # keynote-bed lanes on the timeline; the rest -> "other"
 MAX_POINT_LABELS = 12  # above this, only cell-singleton outliers get map text
+ACT_MIN_SHARE = 0.005  # activity classes under this share of labelled time
+                       # are pooled into the "other" lane
+LEVEL_CMAP = "magma"   # level colouring, dB re day median (as the cross-node
+                       # day figures)
+MINUS = "−"       # typographic minus for level text
 AUTO_NOTE = "machine-drafted labels; listen to confirm"
 ACTIVITY_NOTE = "activities: human annotations, Dekkers et al. 2017"
 
@@ -214,6 +224,125 @@ def _activity_colors(activities) -> dict:
     return {c: colors[c] for c in classes}
 
 
+def _activity_lanes(activities, min_share: float = ACT_MIN_SHARE) -> list:
+    """Lanes for the activity-first timeline: ``[(class, [activities]), ...]``.
+
+    One lane per class, ordered by total duration (longest first); classes
+    under ``min_share`` of the total labelled time are pooled into an
+    ``"other"`` lane (which also absorbs a dataset-provided ``other`` class)
+    placed last.
+    """
+    dur: dict[str, float] = {}
+    for a in activities:
+        dur[a["class"]] = dur.get(a["class"], 0.0) + a["stop"] - a["start"]
+    total = sum(dur.values())
+    major = sorted((c for c, d in dur.items()
+                    if c != "other" and d >= min_share * total),
+                   key=lambda c: -dur[c])
+    pooled = [c for c in dur if c not in major]
+    lanes = [(c, [a for a in activities if a["class"] == c]) for c in major]
+    if pooled:
+        lanes.append(("other", [a for a in activities
+                                if a["class"] in pooled]))
+    return lanes
+
+
+def _level_context(F):
+    """``(day median dBFS, Normalize)`` for level colouring from the session
+    cache's fast level stream, or ``(None, None)`` without one.
+
+    The norm spans a robust range of the day's fast levels re their median
+    (P5 to P99, at least 6 dB wide, clipped), so span colours are read on the
+    same "dB re day median" scale as the cross-node day figures.
+    """
+    if not F or "fast_db" not in F:
+        return None, None
+    v = np.asarray(F["fast_db"], float)
+    v = v[np.isfinite(v)]
+    if not len(v):
+        return None, None
+    med = float(np.median(v))
+    lo = float(np.percentile(v, 5)) - med
+    hi = float(np.percentile(v, 99)) - med
+    if hi - lo < 6.0:
+        hi = lo + 6.0
+    from matplotlib.colors import Normalize
+    return med, Normalize(vmin=lo, vmax=hi, clip=True)
+
+
+def _span_level(F, a: float, b: float):
+    """Median fast level (dBFS) in ``[a, b)``, or None with no coverage."""
+    t = np.asarray(F["t_fast"], float)
+    v = np.asarray(F["fast_db"], float)[(t >= a) & (t < b)]
+    v = v[np.isfinite(v)]
+    return float(np.median(v)) if len(v) else None
+
+
+def _fmt_dur(s: float) -> str:
+    return f"{s/3600:.1f} h" if s >= 3600 else f"{s/60:.0f} min"
+
+
+def _lane_label(name: str, acts: list, F=None) -> str:
+    """Activity-lane label carrying the acoustic summary, e.g.
+    ``"watching tv — 2.1 h, median −41 dBFS"``; without a feature cache the
+    level part is omitted."""
+    dur = sum(a["stop"] - a["start"] for a in acts)
+    txt = f"{name} — {_fmt_dur(dur)}"
+    if F is not None and "t_fast" in F:
+        t = np.asarray(F["t_fast"], float)
+        m = np.zeros(len(t), bool)
+        for a in acts:
+            m |= (t >= a["start"]) & (t < a["stop"])
+        v = np.asarray(F["fast_db"], float)[m]
+        v = v[np.isfinite(v)]
+        if len(v):
+            txt += f", median {np.median(v):.0f} dBFS".replace("-", MINUS)
+    return txt
+
+
+def _band_groups(objs: list, band_db: float = BED_BAND_DB) -> list:
+    """Group objects into ~``band_db``-wide level bands for concise map
+    labelling: ``[{"lo", "hi", "objs"}, ...]`` sorted by level; objects with
+    no recoverable level pool into a final level-less group."""
+    known = sorted((o for o in objs if _level_of(o) is not None),
+                   key=_level_of)
+    groups: list[dict] = []
+    for o in known:
+        lv = _level_of(o)
+        if groups and lv - groups[-1]["lo"] <= band_db:
+            groups[-1]["objs"].append(o)
+            groups[-1]["hi"] = lv
+        else:
+            groups.append({"lo": lv, "hi": lv, "objs": [o]})
+    unknown = [o for o in objs if _level_of(o) is None]
+    if unknown:
+        groups.append({"lo": None, "hi": None, "objs": unknown})
+    return groups
+
+
+def _band_label(lo, hi, n: int) -> str:
+    """Concise group label for the map: ``"−46 to −40, n=17"`` (dBFS band)."""
+    if lo is None:
+        return f"n={n}"
+    lo_i, hi_i = round(lo), round(hi)
+    rng = f"{lo_i}" if lo_i == hi_i else f"{lo_i} to {hi_i}"
+    return f"{rng}, n={n}".replace("-", MINUS)
+
+
+def _point_color(o: dict, activities=None, act_colors=None):
+    """Map point colour and the class behind it: ``(colour, class|None)``.
+
+    With activities, a point takes its dominant concurrent activity's colour
+    (the same class colours as the timeline); otherwise — or when nothing
+    overlaps — it keeps its Schafer ``kind`` colour and returns None.
+    """
+    if activities:
+        dom = _dominant_activity(o, activities)
+        if dom and (act_colors or {}).get(dom):
+            return act_colors[dom], dom
+    return KIND_COLOR[o["kind"]], None
+
+
 def _marker(obj) -> str:
     if obj.get("source") == "biophony":
         return "^"
@@ -238,6 +367,16 @@ def _level_of(o: dict):
         if m:
             return float(m.group(1))
     return None
+
+
+def _bed_mid_level(o: dict):
+    """Mid level (dBFS) of a keynote bed, from its 'lo to hi dBFS' name, a
+    single-level name, or ``_level_dbfs``; None if not recoverable."""
+    m = re.search(r"(-?\d+(?:\.\d+)?) to (-?\d+(?:\.\d+)?)\s*dBFS",
+                  str(o.get("name", "")))
+    if m:
+        return (float(m.group(1)) + float(m.group(2))) / 2
+    return _level_of(o)
 
 
 def bed_name(lo: float, hi: float, n_spans: int) -> str:
@@ -316,12 +455,17 @@ def _point_label(o: dict, cell_n: int, n_placed: int):
 
 
 def schaeffer_map(ann: dict, out_path, title="", activities=None):
-    """Objects on the facture x mass grid, coloured by Schafer function.
+    """Objects on the facture x mass grid.
 
-    With ``activities`` (from :func:`load_activities`), labelled points also
-    say during which human-annotated activity they occur. The caption keeps
-    the two provenances apart: mass/facture are machine-drafted listening
-    proposals, the activities are dataset ground truth.
+    Points are coloured by Schafer function — or, with ``activities`` (from
+    :func:`load_activities`), by each point's dominant concurrent activity,
+    with the same class colours as the timeline. Crowded cells no longer
+    reduce to anonymous jitter: their points are grouped into ~6 dB level
+    bands, each band carrying a concise label ("−46 to −40, n=17"), so
+    points stay identifiable without per-point boilerplate. On sparse maps,
+    labelled points also say during which activity they occur. The caption
+    keeps the two provenances apart: mass/facture are machine-drafted
+    listening proposals, the activities are dataset ground truth.
     """
     with plt.rc_context(RC):
         fig, ax = plt.subplots(figsize=(9.6, 6.4), dpi=130)
@@ -344,28 +488,50 @@ def schaeffer_map(ann: dict, out_path, title="", activities=None):
             cells.setdefault(key, []).append(o)
         offsets = [(0, .1), (-.18, -.12), (.18, -.12), (-.18, .3), (.18, .3)]
         n_placed = sum(len(v) for v in cells.values())
-        kinds_seen, bio_seen, ring_seen = set(), False, False
+        act_colors = _activity_colors(activities) if activities else {}
+        kinds_seen, classes_seen = set(), set()
+        bio_seen, ring_seen = False, False
         for (x, y), objs in cells.items():
             n = len(objs)
-            if n <= len(offsets):
-                pos = offsets[:n]
-                size, alpha = 170, 1.0
-            else:
-                # crowded cell: deterministic jitter, points shrunk, count shown
+            # A cell whose points would carry no per-point text (crowded cell,
+            # or any multi-point cell on a crowded map) is drawn as ~6 dB
+            # level-band groups, each with a concise identity label, instead
+            # of anonymous jitter.
+            grouped = n > 1 and (n > len(offsets)
+                                 or n_placed > MAX_POINT_LABELS)
+            if grouped:
+                groups = _band_groups(objs)
+                m = len(groups)
                 rng = np.random.default_rng(97 + 13 * x + 5 * y)
-                pos = rng.uniform(-0.33, 0.33, size=(n, 2))
-                size, alpha = max(40, int(850 / n)), 0.75
-                ax.annotate(f"n={n}", (x + 0.42, y - 0.4), ha="right",
-                            fontsize=8.5, color=SEC, zorder=4)
-            for o, (dx, dy) in zip(objs, pos):
+                size, alpha = max(40, int(850 / n)), 0.85
+                pairs = []
+                for j, g in enumerate(groups):
+                    yc = -0.36 + (j + 0.5) * 0.72 / m
+                    half = 0.30 / m
+                    pairs += [(o, (float(rng.uniform(-0.38, 0.02)),
+                                   yc + float(rng.uniform(-half, half))))
+                              for o in g["objs"]]
+                    ax.annotate(_band_label(g["lo"], g["hi"], len(g["objs"])),
+                                (x + 0.45, y + yc), ha="right", va="center",
+                                fontsize=7.5, color=SEC, zorder=4)
+            else:
+                pairs = list(zip(objs, offsets[:n]))
+                size, alpha = 170, 1.0
+            for o, (dx, dy) in pairs:
                 ring = "soundmark" in o and o["kind"] != "soundmark"
                 ring_seen |= ring
                 bio_seen |= o.get("source") == "biophony"
-                kinds_seen.add(o["kind"])
+                c, cls = _point_color(o, activities, act_colors)
+                if cls:
+                    classes_seen.add(cls)
+                else:
+                    kinds_seen.add(o["kind"])
                 ax.scatter(x + dx, y + dy, s=size, marker=_marker(o),
-                           color=KIND_COLOR[o["kind"]], zorder=3, alpha=alpha,
+                           color=c, zorder=3, alpha=alpha,
                            edgecolors=MAGENTA if ring else "none",
                            linewidths=2.2)
+                if grouped:
+                    continue        # the band labels carry the identity
                 text = _point_label(o, n, n_placed)
                 if text and activities:
                     dom = _dominant_activity(o, activities)
@@ -384,8 +550,10 @@ def schaeffer_map(ann: dict, out_path, title="", activities=None):
         ax.set_ylabel("← mass  (Schaeffer morphology)")
         note = (f"  ({n_unplaced} object{'s' if n_unplaced > 1 else ''} not yet typed, omitted)"
                 if n_unplaced else "")
+        by = ("coloured by dominant concurrent activity" if activities
+              else "coloured by Schafer function")
         head = (f"{title} — sound objects in Schaeffer's typo-morphology,"
-                f" colored by Schafer function{note}")
+                f" {by}{note}")
         auto = any(_is_auto(o) for o in ann["objects"])
         if auto and activities:
             head += ("\nmass/facture: machine-drafted, listen to confirm · "
@@ -400,6 +568,8 @@ def schaeffer_map(ann: dict, out_path, title="", activities=None):
                  "figure": "incidental figure"}
         handles = [Line2D([], [], marker="o", ls="none", color=KIND_COLOR[k],
                           label=names[k]) for k in names if k in kinds_seen]
+        handles += [Line2D([], [], marker="s", ls="none", color=act_colors[c],
+                           label=c) for c in sorted(classes_seen)]
         if ring_seen:
             handles.append(Line2D([], [], marker="o", ls="none", color=SURF,
                                   markeredgecolor=MAGENTA, markeredgewidth=2,
@@ -437,21 +607,58 @@ def _panels(ann: dict, session=None):
     return [(min(ts), max(ts))]
 
 
-def schafer_timeline(ann: dict, out_path, title="", session=None,
-                     activities=None):
-    """Lane timeline of annotated objects; lo-fi states shaded.
+def _xaxis(ax, t0: float, t1: float):
+    """Clock ticks and panel cosmetics shared by both timeline layouts."""
+    ax.set_xlim(t0, t1)
+    span = t1 - t0
+    step = 3600 if span > 5400 else (600 if span > 900 else 120)
+    ticks = np.arange(np.ceil(t0 / step) * step, t1, step)
+    ax.set_xticks(ticks)
+    ax.set_xticklabels([f"{int(x % 86400)//3600:02d}:"
+                        f"{int(x % 3600)//60:02d}" for x in ticks])
+    for sp in ("top", "right"):
+        ax.spines[sp].set_visible(False)
+    ax.grid(axis="x", color=GRID, lw=0.5)
 
-    Machine-drafted steady-state regimes are merged into keynote beds by
+
+def schafer_timeline(ann: dict, out_path, title="", session=None,
+                     activities=None, F=None, layout="auto"):
+    """Schafer timeline of the session, in one of two layouts.
+
+    ``layout="acoustic"`` (and any layout without ``activities``) is the
+    lane timeline of annotated objects, lo-fi states shaded: machine-drafted
+    steady-state regimes are merged into keynote beds by
     :func:`merge_keynote_beds`, so the lane count — and with it the figure
     height — stays bounded however many regimes a long session proposes.
+    With ``activities`` it gains a compact ribbon of coloured activity spans
+    along the top and each keynote-bed label its dominant concurrent
+    activities by time share ("quiet bed, -60 to -54 dBFS, 23 spans —
+    during: absence 71%, sleeping 22%").
 
-    With ``activities`` (from :func:`load_activities`), a compact ribbon of
-    coloured spans along the top of the timeline shows the day's
-    human-labelled activity structure directly above the acoustic beds, and
-    each keynote-bed label gains its dominant concurrent activities by time
-    share ("quiet bed, -60 to -54 dBFS, 23 spans — during: absence 71%,
-    sleeping 22%").
+    Whenever ``activities`` (from :func:`load_activities`) are given and
+    ``layout`` is ``"auto"`` (default) or ``"activity"``, the layout inverts:
+    the human activities become the organising structure. One lane per
+    activity class (longest first, minor classes pooled into "other"), each
+    span's fill coloured by its measured fast level in dB re the day median
+    (``F``, a :func:`~ambiscape.features.load_features` dict; same palette as
+    the cross-node day figures), lane labels carrying the acoustic summary
+    ("watching tv — 2.1 h, median −41 dBFS"). Hand-authored objects keep
+    their lanes and markers, the machine keynote-bed structure is compacted
+    to a single strip coloured by band, and the events lane sits at the foot.
     """
+    if layout not in ("auto", "activity", "acoustic"):
+        raise ValueError(f"unknown timeline layout {layout!r}")
+    if activities and layout != "acoustic":
+        return _activity_timeline(ann, out_path, title=title,
+                                  session=session, activities=activities,
+                                  F=F)
+    return _acoustic_timeline(ann, out_path, title=title, session=session,
+                              activities=activities)
+
+
+def _acoustic_timeline(ann: dict, out_path, title="", session=None,
+                       activities=None):
+    """The acoustic-first lane timeline (see :func:`schafer_timeline`)."""
     objects = merge_keynote_beds(ann["objects"])
     if activities:
         objects = [dict(o, name=o["name"]
@@ -521,16 +728,7 @@ def schafer_timeline(ann: dict, out_path, title="", session=None,
                     ax.plot(ev, [y] * len(ev), ls="none", marker=mk,
                             ms=11 if mk == "|" else 7, mew=1.8, color=c)
             ax.set_ylim(-0.7, ny + 0.55 if activities else ny - 0.3)
-            ax.set_xlim(t0, t1)
-            span = t1 - t0
-            step = 3600 if span > 5400 else (600 if span > 900 else 120)
-            ticks = np.arange(np.ceil(t0 / step) * step, t1, step)
-            ax.set_xticks(ticks)
-            ax.set_xticklabels([f"{int(x % 86400)//3600:02d}:"
-                                f"{int(x % 3600)//60:02d}" for x in ticks])
-            for sp in ("top", "right"):
-                ax.spines[sp].set_visible(False)
-            ax.grid(axis="x", color=GRID, lw=0.5)
+            _xaxis(ax, t0, t1)
             if session is not None and len(panels) > 1:
                 ax.set_title(session.clock(t0)[:6], loc="left",
                              fontsize=8.5, color=SEC)
@@ -568,14 +766,166 @@ def schafer_timeline(ann: dict, out_path, title="", session=None,
         plt.close(fig)
 
 
-def render(folder: str | Path, out_dir=None, session=None, activities=None):
+def _activity_timeline(ann: dict, out_path, title="", session=None,
+                       activities=None, F=None):
+    """The activity-first timeline (see :func:`schafer_timeline`).
+
+    Lanes, top to bottom: one per human activity class (longest first,
+    minors pooled into "other"), hand-authored objects, one compact strip
+    for all machine-drafted keynote beds, lo-fi states (if any), and the
+    events lane at the foot. Activity spans and bed spans are filled by
+    level — the median fast level of the span in dB re the day median, on
+    the same palette as the cross-node day figures — so loud cooking and
+    quiet cooking read differently at a glance. Without a feature cache the
+    activity spans fall back to a neutral grey and lane labels carry
+    durations only.
+    """
+    objects = merge_keynote_beds(ann["objects"])
+    beds = [o for o in objects if o.get("kind") == "keynote" and _is_auto(o)
+            and o.get("spans")]
+    bed_ids = {id(o) for o in beds}
+    ev_objs = [o for o in objects
+               if id(o) not in bed_ids and o.get("kind") == "figure"]
+    ev_ids = {id(o) for o in ev_objs}
+    hand = [o for o in objects
+            if id(o) not in bed_ids and id(o) not in ev_ids]
+    states = ann.get("states", [])
+    panels = _panels(ann, session)
+    # a dataset activity log can cover weeks; lane order, pooling, durations
+    # and level stats must all describe this session only
+    t_lo, t_hi = panels[0][0], panels[-1][1]
+    activities = [dict(a, start=max(a["start"], t_lo),
+                       stop=min(a["stop"], t_hi)) for a in activities
+                  if min(a["stop"], t_hi) > max(a["start"], t_lo)]
+    med, norm = _level_context(F)
+    cmap = plt.get_cmap(LEVEL_CMAP)
+
+    def level_color(lv):
+        return cmap(norm(lv - med)) if lv is not None and med is not None \
+            else "#c9c7c1"
+
+    n_bed_spans = sum(len(o.get("spans", [])) for o in beds)
+    bed_lane = (f"keynote beds — machine draft, {n_bed_spans} "
+                f"span{'s' if n_bed_spans != 1 else ''}")
+    rows = [("act", _lane_label(c, acts, F), acts)
+            for c, acts in _activity_lanes(activities)]
+    rows += [("obj", o["name"], o) for o in hand]
+    if beds:
+        rows.append(("beds", bed_lane, beds))
+    if states:
+        rows.append(("state", "state", states))
+    rows += [("obj", o["name"], o) for o in ev_objs]
+    ny = len(rows)
+    h_in = 0.52 * ny + 1.7
+    with plt.rc_context(RC):
+        fig, axes = plt.subplots(
+            1, len(panels), figsize=(12.8, h_in), dpi=130,
+            sharey=True, squeeze=False,
+            gridspec_kw={"width_ratios": [b - a for a, b in panels],
+                         "wspace": 0.03})
+        axes = axes[0]
+        for ax, (t0, t1) in zip(axes, panels):
+            ax.grid(False)
+            minw = (t1 - t0) * 0.004
+            for st in states:
+                a, b = (parse_time(x) for x in st["span"])
+                a, b = max(a, t0), min(b, t1)
+                if a < b:
+                    ax.axvspan(a, b, color=LOFI, zorder=0)
+            for i, (kind, _, payload) in enumerate(rows):
+                y = ny - 1 - i
+                if kind == "act":
+                    for act in payload:
+                        a, b = max(act["start"], t0), min(act["stop"], t1)
+                        if a >= b:
+                            continue
+                        lv = _span_level(F, a, b) if F is not None else None
+                        ax.add_patch(Rectangle((a, y - 0.27),
+                                               max(b - a, minw), 0.54,
+                                               color=level_color(lv), lw=0,
+                                               zorder=2))
+                elif kind == "beds":
+                    for o in payload:
+                        c = level_color(_bed_mid_level(o))
+                        for a, b in o.get("spans", []):
+                            a, b = parse_time(a), parse_time(b)
+                            a, b = max(a, t0), min(b, t1)
+                            if a < b:
+                                ax.add_patch(Rectangle((a, y - 0.18),
+                                                       max(b - a, minw),
+                                                       0.36, color=c, lw=0))
+                elif kind == "state":
+                    for st in payload:
+                        a, b = (parse_time(x) for x in st["span"])
+                        a, b = max(a, t0), min(b, t1)
+                        if a >= b:
+                            continue
+                        ax.add_patch(Rectangle((a, y - 0.3), b - a, 0.6,
+                                               color=YELLOW, alpha=0.55,
+                                               lw=0))
+                        ax.annotate(st.get("label", "lo-fi"),
+                                    ((a + b) / 2, y), ha="center",
+                                    va="center", fontsize=8, color="#6b4a00")
+                else:                       # hand-authored object or events
+                    o = payload
+                    c = KIND_COLOR.get(o.get("kind", "figure"), MUT)
+                    for a, b in o.get("spans", []):
+                        a, b = parse_time(a), parse_time(b)
+                        a, b = max(a, t0), min(b, t1)
+                        if a < b:
+                            ax.add_patch(Rectangle((a, y - 0.2),
+                                                   max(b - a, minw), 0.4,
+                                                   color=c, lw=0))
+                    ev = [parse_time(e) for e in o.get("events", [])]
+                    ev = [e for e in ev if t0 <= e <= t1]
+                    if ev:
+                        mk = "|" if o.get("kind") == "figure" else _marker(o)
+                        ax.plot(ev, [y] * len(ev), ls="none", marker=mk,
+                                ms=11 if mk == "|" else 7, mew=1.8, color=c)
+            ax.set_ylim(-0.7, ny - 0.3)
+            _xaxis(ax, t0, t1)
+            if session is not None and len(panels) > 1:
+                ax.set_title(session.clock(t0)[:6], loc="left",
+                             fontsize=8.5, color=SEC)
+        axes[0].set_yticks(range(ny), [r[1] for r in rows][::-1])
+        for lab, (kind, _, payload) in zip(axes[0].get_yticklabels(),
+                                           rows[::-1]):
+            if kind == "beds" or (kind == "obj"
+                                  and payload.get("kind") == "keynote"):
+                lab.set_color("#1c5cab")
+        head = (f"{title} — Schafer soundscape timeline, activity-first: one "
+                "lane per human activity, spans coloured by the fast level "
+                "re the day median; machine keynote beds as one strip, "
+                "events at the foot")
+        notes = []
+        if beds or any(_is_auto(o) for o in objects):
+            notes.append(AUTO_NOTE)
+        notes.append(ACTIVITY_NOTE)
+        head += "\n" + " · ".join(notes)
+        fig.suptitle(head, x=0.01, ha="left", fontsize=10.5, color=INK)
+        fig.subplots_adjust(top=1 - 0.66 / h_in, bottom=0.45 / h_in)
+        if med is not None:
+            sm = plt.cm.ScalarMappable(norm=norm, cmap=cmap)
+            cb = fig.colorbar(sm, ax=list(axes), fraction=0.03, pad=0.015)
+            cb.set_label(("fast level, dB re day median "
+                          f"({med:.0f} dBFS)").replace("-", MINUS))
+        fig.savefig(out_path, bbox_inches="tight")
+        plt.close(fig)
+
+
+def render(folder: str | Path, out_dir=None, session=None, activities=None,
+           layout="auto"):
     """Load annotations from a session folder and write both figures.
 
     ``activities`` is an optional path to a SINS-style activity CSV
     (``Class;Start time;Stop time``, semicolon-separated, absolute
     timestamps); when given and present, the human-annotated activities are
-    aligned to the session clock (via the session's ``day0``) and overlaid on
-    both figures. A missing file leaves both figures exactly as without it.
+    aligned to the session clock (via the session's ``day0``) and the
+    timeline switches to the activity-first layout (``layout="acoustic"``
+    keeps the acoustic-first lane timeline with the activity ribbon), with
+    span level colouring and lane level stats drawn from the session's
+    cached features when available. A missing file leaves both figures
+    exactly as without it.
     """
     folder = Path(folder)
     ann = load_annotations(folder)
@@ -591,8 +941,17 @@ def render(folder: str | Path, out_dir=None, session=None, activities=None):
     if activities is not None and Path(activities).exists():
         acts = load_activities(
             activities, day0=session.day0 if session else None)
+    F = None
+    if acts and layout != "acoustic":
+        paths = sorted((out / "features").glob("*.npz"))
+        if paths:
+            from .features import load_features
+            try:
+                F = load_features(paths)
+            except Exception:
+                F = None       # figures still render, without level colours
     name = folder.name
     schaeffer_map(ann, out / "schaeffer_map.png", title=name, activities=acts)
     schafer_timeline(ann, out / "schafer_timeline.png", title=name,
-                     session=session, activities=acts)
+                     session=session, activities=acts, F=F, layout=layout)
     return out / "schaeffer_map.png", out / "schafer_timeline.png"

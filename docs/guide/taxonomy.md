@@ -105,18 +105,22 @@ schemes happen to agree in your corpus. Keynotes tend to crowd the sustained and
 and signals the impulse and iteration columns, but that is a finding about the material rather than
 anything the classification enforces. Points carry text only where it stays legible: on maps with
 few objects every point is labelled, on crowded maps only points that sit alone in their grid cell
-(the notable outliers) are. Cells with more objects than fit the regular layout switch to jittered,
-smaller points with an `n=` count in the cell corner. Machine-drafted boilerplate is never printed
-per point; a single "machine-drafted labels; listen to confirm" note under the title covers every
-drafted object.
+(the notable outliers) are. Cells with more objects than fit the regular layout are grouped into
+~6 dB level bands, each band's points drawn together and given a concise identity label — level band
+plus count, `"−46 to −40, n=17"` — so a crowded map never reduces to anonymous jitter.
+Machine-drafted boilerplate is never printed per point; a single "machine-drafted labels; listen to
+confirm" note under the title covers every drafted object.
 
 ![Schaeffer map: annotated objects placed on the facture by mass plane, coloured by Schafer soundscape function.](../img/schaeffer_map.png)
 
-The Schafer timeline gives one lane per hand-authored object on the real session clock: keynote
-bars, signal and soundmark event markers, lo-fi states shaded, and gap-aware panels for multi-take
-sessions. This is where his question is answered, since a sound's function is a claim about how it
-sits in time and in a place. It makes statements like "the community soundmark is audible only in
-hi-fi windows" directly visible.
+The Schafer timeline shows the session clock, and it has two layouts; which one you get depends on
+whether human activity annotations are available (below).
+
+**The acoustic-first layout** — the default, and the only one, when no activities are given — gives
+one lane per hand-authored object: keynote bars, signal and soundmark event markers, lo-fi states
+shaded, and gap-aware panels for multi-take sessions. This is where Schafer's question is answered,
+since a sound's function is a claim about how it sits in time and in a place. It makes statements
+like "the community soundmark is audible only in hi-fi windows" directly visible.
 
 Machine-drafted steady-state regimes are the one exception to one-lane-per-object: when an
 annotation file still contains many of them (an unedited draft, or an older per-regime one), they
@@ -143,20 +147,50 @@ ambiscape taxonomy <folder> --activities living_labels.csv
 spans are aligned to the session clock via the session's day 0; if the file is missing the figures
 render exactly as without the option.
 
-On the timeline this adds a compact activity ribbon along the top — coloured spans per class with a
-legend, `absence` and `other` deliberately muted so that colour means somebody was doing something —
-and each machine-drafted keynote bed's label gains its dominant concurrent activities by time share:
-`"quiet bed, -60 to -54 dBFS, 23 spans — during: absence 71%, sleeping 22%"`. The day's
-human-labelled structure then reads directly above the acoustic beds, which is the quickest check of
-whether the beds mean anything.
+### The activity-first timeline
 
-On the map, points that carry text (sparse maps, or cell-singleton outliers) also say during which
-activity they occur (`"— during cooking"`).
+With activities present the timeline inverts, by default, into the **activity-first layout**: the
+human activities become the organising structure, not an overlay on the acoustic one. Each activity
+class gets a lane of its own, ordered by total time (longest first), with classes under ~0.5% of the
+session's labelled time pooled into an `other` lane at the bottom of the block. Each span's fill is
+coloured by its measured acoustics — the median fast level within the span, in dB re the day's
+median level, on the same palette as the cross-node day figures — so loud cooking and quiet cooking
+read differently at a glance, and a vacuum-cleaner lane lights up against a dark absence lane. Lane
+labels carry the acoustic summary computed from the session's cached features:
+`"watching tv — 2.1 h, median −41 dBFS"`.
+
+Hand-authored signals and soundmarks keep their own lanes and markers; the machine-drafted
+keynote-bed structure no longer dominates the figure but is compacted into a single strip
+(`keynote beds — machine draft, 62 spans`), its spans coloured by bed level on the same scale; the
+events lane stays at the foot; lo-fi states remain shaded.
+
+Which layout applies:
+
+- no `--activities`: the acoustic-first lane timeline, exactly as before;
+- `--activities <csv>`: the activity-first layout (`--layout auto`, the default, or
+  `--layout activity`);
+- `--activities <csv> --layout acoustic`: the acoustic-first lane timeline with the activity
+  material as before — a compact ribbon of coloured class spans along the top (class legend shared
+  with the map; `absence` and `other` deliberately muted so that colour means somebody was doing
+  something), and each machine keynote bed's label gains its dominant concurrent activities by time
+  share: `"quiet bed, -60 to -54 dBFS, 23 spans — during: absence 71%, sleeping 22%"`.
+
+In the library this is `schafer_timeline(..., F=..., layout=...)`, where `F` is the features dict
+from `features.load_features`; `render` loads the session's cached features itself when the
+activity-first layout needs them (without a cache the figure still renders, with neutral span fills
+and duration-only labels).
+
+### The map with activities
+
+On the map, points take the colour of their dominant concurrent activity instead of their Schafer
+kind, with the class colours shared with the timeline ribbon's legend, and points that carry text
+(sparse maps, or cell-singleton outliers) also say during which activity they occur
+(`"— during cooking"`).
 
 The two provenances are never conflated. The activities are **data** — human annotations shipped
 with the dataset, attributed in the caption (`activities: human annotations, Dekkers et al. 2017`) —
-while mass/facture and the bed structure remain machine-drafted listening proposals and keep their
-"listen to confirm" marking.
+while mass/facture, the level measurements and the bed structure remain machine output: the beds
+keep their "listen to confirm" marking, and the acoustic summaries are measured, not judged.
 
 ## A note on spelling
 

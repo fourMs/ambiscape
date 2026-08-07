@@ -35,6 +35,12 @@ def main(argv=None):
                     help="human activity ground-truth CSV (SINS format: "
                          "'Class;Start time;Stop time', absolute timestamps) "
                          "to overlay on both figures")
+    tx.add_argument("--layout", choices=["auto", "activity", "acoustic"],
+                    default="auto",
+                    help="timeline layout: 'auto' (default) is "
+                         "activity-first whenever --activities is given, "
+                         "acoustic-first otherwise; 'acoustic' keeps the "
+                         "acoustic-first lane timeline even with activities")
     dr = sub.add_parser("draft",
                         help="pre-fill annotations.draft.json from detected "
                              "states and events (needs a prior analyze run)")
@@ -1273,7 +1279,7 @@ def main(argv=None):
             print(f"note: activities file {args.activities} not found; "
                   "rendering without the overlay")
         paths = render(args.folder, out_dir=args.out,
-                       activities=args.activities)
+                       activities=args.activities, layout=args.layout)
         for p in paths:
             print(f"wrote {p}")
         return 0

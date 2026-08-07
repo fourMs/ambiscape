@@ -216,3 +216,19 @@ def test_stale_pre_selection_cache_not_reused(tmp_path):
     tk = sess.takes[0]
     assert tk.channels == 4
     assert "a1s24" in tk.audio_path.name
+
+
+def test_extract_drops_partial_last_second_fast_frames(tmp_path):
+    """A take with a fractional last second must not end in full-scale
+    (0 dB) fill frames: the fast/env streams stop at the last whole second."""
+    from ambiscape import features
+    rng = np.random.default_rng(1)
+    n = int(3.4 * FS)                        # 3 whole seconds + 0.4 s tail
+    write_bwf(tmp_path / "a.wav", plane_wave(0.05 * rng.standard_normal(n),
+                                             0.0))
+    sess = asc.open_session(tmp_path)
+    F = features.extract_take(sess.takes[0])
+    assert len(F["rms_w"]) == 3
+    assert len(F["fast_db"]) == len(F["fast_dba"]) == 3 * 8
+    assert len(F["env_hi"]) == 3 * 50
+    assert float(F["fast_db"].max()) < -10   # no 0 dBFS fill at the tail

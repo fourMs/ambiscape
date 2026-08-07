@@ -9,7 +9,28 @@ been carrying feature work throughout a pre-1.0 life.
 
 ## [Unreleased]
 
+### Fixed
+- False full-scale click at the end of every take in the fast feature streams: `extract_take`
+  preallocated `fast_db`/`fast_dba`/`env_hi` for the take's full frame count but only filled
+  whole-second spans, so up to 7 trailing 125 ms frames (and the matching 20 ms envelope
+  frames) of each take survived as exactly 0 dBFS — full scale, ~60 dB above a quiet room.
+  On multi-take days this painted a thin bright column at every take boundary in binned level
+  heatmaps (the SINS cross-node figures showed them even at night, unaligned between nodes,
+  because each node's takes start at different times). The extractor now trims the never-filled
+  tail before saving, and `load_features` caps each take's fast/envelope streams at the filled
+  whole-second span, so caches written by 0.24.1 and earlier are cleaned on load without
+  re-analysis.
+
 ### Added
+- Cross-node day comparison helpers in `compare`: `xnode_day_matrix` (clock-binned heatmap
+  rows as dB above each node's own day median — uncalibrated nodes are never compared on raw
+  dB), `xnode_floor` (a node's day noise floor from a low percentile of the 1 Hz levels,
+  raised by `adjust_db` when the analysis flagged `floor_suspect`), `xnode_loudest` (loudest
+  node per bin only where the inter-node margin exceeds `margin_db`, default 3 dB, **and** the
+  winner's absolute level clears its floor by `floor_clear_db`, default 3 dB — near-ties and
+  near-floor bins stay unmarked, so sensor gain can no longer decide a whole night), and
+  `xnode_figure` (heatmap with neutral-grey no-data bins + loudest strip, both rules stated in
+  the caption line). Guide: cross-node section in `docs/guide/compare.md`.
 - Human activity ground truth on the taxonomy figures: `ambiscape taxonomy <folder>
   --activities <csv>` (library: `taxonomy.load_activities` and the `activities` parameter of
   `render`, `schaeffer_map`, `schafer_timeline`) reads SINS-style per-room activity logs

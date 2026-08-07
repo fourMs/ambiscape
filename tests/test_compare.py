@@ -166,3 +166,102 @@ def test_run_compare_writes_figures(two_sessions, tmp_path):
     off = doc["line_prominence"]["2026-07-16-room"][str(LINE_HZ)]
     assert on["prominence_db"] > off["prominence_db"] + 6
     assert set(doc["pooled"]) == {"2026-07-15-room", "2026-07-16-room"}
+
+
+# ---------------------------------------------------------------- cross-node
+
+
+def _legacy_npz(path, start, nsec, level_db, fill_tail=0):
+    """A per-take feature cache in the pre-fix on-disk layout.
+
+    ``fill_tail`` extra fast frames past the last whole second are left at
+    exactly 0.0 dB — the preallocated full-scale fill the old extractor
+    wrote at the end of every take (a false click at each take boundary).
+    """
+    fast = np.full(nsec * 8 + fill_tail, level_db, np.float32)
+    if fill_tail:
+        fast[-fill_tail:] = 0.0
+    np.savez(path, start=np.float64(start), fs=np.int64(16000),
+             fast_dt=np.float64(0.125), hi_dt=np.float64(0.02),
+             fast_db=fast, fast_dba=fast,
+             env_hi=np.full(nsec * 50 + fill_tail, 1e-6, np.float32),
+             rms_w=np.full(nsec, 10 ** (level_db / 20), np.float32),
+             peak=np.zeros(nsec, np.float32),
+             oct_pow=np.zeros((nsec, 10), np.float32),
+             centroid=np.zeros(nsec, np.float32),
+             flatness=np.zeros(nsec, np.float32),
+             logspec=np.zeros((nsec, 96), np.float32),
+             I_band=np.zeros((nsec, 10, 3), np.float32),
+             az=np.zeros(nsec, np.float32),
+             el=np.zeros(nsec, np.float32),
+             diffuse=np.zeros(nsec, np.float32),
+             minspec=np.zeros((-(-nsec // 60), 5), np.float32),
+             freqs=np.linspace(100, 8000, 5).astype(np.float32),
+             logf=np.geomspace(25, 20000, 97).astype(np.float32))
+    return path
+
+
+def _day_seconds(F, nsec_day):
+    """Pipeline-style 1 Hz day array from the concatenated fast track."""
+    arr = np.full(nsec_day, np.nan, np.float32)
+    sec = F["t_fast"].astype(np.int64)
+    p = 10 ** (F["fast_dba"] / 10)
+    pw = np.bincount(sec, weights=p, minlength=nsec_day)
+    ct = np.bincount(sec, minlength=nsec_day)
+    has = ct > 0
+    arr[has] = 10 * np.log10(pw[has] / ct[has])
+    return arr
+
+
+def test_xnode_boundary_click_masked_and_silence_empty(tmp_path):
+    """Two silent nodes, takes ending in legacy full-scale fill frames:
+    the boundary click never reaches the heatmap, and a silent day earns
+    no loudest dots even though one node's floor sits 2 dB higher."""
+    from ambiscape import features as feat
+    day = {}
+    for node, lvl in (("n1", -60.0), ("n2", -58.0)):   # gain offset only
+        d = tmp_path / node
+        d.mkdir()
+        paths = [_legacy_npz(d / f"take{i}.npz", start=i * 1200,
+                             nsec=1190, level_db=lvl, fill_tail=4)
+                 for i in range(3)]
+        F = feat.load_features(paths)
+        assert float(F["fast_dba"].max()) < -20        # fill frames dropped
+        assert len(F["fast_dba"]) == 3 * 1190 * 8
+        day[node] = _day_seconds(F, 3600)
+    names, A, H = C.xnode_day_matrix(day, bin_s=300)
+    assert np.nanmax(H) < 3.0                # no bright boundary bins
+    floors = {n: C.xnode_floor(day[n]) for n in names}
+    loud = C.xnode_loudest(names, A, H, floors_db=floors)
+    assert all(v is None for v in loud)      # silence: strip stays empty
+
+
+def test_xnode_margin_and_floor_rules():
+    day = {"a": np.full(3600, -60.0), "b": np.full(3600, -58.0)}
+    # flat gain offset: b is fractionally "louder" everywhere, no dots
+    names, A, H = C.xnode_day_matrix(day, bin_s=300)
+    assert all(v is None for v in C.xnode_loudest(names, A, H))
+    # one genuine event on a (bin 2) + one near-floor excursion (bin 4)
+    day["a"][600:900] = -40.0
+    day["a"][1200:1500] = -55.5
+    names, A, H = C.xnode_day_matrix(day, bin_s=300)
+    floors = {n: C.xnode_floor(day[n]) for n in names}
+    loud = C.xnode_loudest(names, A, H, floors_db=floors, margin_db=3.0)
+    assert loud[2] == "a" and loud.count("a") == 2 and "b" not in loud
+    # floor_suspect raises the required clearance: the -55.5 dB excursion
+    # (4.5 dB margin, only 4.5 dB above the raw floor) is no longer trusted
+    floors["a"] = C.xnode_floor(day["a"], floor_suspect=True)
+    assert floors["a"] == pytest.approx(C.xnode_floor(day["a"]) + 3.0)
+    loud = C.xnode_loudest(names, A, H, floors_db=floors)
+    assert loud[2] == "a" and loud[4] is None
+
+
+def test_xnode_figure_writes(tmp_path):
+    day = {"a": np.full(3600, -60.0), "b": np.full(3600, -58.0)}
+    day["a"][600:900] = -40.0
+    day["b"][:300] = np.nan                  # a no-data bin
+    names, A, H = C.xnode_day_matrix(day, bin_s=300)
+    loud = C.xnode_loudest(names, A, H)
+    p = C.xnode_figure(names, H, loud, tmp_path / "x.png",
+                       title="test day", labels={"a": "node a (living)"})
+    assert p.exists() and p.stat().st_size > 10_000

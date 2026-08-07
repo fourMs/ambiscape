@@ -25,6 +25,11 @@ run; no audio is reopened.
   time windows: the detector for near-floor sources (a quiet fan's shelf);
 - ``duty_cycle`` --- period, duty and regularity of a cycling source (a
   fridge) from a band-level autocorrelation;
+- ``xnode_day_matrix`` / ``xnode_floor`` / ``xnode_loudest`` /
+  ``xnode_figure`` --- several uncalibrated nodes of one building on one
+  day clock: binned heatmap rows (dB above each node's own day median), a
+  per-node noise floor, and a loudest-room timeline that only speaks when
+  the margin is real and the level is above the floor;
 - ``run_compare`` --- orchestrate the above into figures + compare.json.
 
 Times follow the feature axis: seconds since midnight of each session's
@@ -423,6 +428,142 @@ def duty_cycle(F: dict, t0: float, t1: float, f0: float = 63.0,
             "duty_pct": round(100 * float(on.mean()), 1),
             "acf_peak": round(float(ac[per]), 2),
             "swing_db": round(float(q90 - q10), 1)}
+
+
+# ---------------------------------------------------------------- cross-node
+
+
+def xnode_day_matrix(day_levels: dict, bin_s: int = 300,
+                     min_cover_s: int = 30):
+    """Clock-binned day rows for 2+ nodes of one building.
+
+    ``day_levels`` maps a node name to a full-day 1 Hz level array (dB,
+    NaN where the node was not recording; typically 86400 long). Returns
+    ``(names, A, H)``: ``names`` sorted, ``A[i, b]`` the power-mean level
+    of node ``i`` in clock bin ``b`` (absolute, the node's own dB scale)
+    and ``H = A - day median`` per row — the display normalization for
+    uncalibrated nodes, whose raw dB are not comparable across
+    instruments. Bins with under ``min_cover_s`` finite seconds are NaN.
+    """
+    names = sorted(day_levels)
+    nsec = len(next(iter(day_levels.values())))
+    nbin = nsec // bin_s
+    A = np.full((len(names), nbin), np.nan)
+    for i, n in enumerate(names):
+        arr = np.asarray(day_levels[n], float)
+        for b in range(nbin):
+            seg = arr[b * bin_s:(b + 1) * bin_s]
+            if np.isfinite(seg).sum() > min_cover_s:
+                A[i, b] = 10 * np.log10(np.nanmean(10 ** (seg / 10)))
+    med = np.array([np.nanmedian(np.asarray(day_levels[n], float))
+                    for n in names])
+    return names, A, A - med[:, None]
+
+
+def xnode_floor(arr, pct: float = 5.0, floor_suspect: bool = False,
+                adjust_db: float = 3.0) -> float:
+    """A node's day noise floor: low percentile of its finite 1 Hz levels.
+
+    When the session's analysis flagged ``floor_suspect`` (the recorded
+    floor is pinned at the instrument's self-noise, so the acoustic floor
+    is somewhere below it and small excursions above it measure the
+    recorder, not the room), the floor is raised by ``adjust_db`` so the
+    loudest-room rule demands that much more clearance before trusting a
+    near-floor bin.
+    """
+    a = np.asarray(arr, float)
+    a = a[np.isfinite(a)]
+    if len(a) == 0:
+        return np.nan
+    return float(np.percentile(a, pct)) + (adjust_db if floor_suspect
+                                           else 0.0)
+
+
+def xnode_loudest(names: list, A: np.ndarray, H: np.ndarray,
+                  floors_db: dict | None = None, margin_db: float = 3.0,
+                  floor_clear_db: float = 3.0) -> list:
+    """Loudest node per clock bin — only where the call is defensible.
+
+    A bin is awarded to a node only when **both** hold:
+
+    1. *margin rule* — its normalized level ``H`` beats every other
+       node's by more than ``margin_db``. Uncalibrated nodes differ by
+       sensor gain; a fractional-dB win says nothing about the sound, so
+       near-ties stay unmarked instead of one node sweeping the night.
+    2. *floor rule* — its absolute level ``A`` clears that node's noise
+       floor (``floors_db``, e.g. from :func:`xnode_floor`, already
+       ``floor_suspect``-adjusted) by at least ``floor_clear_db``: the
+       winner must actually be hearing sound, not its own floor.
+
+    Returns one entry per bin: the winning name, or None (bins with < 2
+    finite nodes, near-ties, and near-floor bins) — rendered empty.
+    """
+    out = []
+    for b in range(H.shape[1]):
+        col = H[:, b]
+        if np.isfinite(col).sum() < 2:
+            out.append(None)
+            continue
+        order = np.argsort(np.where(np.isfinite(col), col, -np.inf))
+        w, runner = order[-1], order[-2]
+        if col[w] - col[runner] <= margin_db:
+            out.append(None)
+            continue
+        if floors_db is not None:
+            fl = floors_db.get(names[w], np.nan)
+            if np.isfinite(fl) and not (A[w, b] >= fl + floor_clear_db):
+                out.append(None)
+                continue
+        out.append(names[w])
+    return out
+
+
+def xnode_figure(names: list, H: np.ndarray, loudest: list,
+                 out_path: str | Path, title: str = "",
+                 labels: dict | None = None, margin_db: float = 3.0,
+                 floor_clear_db: float = 3.0):
+    """Day heatmap (dB re each node's day median) + loudest-room strip.
+
+    Bins without data (a node not yet recording, a gap between takes) are
+    a neutral grey, never a colour of their own. The strip marks only the
+    bins :func:`xnode_loudest` awarded; the two rules are stated in the
+    figure's caption line.
+    """
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    nbin = H.shape[1]
+    fig, ax = plt.subplots(2, 1, figsize=(12.8, 2.3 + 0.6 * len(names)),
+                           dpi=130, sharex=True,
+                           height_ratios=[len(names), 1])
+    t = (np.arange(nbin) + 0.5) * 24 / nbin       # bin centres, hours
+    t_edges = np.arange(nbin + 1) * 24 / nbin
+    cmap = plt.get_cmap("magma").with_extremes(bad="0.88")  # no data: grey
+    im = ax[0].pcolormesh(t_edges, np.arange(len(names) + 1),
+                          np.ma.masked_invalid(H), cmap=cmap,
+                          shading="flat")
+    ax[0].set_yticks(np.arange(len(names)) + 0.5,
+                     [(labels or {}).get(n, str(n)) for n in names])
+    if title:
+        ax[0].set_title(title)
+    fig.colorbar(im, ax=ax[0], label="dB re day median")
+    ld = np.array([names.index(v) if v is not None else np.nan
+                   for v in loudest], float)
+    ax[1].scatter(t, ld, s=4, c=ld, cmap="tab10", vmin=0,
+                  vmax=max(len(names), 10))
+    ax[1].set_yticks(range(len(names)), [str(n) for n in names])
+    ax[1].set_ylim(-0.5, len(names) - 0.5)
+    ax[1].set(xlabel="hour of day", ylabel="loudest")
+    fig.tight_layout(rect=(0, 0.05, 1, 1))
+    fig.text(0.5, 0.01,
+             f"loudest marked only where the inter-node margin exceeds "
+             f"{margin_db:g} dB (normalized levels) and the level clears "
+             f"the node's floor_suspect-adjusted noise floor by "
+             f"{floor_clear_db:g} dB; blank = near-tie or near-floor. "
+             f"Grey = no data.", ha="center", fontsize=7, color="0.35")
+    fig.savefig(out_path)
+    plt.close(fig)
+    return Path(out_path)
 
 
 # ---------------------------------------------------------------- runner

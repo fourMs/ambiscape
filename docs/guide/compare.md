@@ -48,3 +48,37 @@ Optional:
 detector, for a quiet fan's band shelf that never reaches a level step), and
 `duty_cycle` (period, duty and regularity of a cycling source such as a
 fridge, and its *absence* from a new mic position). See the API reference.
+
+## Cross-node day figures (uncalibrated multi-room deployments)
+
+For several *uncalibrated* recorders covering the same day of one building
+(the SINS deployment style), `xnode_day_matrix`, `xnode_floor`,
+`xnode_loudest` and `xnode_figure` build a day heatmap plus a loudest-room
+strip from per-node full-day 1 Hz level arrays:
+
+- **Heatmap** — clock-binned power means shown as *dB above each node's own
+  day median*, since raw dB from uncalibrated instruments are not
+  comparable. Bins without data (a node not yet recording, a gap between
+  takes) render as neutral grey, never as a colour of their own.
+- **Loudest-room strip** — a bin is awarded to a node only when *both*
+  rules hold, and stays empty otherwise:
+    1. *Margin rule*: the node's normalized level beats every other node's
+       by more than `margin_db` (default 3 dB). Uncalibrated nodes differ
+       by sensor gain, so a fractional-dB "win" says nothing about the
+       sound — without this rule, a quiet night renders as a solid row for
+       whichever node has the hotter gain.
+    2. *Floor rule*: the node's absolute level clears its own noise floor
+       (`xnode_floor`: a low percentile of the day's 1 Hz levels, raised by
+       `adjust_db` when the session's analysis flagged `floor_suspect` —
+       i.e. the recorded floor is instrument self-noise, so marginal
+       excursions above it measure the recorder, not the room) by at least
+       `floor_clear_db` (default 3 dB).
+
+Both rules are restated in the figure's caption line. Historical note: fast
+feature caches written by ambiscape ≤ 0.24.1 carried a few *unfilled*
+125 ms frames past the last whole second of each take, stored as exactly
+0 dBFS (full scale) — a false click at every take boundary that painted
+thin bright columns onto such heatmaps. `extract_take` no longer writes
+those frames, and `load_features` drops them from old caches on load, so
+descendants of the fast streams (this module, `network`, LAeq timelines)
+are clean without re-analysis.

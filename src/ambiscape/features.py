@@ -221,6 +221,13 @@ def extract_take(take: Take, verbose: bool = False) -> dict:
             if sec_base >= nsec:
                 break
 
+    # Drop never-filled trailing frames. nfast/nhi count frames in the
+    # fractional last second, but the block loop only fills whole-second
+    # spans, so the preallocated zeros would survive as exactly 0 dBFS
+    # (full scale) — a false full-scale click at the end of every take.
+    F["fast_db"] = F["fast_db"][:fast_base]
+    F["fast_dba"] = F["fast_dba"][:fast_base]
+    F["env_hi"] = F["env_hi"][:hi_base]
     minspec[mincnt > 0] /= mincnt[mincnt > 0, None]
     F["minspec"] = minspec.astype(np.float32)
     F["freqs"] = freqs.astype(np.float32)
@@ -265,17 +272,28 @@ def load_features(npz_paths: list[str | Path]) -> dict:
         [np.full(len(p["rms_w"]), i, np.int32)
          for i, p in enumerate(parts)])
     fd = float(parts[0]["fast_dt"])
-    out["t_fast"] = np.concatenate([p["start"] + fd * np.arange(len(p["fast_db"]))
-                                    for p in parts])
-    for k in ("fast_db", "fast_dba", "rms_w", "peak", "oct_pow", "centroid",
+    # Caches written by 0.24.1 and earlier carry unfilled frames past the last whole
+    # second of each take — preallocated zeros, i.e. exactly 0 dBFS (full
+    # scale): a false click at every take boundary. Cap each take's fast
+    # streams at the whole-second span actually filled by the extractor.
+    kf = [min(len(p["fast_db"]), len(p["rms_w"]) * int(round(1 / fd)))
+          for p in parts]
+    out["t_fast"] = np.concatenate([p["start"] + fd * np.arange(k)
+                                    for p, k in zip(parts, kf)])
+    for key in ("fast_db", "fast_dba"):
+        out[key] = np.concatenate([p[key][:k] for p, k in zip(parts, kf)])
+    for k in ("rms_w", "peak", "oct_pow", "centroid",
               "flatness", "logspec", "I_band", "az", "el", "diffuse"):
         out[k] = np.concatenate([p[k] for p in parts])
     if all("env_hi" in p for p in parts):    # absent in pre-0.2 caches
         hd = float(parts[0]["hi_dt"])
         out["hi_dt"] = hd
+        kh = [min(len(p["env_hi"]), len(p["rms_w"]) * int(round(1 / hd)))
+              for p in parts]
         out["t_hi"] = np.concatenate(
-            [p["start"] + hd * np.arange(len(p["env_hi"])) for p in parts])
-        out["env_hi"] = np.concatenate([p["env_hi"] for p in parts])
+            [p["start"] + hd * np.arange(k) for p, k in zip(parts, kh)])
+        out["env_hi"] = np.concatenate([p["env_hi"][:k]
+                                        for p, k in zip(parts, kh)])
     out["min_t"] = np.concatenate([p["start"] + 60 * np.arange(p["minspec"].shape[0])
                                    for p in parts])
     out["minspec"] = np.concatenate([p["minspec"] for p in parts])

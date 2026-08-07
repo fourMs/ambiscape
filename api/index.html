@@ -4479,6 +4479,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#ambiscape.taxonomy.map_objects" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        map_objects
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#ambiscape.taxonomy.schaeffer_map" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4505,6 +4516,72 @@
     <span class="md-ellipsis">
       
         render
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sound-objects" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sound objects
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.objects" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        objects
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.objects.object_mass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        object_mass
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.objects.object_facture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        object_facture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.objects.extract_objects" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        extract_objects
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.objects.cell_counts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cell_counts
       
     </span>
   </a>
@@ -7743,6 +7820,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#ambiscape.taxonomy.map_objects" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        map_objects
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#ambiscape.taxonomy.schaeffer_map" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -7769,6 +7857,72 @@
     <span class="md-ellipsis">
       
         render
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sound-objects" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sound objects
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.objects" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        objects
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.objects.object_mass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        object_mass
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.objects.object_facture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        object_facture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.objects.extract_objects" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        extract_objects
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.objects.cell_counts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cell_counts
       
     </span>
   </a>
@@ -24135,13 +24289,22 @@ it plays for the people living among it. Here that is <code>kind</code> and <cod
 soundscape ecology, after Krause and Pijanowski, and classifies by physical origin.</p>
 <p>One object carries all three labels independently. A ventilation drone is <code>noise</code>/<code>unlimited</code> to
 Schaeffer, a <code>keynote</code> to Schafer, and <code>anthrophony</code> to soundscape ecology.</p>
+<p><strong>The two figures work at different timescales, and this is not incidental.</strong> A Schafer keynote is a
+level that persists for minutes or hours — the ground of a place, heard as its condition. A Schaeffer
+sound object is an event of roughly half a second to five seconds, short enough to be held whole in
+one act of attention. Plotting steady-state regimes on the typo-morphology plane would conflate the
+two: it would ask of an eight-hour ventilation bed the question Schaeffer asks of a single closing
+door. So the map is built from detected <em>events</em> (see :mod:<code>ambiscape.objects</code>) and the timeline from
+regimes, and neither borrows the other's unit.</p>
 <p>The annotation file (<code>annotations.json</code> or <code>.yml</code> in the session folder) is hand-authored:
 instruments detect <em>when</em> things sound, but assigning a sound to any of the three schemes is an
 interpretive act. This module turns that interpretation into two figures, one per tradition:</p>
 <ul>
-<li><code>schaeffer_map</code>  — objects on the facture x mass plane, which is Schaeffer's question. It is
-  coloured by Schafer's <code>kind</code> only so you can see whether the two schemes happen to agree in a
-  given corpus; the colouring carries no classificatory weight;</li>
+<li><code>schaeffer_map</code>  — sound objects on the facture x mass plane, which is Schaeffer's question. One
+  point per object, extracted from the session's detected events and typed on both axes from its own
+  spectral and temporal signature; hand-authored objects of the same scale join them. Keynote
+  regimes never appear. Points are coloured by Schafer's <code>kind</code> only so you can see whether the two
+  schemes happen to agree in a given corpus; the colouring carries no classificatory weight;</li>
 <li><code>schafer_timeline</code> — the session clock. Two layouts. The acoustic-first layout (the only one
   without activity data) gives one lane per hand-authored object: keynote spans as bars, events as
   markers, lo-fi states shaded. Hi-fi and lo-fi are Schafer's terms too. Machine-drafted
@@ -24226,18 +24389,7 @@ first row is used.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/taxonomy.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">147</span>
-<span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
-<span class="normal">154</span>
-<span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">158</span>
 <span class="normal">159</span>
 <span class="normal">160</span>
 <span class="normal">161</span>
@@ -24249,7 +24401,18 @@ first row is used.</p>
 <span class="normal">167</span>
 <span class="normal">168</span>
 <span class="normal">169</span>
-<span class="normal">170</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_activities</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">day0</span><span class="p">:</span> <span class="n">_dt</span><span class="o">.</span><span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_activities</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">day0</span><span class="p">:</span> <span class="n">_dt</span><span class="o">.</span><span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Human activity ground truth from a SINS-style CSV, on the session clock.</span>
 
 <span class="sd">    The file is semicolon-separated with a ``Class;Start time;Stop time``</span>
@@ -24297,16 +24460,16 @@ overlaps.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/taxonomy.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span>
-<span class="normal">197</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">activity_suffix</span><span class="p">(</span><span class="n">spans</span><span class="p">,</span> <span class="n">activities</span><span class="p">,</span> <span class="n">max_classes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">activity_suffix</span><span class="p">(</span><span class="n">spans</span><span class="p">,</span> <span class="n">activities</span><span class="p">,</span> <span class="n">max_classes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
                     <span class="n">min_share</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Label suffix naming the dominant concurrent activities by time share,</span>
 <span class="sd">    e.g. ``&quot; — during: absence 71%, sleeping 22%&quot;``; empty when nothing</span>
@@ -24338,14 +24501,14 @@ overlaps.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/taxonomy.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">382</span>
-<span class="normal">383</span>
-<span class="normal">384</span>
-<span class="normal">385</span>
-<span class="normal">386</span>
-<span class="normal">387</span>
-<span class="normal">388</span>
-<span class="normal">389</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">bed_name</span><span class="p">(</span><span class="n">lo</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">hi</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">n_spans</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">bed_name</span><span class="p">(</span><span class="n">lo</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">hi</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">n_spans</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Human name for a keynote bed: &#39;quiet bed, -60 to -54 dBFS, 23 spans&#39;.&quot;&quot;&quot;</span>
     <span class="n">mid</span> <span class="o">=</span> <span class="p">(</span><span class="n">lo</span> <span class="o">+</span> <span class="n">hi</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
     <span class="n">desc</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;quiet bed&quot;</span> <span class="k">if</span> <span class="n">mid</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="mi">50</span> <span class="k">else</span>
@@ -24382,7 +24545,25 @@ bands), one lane per bed carrying all of its spans, capped at
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/taxonomy.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">396</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
 <span class="normal">397</span>
 <span class="normal">398</span>
 <span class="normal">399</span>
@@ -24406,25 +24587,7 @@ bands), one lane per bed carrying all of its spans, capped at
 <span class="normal">417</span>
 <span class="normal">418</span>
 <span class="normal">419</span>
-<span class="normal">420</span>
-<span class="normal">421</span>
-<span class="normal">422</span>
-<span class="normal">423</span>
-<span class="normal">424</span>
-<span class="normal">425</span>
-<span class="normal">426</span>
-<span class="normal">427</span>
-<span class="normal">428</span>
-<span class="normal">429</span>
-<span class="normal">430</span>
-<span class="normal">431</span>
-<span class="normal">432</span>
-<span class="normal">433</span>
-<span class="normal">434</span>
-<span class="normal">435</span>
-<span class="normal">436</span>
-<span class="normal">437</span>
-<span class="normal">438</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">merge_keynote_beds</span><span class="p">(</span><span class="n">objects</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">max_beds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">MAX_BED_LANES</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="normal">420</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">merge_keynote_beds</span><span class="p">(</span><span class="n">objects</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">max_beds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">MAX_BED_LANES</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Cluster machine-drafted keynote regimes into level beds for the timeline.</span>
 
 <span class="sd">    A domestic day yields 60+ steady-state regimes; one lane each gave a</span>
@@ -24476,37 +24639,30 @@ bands), one lane per bed carrying all of its spans, capped at
 <div class="doc doc-object doc-function">
 
 
-<h2 id="ambiscape.taxonomy.schaeffer_map" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">schaeffer_map</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="n">out_path</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">activities</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<h2 id="ambiscape.taxonomy.map_objects" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">map_objects</span><span class="p">(</span><span class="n">ann</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">F</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_dur</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_dur</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h2>
 
 
     <div class="doc doc-contents ">
 
-        <p>Objects on the facture x mass grid.</p>
-<p>Points are coloured by Schafer function — or, with <code>activities</code> (from
-:func:<code>load_activities</code>), by each point's dominant concurrent activity,
-with the same class colours as the timeline. Crowded cells no longer
-reduce to anonymous jitter: their points are grouped into ~6 dB level
-bands, each band carrying a concise label ("−46 to −40, n=17"), so
-points stay identifiable without per-point boilerplate. On sparse maps,
-labelled points also say during which activity they occur. The caption
-keeps the two provenances apart: mass/facture are machine-drafted
-listening proposals, the activities are dataset ground truth.</p>
+        <p>The sound objects a Schaeffer map plots, and the census behind them.</p>
+<p>Two sources, both at object scale. From <code>F</code> (a
+:func:<code>~ambiscape.features.load_features</code> dict) come the session's
+detected events, filtered to the object duration window and typed on both
+axes by :func:<code>ambiscape.objects.extract_objects</code>. From <code>ann</code> come the
+hand-authored entries that are themselves object-scale — events, or spans
+no longer than the window — expanded one point per event. Machine-drafted
+keynote regimes are counted and set aside: they are Schafer's material.</p>
+<p>Returns <code>(objects, stats)</code>, where <code>stats</code> carries every count the
+caption needs: <code>n_detected</code>, <code>n_short</code>, <code>n_long</code>, <code>n_hand</code>,
+<code>n_regime</code>, <code>n_untyped</code>, and the window actually used.</p>
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/taxonomy.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">457</span>
-<span class="normal">458</span>
-<span class="normal">459</span>
-<span class="normal">460</span>
-<span class="normal">461</span>
-<span class="normal">462</span>
-<span class="normal">463</span>
-<span class="normal">464</span>
-<span class="normal">465</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">465</span>
 <span class="normal">466</span>
 <span class="normal">467</span>
 <span class="normal">468</span>
@@ -24549,54 +24705,93 @@ listening proposals, the activities are dataset ground truth.</p>
 <span class="normal">505</span>
 <span class="normal">506</span>
 <span class="normal">507</span>
-<span class="normal">508</span>
-<span class="normal">509</span>
-<span class="normal">510</span>
-<span class="normal">511</span>
-<span class="normal">512</span>
-<span class="normal">513</span>
-<span class="normal">514</span>
-<span class="normal">515</span>
-<span class="normal">516</span>
-<span class="normal">517</span>
-<span class="normal">518</span>
-<span class="normal">519</span>
-<span class="normal">520</span>
-<span class="normal">521</span>
-<span class="normal">522</span>
-<span class="normal">523</span>
-<span class="normal">524</span>
-<span class="normal">525</span>
-<span class="normal">526</span>
-<span class="normal">527</span>
-<span class="normal">528</span>
-<span class="normal">529</span>
-<span class="normal">530</span>
-<span class="normal">531</span>
-<span class="normal">532</span>
-<span class="normal">533</span>
-<span class="normal">534</span>
-<span class="normal">535</span>
-<span class="normal">536</span>
-<span class="normal">537</span>
-<span class="normal">538</span>
-<span class="normal">539</span>
-<span class="normal">540</span>
-<span class="normal">541</span>
-<span class="normal">542</span>
-<span class="normal">543</span>
-<span class="normal">544</span>
-<span class="normal">545</span>
-<span class="normal">546</span>
-<span class="normal">547</span>
-<span class="normal">548</span>
-<span class="normal">549</span>
-<span class="normal">550</span>
-<span class="normal">551</span>
-<span class="normal">552</span>
-<span class="normal">553</span>
-<span class="normal">554</span>
-<span class="normal">555</span>
+<span class="normal">508</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">map_objects</span><span class="p">(</span><span class="n">ann</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">F</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="n">min_dur</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">max_dur</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The sound objects a Schaeffer map plots, and the census behind them.</span>
+
+<span class="sd">    Two sources, both at object scale. From ``F`` (a</span>
+<span class="sd">    :func:`~ambiscape.features.load_features` dict) come the session&#39;s</span>
+<span class="sd">    detected events, filtered to the object duration window and typed on both</span>
+<span class="sd">    axes by :func:`ambiscape.objects.extract_objects`. From ``ann`` come the</span>
+<span class="sd">    hand-authored entries that are themselves object-scale — events, or spans</span>
+<span class="sd">    no longer than the window — expanded one point per event. Machine-drafted</span>
+<span class="sd">    keynote regimes are counted and set aside: they are Schafer&#39;s material.</span>
+
+<span class="sd">    Returns ``(objects, stats)``, where ``stats`` carries every count the</span>
+<span class="sd">    caption needs: ``n_detected``, ``n_short``, ``n_long``, ``n_hand``,</span>
+<span class="sd">    ``n_regime``, ``n_untyped``, and the window actually used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.objects</span><span class="w"> </span><span class="kn">import</span> <span class="n">OBJECT_MAX_S</span><span class="p">,</span> <span class="n">OBJECT_MIN_S</span><span class="p">,</span> <span class="n">extract_objects</span>
+    <span class="n">min_dur</span> <span class="o">=</span> <span class="n">OBJECT_MIN_S</span> <span class="k">if</span> <span class="n">min_dur</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">min_dur</span>
+    <span class="n">max_dur</span> <span class="o">=</span> <span class="n">OBJECT_MAX_S</span> <span class="k">if</span> <span class="n">max_dur</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">max_dur</span>
+    <span class="n">stats</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;n_detected&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;n_short&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;n_long&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;n_hand&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+             <span class="s2">&quot;n_regime&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;n_untyped&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+             <span class="s2">&quot;min_dur_s&quot;</span><span class="p">:</span> <span class="n">min_dur</span><span class="p">,</span> <span class="s2">&quot;max_dur_s&quot;</span><span class="p">:</span> <span class="n">max_dur</span><span class="p">}</span>
+    <span class="n">objs</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">F</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">extract_objects</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">min_dur</span><span class="o">=</span><span class="n">min_dur</span><span class="p">,</span> <span class="n">max_dur</span><span class="o">=</span><span class="n">max_dur</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;n_detected&quot;</span><span class="p">,</span> <span class="s2">&quot;n_short&quot;</span><span class="p">,</span> <span class="s2">&quot;n_long&quot;</span><span class="p">):</span>
+            <span class="n">stats</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+        <span class="n">objs</span> <span class="o">+=</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;objects&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="p">(</span><span class="n">ann</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;objects&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+        <span class="k">if</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_object&quot;</span><span class="p">):</span>
+            <span class="k">continue</span>                     <span class="c1"># already extracted above</span>
+        <span class="k">if</span> <span class="n">_is_auto</span><span class="p">(</span><span class="n">o</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">_is_object_scale</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">max_dur</span><span class="p">):</span>
+            <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;n_regime&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;facture&quot;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">FACTURES</span> <span class="ow">or</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mass&quot;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">MASSES</span><span class="p">:</span>
+            <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;n_untyped&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">continue</span>
+        <span class="n">expanded</span> <span class="o">=</span> <span class="n">_expand_events</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+        <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;n_hand&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">expanded</span><span class="p">)</span>
+        <span class="n">objs</span> <span class="o">+=</span> <span class="n">expanded</span>
+    <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;n_untyped&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">objs</span>
+                              <span class="k">if</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;facture&quot;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">FACTURES</span>
+                              <span class="ow">or</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mass&quot;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">MASSES</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">objs</span><span class="p">,</span> <span class="n">stats</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ambiscape.taxonomy.schaeffer_map" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">schaeffer_map</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">out_path</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">activities</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stats</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_points</span><span class="o">=</span><span class="n">MAX_SCATTER</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Sound objects on the facture x mass grid — one point per object.</p>
+<p><code>source</code> is a list of sound objects (as returned by
+:func:<code>map_objects</code>), or an annotation dict, which is passed through
+:func:<code>map_objects</code> with no feature cache so that only its hand-authored
+object-scale entries are plotted. Keynote regimes are never plotted: a
+multi-minute level bed is Schafer's unit, not Schaeffer's, and it is on
+the timeline where it belongs.</p>
+<p>Every object is one point, jittered inside its cell so that density is
+visible, with the cell's full count printed at its corner. Points are
+coloured by Schafer function — or, with <code>activities</code> (from
+:func:<code>load_activities</code>), by each point's dominant concurrent activity,
+with the same class colours as the timeline — and their opacity tracks the
+object's level, so the loud objects in a crowded cell stand out from the
+quiet ones. A session of tens of thousands of objects is subsampled for
+the scatter (<code>max_points</code>, stratified by cell, stated in the caption)
+while the printed counts stay complete. Objects few enough to name carry
+their labels, and on sparse maps also the activity they occurred during.</p>
+<p><code>stats</code> is the census dict from :func:<code>map_objects</code>; when omitted it is
+derived from <code>source</code>. The caption keeps the provenances apart:
+mass/facture are machine-drafted listening proposals, the activities are
+dataset ground truth.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ambiscape/taxonomy.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">555</span>
 <span class="normal">556</span>
 <span class="normal">557</span>
 <span class="normal">558</span>
@@ -24625,84 +24820,199 @@ listening proposals, the activities are dataset ground truth.</p>
 <span class="normal">581</span>
 <span class="normal">582</span>
 <span class="normal">583</span>
-<span class="normal">584</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">schaeffer_map</span><span class="p">(</span><span class="n">ann</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">out_path</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">activities</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Objects on the facture x mass grid.</span>
+<span class="normal">584</span>
+<span class="normal">585</span>
+<span class="normal">586</span>
+<span class="normal">587</span>
+<span class="normal">588</span>
+<span class="normal">589</span>
+<span class="normal">590</span>
+<span class="normal">591</span>
+<span class="normal">592</span>
+<span class="normal">593</span>
+<span class="normal">594</span>
+<span class="normal">595</span>
+<span class="normal">596</span>
+<span class="normal">597</span>
+<span class="normal">598</span>
+<span class="normal">599</span>
+<span class="normal">600</span>
+<span class="normal">601</span>
+<span class="normal">602</span>
+<span class="normal">603</span>
+<span class="normal">604</span>
+<span class="normal">605</span>
+<span class="normal">606</span>
+<span class="normal">607</span>
+<span class="normal">608</span>
+<span class="normal">609</span>
+<span class="normal">610</span>
+<span class="normal">611</span>
+<span class="normal">612</span>
+<span class="normal">613</span>
+<span class="normal">614</span>
+<span class="normal">615</span>
+<span class="normal">616</span>
+<span class="normal">617</span>
+<span class="normal">618</span>
+<span class="normal">619</span>
+<span class="normal">620</span>
+<span class="normal">621</span>
+<span class="normal">622</span>
+<span class="normal">623</span>
+<span class="normal">624</span>
+<span class="normal">625</span>
+<span class="normal">626</span>
+<span class="normal">627</span>
+<span class="normal">628</span>
+<span class="normal">629</span>
+<span class="normal">630</span>
+<span class="normal">631</span>
+<span class="normal">632</span>
+<span class="normal">633</span>
+<span class="normal">634</span>
+<span class="normal">635</span>
+<span class="normal">636</span>
+<span class="normal">637</span>
+<span class="normal">638</span>
+<span class="normal">639</span>
+<span class="normal">640</span>
+<span class="normal">641</span>
+<span class="normal">642</span>
+<span class="normal">643</span>
+<span class="normal">644</span>
+<span class="normal">645</span>
+<span class="normal">646</span>
+<span class="normal">647</span>
+<span class="normal">648</span>
+<span class="normal">649</span>
+<span class="normal">650</span>
+<span class="normal">651</span>
+<span class="normal">652</span>
+<span class="normal">653</span>
+<span class="normal">654</span>
+<span class="normal">655</span>
+<span class="normal">656</span>
+<span class="normal">657</span>
+<span class="normal">658</span>
+<span class="normal">659</span>
+<span class="normal">660</span>
+<span class="normal">661</span>
+<span class="normal">662</span>
+<span class="normal">663</span>
+<span class="normal">664</span>
+<span class="normal">665</span>
+<span class="normal">666</span>
+<span class="normal">667</span>
+<span class="normal">668</span>
+<span class="normal">669</span>
+<span class="normal">670</span>
+<span class="normal">671</span>
+<span class="normal">672</span>
+<span class="normal">673</span>
+<span class="normal">674</span>
+<span class="normal">675</span>
+<span class="normal">676</span>
+<span class="normal">677</span>
+<span class="normal">678</span>
+<span class="normal">679</span>
+<span class="normal">680</span>
+<span class="normal">681</span>
+<span class="normal">682</span>
+<span class="normal">683</span>
+<span class="normal">684</span>
+<span class="normal">685</span>
+<span class="normal">686</span>
+<span class="normal">687</span>
+<span class="normal">688</span>
+<span class="normal">689</span>
+<span class="normal">690</span>
+<span class="normal">691</span>
+<span class="normal">692</span>
+<span class="normal">693</span>
+<span class="normal">694</span>
+<span class="normal">695</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">schaeffer_map</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">out_path</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">activities</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">stats</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_points</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">MAX_SCATTER</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sound objects on the facture x mass grid — one point per object.</span>
 
-<span class="sd">    Points are coloured by Schafer function — or, with ``activities`` (from</span>
+<span class="sd">    ``source`` is a list of sound objects (as returned by</span>
+<span class="sd">    :func:`map_objects`), or an annotation dict, which is passed through</span>
+<span class="sd">    :func:`map_objects` with no feature cache so that only its hand-authored</span>
+<span class="sd">    object-scale entries are plotted. Keynote regimes are never plotted: a</span>
+<span class="sd">    multi-minute level bed is Schafer&#39;s unit, not Schaeffer&#39;s, and it is on</span>
+<span class="sd">    the timeline where it belongs.</span>
+
+<span class="sd">    Every object is one point, jittered inside its cell so that density is</span>
+<span class="sd">    visible, with the cell&#39;s full count printed at its corner. Points are</span>
+<span class="sd">    coloured by Schafer function — or, with ``activities`` (from</span>
 <span class="sd">    :func:`load_activities`), by each point&#39;s dominant concurrent activity,</span>
-<span class="sd">    with the same class colours as the timeline. Crowded cells no longer</span>
-<span class="sd">    reduce to anonymous jitter: their points are grouped into ~6 dB level</span>
-<span class="sd">    bands, each band carrying a concise label (&quot;−46 to −40, n=17&quot;), so</span>
-<span class="sd">    points stay identifiable without per-point boilerplate. On sparse maps,</span>
-<span class="sd">    labelled points also say during which activity they occur. The caption</span>
-<span class="sd">    keeps the two provenances apart: mass/facture are machine-drafted</span>
-<span class="sd">    listening proposals, the activities are dataset ground truth.</span>
+<span class="sd">    with the same class colours as the timeline — and their opacity tracks the</span>
+<span class="sd">    object&#39;s level, so the loud objects in a crowded cell stand out from the</span>
+<span class="sd">    quiet ones. A session of tens of thousands of objects is subsampled for</span>
+<span class="sd">    the scatter (``max_points``, stratified by cell, stated in the caption)</span>
+<span class="sd">    while the printed counts stay complete. Objects few enough to name carry</span>
+<span class="sd">    their labels, and on sparse maps also the activity they occurred during.</span>
+
+<span class="sd">    ``stats`` is the census dict from :func:`map_objects`; when omitted it is</span>
+<span class="sd">    derived from ``source``. The caption keeps the provenances apart:</span>
+<span class="sd">    mass/facture are machine-drafted listening proposals, the activities are</span>
+<span class="sd">    dataset ground truth.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">source</span><span class="p">,</span> <span class="n">derived</span> <span class="o">=</span> <span class="n">map_objects</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+        <span class="n">stats</span> <span class="o">=</span> <span class="n">derived</span> <span class="k">if</span> <span class="n">stats</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">stats</span>
+    <span class="n">objects</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">stats</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">stats</span> <span class="o">=</span> <span class="n">map_objects</span><span class="p">({</span><span class="s2">&quot;objects&quot;</span><span class="p">:</span> <span class="p">[]})</span>
+        <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;n_untyped&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">objects</span>
+                                 <span class="k">if</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;facture&quot;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">FACTURES</span>
+                                 <span class="ow">or</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mass&quot;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">MASSES</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">rc_context</span><span class="p">(</span><span class="n">RC</span><span class="p">):</span>
         <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">9.6</span><span class="p">,</span> <span class="mf">6.4</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">130</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">GRID</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">GRID</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="c1"># `draft` deliberately leaves facture and mass as &quot;TODO&quot; — they are listening judgements a</span>
-        <span class="c1"># detector should not guess — so a half-annotated object is the normal case here, not a</span>
-        <span class="c1"># broken one. Placing it on the grid would mean inventing the very coordinates the annotator</span>
-        <span class="c1"># has withheld, so it is left off the map and counted in the title instead. Before this, any</span>
-        <span class="c1"># such object raised ValueError from .index() and took the whole render down with it.</span>
+        <span class="c1"># An object the annotator (or the detector) has not typed on both axes</span>
+        <span class="c1"># cannot be placed without inventing the very coordinates that are</span>
+        <span class="c1"># missing, so it is left off the grid and counted in the title instead.</span>
         <span class="n">cells</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">n_unplaced</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">ann</span><span class="p">[</span><span class="s2">&quot;objects&quot;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;facture&quot;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">FACTURES</span> <span class="ow">or</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mass&quot;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">MASSES</span><span class="p">:</span>
-                <span class="n">n_unplaced</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="k">continue</span>
             <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">FACTURES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">o</span><span class="p">[</span><span class="s2">&quot;facture&quot;</span><span class="p">]),</span> <span class="n">MASSES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">o</span><span class="p">[</span><span class="s2">&quot;mass&quot;</span><span class="p">]))</span>
             <span class="n">cells</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
-        <span class="n">offsets</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">.1</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mf">.18</span><span class="p">,</span> <span class="o">-</span><span class="mf">.12</span><span class="p">),</span> <span class="p">(</span><span class="mf">.18</span><span class="p">,</span> <span class="o">-</span><span class="mf">.12</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mf">.18</span><span class="p">,</span> <span class="mf">.3</span><span class="p">),</span> <span class="p">(</span><span class="mf">.18</span><span class="p">,</span> <span class="mf">.3</span><span class="p">)]</span>
         <span class="n">n_placed</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">cells</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">draw</span><span class="p">,</span> <span class="n">sampled</span> <span class="o">=</span> <span class="n">_subsample</span><span class="p">(</span><span class="n">cells</span><span class="p">,</span> <span class="n">max_points</span><span class="p">)</span>
+        <span class="n">n_drawn</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">draw</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="mi">170</span> <span class="k">if</span> <span class="n">n_placed</span> <span class="o">&lt;=</span> <span class="n">MAX_POINT_LABELS</span> <span class="k">else</span> <span class="p">(</span>
+            <span class="mi">60</span> <span class="k">if</span> <span class="n">n_placed</span> <span class="o">&lt;=</span> <span class="mi">60</span> <span class="k">else</span> <span class="p">(</span><span class="mi">22</span> <span class="k">if</span> <span class="n">n_placed</span> <span class="o">&lt;=</span> <span class="mi">400</span> <span class="k">else</span> <span class="mi">9</span><span class="p">))</span>
+        <span class="n">alpha_of</span> <span class="o">=</span> <span class="n">_alpha_scale</span><span class="p">(</span><span class="n">objects</span><span class="p">)</span>
         <span class="n">act_colors</span> <span class="o">=</span> <span class="n">_activity_colors</span><span class="p">(</span><span class="n">activities</span><span class="p">)</span> <span class="k">if</span> <span class="n">activities</span> <span class="k">else</span> <span class="p">{}</span>
         <span class="n">kinds_seen</span><span class="p">,</span> <span class="n">classes_seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(),</span> <span class="nb">set</span><span class="p">()</span>
         <span class="n">bio_seen</span><span class="p">,</span> <span class="n">ring_seen</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">objs</span> <span class="ow">in</span> <span class="n">cells</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">objs</span><span class="p">)</span>
-            <span class="c1"># A cell whose points would carry no per-point text (crowded cell,</span>
-            <span class="c1"># or any multi-point cell on a crowded map) is drawn as ~6 dB</span>
-            <span class="c1"># level-band groups, each with a concise identity label, instead</span>
-            <span class="c1"># of anonymous jitter.</span>
-            <span class="n">grouped</span> <span class="o">=</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="p">(</span><span class="n">n</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">offsets</span><span class="p">)</span>
-                                 <span class="ow">or</span> <span class="n">n_placed</span> <span class="o">&gt;</span> <span class="n">MAX_POINT_LABELS</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">grouped</span><span class="p">:</span>
-                <span class="n">groups</span> <span class="o">=</span> <span class="n">_band_groups</span><span class="p">(</span><span class="n">objs</span><span class="p">)</span>
-                <span class="n">m</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span>
-                <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">97</span> <span class="o">+</span> <span class="mi">13</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">y</span><span class="p">)</span>
-                <span class="n">size</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="mi">850</span> <span class="o">/</span> <span class="n">n</span><span class="p">)),</span> <span class="mf">0.85</span>
-                <span class="n">pairs</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">groups</span><span class="p">):</span>
-                    <span class="n">yc</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.36</span> <span class="o">+</span> <span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.72</span> <span class="o">/</span> <span class="n">m</span>
-                    <span class="n">half</span> <span class="o">=</span> <span class="mf">0.30</span> <span class="o">/</span> <span class="n">m</span>
-                    <span class="n">pairs</span> <span class="o">+=</span> <span class="p">[(</span><span class="n">o</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">0.38</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">)),</span>
-                                   <span class="n">yc</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="n">half</span><span class="p">,</span> <span class="n">half</span><span class="p">))))</span>
-                              <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">g</span><span class="p">[</span><span class="s2">&quot;objs&quot;</span><span class="p">]]</span>
-                    <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">_band_label</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="s2">&quot;lo&quot;</span><span class="p">],</span> <span class="n">g</span><span class="p">[</span><span class="s2">&quot;hi&quot;</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="s2">&quot;objs&quot;</span><span class="p">])),</span>
-                                <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mf">0.45</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">yc</span><span class="p">),</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
-                                <span class="n">fontsize</span><span class="o">=</span><span class="mf">7.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">SEC</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">shown</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">draw</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cells</span><span class="p">[(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)])</span>
+            <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">97</span> <span class="o">+</span> <span class="mi">13</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">y</span><span class="p">)</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">shown</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">m</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">_OFFSETS</span><span class="p">):</span>
+                <span class="n">pos</span> <span class="o">=</span> <span class="n">_OFFSETS</span><span class="p">[:</span><span class="n">m</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">pairs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">objs</span><span class="p">,</span> <span class="n">offsets</span><span class="p">[:</span><span class="n">n</span><span class="p">]))</span>
-                <span class="n">size</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mi">170</span><span class="p">,</span> <span class="mf">1.0</span>
-            <span class="k">for</span> <span class="n">o</span><span class="p">,</span> <span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">)</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
-                <span class="n">ring</span> <span class="o">=</span> <span class="s2">&quot;soundmark&quot;</span> <span class="ow">in</span> <span class="n">o</span> <span class="ow">and</span> <span class="n">o</span><span class="p">[</span><span class="s2">&quot;kind&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;soundmark&quot;</span>
+                <span class="n">pos</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">0.36</span><span class="p">,</span> <span class="mf">0.36</span><span class="p">,</span> <span class="n">m</span><span class="p">),</span>
+                               <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">0.30</span><span class="p">,</span> <span class="mf">0.30</span><span class="p">,</span> <span class="n">m</span><span class="p">)))</span>
+            <span class="k">for</span> <span class="n">o</span><span class="p">,</span> <span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">shown</span><span class="p">,</span> <span class="n">pos</span><span class="p">):</span>
+                <span class="n">ring</span> <span class="o">=</span> <span class="s2">&quot;soundmark&quot;</span> <span class="ow">in</span> <span class="n">o</span> <span class="ow">and</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;kind&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;soundmark&quot;</span>
                 <span class="n">ring_seen</span> <span class="o">|=</span> <span class="n">ring</span>
                 <span class="n">bio_seen</span> <span class="o">|=</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;biophony&quot;</span>
                 <span class="n">c</span><span class="p">,</span> <span class="bp">cls</span> <span class="o">=</span> <span class="n">_point_color</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">activities</span><span class="p">,</span> <span class="n">act_colors</span><span class="p">)</span>
                 <span class="k">if</span> <span class="bp">cls</span><span class="p">:</span>
                     <span class="n">classes_seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">kinds_seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">o</span><span class="p">[</span><span class="s2">&quot;kind&quot;</span><span class="p">])</span>
+                    <span class="n">kinds_seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;kind&quot;</span><span class="p">,</span> <span class="s2">&quot;figure&quot;</span><span class="p">))</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">dx</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">dy</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="n">_marker</span><span class="p">(</span><span class="n">o</span><span class="p">),</span>
-                           <span class="n">color</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+                           <span class="n">color</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha_of</span><span class="p">(</span><span class="n">o</span><span class="p">),</span>
                            <span class="n">edgecolors</span><span class="o">=</span><span class="n">MAGENTA</span> <span class="k">if</span> <span class="n">ring</span> <span class="k">else</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
                            <span class="n">linewidths</span><span class="o">=</span><span class="mf">2.2</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">grouped</span><span class="p">:</span>
-                    <span class="k">continue</span>        <span class="c1"># the band labels carry the identity</span>
                 <span class="n">text</span> <span class="o">=</span> <span class="n">_point_label</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">n_placed</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">text</span> <span class="ow">and</span> <span class="n">activities</span><span class="p">:</span>
                     <span class="n">dom</span> <span class="o">=</span> <span class="n">_dominant_activity</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">activities</span><span class="p">)</span>
@@ -24713,26 +25023,33 @@ listening proposals, the activities are dataset ground truth.</p>
                                 <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">15</span><span class="p">),</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
                                 <span class="n">textcoords</span><span class="o">=</span><span class="s2">&quot;offset points&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mf">8.3</span><span class="p">,</span>
                                 <span class="n">color</span><span class="o">=</span><span class="n">INK</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">n_placed</span> <span class="o">&gt;</span> <span class="n">MAX_POINT_LABELS</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;n=</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mf">0.45</span><span class="p">,</span> <span class="n">y</span> <span class="o">-</span> <span class="mf">0.42</span><span class="p">),</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span>
+                            <span class="n">va</span><span class="o">=</span><span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">SEC</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">FACTURE_LABELS</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">MASS_LABELS</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mf">3.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;facture / temporal sustainment  (Schaeffer typology) →&quot;</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;← mass  (Schaeffer morphology)&quot;</span><span class="p">)</span>
-        <span class="n">note</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  (</span><span class="si">{</span><span class="n">n_unplaced</span><span class="si">}</span><span class="s2"> object</span><span class="si">{</span><span class="s1">&#39;s&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">n_unplaced</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}</span><span class="s2"> not yet typed, omitted)&quot;</span>
-                <span class="k">if</span> <span class="n">n_unplaced</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="n">by</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;coloured by dominant concurrent activity&quot;</span> <span class="k">if</span> <span class="n">activities</span>
               <span class="k">else</span> <span class="s2">&quot;coloured by Schafer function&quot;</span><span class="p">)</span>
-        <span class="n">head</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2"> — sound objects in Schaeffer&#39;s typo-morphology,&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">by</span><span class="si">}{</span><span class="n">note</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">auto</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">_is_auto</span><span class="p">(</span><span class="n">o</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">ann</span><span class="p">[</span><span class="s2">&quot;objects&quot;</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">auto</span> <span class="ow">and</span> <span class="n">activities</span><span class="p">:</span>
-            <span class="n">head</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">mass/facture: machine-drafted, listen to confirm · &quot;</span>
-                     <span class="o">+</span> <span class="n">ACTIVITY_NOTE</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">auto</span><span class="p">:</span>
-            <span class="n">head</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">AUTO_NOTE</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="k">elif</span> <span class="n">activities</span><span class="p">:</span>
-            <span class="n">head</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">ACTIVITY_NOTE</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">head</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2"> — </span><span class="si">{</span><span class="n">n_placed</span><span class="si">}</span><span class="s2"> sound objects &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;min_dur_s&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">–</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;max_dur_s&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> s) in &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Schaeffer&#39;s typo-morphology, </span><span class="si">{</span><span class="n">by</span><span class="si">}</span><span class="s2">, opacity by level&quot;</span><span class="p">)</span>
+        <span class="n">line2</span> <span class="o">=</span> <span class="n">_census_line</span><span class="p">(</span><span class="n">stats</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">line2</span><span class="p">:</span>
+            <span class="n">head</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">line2</span>
+        <span class="n">notes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">_is_auto</span><span class="p">(</span><span class="n">o</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">):</span>
+            <span class="n">notes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;mass/facture: machine-drafted, listen to confirm&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">activities</span><span class="p">:</span>
+            <span class="n">notes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ACTIVITY_NOTE</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sampled</span><span class="p">:</span>
+            <span class="n">notes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;scatter shows </span><span class="si">{</span><span class="n">n_drawn</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="n">n_placed</span><span class="si">}</span><span class="s2"> objects &quot;</span>
+                         <span class="s2">&quot;(stratified by cell); counts are complete&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">notes</span><span class="p">:</span>
+            <span class="n">head</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot; · &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">notes</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mf">10.5</span><span class="p">)</span>
         <span class="n">names</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;keynote&quot;</span><span class="p">:</span> <span class="s2">&quot;keynote (ground)&quot;</span><span class="p">,</span> <span class="s2">&quot;signal&quot;</span><span class="p">:</span> <span class="s2">&quot;signal (figure)&quot;</span><span class="p">,</span>
                  <span class="s2">&quot;soundmark&quot;</span><span class="p">:</span> <span class="s2">&quot;community soundmark&quot;</span><span class="p">,</span>
@@ -24748,8 +25065,10 @@ listening proposals, the activities are dataset ground truth.</p>
         <span class="k">if</span> <span class="n">bio_seen</span><span class="p">:</span>
             <span class="n">handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Line2D</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;^&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">GREEN</span><span class="p">,</span>
                                   <span class="n">label</span><span class="o">=</span><span class="s2">&quot;biophony (triangle)&quot;</span><span class="p">))</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">handles</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower left&quot;</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                  <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="c1"># outside the axes: on a dense map every cell carries points, and a</span>
+        <span class="c1"># legend inside would sit on top of them</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">handles</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.02</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+                  <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
@@ -24794,39 +25113,39 @@ to a single strip coloured by band, and the events lane sits at the foot.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/taxonomy.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">624</span>
-<span class="normal">625</span>
-<span class="normal">626</span>
-<span class="normal">627</span>
-<span class="normal">628</span>
-<span class="normal">629</span>
-<span class="normal">630</span>
-<span class="normal">631</span>
-<span class="normal">632</span>
-<span class="normal">633</span>
-<span class="normal">634</span>
-<span class="normal">635</span>
-<span class="normal">636</span>
-<span class="normal">637</span>
-<span class="normal">638</span>
-<span class="normal">639</span>
-<span class="normal">640</span>
-<span class="normal">641</span>
-<span class="normal">642</span>
-<span class="normal">643</span>
-<span class="normal">644</span>
-<span class="normal">645</span>
-<span class="normal">646</span>
-<span class="normal">647</span>
-<span class="normal">648</span>
-<span class="normal">649</span>
-<span class="normal">650</span>
-<span class="normal">651</span>
-<span class="normal">652</span>
-<span class="normal">653</span>
-<span class="normal">654</span>
-<span class="normal">655</span>
-<span class="normal">656</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">schafer_timeline</span><span class="p">(</span><span class="n">ann</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">out_path</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">760</span>
+<span class="normal">761</span>
+<span class="normal">762</span>
+<span class="normal">763</span>
+<span class="normal">764</span>
+<span class="normal">765</span>
+<span class="normal">766</span>
+<span class="normal">767</span>
+<span class="normal">768</span>
+<span class="normal">769</span>
+<span class="normal">770</span>
+<span class="normal">771</span>
+<span class="normal">772</span>
+<span class="normal">773</span>
+<span class="normal">774</span>
+<span class="normal">775</span>
+<span class="normal">776</span>
+<span class="normal">777</span>
+<span class="normal">778</span>
+<span class="normal">779</span>
+<span class="normal">780</span>
+<span class="normal">781</span>
+<span class="normal">782</span>
+<span class="normal">783</span>
+<span class="normal">784</span>
+<span class="normal">785</span>
+<span class="normal">786</span>
+<span class="normal">787</span>
+<span class="normal">788</span>
+<span class="normal">789</span>
+<span class="normal">790</span>
+<span class="normal">791</span>
+<span class="normal">792</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">schafer_timeline</span><span class="p">(</span><span class="n">ann</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">out_path</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                      <span class="n">activities</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">F</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Schafer timeline of the session, in one of two layouts.</span>
 
@@ -24869,7 +25188,7 @@ to a single strip coloured by band, and the events lane sits at the foot.</p>
 
 
 <h2 id="ambiscape.taxonomy.render" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">render</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">out_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">activities</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">render</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">out_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">activities</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">object_window</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h2>
 
@@ -24886,53 +25205,70 @@ keeps the acoustic-first lane timeline with the activity ribbon), with
 span level colouring and lane level stats drawn from the session's
 cached features when available. A missing file leaves both figures
 exactly as without it.</p>
+<p>The map is built from the session's cached features whenever they are
+present: the detected events are extracted as sound objects and typed on
+Schaeffer's two axes (see :func:<code>map_objects</code>). Without a feature cache
+the map falls back to whatever object-scale entries the annotation file
+itself carries. <code>object_window</code> is an optional <code>(min_s, max_s)</code> pair
+overriding the 0.2–8 s duration window that decides what counts as a sound
+object.</p>
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/taxonomy.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">916</span>
-<span class="normal">917</span>
-<span class="normal">918</span>
-<span class="normal">919</span>
-<span class="normal">920</span>
-<span class="normal">921</span>
-<span class="normal">922</span>
-<span class="normal">923</span>
-<span class="normal">924</span>
-<span class="normal">925</span>
-<span class="normal">926</span>
-<span class="normal">927</span>
-<span class="normal">928</span>
-<span class="normal">929</span>
-<span class="normal">930</span>
-<span class="normal">931</span>
-<span class="normal">932</span>
-<span class="normal">933</span>
-<span class="normal">934</span>
-<span class="normal">935</span>
-<span class="normal">936</span>
-<span class="normal">937</span>
-<span class="normal">938</span>
-<span class="normal">939</span>
-<span class="normal">940</span>
-<span class="normal">941</span>
-<span class="normal">942</span>
-<span class="normal">943</span>
-<span class="normal">944</span>
-<span class="normal">945</span>
-<span class="normal">946</span>
-<span class="normal">947</span>
-<span class="normal">948</span>
-<span class="normal">949</span>
-<span class="normal">950</span>
-<span class="normal">951</span>
-<span class="normal">952</span>
-<span class="normal">953</span>
-<span class="normal">954</span>
-<span class="normal">955</span>
-<span class="normal">956</span>
-<span class="normal">957</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">render</span><span class="p">(</span><span class="n">folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">out_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">activities</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-           <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">):</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1052</span>
+<span class="normal">1053</span>
+<span class="normal">1054</span>
+<span class="normal">1055</span>
+<span class="normal">1056</span>
+<span class="normal">1057</span>
+<span class="normal">1058</span>
+<span class="normal">1059</span>
+<span class="normal">1060</span>
+<span class="normal">1061</span>
+<span class="normal">1062</span>
+<span class="normal">1063</span>
+<span class="normal">1064</span>
+<span class="normal">1065</span>
+<span class="normal">1066</span>
+<span class="normal">1067</span>
+<span class="normal">1068</span>
+<span class="normal">1069</span>
+<span class="normal">1070</span>
+<span class="normal">1071</span>
+<span class="normal">1072</span>
+<span class="normal">1073</span>
+<span class="normal">1074</span>
+<span class="normal">1075</span>
+<span class="normal">1076</span>
+<span class="normal">1077</span>
+<span class="normal">1078</span>
+<span class="normal">1079</span>
+<span class="normal">1080</span>
+<span class="normal">1081</span>
+<span class="normal">1082</span>
+<span class="normal">1083</span>
+<span class="normal">1084</span>
+<span class="normal">1085</span>
+<span class="normal">1086</span>
+<span class="normal">1087</span>
+<span class="normal">1088</span>
+<span class="normal">1089</span>
+<span class="normal">1090</span>
+<span class="normal">1091</span>
+<span class="normal">1092</span>
+<span class="normal">1093</span>
+<span class="normal">1094</span>
+<span class="normal">1095</span>
+<span class="normal">1096</span>
+<span class="normal">1097</span>
+<span class="normal">1098</span>
+<span class="normal">1099</span>
+<span class="normal">1100</span>
+<span class="normal">1101</span>
+<span class="normal">1102</span>
+<span class="normal">1103</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">render</span><span class="p">(</span><span class="n">folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">out_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">activities</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+           <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="n">object_window</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load annotations from a session folder and write both figures.</span>
 
 <span class="sd">    ``activities`` is an optional path to a SINS-style activity CSV</span>
@@ -24944,7 +25280,16 @@ exactly as without it.</p>
 <span class="sd">    span level colouring and lane level stats drawn from the session&#39;s</span>
 <span class="sd">    cached features when available. A missing file leaves both figures</span>
 <span class="sd">    exactly as without it.</span>
+
+<span class="sd">    The map is built from the session&#39;s cached features whenever they are</span>
+<span class="sd">    present: the detected events are extracted as sound objects and typed on</span>
+<span class="sd">    Schaeffer&#39;s two axes (see :func:`map_objects`). Without a feature cache</span>
+<span class="sd">    the map falls back to whatever object-scale entries the annotation file</span>
+<span class="sd">    itself carries. ``object_window`` is an optional ``(min_s, max_s)`` pair</span>
+<span class="sd">    overriding the 0.2–8 s duration window that decides what counts as a sound</span>
+<span class="sd">    object.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="n">object_window</span> <span class="k">if</span> <span class="n">object_window</span> <span class="k">else</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="n">folder</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
     <span class="n">ann</span> <span class="o">=</span> <span class="n">load_annotations</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
     <span class="n">out</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">out_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">out_dir</span> <span class="k">else</span> <span class="n">folder</span> <span class="o">/</span> <span class="s2">&quot;analysis&quot;</span>
@@ -24960,19 +25305,642 @@ exactly as without it.</p>
         <span class="n">acts</span> <span class="o">=</span> <span class="n">load_activities</span><span class="p">(</span>
             <span class="n">activities</span><span class="p">,</span> <span class="n">day0</span><span class="o">=</span><span class="n">session</span><span class="o">.</span><span class="n">day0</span> <span class="k">if</span> <span class="n">session</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
     <span class="n">F</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="n">acts</span> <span class="ow">and</span> <span class="n">layout</span> <span class="o">!=</span> <span class="s2">&quot;acoustic&quot;</span><span class="p">:</span>
-        <span class="n">paths</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">((</span><span class="n">out</span> <span class="o">/</span> <span class="s2">&quot;features&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.npz&quot;</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">paths</span><span class="p">:</span>
-            <span class="kn">from</span><span class="w"> </span><span class="nn">.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_features</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">F</span> <span class="o">=</span> <span class="n">load_features</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="n">F</span> <span class="o">=</span> <span class="kc">None</span>       <span class="c1"># figures still render, without level colours</span>
+    <span class="n">paths</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">((</span><span class="n">out</span> <span class="o">/</span> <span class="s2">&quot;features&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.npz&quot;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">paths</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_features</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">load_features</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="kc">None</span>           <span class="c1"># figures still render, without the cache</span>
     <span class="n">name</span> <span class="o">=</span> <span class="n">folder</span><span class="o">.</span><span class="n">name</span>
-    <span class="n">schaeffer_map</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="n">out</span> <span class="o">/</span> <span class="s2">&quot;schaeffer_map.png&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">activities</span><span class="o">=</span><span class="n">acts</span><span class="p">)</span>
+    <span class="n">objs</span><span class="p">,</span> <span class="n">stats</span> <span class="o">=</span> <span class="n">map_objects</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">min_dur</span><span class="o">=</span><span class="n">lo</span><span class="p">,</span> <span class="n">max_dur</span><span class="o">=</span><span class="n">hi</span><span class="p">)</span>
+    <span class="n">schaeffer_map</span><span class="p">(</span><span class="n">objs</span><span class="p">,</span> <span class="n">out</span> <span class="o">/</span> <span class="s2">&quot;schaeffer_map.png&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                  <span class="n">activities</span><span class="o">=</span><span class="n">acts</span><span class="p">,</span> <span class="n">stats</span><span class="o">=</span><span class="n">stats</span><span class="p">)</span>
     <span class="n">schafer_timeline</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="n">out</span> <span class="o">/</span> <span class="s2">&quot;schafer_timeline.png&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
                      <span class="n">session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span> <span class="n">activities</span><span class="o">=</span><span class="n">acts</span><span class="p">,</span> <span class="n">F</span><span class="o">=</span><span class="n">F</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">out</span> <span class="o">/</span> <span class="s2">&quot;schaeffer_map.png&quot;</span><span class="p">,</span> <span class="n">out</span> <span class="o">/</span> <span class="s2">&quot;schafer_timeline.png&quot;</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div><h2 id="sound-objects">Sound objects</h2>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="ambiscape.objects"></a>
+    <div class="doc doc-contents first">
+
+        <p>Sound objects: event-level extraction and Schaeffer typing.</p>
+<p>Schaeffer's <em>objet sonore</em> is a perceptual unit. It is what the ear can hold
+whole in one act of attention — a door closing, a kettle's rattle, a two-second
+tone. In the <em>Traité des objets musicaux</em> (1966) that horizon is on the order
+of half a second to five seconds; below it there is nothing to hear as a shape,
+above it attention stops holding the whole and starts following a texture.</p>
+<p>A multi-minute steady level regime is therefore not a sound object at all. It
+is Schafer's <em>keynote</em>: a ground that persists for minutes or hours, heard as
+the condition of the place rather than as an event in it. Placing regimes on
+the typo-morphology plane conflates two traditions and two timescales; this
+module supplies what the plane actually asks for.</p>
+<p>The unit of analysis here is the <strong>detected event</strong> — the fast level rising at
+least 8 dB above its running background for at least 0.25 s (see
+:func:<code>ambiscape.analysis.detect_events</code>). Events whose duration falls inside
+the object window (:data:<code>OBJECT_MIN_S</code> to :data:<code>OBJECT_MAX_S</code>, 0.2–8 s by
+default) are taken as candidate sound objects; the rest are counted and
+reported, never silently dropped. Each surviving object is then characterised
+on Schaeffer's two axes from its own signature in the cached features:</p>
+<ul>
+<li><strong>mass</strong> — the spectral axis, tonic / tonic-complex / complex / noise, from
+  the object's <em>excess</em> spectrum (what appeared over the running band
+  background), via :func:<code>object_mass</code>;</li>
+<li><strong>facture</strong> — the temporal axis, impulse / iteration / sustained (delimited)
+  / sustained (unlimited), from the object's own amplitude envelope, via
+  :func:<code>object_facture</code>.</li>
+</ul>
+<p>Both rules are written out in the two functions' docstrings and their
+thresholds are module constants, so any proposal can be traced to the number
+that produced it. They remain machine-drafted proposals: no public domestic
+corpus carries object-level ground truth against which they could be scored
+(activity labels are minutes long, an order of magnitude coarser than an
+object), so a typing here is a suggestion to confirm by listening, in the same
+spirit as the rest of the draft stage.</p>
+<p>Everything runs on the cached feature arrays — no audio pass — so a full
+domestic day (tens of thousands of events) types in seconds.</p>
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ambiscape.objects.object_mass" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">object_mass</span><span class="p">(</span><span class="n">excess</span><span class="p">,</span> <span class="n">bands_per_octave</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Schaeffer mass from an object's excess spectrum, with its evidence.</p>
+<p><code>excess</code> is linear power per log-frequency band, background already
+removed (:func:<code>_excess_spectrum</code>). Two quantities are read off it, both
+deliberately blind to the object's overall spectral tilt — brightness is
+not mass, and a bright hiss must not be mistaken for a high note:</p>
+<ul>
+<li><strong>peak share</strong> — the fraction of the object's energy sitting in <em>narrow
+  spectral peaks</em>. A band counts as a peak when it stands
+  <code>PEAK_PROMINENCE_DB</code> above the running median of its own octave. This
+  is peakiness and harmonicity in one number: a single partial counts, and
+  so does every member of a harmonic series, while a continuum of any
+  shape counts for nothing;</li>
+<li><strong>spread</strong> — the energy-weighted standard deviation of log2 frequency,
+  in octaves. A pitch has almost none; a knock has a fraction of an
+  octave; hiss, rush and rustle spread across the spectrum whatever their
+  tilt.</li>
+</ul>
+<p>The rules, applied in order:</p>
+<ol>
+<li>peak share &gt;= 0.50 — most of what appeared is in peaks, so a pitch (or
+   a harmonic series) is what one hears: <strong>tonic</strong>;</li>
+<li>peak share &gt;= 0.20 — a pitch is audible over a continuum that carries
+   most of the energy: <strong>tonic-complex</strong>;</li>
+<li>spread &gt;= 1.2 octaves — no pitch, and the energy is spread wide enough
+   to hear as a band of noise rather than as a body: <strong>noise</strong>;</li>
+<li>otherwise — energy in one or a few narrow regions, none of them a
+   pitch: <strong>complex</strong>.</li>
+</ol>
+<p>The evidence also carries the peak's <strong>prominence</strong> in dB and a
+<strong>flatness</strong> reading (the Wiener entropy of the excess spectrum, floored
+40 dB below its peak: 0 for a single band, 1 for a perfectly even
+spectrum). Neither enters a rule; both are worth having beside the others
+when listening back.</p>
+<p>Returns <code>(mass, evidence)</code>; <code>(None, evidence)</code> when nothing rose above
+the background, in which case there is no object spectrum to type.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ambiscape/objects.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">object_mass</span><span class="p">(</span><span class="n">excess</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">bands_per_octave</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Schaeffer mass from an object&#39;s excess spectrum, with its evidence.</span>
+
+<span class="sd">    ``excess`` is linear power per log-frequency band, background already</span>
+<span class="sd">    removed (:func:`_excess_spectrum`). Two quantities are read off it, both</span>
+<span class="sd">    deliberately blind to the object&#39;s overall spectral tilt — brightness is</span>
+<span class="sd">    not mass, and a bright hiss must not be mistaken for a high note:</span>
+
+<span class="sd">    - **peak share** — the fraction of the object&#39;s energy sitting in *narrow</span>
+<span class="sd">      spectral peaks*. A band counts as a peak when it stands</span>
+<span class="sd">      ``PEAK_PROMINENCE_DB`` above the running median of its own octave. This</span>
+<span class="sd">      is peakiness and harmonicity in one number: a single partial counts, and</span>
+<span class="sd">      so does every member of a harmonic series, while a continuum of any</span>
+<span class="sd">      shape counts for nothing;</span>
+<span class="sd">    - **spread** — the energy-weighted standard deviation of log2 frequency,</span>
+<span class="sd">      in octaves. A pitch has almost none; a knock has a fraction of an</span>
+<span class="sd">      octave; hiss, rush and rustle spread across the spectrum whatever their</span>
+<span class="sd">      tilt.</span>
+
+<span class="sd">    The rules, applied in order:</span>
+
+<span class="sd">    1. peak share &gt;= 0.50 — most of what appeared is in peaks, so a pitch (or</span>
+<span class="sd">       a harmonic series) is what one hears: **tonic**;</span>
+<span class="sd">    2. peak share &gt;= 0.20 — a pitch is audible over a continuum that carries</span>
+<span class="sd">       most of the energy: **tonic-complex**;</span>
+<span class="sd">    3. spread &gt;= 1.2 octaves — no pitch, and the energy is spread wide enough</span>
+<span class="sd">       to hear as a band of noise rather than as a body: **noise**;</span>
+<span class="sd">    4. otherwise — energy in one or a few narrow regions, none of them a</span>
+<span class="sd">       pitch: **complex**.</span>
+
+<span class="sd">    The evidence also carries the peak&#39;s **prominence** in dB and a</span>
+<span class="sd">    **flatness** reading (the Wiener entropy of the excess spectrum, floored</span>
+<span class="sd">    40 dB below its peak: 0 for a single band, 1 for a perfectly even</span>
+<span class="sd">    spectrum). Neither enters a rule; both are worth having beside the others</span>
+<span class="sd">    when listening back.</span>
+
+<span class="sd">    Returns ``(mass, evidence)``; ``(None, evidence)`` when nothing rose above</span>
+<span class="sd">    the background, in which case there is no object spectrum to type.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.ndimage</span><span class="w"> </span><span class="kn">import</span> <span class="n">median_filter</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">excess</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">tot</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+    <span class="n">ev</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;peak_share&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;spread_oct&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;prominence_db&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+          <span class="s2">&quot;flatness&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">tot</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">tot</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ev</span>
+    <span class="n">peak</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+    <span class="n">floored</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">peak</span> <span class="o">*</span> <span class="mf">1e-4</span><span class="p">)</span>
+    <span class="n">lvl</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">floored</span><span class="p">)</span>
+    <span class="n">win</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">bands_per_octave</span><span class="p">))</span> <span class="o">|</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">lvl</span> <span class="o">-</span> <span class="n">median_filter</span><span class="p">(</span><span class="n">lvl</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">win</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">)</span>
+    <span class="n">is_peak</span> <span class="o">=</span> <span class="n">res</span> <span class="o">&gt;=</span> <span class="n">PEAK_PROMINENCE_DB</span>
+    <span class="n">share</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="n">is_peak</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">tot</span><span class="p">)</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">e</span><span class="p">))</span> <span class="o">/</span> <span class="n">bands_per_octave</span>        <span class="c1"># position in octaves</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">e</span> <span class="o">/</span> <span class="n">tot</span>
+    <span class="n">mu</span> <span class="o">=</span> <span class="nb">float</span><span class="p">((</span><span class="n">w</span> <span class="o">*</span> <span class="n">u</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+    <span class="n">spread</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">max</span><span class="p">((</span><span class="n">w</span> <span class="o">*</span> <span class="p">(</span><span class="n">u</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="mf">0.0</span><span class="p">)))</span>
+    <span class="n">flat</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">floored</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="n">floored</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">+</span> <span class="n">EPS</span><span class="p">))</span>
+    <span class="n">ev</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;peak_share&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">share</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;spread_oct&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">spread</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+          <span class="s2">&quot;prominence_db&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">max</span><span class="p">()),</span> <span class="mi">1</span><span class="p">),</span>
+          <span class="s2">&quot;flatness&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">flat</span><span class="p">,</span> <span class="mi">3</span><span class="p">)}</span>
+    <span class="k">if</span> <span class="n">share</span> <span class="o">&gt;=</span> <span class="n">PEAK_SHARE_TONIC</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;tonic&quot;</span><span class="p">,</span> <span class="n">ev</span>
+    <span class="k">if</span> <span class="n">share</span> <span class="o">&gt;=</span> <span class="n">PEAK_SHARE_COMPLEX</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;tonic-complex&quot;</span><span class="p">,</span> <span class="n">ev</span>
+    <span class="k">if</span> <span class="n">spread</span> <span class="o">&gt;=</span> <span class="n">SPREAD_OCT_NOISE</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;noise&quot;</span><span class="p">,</span> <span class="n">ev</span>
+    <span class="k">return</span> <span class="s2">&quot;complex&quot;</span><span class="p">,</span> <span class="n">ev</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ambiscape.objects.object_facture" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">object_facture</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">dur</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Schaeffer facture from an object's amplitude envelope, with evidence.</p>
+<p><code>env</code> is the object's own amplitude envelope (linear, one value every
+<code>dt</code> seconds; the 20 ms broadband envelope of the feature cache when it
+is available) and <code>dur</code> the object's duration in seconds. Two things are
+read off it: the <strong>attack time</strong>, the conventional 10-to-90 per cent rise
+of the envelope towards its peak, and the <strong>iteration strength</strong>, the
+normalised envelope autocorrelation at its best repetition lag between
+<code>ITER_LO_HZ</code> and <code>ITER_HI_HZ</code> (see :func:<code>_iteration_strength</code>).</p>
+<p>The rules, applied in order:</p>
+<ol>
+<li>duration &gt;= 5 s — the sustainment outlasts what attention holds whole;
+   the object has no audible end within its own present. This is
+   Schaeffer's excentric case: <strong>sustained (unlimited)</strong>;</li>
+<li>iteration strength &gt;= 0.35 over at least 0.4 s — energy is maintained by
+   repetition, not continuously: <strong>iteration</strong>;</li>
+<li>attack &lt;= 0.08 s and duration &lt;= 1 s — all the energy arrives at once
+   and nothing maintains it: <strong>impulse</strong>;</li>
+<li>otherwise — energy held continuously between a beginning and an end:
+   <strong>sustained (delimited)</strong>.</li>
+</ol>
+<p>Returns <code>(facture, evidence)</code>.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ambiscape/objects.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">object_facture</span><span class="p">(</span><span class="n">env</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">dur</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Schaeffer facture from an object&#39;s amplitude envelope, with evidence.</span>
+
+<span class="sd">    ``env`` is the object&#39;s own amplitude envelope (linear, one value every</span>
+<span class="sd">    ``dt`` seconds; the 20 ms broadband envelope of the feature cache when it</span>
+<span class="sd">    is available) and ``dur`` the object&#39;s duration in seconds. Two things are</span>
+<span class="sd">    read off it: the **attack time**, the conventional 10-to-90 per cent rise</span>
+<span class="sd">    of the envelope towards its peak, and the **iteration strength**, the</span>
+<span class="sd">    normalised envelope autocorrelation at its best repetition lag between</span>
+<span class="sd">    ``ITER_LO_HZ`` and ``ITER_HI_HZ`` (see :func:`_iteration_strength`).</span>
+
+<span class="sd">    The rules, applied in order:</span>
+
+<span class="sd">    1. duration &gt;= 5 s — the sustainment outlasts what attention holds whole;</span>
+<span class="sd">       the object has no audible end within its own present. This is</span>
+<span class="sd">       Schaeffer&#39;s excentric case: **sustained (unlimited)**;</span>
+<span class="sd">    2. iteration strength &gt;= 0.35 over at least 0.4 s — energy is maintained by</span>
+<span class="sd">       repetition, not continuously: **iteration**;</span>
+<span class="sd">    3. attack &lt;= 0.08 s and duration &lt;= 1 s — all the energy arrives at once</span>
+<span class="sd">       and nothing maintains it: **impulse**;</span>
+<span class="sd">    4. otherwise — energy held continuously between a beginning and an end:</span>
+<span class="sd">       **sustained (delimited)**.</span>
+
+<span class="sd">    Returns ``(facture, evidence)``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">ev</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;attack_s&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;iter_strength&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;iter_rate_hz&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+          <span class="s2">&quot;dur_s&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">dur</span><span class="p">),</span> <span class="mi">2</span><span class="p">)}</span>
+    <span class="k">if</span> <span class="n">dur</span> <span class="o">&gt;=</span> <span class="n">SUSTAIN_MAX_S</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;unlimited&quot;</span><span class="p">,</span> <span class="n">ev</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="n">top</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+        <span class="n">hi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="mf">0.9</span> <span class="o">*</span> <span class="n">top</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">hi</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hi</span><span class="p">)</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="n">below</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">x</span><span class="p">[:</span><span class="n">end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">top</span><span class="p">)</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">below</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">below</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">ev</span><span class="p">[</span><span class="s2">&quot;attack_s&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span> <span class="o">*</span> <span class="n">dt</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">strength</span><span class="p">,</span> <span class="n">rate</span> <span class="o">=</span> <span class="n">_iteration_strength</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
+    <span class="n">ev</span><span class="p">[</span><span class="s2">&quot;iter_strength&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">strength</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">ev</span><span class="p">[</span><span class="s2">&quot;iter_rate_hz&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">rate</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">rate</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">dur</span> <span class="o">&gt;=</span> <span class="n">ITER_MIN_S</span> <span class="ow">and</span> <span class="n">strength</span> <span class="o">&gt;=</span> <span class="n">ITER_ACF</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;iteration&quot;</span><span class="p">,</span> <span class="n">ev</span>
+    <span class="k">if</span> <span class="n">ev</span><span class="p">[</span><span class="s2">&quot;attack_s&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ev</span><span class="p">[</span><span class="s2">&quot;attack_s&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">ATTACK_MAX_S</span> \
+            <span class="ow">and</span> <span class="n">dur</span> <span class="o">&lt;=</span> <span class="n">IMPULSE_MAX_S</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;impulse&quot;</span><span class="p">,</span> <span class="n">ev</span>
+    <span class="k">return</span> <span class="s2">&quot;sustained&quot;</span><span class="p">,</span> <span class="n">ev</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ambiscape.objects.extract_objects" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">extract_objects</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">min_dur</span><span class="o">=</span><span class="n">OBJECT_MIN_S</span><span class="p">,</span> <span class="n">max_dur</span><span class="o">=</span><span class="n">OBJECT_MAX_S</span><span class="p">,</span> <span class="n">thresh_db</span><span class="o">=</span><span class="mf">8.0</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Sound objects of a session, typed on Schaeffer's two axes.</p>
+<p>Runs :func:<code>ambiscape.analysis.detect_events</code> on the cached fast level,
+keeps the events whose duration lies in <code>[min_dur, max_dur]</code> — the
+perceptual window in which something can be held whole in attention — and
+types each survivor with :func:<code>object_mass</code> and :func:<code>object_facture</code>.</p>
+<p>Returns <code>{"objects": [...], "n_detected", "n_short", "n_long",
+"min_dur_s", "max_dur_s"}</code>, so the events that were <em>not</em> objects stay
+visible and countable. Each object is an annotation-shaped dict —
+<code>mass</code>, <code>facture</code>, <code>kind</code> (always <code>"figure"</code>: what a sound object
+does in the place is a separate, human judgement), a one-element <code>spans</code>
+on the session clock, its level and exceedance, <code>_auto</code> set, and the
+numbers behind both typings under <code>_schaeffer</code> — so it drops straight
+into the taxonomy figures.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ambiscape/objects.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_objects</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">min_dur</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">OBJECT_MIN_S</span><span class="p">,</span>
+                    <span class="n">max_dur</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">OBJECT_MAX_S</span><span class="p">,</span>
+                    <span class="n">thresh_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">8.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sound objects of a session, typed on Schaeffer&#39;s two axes.</span>
+
+<span class="sd">    Runs :func:`ambiscape.analysis.detect_events` on the cached fast level,</span>
+<span class="sd">    keeps the events whose duration lies in ``[min_dur, max_dur]`` — the</span>
+<span class="sd">    perceptual window in which something can be held whole in attention — and</span>
+<span class="sd">    types each survivor with :func:`object_mass` and :func:`object_facture`.</span>
+
+<span class="sd">    Returns ``{&quot;objects&quot;: [...], &quot;n_detected&quot;, &quot;n_short&quot;, &quot;n_long&quot;,</span>
+<span class="sd">    &quot;min_dur_s&quot;, &quot;max_dur_s&quot;}``, so the events that were *not* objects stay</span>
+<span class="sd">    visible and countable. Each object is an annotation-shaped dict —</span>
+<span class="sd">    ``mass``, ``facture``, ``kind`` (always ``&quot;figure&quot;``: what a sound object</span>
+<span class="sd">    does in the place is a separate, human judgement), a one-element ``spans``</span>
+<span class="sd">    on the session clock, its level and exceedance, ``_auto`` set, and the</span>
+<span class="sd">    numbers behind both typings under ``_schaeffer`` — so it drops straight</span>
+<span class="sd">    into the taxonomy figures.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">F</span><span class="p">[</span><span class="s2">&quot;t_fast&quot;</span><span class="p">],</span> <span class="nb">float</span><span class="p">)</span>
+    <span class="n">fast</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">F</span><span class="p">[</span><span class="s2">&quot;fast_db&quot;</span><span class="p">],</span> <span class="nb">float</span><span class="p">)</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">tf</span><span class="p">)))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tf</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mf">0.125</span>
+    <span class="n">events</span><span class="p">,</span> <span class="n">_bg</span> <span class="o">=</span> <span class="n">detect_events</span><span class="p">(</span><span class="n">fast</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">thresh_db</span><span class="o">=</span><span class="n">thresh_db</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;objects&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;n_detected&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">events</span><span class="p">),</span> <span class="s2">&quot;n_short&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+           <span class="s2">&quot;n_long&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;min_dur_s&quot;</span><span class="p">:</span> <span class="n">min_dur</span><span class="p">,</span> <span class="s2">&quot;max_dur_s&quot;</span><span class="p">:</span> <span class="n">max_dur</span><span class="p">}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">events</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">out</span>
+
+    <span class="n">logspec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">F</span><span class="p">[</span><span class="s2">&quot;logspec&quot;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="k">if</span> <span class="s2">&quot;logspec&quot;</span> <span class="ow">in</span> <span class="n">F</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">t_sec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">F</span><span class="p">[</span><span class="s2">&quot;t&quot;</span><span class="p">],</span> <span class="nb">float</span><span class="p">)</span> <span class="k">if</span> <span class="s2">&quot;t&quot;</span> <span class="ow">in</span> <span class="n">F</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">bg_spec</span> <span class="o">=</span> <span class="n">_band_background</span><span class="p">(</span><span class="n">logspec</span><span class="p">)</span> <span class="k">if</span> <span class="n">logspec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">LOGF_RANGE</span>
+    <span class="n">nband</span> <span class="o">=</span> <span class="n">logspec</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">logspec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="n">bpo</span> <span class="o">=</span> <span class="n">nband</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">LOGF_RANGE</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">LOGF_RANGE</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">nband</span> <span class="k">else</span> <span class="mf">10.0</span>
+
+    <span class="n">has_hi</span> <span class="o">=</span> <span class="s2">&quot;env_hi&quot;</span> <span class="ow">in</span> <span class="n">F</span> <span class="ow">and</span> <span class="s2">&quot;t_hi&quot;</span> <span class="ow">in</span> <span class="n">F</span>
+    <span class="k">if</span> <span class="n">has_hi</span><span class="p">:</span>
+        <span class="n">t_hi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">F</span><span class="p">[</span><span class="s2">&quot;t_hi&quot;</span><span class="p">],</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="n">env_hi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">F</span><span class="p">[</span><span class="s2">&quot;env_hi&quot;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">))</span>
+        <span class="n">hi_dt</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hi_dt&quot;</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+        <span class="n">t0</span><span class="p">,</span> <span class="n">t1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">tf</span><span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="s2">&quot;i0&quot;</span><span class="p">]]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">tf</span><span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="s2">&quot;i1&quot;</span><span class="p">]])</span> <span class="o">+</span> <span class="n">dt</span>
+        <span class="n">dur</span> <span class="o">=</span> <span class="n">t1</span> <span class="o">-</span> <span class="n">t0</span>
+        <span class="k">if</span> <span class="n">dur</span> <span class="o">&lt;</span> <span class="n">min_dur</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[</span><span class="s2">&quot;n_short&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">dur</span> <span class="o">&gt;</span> <span class="n">max_dur</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[</span><span class="s2">&quot;n_long&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">continue</span>
+        <span class="n">mass</span><span class="p">,</span> <span class="n">mass_ev</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">logspec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">t_sec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">r0</span> <span class="o">=</span> <span class="n">_row_index</span><span class="p">(</span><span class="n">t_sec</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">logspec</span><span class="p">))</span>
+            <span class="n">r1</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">r0</span><span class="p">,</span> <span class="n">_row_index</span><span class="p">(</span><span class="n">t_sec</span><span class="p">,</span> <span class="n">t1</span> <span class="o">-</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">logspec</span><span class="p">)))</span>
+            <span class="n">mass</span><span class="p">,</span> <span class="n">mass_ev</span> <span class="o">=</span> <span class="n">object_mass</span><span class="p">(</span>
+                <span class="n">_excess_spectrum</span><span class="p">(</span><span class="n">logspec</span><span class="p">,</span> <span class="n">bg_spec</span><span class="p">,</span> <span class="n">r0</span><span class="p">,</span> <span class="n">r1</span><span class="p">),</span> <span class="n">bpo</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">has_hi</span><span class="p">:</span>
+            <span class="c1"># a little pre-roll, so the attack is measured from the silence</span>
+            <span class="c1"># before the object rather than from the detector&#39;s threshold</span>
+            <span class="n">pre</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="mf">0.1</span> <span class="o">/</span> <span class="n">hi_dt</span><span class="p">))</span>
+            <span class="n">j0</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">_row_index</span><span class="p">(</span><span class="n">t_hi</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">env_hi</span><span class="p">))</span> <span class="o">-</span> <span class="n">pre</span><span class="p">)</span>
+            <span class="n">j1</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">j0</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">_row_index</span><span class="p">(</span><span class="n">t_hi</span><span class="p">,</span> <span class="n">t1</span> <span class="o">-</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">env_hi</span><span class="p">)))</span>
+            <span class="n">env</span><span class="p">,</span> <span class="n">edt</span> <span class="o">=</span> <span class="n">env_hi</span><span class="p">[</span><span class="n">j0</span><span class="p">:</span><span class="n">j1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">hi_dt</span>
+        <span class="k">else</span><span class="p">:</span>                       <span class="c1"># pre-0.2 cache: the 8 Hz fast level only</span>
+            <span class="n">env</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="n">fast</span><span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="s2">&quot;i0&quot;</span><span class="p">]:</span><span class="n">e</span><span class="p">[</span><span class="s2">&quot;i1&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">20</span><span class="p">)</span>
+            <span class="n">edt</span> <span class="o">=</span> <span class="n">dt</span>
+        <span class="n">facture</span><span class="p">,</span> <span class="n">fac_ev</span> <span class="o">=</span> <span class="n">object_facture</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">edt</span><span class="p">,</span> <span class="n">dur</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">&quot;objects&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;object at </span><span class="si">{</span><span class="n">_clock</span><span class="p">(</span><span class="n">t0</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;figure&quot;</span><span class="p">,</span> <span class="s2">&quot;mass&quot;</span><span class="p">:</span> <span class="n">mass</span><span class="p">,</span> <span class="s2">&quot;facture&quot;</span><span class="p">:</span> <span class="n">facture</span><span class="p">,</span>
+            <span class="s2">&quot;spans&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="n">t0</span><span class="p">,</span> <span class="n">t1</span><span class="p">]],</span>
+            <span class="s2">&quot;_auto&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;_object&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;_level_dbfs&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">fast</span><span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="s2">&quot;ipk&quot;</span><span class="p">]]),</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="s2">&quot;_exceed_db&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="s2">&quot;exceed&quot;</span><span class="p">]),</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="s2">&quot;_schaeffer&quot;</span><span class="p">:</span> <span class="p">{</span><span class="o">**</span><span class="n">mass_ev</span><span class="p">,</span> <span class="o">**</span><span class="n">fac_ev</span><span class="p">},</span>
+        <span class="p">})</span>
+    <span class="k">return</span> <span class="n">out</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ambiscape.objects.cell_counts" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">cell_counts</span><span class="p">(</span><span class="n">objects</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p><code>{(facture, mass): n}</code> over typed objects — the map's full census.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ambiscape/objects.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">cell_counts</span><span class="p">(</span><span class="n">objects</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;``{(facture, mass): n}`` over typed objects — the map&#39;s full census.&quot;&quot;&quot;</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;facture&quot;</span><span class="p">),</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mass&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="kc">None</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">out</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -28547,7 +29515,7 @@ comparable; absolute fraction values differ slightly by construction.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 7, 2026 09:21:08 UTC">August 7, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 7, 2026 14:35:41 UTC">August 7, 2026</span>
   </span>
 
     

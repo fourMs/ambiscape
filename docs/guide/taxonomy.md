@@ -25,6 +25,26 @@ So the same object carries up to three independent labels, and they do not const
 ventilation drone is `noise`/`unlimited` to Schaeffer, a `keynote` to Schafer, and `anthrophony` to
 soundscape ecology. Nothing about the first determines the second or the third.
 
+## Two different timescales
+
+The two questions are also asked of different lengths of sound, and this matters more than it looks.
+
+A Schafer **keynote** is a level that persists. The ventilation bed, the motorway a valley away, the
+refrigerator: minutes to hours of ground, heard as the condition of a place rather than as anything
+happening in it. One does not attend to a keynote; one notices it when it stops.
+
+A Schaeffer **sound object** is what the ear can hold whole in a single act of attention. In the
+*Traité* that horizon runs from roughly half a second to about five seconds. Shorter than that and
+there is no shape to hear, only a mark; longer and attention stops holding the whole and begins to
+follow a texture instead. A door closing, a kettle's rattle, one stroke of a bell: these are sound
+objects, and reduced listening is something done to them one at a time.
+
+Placing a keynote regime on the typo-morphology plane therefore asks of an eight-hour ventilation bed
+the question Schaeffer asks of a single closing door. The two figures here keep the scales apart. The
+**Schaeffer map** is built from detected events, one point per sound object of 0.2–8 s. The **Schafer
+timeline** is built from regimes and spans, on the session clock. Neither borrows the other's unit,
+and the map shows no regimes at all.
+
 ## The workflow
 
 Instruments detect *when* things sound. Deciding what they are, in any of the three schemes, is a
@@ -54,7 +74,13 @@ From the cached features, `draft` pre-fills:
   diffuseness, and, with the `[ml]` extra, AudioSet tag suggestions from PANNs. Treat those as
   suggestions to confirm by ear, not as ground truth.
 
-For a finer, object-level draft of the two Schaeffer axes, where every inter-onset sound object is
+Note that the mass and facture the draft proposes here describe *regimes*, and they exist only to
+give the annotator a starting point for the bed's character. They are not what the Schaeffer map
+plots: the map builds its own objects from the detected events (`ambiscape.objects`, described under
+[Render](#the-schaeffer-map-one-point-per-sound-object) below), because a regime is not a sound
+object.
+
+For a third view of the same axes, in which every inter-onset segment of a short excerpt is
 classified on a simplified TARTYP grid, see `music.tartyp_profile` in [Music](music.md). It needs the
 `[music]` extra.
 
@@ -99,22 +125,70 @@ Intercontinental database's Haarlem and Berlin session folders.
 
 `taxonomy` produces two figures, one per tradition.
 
-The Schaeffer map places every object on the facture by mass plane, which is his question and his
-alone. It is coloured by Schafer's `kind` only as a convenience, so that you can see whether the two
-schemes happen to agree in your corpus. Keynotes tend to crowd the sustained and unlimited columns
-and signals the impulse and iteration columns, but that is a finding about the material rather than
-anything the classification enforces. Points carry text only where it stays legible: on maps with
-few objects every point is labelled, on crowded maps only points that sit alone in their grid cell
-(the notable outliers) are. Cells with more objects than fit the regular layout are grouped into
-~6 dB level bands, each band's points drawn together and given a concise identity label — level band
-plus count, `"−46 to −40, n=17"` — so a crowded map never reduces to anonymous jitter.
-Machine-drafted boilerplate is never printed per point; a single "machine-drafted labels; listen to
-confirm" note under the title covers every drafted object.
+### The Schaeffer map: one point per sound object
 
-![Schaeffer map: annotated objects placed on the facture by mass plane, coloured by Schafer soundscape function.](../img/schaeffer_map.png)
+The map places sound objects on the facture by mass plane, which is Schaeffer's question and his
+alone. Its unit is the object, not the regime: the session's detected events — the fast level rising
+at least 8 dB over its running background — are filtered to the object duration window (0.2–8 s by
+default) and each survivor is typed on both axes from its own signature in the cached features. A
+full domestic day yields tens of thousands of them and types in a couple of seconds, with no audio
+pass. Keynote regimes are counted in the caption and sent to the timeline, where they belong. The
+window is a choice, so it is a flag: `ambiscape taxonomy <folder> --object-window 0.5 5` narrows it
+to Schaeffer's own figures, and the caption reports how many detected events fell outside whatever
+window you set.
+
+**Mass** comes from the object's *excess* spectrum, that is, what appeared over the running band
+background, so a click over a ventilation drone is typed as a click and not as the drone. Two numbers
+are read off it, both deliberately blind to overall spectral tilt, since brightness is not mass:
+
+- **peak share**, the fraction of the object's energy sitting in bands that stand 6 dB above the
+  running median of their own octave. This is peakiness and harmonicity in one figure: a lone partial
+  counts, every member of a harmonic series counts, and a continuum of any shape counts for nothing;
+- **spread**, the energy-weighted standard deviation of log2 frequency, in octaves.
+
+| Reading | Mass |
+|---|---|
+| peak share ≥ 0.50 | `tonic` — most of what appeared is in peaks, so a pitch is what one hears |
+| peak share ≥ 0.20 | `tonic-complex` — a pitch audible over a continuum that carries most of the energy |
+| spread ≥ 1.2 octaves | `noise` — no pitch, energy spread wide enough to hear as a band of noise |
+| otherwise | `complex` — energy in one or a few narrow regions, none of them a pitch |
+
+**Facture** comes from the object's own amplitude envelope, the 20 ms broadband envelope of the
+feature cache. Two numbers again: the **attack time**, the conventional 10-to-90 per cent rise
+towards the peak, and the **iteration strength**, the normalised envelope autocorrelation at its best
+repetition lag between 3 and 20 Hz — a single attack and decay has a monotonically falling
+autocorrelation and scores nothing, while a rattle, roll or grain scores at its own period.
+
+| Reading | Facture |
+|---|---|
+| duration ≥ 5 s | `unlimited` — sustainment outlasting what attention holds whole; Schaeffer's excentric case |
+| iteration strength ≥ 0.35, duration ≥ 0.4 s | `iteration` — energy maintained by repetition |
+| attack ≤ 0.08 s, duration ≤ 1 s | `impulse` — all the energy arrives at once and nothing maintains it |
+| otherwise | `sustained` — energy held continuously between a beginning and an end |
+
+Every object carries the numbers behind both readings under `_schaeffer`, so any proposal can be
+traced back to what produced it. And they remain proposals. No public domestic corpus has
+object-level ground truth to score them against — activity labels are minutes long, an order of
+magnitude coarser than an object — so the caption keeps its "machine-drafted, listen to confirm"
+marking and means it.
+
+Each object is one point, jittered inside its cell so that density is visible, with the cell's full
+count printed at its corner and opacity tracking the object's level, so the loud objects in a crowded
+cell stand out from the quiet ones. Colour is Schafer's `kind` — a convenience, so that you can see
+whether the two schemes happen to agree in your corpus — or, with activity annotations, the dominant
+concurrent activity. Sessions of tens of thousands of objects are subsampled for the scatter,
+stratified by cell so that no occupied cell disappears and stated in the caption; the printed counts
+always come from the full census. Hand-authored annotation entries that are themselves object-scale
+(events, or spans no longer than the window) join the detected ones and keep their labels where the
+map is sparse enough to print them.
+
+![Schaeffer map: detected sound objects placed on the facture by mass plane, one point per object, coloured by Schafer soundscape function.](../img/schaeffer_map.png)
+
+### The Schafer timeline: the keynote scale
 
 The Schafer timeline shows the session clock, and it has two layouts; which one you get depends on
-whether human activity annotations are available (below).
+whether human activity annotations are available (below). This is where the regimes live, and where
+they should be read: minutes and hours of ground, not objects.
 
 **The acoustic-first layout** — the default, and the only one, when no activities are given — gives
 one lane per hand-authored object: keynote bars, signal and soundmark event markers, lo-fi states
@@ -185,12 +259,16 @@ and duration-only labels).
 On the map, points take the colour of their dominant concurrent activity instead of their Schafer
 kind, with the class colours shared with the timeline ribbon's legend, and points that carry text
 (sparse maps, or cell-singleton outliers) also say during which activity they occur
-(`"— during cooking"`).
+(`"— during cooking"`). Since every point is now one sound object, the colouring says which cells of
+the plane a household activity fills: dishwashing lands in impulse and noise, watching television
+fills the sustained column at every mass.
 
 The two provenances are never conflated. The activities are **data** — human annotations shipped
 with the dataset, attributed in the caption (`activities: human annotations, Dekkers et al. 2017`) —
 while mass/facture, the level measurements and the bed structure remain machine output: the beds
-keep their "listen to confirm" marking, and the acoustic summaries are measured, not judged.
+keep their "listen to confirm" marking, and the acoustic summaries are measured, not judged. Note
+also the scale mismatch: an activity label runs for minutes and a sound object for seconds, so the
+activity colour says what was going on around the object, never what the object is.
 
 ## A note on spelling
 

@@ -41,6 +41,12 @@ def main(argv=None):
                          "activity-first whenever --activities is given, "
                          "acoustic-first otherwise; 'acoustic' keeps the "
                          "acoustic-first lane timeline even with activities")
+    tx.add_argument("--object-window", nargs=2, type=float, default=None,
+                    metavar=("MIN_S", "MAX_S"),
+                    help="duration window for the Schaeffer map's sound "
+                         "objects, in seconds (default 0.2 8): detected "
+                         "events outside it are counted in the caption but "
+                         "are not objects")
     dr = sub.add_parser("draft",
                         help="pre-fill annotations.draft.json from detected "
                              "states and events (needs a prior analyze run)")
@@ -1279,7 +1285,8 @@ def main(argv=None):
             print(f"note: activities file {args.activities} not found; "
                   "rendering without the overlay")
         paths = render(args.folder, out_dir=args.out,
-                       activities=args.activities, layout=args.layout)
+                       activities=args.activities, layout=args.layout,
+                       object_window=args.object_window)
         for p in paths:
             print(f"wrote {p}")
         return 0

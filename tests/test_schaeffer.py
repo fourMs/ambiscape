@@ -1,9 +1,14 @@
 """draft proposes Schaeffer mass/facture from features; long sessions with
-many steady regimes must survive the draft → taxonomy path."""
+many steady regimes must survive the draft → taxonomy path.
+
+The Schaeffer map itself works one level down, on sound objects rather than
+regimes: the last section drives a synthetic session with injected objects of
+known type through detection, extraction and typing."""
 import itertools
 import json
 
 import numpy as np
+import pytest
 
 from ambiscape.draft import _labels, draft_annotations, schaeffer_hint
 
@@ -212,13 +217,15 @@ def test_timeline_ribbon_and_bed_activity_labels(tmp_path):
 
 
 def test_schaeffer_map_with_activities(tmp_path):
-    from ambiscape.taxonomy import schaeffer_map
+    from ambiscape.taxonomy import map_objects, schaeffer_map
     acts = _acts(tmp_path)
     ann = {"objects": [
-        {"name": "kettle", "kind": "signal", "mass": "noise",
-         "facture": "sustained", "spans": [[1800.0, 2400.0]]},
+        {"name": "kettle whistle", "kind": "signal", "mass": "noise",
+         "facture": "sustained", "spans": [[1800.0, 1803.5]]},
         {"name": "door", "kind": "figure", "mass": "complex",
          "facture": "impulse", "events": [3100.0]}]}
+    objs, stats = map_objects(ann)
+    assert stats["n_hand"] == 2 and stats["n_regime"] == 0
     out = tmp_path / "map.png"
     schaeffer_map(ann, out, title="synthetic", activities=acts)
     assert out.exists()
@@ -327,25 +334,10 @@ def test_activity_first_layout_default_and_optout(tmp_path):
     assert plt.imread(withmark).shape[0] > plt.imread(afirst).shape[0]
 
 
-# --- Schaeffer map: level-band groups + activity colouring -----------------
-
-
-def test_map_band_groups_and_labels():
-    from ambiscape.taxonomy import _band_groups, _band_label
-    objs = _auto_objects(20)
-    groups = _band_groups(objs)
-    assert sum(len(g["objs"]) for g in groups) == 20    # nothing dropped
-    for g in groups:
-        assert g["hi"] - g["lo"] <= 6.0 + 1e-9          # ~6 dB bands
-    assert _band_label(-46.0, -40.2, 17) == "−46 to −40, n=17"
-    assert _band_label(-27.0, -27.0, 2) == "−27, n=2"
-    # levelless objects pool into a final level-free group
-    tail = _band_groups([{"name": "hum", "kind": "keynote"}])
-    assert tail[-1]["lo"] is None and _band_label(None, None, 3) == "n=3"
+# --- Schaeffer map: sound objects, not regimes -----------------------------
 
 
 def test_map_activity_colouring_shared_with_timeline(tmp_path):
-    import matplotlib.pyplot as plt
     from ambiscape.figures import BLUE
     from ambiscape.taxonomy import (_activity_colors, _point_color,
                                     schaeffer_map)
@@ -354,7 +346,162 @@ def test_map_activity_colouring_shared_with_timeline(tmp_path):
     o = _auto_objects(1)[0]                 # spans [0, 280] -> absence
     assert _point_color(o, acts, ac) == (ac["absence"], "absence")
     assert _point_color(o) == (BLUE, None)  # no activities: kind colour
-    ann = {"objects": _auto_objects(20)}
+    objs = [{"name": f"click {i}", "kind": "figure", "mass": "complex",
+             "facture": "impulse", "spans": [[100.0 + i, 100.4 + i]],
+             "_level_dbfs": -40.0 - i} for i in range(20)]
     out = tmp_path / "map.png"
-    schaeffer_map(ann, out, title="synthetic", activities=acts)
+    schaeffer_map({"objects": objs}, out, title="synthetic", activities=acts)
+    assert out.exists()
+
+
+def test_map_excludes_keynote_regimes():
+    # the point of the rebuild: a multi-minute steady bed is Schafer's unit,
+    # not Schaeffer's, and must not reach the typo-morphology plane
+    from ambiscape.taxonomy import map_objects
+    ann = {"objects": _auto_objects(30)
+           + [{"name": "hand-drawn drone", "kind": "keynote", "mass": "noise",
+               "facture": "unlimited", "spans": [[0.0, 4000.0]]},
+              {"name": "door", "kind": "figure", "mass": "complex",
+               "facture": "impulse", "events": [12.0, 44.0, 91.0]}]}
+    objs, stats = map_objects(ann)
+    assert stats["n_regime"] == 31          # 30 machine beds + the hand drone
+    assert stats["n_hand"] == 3             # one entry, three sound objects
+    assert len(objs) == 3
+    assert {o["facture"] for o in objs} == {"impulse"}
+
+
+def test_map_untyped_objects_counted_not_placed():
+    from ambiscape.taxonomy import map_objects
+    ann = {"objects": [{"name": "events (unclassified)", "kind": "figure",
+                        "mass": "TODO", "facture": "impulse",
+                        "events": [1.0, 2.0]}]}
+    objs, stats = map_objects(ann)
+    assert objs == [] and stats["n_untyped"] == 1
+
+
+def test_map_subsampling_keeps_every_cell_and_full_counts(tmp_path):
+    from ambiscape.taxonomy import _subsample
+    cells = {(0, 0): list(range(9000)), (3, 3): list(range(4))}
+    draw, sampled = _subsample(cells, 500)
+    assert sampled
+    assert 400 < sum(len(v) for v in draw.values()) < 600
+    assert len(draw[(3, 3)]) >= 1           # a rare cell never vanishes
+    draw2, sampled2 = _subsample({(0, 0): list(range(10))}, 500)
+    assert not sampled2 and len(draw2[(0, 0)]) == 10
+
+
+# --- sound objects: extraction and typing ----------------------------------
+
+
+def _object_session(folder):
+    """A 120 s session with three injected objects of known Schaeffer type.
+
+    At 20 s a click (instantaneous broadband attack, 60 ms decay), at 40 s a
+    2 s tone burst at 1 kHz, at 70 s a rattle of 15 ms noise grains repeating
+    at 12 Hz for 1.5 s — over a quiet uncorrelated bed at about -60 dBFS.
+    """
+    from tests.conftest import FS, plane_wave, write_bwf
+    n = int(120.0 * FS)
+    rng = np.random.default_rng(3)
+    x = 0.001 * rng.standard_normal(n)
+    t = np.arange(n) / FS
+    i = int(20 * FS)
+    seg = np.arange(int(0.5 * FS)) / FS
+    x[i:i + len(seg)] += 0.5 * np.exp(-seg / 0.06) \
+        * rng.standard_normal(len(seg))
+    i, m = int(40 * FS), int(2.0 * FS)
+    env, k = np.ones(m), int(0.02 * FS)
+    env[:k] = np.linspace(0, 1, k)
+    env[-k:] = np.linspace(1, 0, k)
+    x[i:i + m] += 0.2 * env * np.sin(2 * np.pi * 1000 * t[:m])
+    i, g, period = int(70 * FS), int(0.015 * FS), int(FS / 12)
+    for j in range(18):
+        a = i + j * period
+        x[a:a + g] += 0.25 * rng.standard_normal(g) * np.hanning(g)
+    write_bwf(folder / "objects.wav", plane_wave(x, 0.0))
+    return folder
+
+
+@pytest.fixture(scope="module")
+def object_features(tmp_path_factory):
+    import ambiscape as asc
+    from ambiscape import features
+    folder = _object_session(tmp_path_factory.mktemp("objects"))
+    sess = asc.open_session(folder)
+    out = folder / "analysis"
+    features.extract_session(sess, out / "features", verbose=False)
+    return features.load_features(sorted((out / "features").glob("*.npz")))
+
+
+def test_injected_objects_land_in_their_cells(object_features):
+    from ambiscape.objects import extract_objects
+    r = extract_objects(object_features)
+    assert r["n_detected"] == 3 and r["n_short"] == 0 and r["n_long"] == 0
+    t0 = float(object_features["t"][0])      # the session's own clock
+    cells = {round(o["spans"][0][0] - t0): (o["mass"], o["facture"])
+             for o in r["objects"]}
+    assert cells[20] == ("noise", "impulse")        # the click
+    assert cells[40] == ("tonic", "sustained")      # the 2 s tone burst
+    assert cells[70][1] == "iteration"              # the rattle
+    rattle = next(o for o in r["objects"]
+                  if round(o["spans"][0][0] - t0) == 70)
+    assert 10.0 <= rattle["_schaeffer"]["iter_rate_hz"] <= 14.0
+    # each object carries the numbers behind both typings
+    for o in r["objects"]:
+        assert {"peak_share", "spread_oct", "attack_s", "dur_s"} \
+            <= set(o["_schaeffer"])
+        assert o["kind"] == "figure" and o["_object"] and o["_auto"]
+
+
+def test_duration_window_filters_and_counts(object_features):
+    from ambiscape.objects import extract_objects
+    # a 1 s ceiling drops the 2 s tone burst and the 1.5 s rattle
+    tight = extract_objects(object_features, max_dur=1.0)
+    assert tight["n_long"] == 2 and len(tight["objects"]) == 1
+    assert all(o["spans"][0][1] - o["spans"][0][0] <= 1.0
+               for o in tight["objects"])
+    # a 1 s floor drops the click instead, and says so
+    late = extract_objects(object_features, min_dur=1.0)
+    assert late["n_short"] == 1 and len(late["objects"]) == 2
+    # nothing is lost between the three counts
+    for r in (tight, late):
+        assert len(r["objects"]) + r["n_short"] + r["n_long"] \
+            == r["n_detected"]
+
+
+def test_object_typing_rules_are_readable():
+    from ambiscape.objects import object_facture, object_mass
+    # mass: one narrow peak over a floor is tonic; a flat wide band is noise
+    tone = np.full(96, 1e-6)
+    tone[40] = 1.0
+    assert object_mass(tone)[0] == "tonic"
+    assert object_mass(np.ones(96))[0] == "noise"
+    # a peak carrying a fifth of a broadband object's energy: pitch + noise
+    mixed = np.ones(96)
+    mixed[40] = 30.0
+    assert object_mass(mixed)[0] == "tonic-complex"
+    # nothing above background cannot be typed at all
+    assert object_mass(np.zeros(96))[0] is None
+    # facture: duration alone decides the excentric case
+    long_env = np.ones(300)
+    assert object_facture(long_env, 0.02, 6.0)[0] == "unlimited"
+    # a sharp attack that dies away within a second is an impulse
+    click = np.concatenate([np.zeros(5), np.exp(-np.arange(20) / 3)])
+    assert object_facture(click, 0.02, 0.5)[0] == "impulse"
+    # the same envelope repeated at 5 Hz is an iteration
+    grain = np.concatenate([np.zeros(2), np.exp(-np.arange(8) / 2)])
+    fac, ev = object_facture(np.tile(grain, 8), 0.02, 1.6)
+    assert fac == "iteration" and ev["iter_strength"] >= 0.35
+    # held energy with a soft attack, beginning and end in view
+    swell = np.concatenate([np.linspace(0, 1, 60), np.ones(60)])
+    assert object_facture(swell, 0.02, 2.4)[0] == "sustained"
+
+
+def test_render_map_from_features(tmp_path, object_features):
+    from ambiscape.taxonomy import map_objects, schaeffer_map
+    ann = {"objects": _auto_objects(12)}     # regimes: none of them plotted
+    objs, stats = map_objects(ann, object_features)
+    assert len(objs) == 3 and stats["n_regime"] == 12
+    out = tmp_path / "map.png"
+    schaeffer_map(objs, out, title="synthetic", stats=stats)
     assert out.exists()

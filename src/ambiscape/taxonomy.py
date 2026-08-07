@@ -15,13 +15,23 @@ soundscape ecology, after Krause and Pijanowski, and classifies by physical orig
 One object carries all three labels independently. A ventilation drone is ``noise``/``unlimited`` to
 Schaeffer, a ``keynote`` to Schafer, and ``anthrophony`` to soundscape ecology.
 
+**The two figures work at different timescales, and this is not incidental.** A Schafer keynote is a
+level that persists for minutes or hours — the ground of a place, heard as its condition. A Schaeffer
+sound object is an event of roughly half a second to five seconds, short enough to be held whole in
+one act of attention. Plotting steady-state regimes on the typo-morphology plane would conflate the
+two: it would ask of an eight-hour ventilation bed the question Schaeffer asks of a single closing
+door. So the map is built from detected *events* (see :mod:`ambiscape.objects`) and the timeline from
+regimes, and neither borrows the other's unit.
+
 The annotation file (``annotations.json`` or ``.yml`` in the session folder) is hand-authored:
 instruments detect *when* things sound, but assigning a sound to any of the three schemes is an
 interpretive act. This module turns that interpretation into two figures, one per tradition:
 
-- ``schaeffer_map``  — objects on the facture x mass plane, which is Schaeffer's question. It is
-  coloured by Schafer's ``kind`` only so you can see whether the two schemes happen to agree in a
-  given corpus; the colouring carries no classificatory weight;
+- ``schaeffer_map``  — sound objects on the facture x mass plane, which is Schaeffer's question. One
+  point per object, extracted from the session's detected events and typed on both axes from its own
+  spectral and temporal signature; hand-authored objects of the same scale join them. Keynote
+  regimes never appear. Points are coloured by Schafer's ``kind`` only so you can see whether the two
+  schemes happen to agree in a given corpus; the colouring carries no classificatory weight;
 - ``schafer_timeline`` — the session clock. Two layouts. The acoustic-first layout (the only one
   without activity data) gives one lane per hand-authored object: keynote spans as bars, events as
   markers, lo-fi states shaded. Hi-fi and lo-fi are Schafer's terms too. Machine-drafted
@@ -97,6 +107,7 @@ LOFI = "#f0efec"
 BED_BAND_DB = 6.0     # level band that groups steady regimes into one bed
 MAX_BED_LANES = 8     # keynote-bed lanes on the timeline; the rest -> "other"
 MAX_POINT_LABELS = 12  # above this, only cell-singleton outliers get map text
+MAX_SCATTER = 1200    # points drawn on the map; cell counts stay complete
 ACT_MIN_SHARE = 0.005  # activity classes under this share of labelled time
                        # are pooled into the "other" lane
 LEVEL_CMAP = "magma"   # level colouring, dB re day median (as the cross-node
@@ -300,35 +311,6 @@ def _lane_label(name: str, acts: list, F=None) -> str:
     return txt
 
 
-def _band_groups(objs: list, band_db: float = BED_BAND_DB) -> list:
-    """Group objects into ~``band_db``-wide level bands for concise map
-    labelling: ``[{"lo", "hi", "objs"}, ...]`` sorted by level; objects with
-    no recoverable level pool into a final level-less group."""
-    known = sorted((o for o in objs if _level_of(o) is not None),
-                   key=_level_of)
-    groups: list[dict] = []
-    for o in known:
-        lv = _level_of(o)
-        if groups and lv - groups[-1]["lo"] <= band_db:
-            groups[-1]["objs"].append(o)
-            groups[-1]["hi"] = lv
-        else:
-            groups.append({"lo": lv, "hi": lv, "objs": [o]})
-    unknown = [o for o in objs if _level_of(o) is None]
-    if unknown:
-        groups.append({"lo": None, "hi": None, "objs": unknown})
-    return groups
-
-
-def _band_label(lo, hi, n: int) -> str:
-    """Concise group label for the map: ``"−46 to −40, n=17"`` (dBFS band)."""
-    if lo is None:
-        return f"n={n}"
-    lo_i, hi_i = round(lo), round(hi)
-    rng = f"{lo_i}" if lo_i == hi_i else f"{lo_i} to {hi_i}"
-    return f"{rng}, n={n}".replace("-", MINUS)
-
-
 def _point_color(o: dict, activities=None, act_colors=None):
     """Map point colour and the class behind it: ``(colour, class|None)``.
 
@@ -454,84 +436,204 @@ def _point_label(o: dict, cell_n: int, n_placed: int):
     return text
 
 
-def schaeffer_map(ann: dict, out_path, title="", activities=None):
-    """Objects on the facture x mass grid.
+def _is_object_scale(o: dict, max_dur: float) -> bool:
+    """True when an annotation entry is itself a sound object.
 
-    Points are coloured by Schafer function — or, with ``activities`` (from
-    :func:`load_activities`), by each point's dominant concurrent activity,
-    with the same class colours as the timeline. Crowded cells no longer
-    reduce to anonymous jitter: their points are grouped into ~6 dB level
-    bands, each band carrying a concise label ("−46 to −40, n=17"), so
-    points stay identifiable without per-point boilerplate. On sparse maps,
-    labelled points also say during which activity they occur. The caption
-    keeps the two provenances apart: mass/facture are machine-drafted
-    listening proposals, the activities are dataset ground truth.
+    An entry marked at points in time (``events``) is one by construction; an
+    entry with spans is one only while every span stays inside the object
+    window. A span of minutes is a keynote regime and belongs on the Schafer
+    timeline, not on Schaeffer's plane.
     """
+    spans = _spans_s(o)
+    if spans:
+        return max(b - a for a, b in spans) <= max_dur
+    return bool(o.get("events"))
+
+
+def _expand_events(o: dict) -> list:
+    """One dict per event of a hand-authored object; spans are kept as they are.
+
+    A "church bells" entry with twelve event times is twelve sound objects of
+    the same type, and the map is a census of objects.
+    """
+    ev = o.get("events") or []
+    if not ev:
+        return [o]
+    return [dict(o, events=[e], spans=[]) for e in ev]
+
+
+def map_objects(ann: dict | None = None, F: dict | None = None,
+                min_dur: float = None, max_dur: float = None) -> tuple:
+    """The sound objects a Schaeffer map plots, and the census behind them.
+
+    Two sources, both at object scale. From ``F`` (a
+    :func:`~ambiscape.features.load_features` dict) come the session's
+    detected events, filtered to the object duration window and typed on both
+    axes by :func:`ambiscape.objects.extract_objects`. From ``ann`` come the
+    hand-authored entries that are themselves object-scale — events, or spans
+    no longer than the window — expanded one point per event. Machine-drafted
+    keynote regimes are counted and set aside: they are Schafer's material.
+
+    Returns ``(objects, stats)``, where ``stats`` carries every count the
+    caption needs: ``n_detected``, ``n_short``, ``n_long``, ``n_hand``,
+    ``n_regime``, ``n_untyped``, and the window actually used.
+    """
+    from .objects import OBJECT_MAX_S, OBJECT_MIN_S, extract_objects
+    min_dur = OBJECT_MIN_S if min_dur is None else min_dur
+    max_dur = OBJECT_MAX_S if max_dur is None else max_dur
+    stats = {"n_detected": 0, "n_short": 0, "n_long": 0, "n_hand": 0,
+             "n_regime": 0, "n_untyped": 0,
+             "min_dur_s": min_dur, "max_dur_s": max_dur}
+    objs: list = []
+    if F is not None:
+        r = extract_objects(F, min_dur=min_dur, max_dur=max_dur)
+        for k in ("n_detected", "n_short", "n_long"):
+            stats[k] = r[k]
+        objs += r["objects"]
+    for o in (ann or {}).get("objects", []):
+        if o.get("_object"):
+            continue                     # already extracted above
+        if _is_auto(o) or not _is_object_scale(o, max_dur):
+            stats["n_regime"] += 1
+            continue
+        if o.get("facture") not in FACTURES or o.get("mass") not in MASSES:
+            stats["n_untyped"] += 1
+            continue
+        expanded = _expand_events(o)
+        stats["n_hand"] += len(expanded)
+        objs += expanded
+    stats["n_untyped"] += sum(1 for o in objs
+                              if o.get("facture") not in FACTURES
+                              or o.get("mass") not in MASSES)
+    return objs, stats
+
+
+def _alpha_scale(objs: list):
+    """``level -> alpha`` over the plotted objects' own level range.
+
+    Louder objects are drawn more opaque, so a dense cell still shows where
+    its energy sits. Returns a function; without recoverable levels it returns
+    a constant.
+    """
+    lv = [_level_of(o) for o in objs]
+    lv = [v for v in lv if v is not None]
+    if len(lv) < 2:
+        return lambda o: 0.85
+    lo = float(np.percentile(lv, 5))
+    hi = float(np.percentile(lv, 95))
+    if hi - lo < 1.0:
+        return lambda o: 0.85
+    def alpha(o):
+        v = _level_of(o)
+        if v is None:
+            return 0.5
+        return 0.18 + 0.72 * float(np.clip((v - lo) / (hi - lo), 0, 1))
+    return alpha
+
+
+def _subsample(cells: dict, max_points: int, seed: int = 11):
+    """Per-cell draw lists for the scatter, proportional to each cell's count.
+
+    Returns ``(draw, sampled)``: ``draw`` maps a cell to the objects actually
+    plotted, ``sampled`` is True when anything was left out. Sampling is
+    stratified so no occupied cell disappears, and the cell counts printed on
+    the figure always come from the full census, not from the sample.
+    """
+    total = sum(len(v) for v in cells.values())
+    if total <= max_points:
+        return {k: list(v) for k, v in cells.items()}, False
+    rng = np.random.default_rng(seed)
+    frac = max_points / total
+    draw = {}
+    for k, v in cells.items():
+        n = max(1, int(round(len(v) * frac)))
+        idx = rng.choice(len(v), size=min(n, len(v)), replace=False)
+        draw[k] = [v[i] for i in sorted(idx)]
+    return draw, True
+
+
+def schaeffer_map(source, out_path, title="", activities=None,
+                  stats=None, max_points: int = MAX_SCATTER):
+    """Sound objects on the facture x mass grid — one point per object.
+
+    ``source`` is a list of sound objects (as returned by
+    :func:`map_objects`), or an annotation dict, which is passed through
+    :func:`map_objects` with no feature cache so that only its hand-authored
+    object-scale entries are plotted. Keynote regimes are never plotted: a
+    multi-minute level bed is Schafer's unit, not Schaeffer's, and it is on
+    the timeline where it belongs.
+
+    Every object is one point, jittered inside its cell so that density is
+    visible, with the cell's full count printed at its corner. Points are
+    coloured by Schafer function — or, with ``activities`` (from
+    :func:`load_activities`), by each point's dominant concurrent activity,
+    with the same class colours as the timeline — and their opacity tracks the
+    object's level, so the loud objects in a crowded cell stand out from the
+    quiet ones. A session of tens of thousands of objects is subsampled for
+    the scatter (``max_points``, stratified by cell, stated in the caption)
+    while the printed counts stay complete. Objects few enough to name carry
+    their labels, and on sparse maps also the activity they occurred during.
+
+    ``stats`` is the census dict from :func:`map_objects`; when omitted it is
+    derived from ``source``. The caption keeps the provenances apart:
+    mass/facture are machine-drafted listening proposals, the activities are
+    dataset ground truth.
+    """
+    if isinstance(source, dict):
+        source, derived = map_objects(source)
+        stats = derived if stats is None else stats
+    objects = list(source)
+    if stats is None:
+        _, stats = map_objects({"objects": []})
+        stats["n_untyped"] = sum(1 for o in objects
+                                 if o.get("facture") not in FACTURES
+                                 or o.get("mass") not in MASSES)
     with plt.rc_context(RC):
         fig, ax = plt.subplots(figsize=(9.6, 6.4), dpi=130)
         ax.grid(False)
         for i in range(5):
             ax.axhline(i - 0.5, color=GRID, lw=0.8, zorder=0)
             ax.axvline(i - 0.5, color=GRID, lw=0.8, zorder=0)
-        # `draft` deliberately leaves facture and mass as "TODO" — they are listening judgements a
-        # detector should not guess — so a half-annotated object is the normal case here, not a
-        # broken one. Placing it on the grid would mean inventing the very coordinates the annotator
-        # has withheld, so it is left off the map and counted in the title instead. Before this, any
-        # such object raised ValueError from .index() and took the whole render down with it.
+        # An object the annotator (or the detector) has not typed on both axes
+        # cannot be placed without inventing the very coordinates that are
+        # missing, so it is left off the grid and counted in the title instead.
         cells: dict[tuple, list] = {}
-        n_unplaced = 0
-        for o in ann["objects"]:
+        for o in objects:
             if o.get("facture") not in FACTURES or o.get("mass") not in MASSES:
-                n_unplaced += 1
                 continue
             key = (FACTURES.index(o["facture"]), MASSES.index(o["mass"]))
             cells.setdefault(key, []).append(o)
-        offsets = [(0, .1), (-.18, -.12), (.18, -.12), (-.18, .3), (.18, .3)]
         n_placed = sum(len(v) for v in cells.values())
+        draw, sampled = _subsample(cells, max_points)
+        n_drawn = sum(len(v) for v in draw.values())
+        size = 170 if n_placed <= MAX_POINT_LABELS else (
+            60 if n_placed <= 60 else (22 if n_placed <= 400 else 9))
+        alpha_of = _alpha_scale(objects)
         act_colors = _activity_colors(activities) if activities else {}
         kinds_seen, classes_seen = set(), set()
         bio_seen, ring_seen = False, False
-        for (x, y), objs in cells.items():
-            n = len(objs)
-            # A cell whose points would carry no per-point text (crowded cell,
-            # or any multi-point cell on a crowded map) is drawn as ~6 dB
-            # level-band groups, each with a concise identity label, instead
-            # of anonymous jitter.
-            grouped = n > 1 and (n > len(offsets)
-                                 or n_placed > MAX_POINT_LABELS)
-            if grouped:
-                groups = _band_groups(objs)
-                m = len(groups)
-                rng = np.random.default_rng(97 + 13 * x + 5 * y)
-                size, alpha = max(40, int(850 / n)), 0.85
-                pairs = []
-                for j, g in enumerate(groups):
-                    yc = -0.36 + (j + 0.5) * 0.72 / m
-                    half = 0.30 / m
-                    pairs += [(o, (float(rng.uniform(-0.38, 0.02)),
-                                   yc + float(rng.uniform(-half, half))))
-                              for o in g["objs"]]
-                    ax.annotate(_band_label(g["lo"], g["hi"], len(g["objs"])),
-                                (x + 0.45, y + yc), ha="right", va="center",
-                                fontsize=7.5, color=SEC, zorder=4)
+        for (x, y), shown in sorted(draw.items()):
+            n = len(cells[(x, y)])
+            rng = np.random.default_rng(97 + 13 * x + 5 * y)
+            m = len(shown)
+            if m <= len(_OFFSETS):
+                pos = _OFFSETS[:m]
             else:
-                pairs = list(zip(objs, offsets[:n]))
-                size, alpha = 170, 1.0
-            for o, (dx, dy) in pairs:
-                ring = "soundmark" in o and o["kind"] != "soundmark"
+                pos = list(zip(rng.uniform(-0.36, 0.36, m),
+                               rng.uniform(-0.30, 0.30, m)))
+            for o, (dx, dy) in zip(shown, pos):
+                ring = "soundmark" in o and o.get("kind") != "soundmark"
                 ring_seen |= ring
                 bio_seen |= o.get("source") == "biophony"
                 c, cls = _point_color(o, activities, act_colors)
                 if cls:
                     classes_seen.add(cls)
                 else:
-                    kinds_seen.add(o["kind"])
+                    kinds_seen.add(o.get("kind", "figure"))
                 ax.scatter(x + dx, y + dy, s=size, marker=_marker(o),
-                           color=c, zorder=3, alpha=alpha,
+                           color=c, zorder=3, alpha=alpha_of(o),
                            edgecolors=MAGENTA if ring else "none",
                            linewidths=2.2)
-                if grouped:
-                    continue        # the band labels carry the identity
                 text = _point_label(o, n, n_placed)
                 if text and activities:
                     dom = _dominant_activity(o, activities)
@@ -542,26 +644,33 @@ def schaeffer_map(ann: dict, out_path, title="", activities=None):
                                 xytext=(0, -15), ha="center",
                                 textcoords="offset points", fontsize=8.3,
                                 color=INK, zorder=4)
+            if n_placed > MAX_POINT_LABELS:
+                ax.annotate(f"n={n}", (x + 0.45, y - 0.42), ha="right",
+                            va="top", fontsize=8, color=SEC, zorder=5)
         ax.set_xticks(range(4), FACTURE_LABELS)
         ax.set_yticks(range(4), MASS_LABELS)
         ax.set_xlim(-0.5, 3.5)
         ax.set_ylim(3.5, -0.5)
         ax.set_xlabel("facture / temporal sustainment  (Schaeffer typology) →")
         ax.set_ylabel("← mass  (Schaeffer morphology)")
-        note = (f"  ({n_unplaced} object{'s' if n_unplaced > 1 else ''} not yet typed, omitted)"
-                if n_unplaced else "")
         by = ("coloured by dominant concurrent activity" if activities
               else "coloured by Schafer function")
-        head = (f"{title} — sound objects in Schaeffer's typo-morphology,"
-                f" {by}{note}")
-        auto = any(_is_auto(o) for o in ann["objects"])
-        if auto and activities:
-            head += ("\nmass/facture: machine-drafted, listen to confirm · "
-                     + ACTIVITY_NOTE)
-        elif auto:
-            head += f"\n{AUTO_NOTE}"
-        elif activities:
-            head += f"\n{ACTIVITY_NOTE}"
+        head = (f"{title} — {n_placed} sound objects "
+                f"({stats['min_dur_s']:g}–{stats['max_dur_s']:g} s) in "
+                f"Schaeffer's typo-morphology, {by}, opacity by level")
+        line2 = _census_line(stats)
+        if line2:
+            head += "\n" + line2
+        notes = []
+        if any(_is_auto(o) for o in objects):
+            notes.append("mass/facture: machine-drafted, listen to confirm")
+        if activities:
+            notes.append(ACTIVITY_NOTE)
+        if sampled:
+            notes.append(f"scatter shows {n_drawn} of {n_placed} objects "
+                         "(stratified by cell); counts are complete")
+        if notes:
+            head += "\n" + " · ".join(notes)
         ax.set_title(head, loc="left", fontsize=10.5)
         names = {"keynote": "keynote (ground)", "signal": "signal (figure)",
                  "soundmark": "community soundmark",
@@ -577,11 +686,38 @@ def schaeffer_map(ann: dict, out_path, title="", activities=None):
         if bio_seen:
             handles.append(Line2D([], [], marker="^", ls="none", color=GREEN,
                                   label="biophony (triangle)"))
-        ax.legend(handles=handles, loc="lower left", frameon=False,
-                  fontsize=8, ncol=2)
+        # outside the axes: on a dense map every cell carries points, and a
+        # legend inside would sit on top of them
+        ax.legend(handles=handles, loc="upper left", bbox_to_anchor=(1.02, 1.0),
+                  frameon=False, fontsize=8, ncol=1)
         fig.tight_layout()
         fig.savefig(out_path, bbox_inches="tight")
         plt.close(fig)
+
+
+_OFFSETS = [(0, .1), (-.18, -.12), (.18, -.12), (-.18, .3), (.18, .3)]
+
+
+def _census_line(stats: dict) -> str:
+    """What the map left out, and where it went: the caption's second line."""
+    bits = []
+    if stats.get("n_detected"):
+        out = stats.get("n_short", 0) + stats.get("n_long", 0)
+        s = f"from {stats['n_detected']} detected events"
+        if out:
+            s += (f" ({stats['n_short']} shorter than "
+                  f"{stats['min_dur_s']:g} s, {stats['n_long']} longer than "
+                  f"{stats['max_dur_s']:g} s — not sound objects)")
+        bits.append(s)
+    if stats.get("n_hand"):
+        bits.append(f"{stats['n_hand']} hand-authored")
+    if stats.get("n_regime"):
+        bits.append(f"{stats['n_regime']} keynote regime"
+                    f"{'s' if stats['n_regime'] != 1 else ''} on the Schafer "
+                    "timeline instead")
+    if stats.get("n_untyped"):
+        bits.append(f"{stats['n_untyped']} not yet typed, omitted")
+    return "; ".join(bits)
 
 
 def _panels(ann: dict, session=None):
@@ -914,7 +1050,7 @@ def _activity_timeline(ann: dict, out_path, title="", session=None,
 
 
 def render(folder: str | Path, out_dir=None, session=None, activities=None,
-           layout="auto"):
+           layout="auto", object_window=None):
     """Load annotations from a session folder and write both figures.
 
     ``activities`` is an optional path to a SINS-style activity CSV
@@ -926,7 +1062,16 @@ def render(folder: str | Path, out_dir=None, session=None, activities=None,
     span level colouring and lane level stats drawn from the session's
     cached features when available. A missing file leaves both figures
     exactly as without it.
+
+    The map is built from the session's cached features whenever they are
+    present: the detected events are extracted as sound objects and typed on
+    Schaeffer's two axes (see :func:`map_objects`). Without a feature cache
+    the map falls back to whatever object-scale entries the annotation file
+    itself carries. ``object_window`` is an optional ``(min_s, max_s)`` pair
+    overriding the 0.2–8 s duration window that decides what counts as a sound
+    object.
     """
+    lo, hi = object_window if object_window else (None, None)
     folder = Path(folder)
     ann = load_annotations(folder)
     out = Path(out_dir) if out_dir else folder / "analysis"
@@ -942,16 +1087,17 @@ def render(folder: str | Path, out_dir=None, session=None, activities=None,
         acts = load_activities(
             activities, day0=session.day0 if session else None)
     F = None
-    if acts and layout != "acoustic":
-        paths = sorted((out / "features").glob("*.npz"))
-        if paths:
-            from .features import load_features
-            try:
-                F = load_features(paths)
-            except Exception:
-                F = None       # figures still render, without level colours
+    paths = sorted((out / "features").glob("*.npz"))
+    if paths:
+        from .features import load_features
+        try:
+            F = load_features(paths)
+        except Exception:
+            F = None           # figures still render, without the cache
     name = folder.name
-    schaeffer_map(ann, out / "schaeffer_map.png", title=name, activities=acts)
+    objs, stats = map_objects(ann, F, min_dur=lo, max_dur=hi)
+    schaeffer_map(objs, out / "schaeffer_map.png", title=name,
+                  activities=acts, stats=stats)
     schafer_timeline(ann, out / "schafer_timeline.png", title=name,
                      session=session, activities=acts, F=F, layout=layout)
     return out / "schaeffer_map.png", out / "schafer_timeline.png"

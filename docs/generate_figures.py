@@ -277,19 +277,41 @@ def write_motion_csv(path, dur=DUR, fs_m=50.0, seed=5):
     Path(path).write_text("\n".join(lines) + "\n")
     return Path(path)
 
+# Annotation times run on the session clock, which for the demo scene starts
+# at 09:00:00 — times written from zero fall outside the timeline's panels and
+# draw nothing.
+T0 = 9 * 3600
+
+
+def _at(s):
+    return float(round(T0 + s, 2))
+
+
+# The bells are annotated as what they are — individual strokes, each a sound
+# object of a second or two — while the hum and the floor are keynote spans of
+# the whole session. The two scales sit in the same file and are drawn by
+# different figures: the strokes reach the Schaeffer map, the beds the Schafer
+# timeline. Bell A strikes at cycle phases 0 and 0.35, bell B at 0.5, on the
+# 3 s cycle of ``synth_session``, up to ACTIVE.
 ANNOTATIONS = {
     "session": "docs-demo",
     "objects": [
         {"name": "bell A", "facture": "impulse", "mass": "tonic",
-         "kind": "soundmark", "source": "anthrophony", "spans": [[0, 90]]},
+         "kind": "soundmark", "source": "anthrophony",
+         "events": sorted(_at(s) for ph in (0.0, 0.35)
+                          for s in np.arange(ph * 3.0, ACTIVE, 3.0))},
         {"name": "bell B", "facture": "impulse", "mass": "tonic-complex",
-         "kind": "signal", "source": "anthrophony", "spans": [[0, 90]]},
+         "kind": "signal", "source": "anthrophony",
+         "events": [_at(s) for s in np.arange(1.5, ACTIVE, 3.0)]},
         {"name": "mains hum", "facture": "sustained", "mass": "tonic",
-         "kind": "keynote", "source": "anthrophony", "spans": [[0, 120]]},
+         "kind": "keynote", "source": "anthrophony",
+         "spans": [[_at(0), _at(120)]]},
         {"name": "voices", "facture": "iteration", "mass": "complex",
-         "kind": "figure", "source": "anthrophony", "spans": [[10, 80]]},
+         "kind": "figure", "source": "anthrophony",
+         "spans": [[_at(10), _at(80)]]},
         {"name": "diffuse floor", "facture": "unlimited", "mass": "noise",
-         "kind": "keynote", "source": "geophony", "spans": [[0, 120]]},
+         "kind": "keynote", "source": "geophony",
+         "spans": [[_at(0), _at(120)]]},
     ],
 }
 

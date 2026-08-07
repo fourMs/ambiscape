@@ -9,7 +9,46 @@ been carrying feature work throughout a pre-1.0 life.
 
 ## [Unreleased]
 
+### Changed
+- The Schaeffer map is built at the sound-object level. Schaeffer's *objet sonore* is a perceptual
+  unit of roughly 0.5–5 s, something attention holds whole; the map previously plotted multi-minute
+  steady-state level regimes on the typo-morphology plane, which asks of an eight-hour ventilation
+  bed the question Schaeffer asks of a closing door. Regimes are Schafer keynotes and now appear only
+  on the Schafer timeline, which is unchanged. The map takes the session's detected events instead,
+  keeps those inside a configurable duration window (0.2–8 s by default; events falling outside are
+  counted in the caption, never silently dropped) and types each one on both axes from its own
+  signature in the cached features. One point per object, jittered in its cell with the cell's full
+  count printed, opacity by level, coloured by dominant concurrent activity where activity
+  annotations are given; sessions of tens of thousands of objects are subsampled for the scatter,
+  stratified so no occupied cell disappears and stated in the caption, while the counts stay
+  complete. Hand-authored annotation entries that are themselves object-scale join the detected
+  objects; the "machine-drafted, listen to confirm" note stands.
+- `taxonomy.schaeffer_map` now takes a list of sound objects (an annotation dict is still accepted
+  and passed through `taxonomy.map_objects`, which assembles the plotted objects and the census
+  behind the caption). The regime-only helpers `_band_groups` and `_band_label` are gone with the
+  level-band labelling they served.
+
+### Added
+- `ambiscape.objects`: event-level sound-object extraction and Schaeffer typing, on cached features
+  with no audio pass (a full domestic day types in about two seconds). `object_mass` reads the
+  object's excess spectrum over the running band background — peak share, the energy sitting in
+  bands 6 dB above their own octave's running median, which counts a lone partial and a whole
+  harmonic series alike and a continuum not at all; and spread, the energy-weighted standard
+  deviation of log2 frequency — giving tonic / tonic-complex / complex / noise. `object_facture`
+  reads the object's 20 ms amplitude envelope — the 10-to-90 per cent attack, and the normalised
+  envelope autocorrelation at its best repetition lag between 3 and 20 Hz — giving impulse /
+  iteration / sustained (delimited) / sustained (unlimited, for sustainment past the 5 s attention
+  horizon). Every rule is written out in its docstring, every threshold is a module constant, and
+  every object carries the numbers behind both readings under `_schaeffer`. These stay
+  machine-drafted proposals: no public domestic corpus carries object-level ground truth to score
+  them against, activity labels being minutes long.
+
 ### Fixed
+- The documentation's Schafer timeline illustration was blank. Its demo annotations were written
+  from time zero while the synthetic session's clock starts at 09:00, so every span and marker fell
+  outside the figure's panels and nothing was drawn. The demo annotations now run on the session
+  clock, and the bells are annotated as individual strokes (events) rather than as ninety-second
+  spans carrying an `impulse` facture — which was the same scale confusion the map has now shed.
 - False full-scale click at the end of every take in the fast feature streams: `extract_take`
   preallocated `fast_db`/`fast_dba`/`env_hi` for the take's full frame count but only filled
   whole-second spans, so up to 7 trailing 125 ms frames (and the matching 20 ms envelope

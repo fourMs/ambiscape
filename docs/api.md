@@ -104,6 +104,10 @@
 
 ::: ambiscape.taxonomy
 
+## Sound objects
+
+::: ambiscape.objects
+
 ## Draft annotations
 
 ::: ambiscape.draft

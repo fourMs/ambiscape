@@ -148,3 +148,92 @@ def test_map_point_labels_never_boilerplate():
     hand = {"name": "bells", "label": "cathedral bells (hourly)"}
     assert _point_label(hand, cell_n=2, n_placed=4) == \
         "cathedral bells (hourly)"
+
+
+# --- human activity ground truth (SINS-style CSV) -------------------------
+
+ACT_CSV = """Class;Start time;Stop time
+absence;2017-01-30 00:00:00.000;2017-01-30 00:30:00.000
+cooking;2017-01-30 00:30:00.000;2017-01-30 00:50:00
+vacuumcleaner;2017-01-30 00:50:00.000;2017-01-30 01:00:00.000
+absence;2017-01-30 01:00:00.000;2017-01-30 06:00:00.000
+"""
+
+
+def _acts(tmp_path, day0=None):
+    from ambiscape.taxonomy import load_activities
+    p = tmp_path / "living_labels.csv"
+    p.write_text(ACT_CSV)
+    return load_activities(p, day0=day0)
+
+
+def test_load_activities_aligns_to_day0(tmp_path):
+    import datetime as dt
+    acts = _acts(tmp_path)  # day0 defaults to the first row's date
+    assert acts[0] == {"class": "absence", "start": 0.0, "stop": 1800.0}
+    assert acts[1]["stop"] == 3000.0     # timestamp without fractional part
+    # an explicit day0 one day earlier shifts everything by 86400 s
+    acts2 = _acts(tmp_path, day0=dt.date(2017, 1, 29))
+    assert acts2[0]["start"] == 86400.0
+
+
+def test_activity_suffix_time_shares():
+    from ambiscape.taxonomy import activity_suffix
+    acts = [{"class": "absence", "start": 0, "stop": 710},
+            {"class": "sleeping", "start": 710, "stop": 1000}]
+    assert activity_suffix([(0.0, 1000.0)], acts) == \
+        " — during: absence 71%, sleeping 29%"
+    assert activity_suffix([(0.0, 1000.0)], []) == ""     # nothing concurrent
+
+
+def test_dominant_activity_spans_and_events():
+    from ambiscape.taxonomy import _dominant_activity
+    acts = [{"class": "cooking", "start": 0, "stop": 100},
+            {"class": "eating", "start": 100, "stop": 400}]
+    assert _dominant_activity({"spans": [[50, 350]]}, acts) == "eating"
+    assert _dominant_activity({"events": [40.0]}, acts) == "cooking"
+    assert _dominant_activity({"events": [999.0]}, acts) is None
+
+
+def test_timeline_ribbon_and_bed_activity_labels(tmp_path):
+    # synthetic session + synthetic activity CSV: the timeline renders with
+    # an activity ribbon and legend (taller figure), beds gain "during:" text
+    import matplotlib.pyplot as plt
+    from ambiscape.taxonomy import schafer_timeline
+    acts = _acts(tmp_path)
+    ann = {"objects": _auto_objects(12)}   # > MAX_BED_LANES, so beds merge
+    plain = tmp_path / "plain.png"
+    schafer_timeline(ann, plain, title="synthetic")
+    withact = tmp_path / "withact.png"
+    schafer_timeline(ann, withact, title="synthetic", activities=acts)
+    assert withact.exists()
+    assert plt.imread(withact).shape[0] > plt.imread(plain).shape[0]
+
+
+def test_schaeffer_map_with_activities(tmp_path):
+    from ambiscape.taxonomy import schaeffer_map
+    acts = _acts(tmp_path)
+    ann = {"objects": [
+        {"name": "kettle", "kind": "signal", "mass": "noise",
+         "facture": "sustained", "spans": [[1800.0, 2400.0]]},
+        {"name": "door", "kind": "figure", "mass": "complex",
+         "facture": "impulse", "events": [3100.0]}]}
+    out = tmp_path / "map.png"
+    schaeffer_map(ann, out, title="synthetic", activities=acts)
+    assert out.exists()
+
+
+def test_render_activities_csv_and_missing_csv(tmp_path):
+    # via the library/CLI entry point: with the CSV both figures render; a
+    # missing path is identical to not passing one at all
+    from ambiscape.taxonomy import render
+    ann = {"objects": _auto_objects(12), "states": []}
+    (tmp_path / "annotations.json").write_text(json.dumps(ann))
+    csv_path = tmp_path / "living_labels.csv"
+    csv_path.write_text(ACT_CSV)
+    smap, tl = render(tmp_path, activities=csv_path)
+    assert smap.exists() and tl.exists()
+    import matplotlib.pyplot as plt
+    h_with = plt.imread(tl).shape[0]
+    smap2, tl2 = render(tmp_path, activities=tmp_path / "nope.csv")
+    assert plt.imread(tl2).shape[0] < h_with   # no ribbon, no legend

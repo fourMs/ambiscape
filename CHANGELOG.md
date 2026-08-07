@@ -10,6 +10,19 @@ been carrying feature work throughout a pre-1.0 life.
 ## [Unreleased]
 
 ### Added
+- Human activity ground truth on the taxonomy figures: `ambiscape taxonomy <folder>
+  --activities <csv>` (library: `taxonomy.load_activities` and the `activities` parameter of
+  `render`, `schaeffer_map`, `schafer_timeline`) reads SINS-style per-room activity logs
+  (`Class;Start time;Stop time`, semicolon-separated, absolute timestamps; Dekkers et al. 2017)
+  and aligns the spans to the session clock via the session's day 0. The Schafer timeline gains
+  a compact activity ribbon along the top (coloured spans per class with a legend; `absence`
+  and `other` muted) and each machine-drafted keynote bed's label its dominant concurrent
+  activities by time share (`"quiet bed, -60 to -54 dBFS, 23 spans — during: absence 71%,
+  sleeping 22%"`). On the Schaeffer map, points that carry text also say during which activity
+  they occur. The two provenances stay separate in the captions: activities are dataset data
+  ("activities: human annotations, Dekkers et al. 2017"), while mass/facture remain
+  machine-drafted "listen to confirm" proposals. A missing or absent CSV leaves both figures
+  exactly as before.
 - `array` module and `ambiscape array <recording.wav> --geometry <json>` command: spatial
   analysis from spaced-microphone recordings (SINS-style linear MEMS nodes) — the third spatial
   paradigm next to `spatial` (a soundfield sampled at one point) and `network` (one mic per

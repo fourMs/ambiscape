@@ -127,6 +127,37 @@ objects are never merged.
 
 ![Schafer timeline: one lane per object on the session clock, with keynote bars, signal and soundmark event markers, and shaded lo-fi states.](../img/schafer_timeline.png)
 
+## Human activity ground truth (`--activities`)
+
+Some datasets ship human annotations of what the people in the space were *doing*. The SINS
+database (Dekkers et al. 2017) provides per-room activity logs as semicolon-separated CSVs with a
+`Class;Start time;Stop time` header and absolute timestamps, and classes such as `absence`,
+`sleeping`, `cooking`, `vacuumcleaner` or `watching_tv`. Both figures can overlay them:
+
+```
+ambiscape taxonomy <folder> --activities living_labels.csv
+```
+
+(or `taxonomy.render(folder, activities=...)` / the `activities` parameter of `schaeffer_map` and
+`schafer_timeline` in the library, taking the list returned by `taxonomy.load_activities`). The
+spans are aligned to the session clock via the session's day 0; if the file is missing the figures
+render exactly as without the option.
+
+On the timeline this adds a compact activity ribbon along the top — coloured spans per class with a
+legend, `absence` and `other` deliberately muted so that colour means somebody was doing something —
+and each machine-drafted keynote bed's label gains its dominant concurrent activities by time share:
+`"quiet bed, -60 to -54 dBFS, 23 spans — during: absence 71%, sleeping 22%"`. The day's
+human-labelled structure then reads directly above the acoustic beds, which is the quickest check of
+whether the beds mean anything.
+
+On the map, points that carry text (sparse maps, or cell-singleton outliers) also say during which
+activity they occur (`"— during cooking"`).
+
+The two provenances are never conflated. The activities are **data** — human annotations shipped
+with the dataset, attributed in the caption (`activities: human annotations, Dekkers et al. 2017`) —
+while mass/facture and the bed structure remain machine-drafted listening proposals and keep their
+"listen to confirm" marking.
+
 ## A note on spelling
 
 The field value is `anthrophony`, which is the spelling Pijanowski and most of the soundscape-ecology

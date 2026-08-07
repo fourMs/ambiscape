@@ -31,6 +31,10 @@ def main(argv=None):
                              "<folder>/annotations.json")
     tx.add_argument("folder")
     tx.add_argument("-o", "--out", default=None)
+    tx.add_argument("--activities", default=None, metavar="CSV",
+                    help="human activity ground-truth CSV (SINS format: "
+                         "'Class;Start time;Stop time', absolute timestamps) "
+                         "to overlay on both figures")
     dr = sub.add_parser("draft",
                         help="pre-fill annotations.draft.json from detected "
                              "states and events (needs a prior analyze run)")
@@ -1265,7 +1269,11 @@ def main(argv=None):
 
     if args.cmd == "taxonomy":
         from .taxonomy import render
-        paths = render(args.folder, out_dir=args.out)
+        if args.activities and not Path(args.activities).exists():
+            print(f"note: activities file {args.activities} not found; "
+                  "rendering without the overlay")
+        paths = render(args.folder, out_dir=args.out,
+                       activities=args.activities)
         for p in paths:
             print(f"wrote {p}")
         return 0

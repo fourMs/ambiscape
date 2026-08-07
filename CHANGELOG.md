@@ -9,6 +9,8 @@ been carrying feature work throughout a pre-1.0 life.
 
 ## [Unreleased]
 
+## [0.24.0] — 2026-08-07
+
 ### Added
 - `network` module and `ambiscape network <folder>` command: multi-recorder acoustic-network
   analysis of one building — several recorders in different rooms on a common clock (the SINS

@@ -9,6 +9,15 @@ been carrying feature work throughout a pre-1.0 life.
 
 ## [Unreleased]
 
+## [0.23.3] — 2026-08-07
+
+### Fixed
+- `ambiscape draft` raised `StopIteration` on any session proposing more than 16 steady-level
+  regimes: the keynote labels came from a fixed 16-letter iterator. Found on a single ordinary
+  home day from the SINS corpus, which produced 72 regimes. Regime labels are now generated
+  without bound in spreadsheet-column style (A…Z, AA…AZ, BA…), so every regime gets a unique
+  name and the draft → taxonomy path handles arbitrarily long sessions.
+
 ## [0.23.2] — 2026-08-07
 
 ### Added

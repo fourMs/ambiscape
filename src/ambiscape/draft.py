@@ -14,7 +14,9 @@ taxonomy``.
 from __future__ import annotations
 
 import json
+from itertools import count, product
 from pathlib import Path
+from string import ascii_uppercase
 
 import numpy as np
 from scipy.ndimage import median_filter
@@ -72,6 +74,19 @@ def _regimes(t: np.ndarray, fast: np.ndarray, dt: float):
             out.append((float(t[a]), float(t[min(b, len(t) - 1)]),
                         float(np.median(fast[a:b]))))
     return out
+
+
+def _labels():
+    """Yield regime labels without bound: A…Z, then AA…AZ, BA…, AAA….
+
+    Spreadsheet-column style, so a long session can propose any number of
+    steady-state keynotes; the previous fixed 16-letter iterator raised
+    StopIteration on the seventeenth regime (an ordinary full home day
+    yields 70+).
+    """
+    for n in count(1):
+        for letters in product(ascii_uppercase, repeat=n):
+            yield "".join(letters)
 
 
 MAX_TAGGED = 40  # PANNs windows per draft (model runs ~1-3 s each on CPU)
@@ -141,7 +156,7 @@ def draft_annotations(F: dict, folder: str | Path,
     n_tagged = 0
 
     # --- steady-state keynote candidates, per contiguous take-group
-    label = iter("ABCDEFGHIJKLMNOP")
+    label = _labels()
     for i0, i1 in _gap_split(F["t"]):
         m = (tf >= F["t"][i0]) & (tf <= F["t"][i1 - 1] + 1)
         for a, b, lvl in _regimes(tf[m], fast[m], dt):

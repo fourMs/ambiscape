@@ -9756,7 +9756,14 @@ for stereo, or the lone channel for mono. Direction depends on the mode:</p>
 <span class="normal">231</span>
 <span class="normal">232</span>
 <span class="normal">233</span>
-<span class="normal">234</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_take</span><span class="p">(</span><span class="n">take</span><span class="p">:</span> <span class="n">Take</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_take</span><span class="p">(</span><span class="n">take</span><span class="p">:</span> <span class="n">Take</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the streaming extractor over one file; returns feature arrays.&quot;&quot;&quot;</span>
     <span class="n">fs</span> <span class="o">=</span> <span class="n">take</span><span class="o">.</span><span class="n">samplerate</span>
     <span class="n">hop</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">HOP</span> <span class="o">*</span> <span class="n">fs</span> <span class="o">/</span> <span class="mi">48000</span><span class="p">)</span>
@@ -9922,6 +9929,13 @@ for stereo, or the lone channel for mono. Direction depends on the mode:</p>
             <span class="k">if</span> <span class="n">sec_base</span> <span class="o">&gt;=</span> <span class="n">nsec</span><span class="p">:</span>
                 <span class="k">break</span>
 
+    <span class="c1"># Drop never-filled trailing frames. nfast/nhi count frames in the</span>
+    <span class="c1"># fractional last second, but the block loop only fills whole-second</span>
+    <span class="c1"># spans, so the preallocated zeros would survive as exactly 0 dBFS</span>
+    <span class="c1"># (full scale) — a false full-scale click at the end of every take.</span>
+    <span class="n">F</span><span class="p">[</span><span class="s2">&quot;fast_db&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">F</span><span class="p">[</span><span class="s2">&quot;fast_db&quot;</span><span class="p">][:</span><span class="n">fast_base</span><span class="p">]</span>
+    <span class="n">F</span><span class="p">[</span><span class="s2">&quot;fast_dba&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">F</span><span class="p">[</span><span class="s2">&quot;fast_dba&quot;</span><span class="p">][:</span><span class="n">fast_base</span><span class="p">]</span>
+    <span class="n">F</span><span class="p">[</span><span class="s2">&quot;env_hi&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">F</span><span class="p">[</span><span class="s2">&quot;env_hi&quot;</span><span class="p">][:</span><span class="n">hi_base</span><span class="p">]</span>
     <span class="n">minspec</span><span class="p">[</span><span class="n">mincnt</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/=</span> <span class="n">mincnt</span><span class="p">[</span><span class="n">mincnt</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
     <span class="n">F</span><span class="p">[</span><span class="s2">&quot;minspec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">minspec</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
     <span class="n">F</span><span class="p">[</span><span class="s2">&quot;freqs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">freqs</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
@@ -9955,20 +9969,20 @@ for stereo, or the lone channel for mono. Direction depends on the mode:</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/features.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">237</span>
-<span class="normal">238</span>
-<span class="normal">239</span>
-<span class="normal">240</span>
-<span class="normal">241</span>
-<span class="normal">242</span>
-<span class="normal">243</span>
-<span class="normal">244</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">244</span>
 <span class="normal">245</span>
 <span class="normal">246</span>
 <span class="normal">247</span>
 <span class="normal">248</span>
 <span class="normal">249</span>
-<span class="normal">250</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_session</span><span class="p">(</span><span class="n">sess</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_session</span><span class="p">(</span><span class="n">sess</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract features for every take; save one npz per take. Returns paths.&quot;&quot;&quot;</span>
     <span class="n">out_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">out_dir</span><span class="p">)</span>
     <span class="n">out_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -10004,14 +10018,7 @@ for stereo, or the lone channel for mono. Direction depends on the mode:</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/features.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">253</span>
-<span class="normal">254</span>
-<span class="normal">255</span>
-<span class="normal">256</span>
-<span class="normal">257</span>
-<span class="normal">258</span>
-<span class="normal">259</span>
-<span class="normal">260</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">260</span>
 <span class="normal">261</span>
 <span class="normal">262</span>
 <span class="normal">263</span>
@@ -10038,7 +10045,25 @@ for stereo, or the lone channel for mono. Direction depends on the mode:</p>
 <span class="normal">284</span>
 <span class="normal">285</span>
 <span class="normal">286</span>
-<span class="normal">287</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_features</span><span class="p">(</span><span class="n">npz_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_features</span><span class="p">(</span><span class="n">npz_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Concatenate per-take feature files onto one absolute time axis.&quot;&quot;&quot;</span>
     <span class="n">pairs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(((</span><span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)),</span> <span class="n">Path</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">npz_paths</span><span class="p">),</span>
                    <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">pn</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">pn</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;start&quot;</span><span class="p">]))</span>
@@ -10053,17 +10078,28 @@ for stereo, or the lone channel for mono. Direction depends on the mode:</p>
         <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s2">&quot;rms_w&quot;</span><span class="p">]),</span> <span class="n">i</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
          <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">parts</span><span class="p">)])</span>
     <span class="n">fd</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;fast_dt&quot;</span><span class="p">])</span>
-    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;t_fast&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">p</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">fd</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s2">&quot;fast_db&quot;</span><span class="p">]))</span>
-                                    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">])</span>
-    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;fast_db&quot;</span><span class="p">,</span> <span class="s2">&quot;fast_dba&quot;</span><span class="p">,</span> <span class="s2">&quot;rms_w&quot;</span><span class="p">,</span> <span class="s2">&quot;peak&quot;</span><span class="p">,</span> <span class="s2">&quot;oct_pow&quot;</span><span class="p">,</span> <span class="s2">&quot;centroid&quot;</span><span class="p">,</span>
+    <span class="c1"># Caches written by 0.24.1 and earlier carry unfilled frames past the last whole</span>
+    <span class="c1"># second of each take — preallocated zeros, i.e. exactly 0 dBFS (full</span>
+    <span class="c1"># scale): a false click at every take boundary. Cap each take&#39;s fast</span>
+    <span class="c1"># streams at the whole-second span actually filled by the extractor.</span>
+    <span class="n">kf</span> <span class="o">=</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s2">&quot;fast_db&quot;</span><span class="p">]),</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s2">&quot;rms_w&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">fd</span><span class="p">)))</span>
+          <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">]</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;t_fast&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">p</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">fd</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+                                    <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">parts</span><span class="p">,</span> <span class="n">kf</span><span class="p">)])</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;fast_db&quot;</span><span class="p">,</span> <span class="s2">&quot;fast_dba&quot;</span><span class="p">):</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">p</span><span class="p">[</span><span class="n">key</span><span class="p">][:</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">parts</span><span class="p">,</span> <span class="n">kf</span><span class="p">)])</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;rms_w&quot;</span><span class="p">,</span> <span class="s2">&quot;peak&quot;</span><span class="p">,</span> <span class="s2">&quot;oct_pow&quot;</span><span class="p">,</span> <span class="s2">&quot;centroid&quot;</span><span class="p">,</span>
               <span class="s2">&quot;flatness&quot;</span><span class="p">,</span> <span class="s2">&quot;logspec&quot;</span><span class="p">,</span> <span class="s2">&quot;I_band&quot;</span><span class="p">,</span> <span class="s2">&quot;az&quot;</span><span class="p">,</span> <span class="s2">&quot;el&quot;</span><span class="p">,</span> <span class="s2">&quot;diffuse&quot;</span><span class="p">):</span>
         <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">p</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">])</span>
     <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="s2">&quot;env_hi&quot;</span> <span class="ow">in</span> <span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">):</span>    <span class="c1"># absent in pre-0.2 caches</span>
         <span class="n">hd</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;hi_dt&quot;</span><span class="p">])</span>
         <span class="n">out</span><span class="p">[</span><span class="s2">&quot;hi_dt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hd</span>
+        <span class="n">kh</span> <span class="o">=</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s2">&quot;env_hi&quot;</span><span class="p">]),</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s2">&quot;rms_w&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">hd</span><span class="p">)))</span>
+              <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">]</span>
         <span class="n">out</span><span class="p">[</span><span class="s2">&quot;t_hi&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">hd</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s2">&quot;env_hi&quot;</span><span class="p">]))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">])</span>
-        <span class="n">out</span><span class="p">[</span><span class="s2">&quot;env_hi&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">p</span><span class="p">[</span><span class="s2">&quot;env_hi&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">])</span>
+            <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">hd</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">parts</span><span class="p">,</span> <span class="n">kh</span><span class="p">)])</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">&quot;env_hi&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">p</span><span class="p">[</span><span class="s2">&quot;env_hi&quot;</span><span class="p">][:</span><span class="n">k</span><span class="p">]</span>
+                                        <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">parts</span><span class="p">,</span> <span class="n">kh</span><span class="p">)])</span>
     <span class="n">out</span><span class="p">[</span><span class="s2">&quot;min_t&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">p</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">60</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s2">&quot;minspec&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
                                    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">])</span>
     <span class="n">out</span><span class="p">[</span><span class="s2">&quot;minspec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">p</span><span class="p">[</span><span class="s2">&quot;minspec&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">])</span>

@@ -569,6 +569,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Session descriptors (summarize)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reading-energy-averages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading energy averages
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2115,6 +2132,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Session descriptors (summarize)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reading-energy-averages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading energy averages
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2290,14 +2324,50 @@ Foreground/background splits use energy quartiles (loudest vs quietest
 <p>The conventions are frozen (matching the Intercontinental-database
 reports), so that rows stay comparable across studies:</p>
 <ul>
-<li><strong>Leq, LAeq</strong> (energy means of the fast level), L10/L50/L90
-  exceedance percentiles, dynamics L10−L90;</li>
+<li><strong>Leq, LAeq</strong> (energy means of the fast level), <strong>LAeq trimmed</strong> (the
+  same A-weighted energy mean with the loudest 5 % of frames discarded,
+  <code>laeq_trim5_dbfs</code>), L10/L50/L90 exceedance percentiles, dynamics
+  L10−L90;</li>
 <li><strong>events</strong>: fast level ≥ 8 dB above a running background (10th percentile
   in a sliding 60 s window) for ≥ 0.25 s, giving rate, count and median
   duration;</li>
 <li>spectral centroid and flatness medians;</li>
 <li>ψ median and IQR; energy-weighted mean azimuth and R; median foreground
   elevation.</li>
+</ul>
+<h3 id="reading-energy-averages">Reading energy averages</h3>
+<p>Leq and LAeq are means of squared pressure, so they are decided by the
+loudest frames in the span rather than by the typical one. In a quiet
+room the distance between those two is enormous: a single slammed door
+can carry more energy than the hour of background it interrupts, and the
+average then reports the door. For scale, replacing 0.02 % of the frames
+of a week-long domestic recording with full-scale material—sixteen frames
+in ninety-odd thousand—moves that week's LAeq by more than 4 dB and its
+Leq by nearly 3 dB, while L10, L50, L90, the dynamics L10−L90 and the
+trimmed LAeq stay bit-identical. Nothing about that arithmetic is peculiar to
+artefacts; a handful of genuine loud events does the same thing, which is
+why an energy average alone cannot be read as a description of a quiet
+space.</p>
+<p>Practical consequences:</p>
+<ul>
+<li><strong>Never quote LAeq on its own.</strong> Report it beside the trimmed level
+  (<code>laeq_trim5_dbfs</code>) or a percentile. Agreement between the two says the
+  average describes the span; a large gap says it describes a few moments,
+  and both numbers are then worth printing.</li>
+<li><strong>In quiet rooms, lead with the percentiles.</strong> L50 and L90 and the
+  dynamic range L10−L90 are the primary descriptors of a background, with
+  LAeq as the supporting energy figure. Comparisons between periods, rooms
+  or nodes are stable on percentiles and fragile on energy means, which can
+  differ by several decibels for reasons that have nothing to do with the
+  quality being compared.</li>
+<li><strong>Descriptors built on LAeq inherit the fragility.</strong> Emergence
+  (LAeq − LA90) and any level-based day/night or state contrast move with
+  the loudest frames; the trimmed level gives the same contrast without
+  them.</li>
+<li><strong>Percentile levels have their own failure mode.</strong> A low percentile can
+  measure the recorder rather than the room—see the sensor-noise-floor
+  guard below and the <code>floor_suspect</code> flag in <code>summary.json</code> before
+  trusting L90 in a quiet high-band scene.</li>
 </ul>
 <div class="admonition tip">
 <p class="admonition-title">Reading ψ and R together</p>
@@ -2413,7 +2483,7 @@ typical, and (when a &gt;6 dB state change exists) the transition.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 7, 2026 05:40:32 UTC">August 7, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 7, 2026 17:22:13 UTC">August 7, 2026</span>
   </span>
 
     

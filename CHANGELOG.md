@@ -9,6 +9,8 @@ been carrying feature work throughout a pre-1.0 life.
 
 ## [Unreleased]
 
+## [0.23.2] — 2026-08-07
+
 ### Added
 - Sensor-noise-floor guard (`analysis.floor_suspicion`, run inside every `summarize`). Motivated by
   the SINS sensor-network corpus, where the 4–8 kHz background floor of a living room is flat to

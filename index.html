@@ -1987,7 +1987,9 @@ folder of WAVs on one absolute clock—is therefore the unit of analysis,
 and ambiscape produces:</p>
 <ul>
 <li><strong>descriptors</strong> in the environmental-acoustics idiom (Leq, LAeq,
-  L10/L50/L90, event statistics),</li>
+  L10/L50/L90, event statistics), with a sensor-noise-floor guard that
+  flags bands whose low-percentile levels measure the recorder's
+  self-noise rather than the room,</li>
 <li><strong>spatial timelines</strong> when the recording carries direction: full
   direction of arrival, diffuseness and azimuthal concentration from
   ambisonics, a lateral left/right cue from stereo,</li>
@@ -2021,6 +2023,10 @@ and ambiscape produces:</p>
   and sound–motion entrainment against a body-worn accelerometer,</li>
 <li><strong>publication exports</strong> (non-identifying 1 Hz features; curated segment
   selection),</li>
+<li><strong>multi-recorder networks</strong>: one recorder per room of a building on a
+  common clock, read as a coupling graph—edge strengths and lead/lag
+  directions between rooms, the acoustic hub, and the graph's density
+  over the day,</li>
 <li><strong>corpus aggregation</strong>: one cross-session table (CSV + Markdown) from
   every session's cached summary, with ranking and outlier queries.</li>
 </ul>
@@ -2064,7 +2070,7 @@ two overlap.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 6, 2026 15:21:37 UTC">August 6, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 7, 2026 07:32:41 UTC">August 7, 2026</span>
   </span>
 
     

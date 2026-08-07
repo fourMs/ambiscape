@@ -9,6 +9,12 @@ been carrying feature work throughout a pre-1.0 life.
 
 ## [Unreleased]
 
+## [0.24.1] — 2026-08-07
+
+### Fixed
+- The `__version__` attribute had been stale at 0.22.0 since that release;
+  it now reports the installed version correctly.
+
 ## [0.24.0] — 2026-08-07
 
 ### Added

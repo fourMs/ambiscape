@@ -44,6 +44,26 @@ def detect_events(fast_db, fast_dt, thresh_db=8.0, min_dur=0.25):
     return events, bg
 
 
+def trimmed_leq(level_db: np.ndarray, trim_pct: float = 5.0) -> float:
+    """Energy mean in dB with the loudest ``trim_pct`` of frames discarded.
+
+    An energy average is a mean of squared pressure, so it is decided by
+    the loudest frames it contains: in a quiet room a handful of them can
+    outweigh every other frame together. The trimmed level answers the
+    companion question — what the average would be without that handful —
+    and a large gap between the two says the plain average describes a few
+    moments rather than the span. Reported next to ``laeq_dbfs`` in every
+    session summary; see the descriptor guide's "Reading energy averages".
+    """
+    x = np.asarray(level_db, np.float64)
+    if x.size == 0:
+        return float("nan")
+    keep = x <= np.percentile(x, 100.0 - trim_pct)
+    if not keep.any():                       # every frame at one level
+        keep = np.ones_like(x, bool)
+    return float(db(np.mean(10 ** (x[keep] / 10))))
+
+
 def intermittency_ratio(level_db: np.ndarray, dt: float,
                         k_db: float = 3.0) -> float:
     """Intermittency ratio IR (Wunderli et al. 2016), in percent.
@@ -251,6 +271,7 @@ def summarize(F: dict) -> dict:
         "duration_min": round(dur / 60, 1),
         "leq_dbfs": round(float(leq), 1),
         "laeq_dbfs": round(float(laeq), 1),
+        "laeq_trim5_dbfs": round(trimmed_leq(fasta, 5.0), 1),
         "leq_minus_laeq_db": round(float(leq - laeq), 1),
         "L10": round(l10, 1), "L50": round(l50, 1), "L90": round(l90, 1),
         "dynamics_L10_L90": round(l10 - l90, 1),

@@ -36,7 +36,11 @@ Compute them per machine state (`states.state_segments` masks) to rate
   drones and dense traffic, high when energy arrives as distinct events.
   It is the single best complement to events/min.
 - **Emergence** LAeq − LA90: how far the energetic mean sits above the
-  background, which is the classic "how eventful" number.
+  background, which is the classic "how eventful" number. Being built on
+  an energy average it is set by the loudest frames of the span, so in a
+  quiet room it should be read next to the trimmed level and the
+  percentiles—see
+  [Reading energy averages](descriptors.md#reading-energy-averages).
 
 ## Prominent tones (`ambiscape tones`)
 

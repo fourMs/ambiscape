@@ -29,6 +29,14 @@ been carrying feature work throughout a pre-1.0 life.
   level-band labelling they served.
 
 ### Added
+- Trimmed energy level in every session summary: `analysis.trimmed_leq` and the summary key
+  `laeq_trim5_dbfs`, the A-weighted energy mean with the loudest 5 % of frames discarded, now a
+  standard row in the session README, in the state tables and in the `compare` descriptor table.
+  An energy average is a mean of squared pressure, so in a quiet room a handful of loud frames
+  decides it — contaminating 0.02 % of a week's frames moves that week's LAeq by several decibels
+  while every percentile stays identical — and the trimmed level is the companion number that says
+  whether LAeq describes the span or a few moments of it. Documented in the new descriptor-guide
+  section "Reading energy averages" and in a wiki recipe for making the check.
 - `ambiscape.objects`: event-level sound-object extraction and Schaeffer typing, on cached features
   with no audio pass (a full domestic day types in about two seconds). `object_mass` reads the
   object's excess spectrum over the running band background — peak share, the energy sitting in

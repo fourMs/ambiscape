@@ -35,14 +35,52 @@ Foreground/background splits use energy quartiles (loudest vs quietest
 The conventions are frozen (matching the Intercontinental-database
 reports), so that rows stay comparable across studies:
 
-- **Leq, LAeq** (energy means of the fast level), L10/L50/L90
-  exceedance percentiles, dynamics L10−L90;
+- **Leq, LAeq** (energy means of the fast level), **LAeq trimmed** (the
+  same A-weighted energy mean with the loudest 5 % of frames discarded,
+  `laeq_trim5_dbfs`), L10/L50/L90 exceedance percentiles, dynamics
+  L10−L90;
 - **events**: fast level ≥ 8 dB above a running background (10th percentile
   in a sliding 60 s window) for ≥ 0.25 s, giving rate, count and median
   duration;
 - spectral centroid and flatness medians;
 - ψ median and IQR; energy-weighted mean azimuth and R; median foreground
   elevation.
+
+### Reading energy averages
+
+Leq and LAeq are means of squared pressure, so they are decided by the
+loudest frames in the span rather than by the typical one. In a quiet
+room the distance between those two is enormous: a single slammed door
+can carry more energy than the hour of background it interrupts, and the
+average then reports the door. For scale, replacing 0.02 % of the frames
+of a week-long domestic recording with full-scale material—sixteen frames
+in ninety-odd thousand—moves that week's LAeq by more than 4 dB and its
+Leq by nearly 3 dB, while L10, L50, L90, the dynamics L10−L90 and the
+trimmed LAeq stay bit-identical. Nothing about that arithmetic is peculiar to
+artefacts; a handful of genuine loud events does the same thing, which is
+why an energy average alone cannot be read as a description of a quiet
+space.
+
+Practical consequences:
+
+- **Never quote LAeq on its own.** Report it beside the trimmed level
+  (`laeq_trim5_dbfs`) or a percentile. Agreement between the two says the
+  average describes the span; a large gap says it describes a few moments,
+  and both numbers are then worth printing.
+- **In quiet rooms, lead with the percentiles.** L50 and L90 and the
+  dynamic range L10−L90 are the primary descriptors of a background, with
+  LAeq as the supporting energy figure. Comparisons between periods, rooms
+  or nodes are stable on percentiles and fragile on energy means, which can
+  differ by several decibels for reasons that have nothing to do with the
+  quality being compared.
+- **Descriptors built on LAeq inherit the fragility.** Emergence
+  (LAeq − LA90) and any level-based day/night or state contrast move with
+  the loudest frames; the trimmed level gives the same contrast without
+  them.
+- **Percentile levels have their own failure mode.** A low percentile can
+  measure the recorder rather than the room—see the sensor-noise-floor
+  guard below and the `floor_suspect` flag in `summary.json` before
+  trusting L90 in a quiet high-band scene.
 
 !!! tip "Reading ψ and R together"
     High ψ + high R = diffuse but anisotropic (an airport hall that

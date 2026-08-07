@@ -13,6 +13,37 @@ def test_analyze_summary(bell_features):
     s = analysis.summarize(F)
     assert s["duration_min"] == pytest.approx(5.0, abs=0.1)
     assert s["diffuseness_median"] < 0.6          # two plane-wave sources
+    # the trimmed level travels with LAeq and can only sit below it
+    assert s["laeq_trim5_dbfs"] == pytest.approx(
+        analysis.trimmed_leq(F["fast_dba"], 5.0), abs=0.05)
+    assert s["laeq_trim5_dbfs"] <= s["laeq_dbfs"]
+
+
+def test_trimmed_leq_survives_a_loud_handful():
+    """The reason both are reported: a quiet span with ten loud frames in
+    fifty thousand (0.02 %). The energy mean moves several decibels; the
+    trimmed level and the percentiles do not move at all."""
+    from ambiscape import analysis
+    rng = np.random.default_rng(0)
+    quiet = -60.0 + rng.standard_normal(50_000)
+    loud = quiet.copy()
+    loud[:10] = 0.0                               # full-scale frames
+
+    def leq(x):
+        return analysis.db(np.mean(10 ** (np.asarray(x) / 10)))
+
+    assert leq(loud) - leq(quiet) > 5.0
+    assert analysis.trimmed_leq(loud) == pytest.approx(
+        analysis.trimmed_leq(quiet), abs=0.05)
+    for q in (10, 50, 90):
+        assert np.percentile(loud, q) == pytest.approx(
+            np.percentile(quiet, q), abs=0.01)
+
+
+def test_trimmed_leq_edge_cases():
+    from ambiscape import analysis
+    assert analysis.trimmed_leq(np.full(100, -40.0)) == pytest.approx(-40.0)
+    assert np.isnan(analysis.trimmed_leq(np.empty(0)))
 
 
 def test_detect_partials(bell_features):

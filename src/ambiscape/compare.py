@@ -570,8 +570,8 @@ def xnode_figure(names: list, H: np.ndarray, loudest: list,
 
 _COLORS = ["#2a78d6", "#008300", "#eda100", "#e87ba4", "#1baf7a", "#eb6834"]
 
-_TABLE_KEYS = ["duration_min", "leq_dbfs", "laeq_dbfs", "L10", "L50", "L90",
-               "events_per_min", "intermittency_ratio_pct", "emergence_db",
+_TABLE_KEYS = ["duration_min", "leq_dbfs", "laeq_dbfs", "laeq_trim5_dbfs",
+               "L10", "L50", "L90", "events_per_min", "intermittency_ratio_pct", "emergence_db",
                "centroid_median_hz", "flatness_median", "diffuseness_median",
                "azimuth_R", "directional_entropy", "aci", "ndsi",
                "bird_band_activity_pct"]

@@ -321,8 +321,19 @@ CONVENTIONS = [
      "ISO/TS 12913-2 without a traceable clause", "measured"),
     ("activity annotations", 5.0, 600.0,
      "median 127.5 s in SINS; nothing shorter than 5 s", "measured"),
+    ("365 Sound Actions: one action a day (foreground)", 4.0, 16.0,
+     "365 audiovisual recordings of single sound-producing actions, one a "
+     "day through 2022; measured p10-p90 of the deposited clips, median "
+     "6.0 s, and 24% run past 10 s into the unannotated stratum",
+     "measured"),
+    ("StillStanding365: one standstill a day (background)", 480.0, 480.0,
+     "365 daily standstill sessions through 2023, all 365 with audio; "
+     "the deposited per-second streams run 481 s at the median. Deposited "
+     "as 1 Hz non-identifying features rather than audio, which is the "
+     "publication unit private interiors allow",
+     "measured"),
     ("this book's own long-form recordings", 600.0, 604800.0,
-     "standstill sessions to continuous weeks", "measured"),
+     "Intercontinental sessions, minutes to a continuous week", "measured"),
 ]
 
 #: The gap the figure exists to show.
@@ -403,7 +414,11 @@ def figure(out_path, dpi: int = 150):
         for label, t0, t1, source in items:
             y -= 1.0
             hatch = None if source == "measured" else "///"
-            ax.barh(y, width=max(t1 - t0, t0 * 0.03), left=t0, height=0.6,
+            # A corpus of one fixed duration is a point, and a point has no
+            # width on a log axis. Give it a visible mark rather than a
+            # sliver that reads as missing data.
+            left, right = (t0 / 1.35, t1 * 1.35) if t1 <= t0 else (t0, t1)
+            ax.barh(y, width=right - left, left=left, height=0.6,
                     color=colour, alpha=.8, hatch=hatch,
                     edgecolor="white", linewidth=.6, zorder=3)
             yticks.append(y)

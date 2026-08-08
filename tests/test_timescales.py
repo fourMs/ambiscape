@@ -130,8 +130,13 @@ def test_families_match_the_registry():
 
 
 def test_phenomena_and_conventions_are_ordered_and_sourced():
+    """Ranges run forwards; a fixed-duration corpus is a point, not an error.
+
+    StillStanding365 deposits sessions of one length, so t0 == t1. The
+    figure gives such an entry a visible mark rather than a zero-width bar.
+    """
     for name, t0, t1, why, source in ts.PHENOMENA + ts.CONVENTIONS:
-        assert t1 > t0, f"{name}: range runs backwards"
+        assert t1 >= t0, f"{name}: range runs backwards"
         assert source in ("measured", "asserted")
         assert why
 

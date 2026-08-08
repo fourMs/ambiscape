@@ -44,6 +44,51 @@ def detect_events(fast_db, fast_dt, thresh_db=8.0, min_dur=0.25):
     return events, bg
 
 
+def detect_cessations(fast_db, fast_dt, drop_db=6.0, min_before=60.0,
+                      min_after=5.0):
+    """Moments when a sustained level stops: figure-by-absence.
+
+    A level-threshold detector finds sounds that start. It cannot find the
+    event that happens when a sound *ends*, and indoors that is often the
+    louder event of the two: a ventilation plant runs for nine hours and
+    nobody attends to it, then it switches off and the birds, the clock and
+    the water come back. Nothing rose; the ground fell, and the room
+    changed character in two seconds.
+
+    A cessation is recorded where a level held steady for at least
+    ``min_before`` seconds, fell by at least ``drop_db``, and stayed down
+    for at least ``min_after``. Returns a list of dicts with the index, the
+    size of the drop, and the level either side.
+
+    The asymmetry is the point. Attention is captured by change, not by
+    level, and half the changes in a continuously occupied room are
+    departures rather than arrivals.
+    """
+    x = np.asarray(fast_db, float)
+    n = len(x)
+    nb = max(1, int(round(min_before / fast_dt)))
+    na = max(1, int(round(min_after / fast_dt)))
+    if n < nb + na + 1:
+        return []
+    out, i = [], nb
+    while i < n - na:
+        before = x[i - nb:i]
+        after = x[i:i + na]
+        if not (np.isfinite(before).all() and np.isfinite(after).all()):
+            i += 1
+            continue
+        lo, hi = float(np.median(before)), float(np.median(after))
+        # steady before (a running machine holds a level), and clearly down
+        if lo - hi >= drop_db and float(np.std(before)) <= drop_db / 2:
+            out.append(dict(i=i, t_s=float(i * fast_dt),
+                            drop_db=round(lo - hi, 1),
+                            before_db=round(lo, 1), after_db=round(hi, 1)))
+            i += nb            # one cessation per steady stretch
+        else:
+            i += 1
+    return out
+
+
 def trimmed_leq(level_db: np.ndarray, trim_pct: float = 5.0) -> float:
     """Energy mean in dB with the loudest ``trim_pct`` of frames discarded.
 

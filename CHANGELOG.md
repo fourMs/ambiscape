@@ -7,6 +7,38 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/); the
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) loosely, in that the minor number has
 been carrying feature work throughout a pre-1.0 life.
 
+## [0.27.0] — 2026-08-08
+
+### Added
+- `objects.object_profile`: the morphology of one sound object as numbers
+  rather than as a type — attack, decay, temporal centroid, crest, and the
+  envelope's iteration rate and strength. `object_facture` was already
+  measuring the attack and the iteration and discarding both once they had
+  produced a label, which is a loss: two objects can share a facture and
+  differ audibly, and a comparison needs the numbers behind the label. The
+  temporal centroid is the useful addition, putting impulsive and sustained
+  on a continuous axis (an impulse lands near 0.04, a held sound near 0.49)
+  so two objects of the same facture can still be told apart. A truncated
+  sound reports no decay rather than a decay of zero, because being cut off
+  is not the same as ending.
+- Six meso-band windows in `timescales`, registered at 0.2 s. Before them
+  every windowed descriptor was invalid on a six-second recording, so the
+  toolbox could say nothing whatever about a sound object — which is the
+  length most corpus material arrives in. The figure's descriptor row now
+  reaches left of a minute for the first time.
+- `states.transition_profile`: the boundary between two states, described
+  rather than merely located — direction, step, the 10–90 % crossing time
+  and the settling time. A fridge and a slow fade can reach the same level
+  while being nothing alike, and only the crossing tells them apart. The
+  settling band adapts to the new state's own variability, because a
+  tolerance tighter than the state's noise would report that a steady state
+  never settles.
+- `analysis.detect_cessations`: the departure half of event detection. A
+  detector that looks for level rising above a background is a good
+  definition of an arrival and no definition of an ending, so every machine
+  that stopped was invisible — though indoors the ending is often the
+  louder event, and attention is captured by change rather than by level.
+
 ## [0.26.0] — 2026-08-08
 
 ### Added

@@ -45,6 +45,37 @@ the question Schaeffer asks of a single closing door. The two figures here keep 
 timeline** is built from regimes and spans, on the session clock. Neither borrows the other's unit,
 and the map shows no regimes at all.
 
+## Morphology without the label (`objects.object_profile`)
+
+Typing an object as impulsive, sustained or iterative discards the
+measurements that produced the type. Two objects can share a facture and
+differ audibly, and a comparison — do two takes of the same action match?
+does a machine's onset resemble a deliberate one? — needs the numbers
+rather than the label.
+
+```python
+from ambiscape.objects import object_profile
+p = object_profile(env, dt)      # env: the object's amplitude envelope
+```
+
+| field | what it says |
+|---|---|
+| `attack_s` | the 10–90 % rise towards the peak |
+| `decay_s` | the fall back through a tenth of the peak, or `None` if the sound was cut off rather than allowed to finish |
+| `temporal_centroid` | where the energy sits along the object, 0 at its start and 1 at its end |
+| `crest_db` | peak over RMS |
+| `iteration_hz`, `iteration_strength` | the envelope's best repetition rate and how strongly it repeats |
+
+The temporal centroid is the one worth knowing about. It puts impulsive and
+sustained on a continuous axis rather than in categories: an impulse lands
+near 0.04 and a held sound near 0.49, so two objects of the same facture
+can still be told apart.
+
+These are **meso-band** descriptors in the sense of the
+[timescales guide](timescales.md): each is defined on a single object of
+roughly 0.2–8 s and none needs a minute of audio. That matters for clip
+corpora, where the session-scale descriptors return almost nothing.
+
 ## The workflow
 
 Instruments detect *when* things sound. Deciding what they are, in any of the three schemes, is a

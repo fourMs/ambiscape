@@ -75,6 +75,22 @@ open-plan room.
 | meso | 0.5–5 s | the zone | short-term / working |
 | macro | > 5 s | the room, the building | long-term |
 
+## The meso band
+
+For a long time the answer to "what can this toolbox say about a
+six-second sound action?" was: nothing. Every windowed descriptor was
+invalid, because they are all session-scale, and only the band-energy
+ratios and spectral medians survived.
+
+`objects.object_profile` fills that band — attack, decay, temporal
+centroid, crest, iteration rate and strength, each defined on a single
+object and registered here at 0.2 s. It is why the figure's descriptor row
+reaches left of a minute at all.
+
+The bounds on those six are marked `asserted` rather than `measured`. They
+follow from what the quantities are — there is no attack without an object
+— rather than from a length study, and the figure hatches them accordingly.
+
 ## Adding a descriptor
 
 A new summary key must be added either to `WINDOWS`, with a window, a kind

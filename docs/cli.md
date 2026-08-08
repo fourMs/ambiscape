@@ -25,7 +25,7 @@ See [Sessions & conventions](guide/sessions.md), [Features & descriptors](guide/
 | `ambiscape survey <session> --responses <csv>` | ISO 12913-2 Method-A questionnaire responses projected onto the 12913-3 circumplex. |
 | `ambiscape calibrate <session> --spl <dB>` | Derive and store the dBFS to dB SPL offset from a field SPL reading. |
 | `ambiscape sweep` | Generate an exponential sine sweep plus matched inverse filter for impulse-response measurement. |
-| `ambiscape impulse <recording.wav>` | Deconvolve a recorded sweep to an impulse response; octave-band T60/T20/T30, EDT, C50/C80, D50, STI, IACC. |
+| `ambiscape impulse <recording.wav>` | Deconvolve a recorded sweep to an impulse response; octave-band T60/T20/T30, EDT, C50/C80, D50, STI, IACC (broadband and IACC_E3). |
 | `ambiscape auralize <dry.wav> --ir <ir.wav>` | Convolve dry audio with a measured impulse response. |
 
 See [Spatial analysis](guide/spatial.md), [Spaced-microphone array](guide/array.md), [Room acoustics & ISO](guide/acoustics.md), [Perceptual survey](guide/survey.md), and [Impulse response & auralization](guide/impulse.md).

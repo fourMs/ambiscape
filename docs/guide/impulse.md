@@ -72,13 +72,31 @@ level-invariant). Alongside it, `impulse.json` holds:
         will have a lower effective STI. Treat it as a room descriptor,
         not an occupancy-condition prediction.
 
-- **IACC (early)** for two-channel IRs: the maximum *absolute* interaural
-  cross-correlation over 0–80 ms after the direct sound, lags ±1 ms,
-  broadband (ISO 3382-1 takes the signed maximum; the absolute value
-  differs only for strongly anti-correlated channels). Meaningful for binaural (ear-signal) IRs; for an ordinary
-  spaced stereo pair it is a channel-similarity figure, not a perceptual
-  one. Multichannel decay/STI metrics are computed on channel 0 (the
-  omni/W channel of a B-format IR).
+- **IACC (early)** for two-channel IRs: the maximum of the *modulus* of
+  the interaural cross-correlation over 0–80 ms after the direct sound,
+  lags ±1 ms, broadband. Taking the modulus is ISO 3382-1's definition,
+  not a deviation from it. Meaningful for binaural (ear-signal) IRs; for
+  an ordinary spaced stereo pair it is a channel-similarity figure, not a
+  perceptual one. Multichannel decay/STI metrics are computed on channel 0
+  (the omni/W channel of a B-format IR).
+
+- **IACC_E3** (`iacc_e3`, since 0.28.0): the same quantity per octave
+  band, plus the mean of the 500, 1000 and 2000 Hz bands.
+
+    !!! warning "Use this one against the literature"
+
+        Published concert-hall values are IACC_E3, not broadband. The two
+        are different quantities — low-frequency content moves the
+        broadband figure — so comparing `iacc_early` against hall values
+        compares different things.
+
+    The result also carries `iacc_signed`: the signed correlation at the
+    same lag as the reported IACC. The modulus discards exactly one case,
+    ears receiving *anti-phase* sound, which otherwise read as strongly
+    correlated. The CLI mentions it only above `IACC_SIGN_FLOOR` (0.5),
+    because the sign of a near-zero peak is noise — decorrelated ears
+    would otherwise be flagged anti-phase on every band. A diagnostic,
+    not an ISO quantity.
 
 ## 3. Auralize
 
@@ -112,7 +130,8 @@ h = impulse.deconvolve(recording, inverse)      # (n, ch)
 ir, direct = impulse.extract_ir(h, fs)
 impulse.ir_metrics(ir, fs)                      # {"500": {"T60": ...}, ...}
 impulse.sti(ir, fs)                             # {"sti": ..., "mti": {...}}
-impulse.iacc_early(ir, fs)                      # stereo/binaural IRs
+impulse.iacc_early(ir, fs)                      # broadband, stereo/binaural
+impulse.iacc_e3(ir, fs)                         # {"iacc_e3", "iacc", ...}
 wet, gain_db = impulse.auralize(dry, fs, ir, fs_ir)
 ```
 

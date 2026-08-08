@@ -54,6 +54,83 @@ def bimodal_threshold(level_db: np.ndarray) -> float:
     return float((mu0 + mu1) / 2)
 
 
+def transition_profile(level_db: np.ndarray, segments: list, dt_s: float = 1.0,
+                       settle_tol_db: float = 1.0, max_settle_s: float = 120.0):
+    """Characterise the boundaries between steady states, not the states.
+
+    A machine starting or stopping is itself a sound action, and it has the
+    morphology of one: abrupt, then settling. A refrigerator does not fade
+    in. It strikes, clatters for a moment, and subsides into the steady hum
+    that will be ignored for the next eleven minutes. Heard on its own that
+    is an impulse followed by a sustain, which is to say a sound object in
+    Schaeffer's sense, arriving involuntarily in a room rather than
+    deliberately in front of a microphone.
+
+    That matters for attention, because the transition is where a
+    background briefly becomes a figure and then returns to being a
+    background. The steady states either side are what a level summary
+    describes; the crossings between them are what anybody in the room
+    actually notices, and until now nothing here measured them.
+
+    For each boundary in ``segments`` returns the direction, the size of
+    the step, how abruptly it happened (the 10--90 % crossing time) and how
+    long the level took to settle within ``settle_tol_db`` of its new
+    median. ``None`` for a settling time means it had not settled within
+    ``max_settle_s``, which is a finding rather than a gap: a transition
+    that never settles is not a machine changing state.
+    """
+    x = np.asarray(level_db, float)
+    out = []
+    for a, b in zip(segments[:-1], segments[1:]):
+        i = int(round(b["t0_s"] / dt_s))
+        if i <= 0 or i >= len(x):
+            continue
+        lo, hi = float(a["median_db"]), float(b["median_db"])
+        step = hi - lo
+        if abs(step) < 1e-9:
+            continue
+
+        # abruptness: how long the level spends between 10% and 90% of the
+        # step, searched in a window around the boundary
+        w = int(round(min(max_settle_s, 30.0) / dt_s))
+        seg = x[max(0, i - w):min(len(x), i + w)]
+        lo_mark, hi_mark = lo + 0.1 * step, lo + 0.9 * step
+        if step > 0:
+            crossing = np.flatnonzero((seg >= lo_mark) & (seg <= hi_mark))
+        else:
+            crossing = np.flatnonzero((seg <= lo_mark) & (seg >= hi_mark))
+        cross_s = float(len(crossing) * dt_s) if len(crossing) else 0.0
+
+        # Settling: first index after the boundary from which the level
+        # stays inside a band around the new state's median. The band is
+        # the wider of the caller's tolerance and twice the new state's own
+        # variability, because a tolerance tighter than the state's noise
+        # would report that a steady state never settles -- which says
+        # something about the tolerance, not about the room.
+        tol = max(settle_tol_db, 2.0 * float(b.get("sd_db", 0.0) or 0.0))
+        m = int(round(max_settle_s / dt_s))
+        tail = x[i:min(len(x), i + m)]
+        settle = None
+        inside = np.abs(tail - hi) <= tol
+        # "stays inside" as a fraction rather than as every sample: a
+        # steady state that is merely noisy will throw the occasional
+        # excursion past any band, and requiring perfection would report
+        # that a settled room never settled.
+        for k in range(len(inside)):
+            if inside[k:].mean() >= 0.9:
+                settle = float(k * dt_s)
+                break
+
+        out.append(dict(t_s=float(b["t0_s"]),
+                        direction="onset" if step > 0 else "cessation",
+                        step_db=round(step, 1),
+                        crossing_s=round(cross_s, 1),
+                        settle_s=None if settle is None else round(settle, 1),
+                        settle_tol_db=round(tol, 1),
+                        from_db=round(lo, 1), to_db=round(hi, 1)))
+    return out
+
+
 def state_segments(level_db: np.ndarray, thresh_db: float | None = None,
                    smooth_s: float = 11.0, hysteresis_db: float = 1.0,
                    min_dur_s: float = 30.0) -> list[dict]:

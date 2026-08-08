@@ -127,8 +127,16 @@ def intermittency_ratio(level_db: np.ndarray, dt: float,
 
 
 def decay_metrics(x: np.ndarray, fs: int, bands=((250, 500), (500, 1000),
-                  (1000, 2000), (2000, 4000), (4000, 8000))) -> dict:
+                  (1000, 2000), (2000, 4000), (4000, 8000)),
+                  pre_roll: bool = True) -> dict:
     """T60, EDT, C50, C80 (dB) and D50 per octave band from an impulse.
+
+    ``pre_roll=False`` says the samples before the peak are not a recording
+    of the room but silence prepended by a caller so this estimator can run
+    on a trimmed IR. The noise floor is then taken from the quietest part of
+    the decay itself rather than from that silence. Read off the padding it
+    comes out near 200 dB, which silently satisfies every dynamic-range
+    guard below and lets T20/T30 be fitted over noise.
 
     Same truncated-Schroeder machinery as :func:`decay_time` (which is
     kept unchanged — its output feeds frozen corpus reports), plus the
@@ -160,7 +168,13 @@ def decay_metrics(x: np.ndarray, fs: int, bands=((250, 500), (500, 1000),
             + max(0, pk_i - 2400)
         if pk < fs // 4:
             continue
-        noise = float(np.median(env[:pk - fs // 8]))
+        if pre_roll:
+            noise = float(np.median(env[:pk - fs // 8]))
+        else:
+            # Nothing of the room was recorded before the peak, so the only
+            # floor available is the quietest part of what the IR contains.
+            after = env[pk:]
+            noise = float(np.percentile(after, 10)) if len(after) else 0.0
         dr = 10 * np.log10(env[pk] / (noise + EPS))
         if dr < 20:
             continue

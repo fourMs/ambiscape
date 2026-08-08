@@ -291,3 +291,19 @@ def test_cli_reports_anti_phase_when_an_ear_is_polarity_inverted(
     assert doc["iacc_e3"] == pytest.approx(1.0, abs=1e-3)   # modulus: ISO
     assert all(v < 0 for v in doc["iacc_signed"].values())
     assert "anti-phase" in capsys.readouterr().out
+
+
+def test_trimmed_ir_reports_its_real_dynamic_range_not_the_padding():
+    """A trimmed IR has no pre-roll, so ir_metrics prepends silence to let
+    the estimator run. The noise floor must not then be read off that
+    silence: it reports 192 dB of dynamic range, which lets T20/T30 fit
+    over noise because the guards can never fire."""
+    rng = np.random.default_rng(11)
+    ir = _synth_ir(T60=0.6, direct=1.0)          # peak at t~0: trimmed
+    ir = ir / np.abs(ir).max()
+    ir = ir + 10 ** (-45 / 20) * rng.standard_normal(len(ir))   # 45 dB floor
+    m = impulse.ir_metrics(ir, FS)["1000"]
+    assert m["dr_db"] is not None
+    assert m["dr_db"] < 90, (
+        f"dynamic range {m['dr_db']} dB came from the padding, not the IR")
+    assert m["dr_db"] == pytest.approx(45, abs=15)   # tracks the real floor

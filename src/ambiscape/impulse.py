@@ -193,10 +193,16 @@ def ir_metrics(ir: np.ndarray, fs: int, centers=OCTAVE_CENTERS) -> dict:
     if x.ndim > 1:
         x = x[:, 0]
     x = x / (np.abs(x).max() + EPS)     # metrics are level-invariant
-    if int(np.abs(x).argmax()) < fs // 4:
+    pre_roll = int(np.abs(x).argmax()) >= fs // 4
+    if not pre_roll:
+        # The estimator needs samples before the peak. Padding supplies them,
+        # but they are silence, not room: `pre_roll=False` stops the noise
+        # floor being read off the padding, which would report a dynamic
+        # range near 200 dB and disable every guard downstream.
         x = np.concatenate([np.zeros(fs // 2), x])
     edges = _octave_edges(centers, fs)
-    dm = decay_metrics(x, fs, bands=tuple((lo, hi) for _, lo, hi in edges))
+    dm = decay_metrics(x, fs, bands=tuple((lo, hi) for _, lo, hi in edges),
+                       pre_roll=pre_roll)
     return {str(c): dm[f"{lo}-{hi}"] for c, lo, hi in edges
             if f"{lo}-{hi}" in dm}
 

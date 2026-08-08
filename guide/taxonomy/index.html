@@ -1612,6 +1612,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#morphology-without-the-label-objectsobject_profile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Morphology without the label (objects.object_profile)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the-workflow" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2136,6 +2147,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#morphology-without-the-label-objectsobject_profile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Morphology without the label (objects.object_profile)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the-workflow" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2312,6 +2334,53 @@ the question Schaeffer asks of a single closing door. The two figures here keep 
 <strong>Schaeffer map</strong> is built from detected events, one point per sound object of 0.2–8 s. The <strong>Schafer
 timeline</strong> is built from regimes and spans, on the session clock. Neither borrows the other's unit,
 and the map shows no regimes at all.</p>
+<h2 id="morphology-without-the-label-objectsobject_profile">Morphology without the label (<code>objects.object_profile</code>)</h2>
+<p>Typing an object as impulsive, sustained or iterative discards the
+measurements that produced the type. Two objects can share a facture and
+differ audibly, and a comparison — do two takes of the same action match?
+does a machine's onset resemble a deliberate one? — needs the numbers
+rather than the label.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape.objects</span><span class="w"> </span><span class="kn">import</span> <span class="n">object_profile</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">object_profile</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>      <span class="c1"># env: the object&#39;s amplitude envelope</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>field</th>
+<th>what it says</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>attack_s</code></td>
+<td>the 10–90 % rise towards the peak</td>
+</tr>
+<tr>
+<td><code>decay_s</code></td>
+<td>the fall back through a tenth of the peak, or <code>None</code> if the sound was cut off rather than allowed to finish</td>
+</tr>
+<tr>
+<td><code>temporal_centroid</code></td>
+<td>where the energy sits along the object, 0 at its start and 1 at its end</td>
+</tr>
+<tr>
+<td><code>crest_db</code></td>
+<td>peak over RMS</td>
+</tr>
+<tr>
+<td><code>iteration_hz</code>, <code>iteration_strength</code></td>
+<td>the envelope's best repetition rate and how strongly it repeats</td>
+</tr>
+</tbody>
+</table>
+<p>The temporal centroid is the one worth knowing about. It puts impulsive and
+sustained on a continuous axis rather than in categories: an impulse lands
+near 0.04 and a held sound near 0.49, so two objects of the same facture
+can still be told apart.</p>
+<p>These are <strong>meso-band</strong> descriptors in the sense of the
+<a href="../timescales/">timescales guide</a>: each is defined on a single object of
+roughly 0.2–8 s and none needs a minute of audio. That matters for clip
+corpora, where the session-scale descriptors return almost nothing.</p>
 <h2 id="the-workflow">The workflow</h2>
 <p>Instruments detect <em>when</em> things sound. Deciding what they are, in any of the three schemes, is a
 listening judgement. The work is split accordingly:</p>
@@ -2608,7 +2677,7 @@ existing annotations keep working; everything it writes uses <code>anthrophony</
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 7, 2026 14:35:41 UTC">August 7, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 8, 2026 15:20:41 UTC">August 8, 2026</span>
   </span>
 
     

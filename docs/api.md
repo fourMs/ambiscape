@@ -52,6 +52,10 @@
 
 ::: ambiscape.longitudinal
 
+## Cross-session and cross-node comparison
+
+::: ambiscape.compare
+
 ## Multi-room acoustic network
 
 ::: ambiscape.network

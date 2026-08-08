@@ -7,6 +7,39 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/); the
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) loosely, in that the minor number has
 been carrying feature work throughout a pre-1.0 life.
 
+## [0.26.0] — 2026-08-08
+
+### Added
+- `ambiscape.timescales`: the one place each descriptor's observation
+  window is written down, with the reason and the provenance. A window is
+  `hard` when the quantity does not exist below it (no complete chunk, no
+  minute to aggregate) and `soft` when it exists but is not yet stable, and
+  its `source` records whether the bound was measured on this project's
+  material or asserted from reasoning. Ten of the 27 are asserted, and
+  saying so is the point: an asserted bound should not harden into a
+  measured one by repetition.
+- `ambiscape timescales` prints the registry, `--csv` emits it for a
+  report table, and `--figure` renders the three-row figure — what rooms
+  do, what descriptors need, what corpora supply — over the micro/meso/
+  macro bands, hatching the asserted bounds. The figure is generated from
+  the registry, so the picture and the guard cannot disagree.
+- `low_confidence` in `summary.json`: descriptors kept but computed below
+  a soft window, each naming the window it needed and the window it had.
+
+### Changed
+- BREAKING: descriptors below a hard observation window are now `None`
+  rather than whatever a chunkless computation returned. The complexity
+  index returned `0.0` for any session under 300 s — indistinguishable
+  from a measurement, and produced by every clip corpus in the field,
+  since those are built from four to thirty seconds of audio. Anything
+  reading `aci`, `tonal_prominence_db`, `tonal_prominence_hz`,
+  `n_prominent_tones` or `bird_active_minute_fraction` from short sessions
+  must now handle `None`. Long sessions are unaffected.
+- `resolve.full_summary` applies the check and accepts
+  `check_windows=False` for callers that want the raw computation. The
+  per-state summaries of `resolve` are checked too, where segments are
+  short and the problem is worst.
+
 ## [0.25.0] — 2026-08-08
 
 

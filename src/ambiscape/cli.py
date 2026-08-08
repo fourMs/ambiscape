@@ -492,6 +492,16 @@ def main(argv=None):
     dv.add_argument("--frame", type=float, default=0.1,
                     help="label frame length in seconds (default 0.1, "
                          "the STARSS grid)")
+    tsc = sub.add_parser("timescales",
+                         help="what each descriptor needs and what rooms do: "
+                              "print the observation-window registry, or "
+                              "render the timescale figure")
+    tsc.add_argument("--figure", metavar="PNG", default=None,
+                     help="render the figure to this path instead of "
+                          "printing the table")
+    tsc.add_argument("--csv", action="store_true",
+                     help="print the registry as CSV for a report table")
+
     args = ap.parse_args(argv)
 
     if args.cmd == "doavalidate":
@@ -675,6 +685,33 @@ def main(argv=None):
                               window_days=args.window_days)
                 print(f"wrote {out}/longitudinal_{k}.png")
         print(f"wrote {out}/longitudinal.json")
+        return 0
+
+    if args.cmd == "timescales":
+        from . import timescales as ts_mod
+        if args.figure:
+            out = ts_mod.figure(args.figure)
+            print(f"wrote {out}")
+            return 0
+        rows = ts_mod.table()
+        if args.csv:
+            import csv as _csv
+            import sys as _sys
+            w = _csv.DictWriter(_sys.stdout, fieldnames=list(rows[0]))
+            w.writeheader()
+            w.writerows(rows)
+            return 0
+        print(f"{'descriptor':<32} {'needs':>9}  {'kind':<5} {'source':<9} why")
+        for r in rows:
+            secs = r["min_s"]
+            pretty = (f"{secs:.0f} s" if secs < 60 else
+                      f"{secs/60:.0f} min" if secs < 3600 else
+                      f"{secs/3600:.0f} h")
+            print(f"{r['descriptor']:<32} {pretty:>9}  {r['kind']:<5} "
+                  f"{r['source']:<9} {r['why'][:60]}")
+        n_ass = sum(1 for r in rows if r["source"] == "asserted")
+        print(f"\n{len(rows)} descriptors; {n_ass} of the windows are "
+              f"asserted rather than measured.")
         return 0
 
     if args.cmd == "catalog":

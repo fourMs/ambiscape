@@ -89,10 +89,28 @@ def slice_features(F: dict, intervals: list) -> dict:
     return out
 
 
-def full_summary(F: dict) -> dict:
-    """The complete analyze descriptor set for any ``F`` (no calibration)."""
+def full_summary(F: dict, check_windows: bool = True) -> dict:
+    """The complete analyze descriptor set for any ``F`` (no calibration).
+
+    Each descriptor is checked against the observation window it needs
+    (:mod:`ambiscape.timescales`) before the summary is returned. A
+    descriptor below a *hard* window is set to ``None``, because below it
+    the quantity does not exist: the complexity index has no complete
+    300 s chunk to average and would otherwise return a confident zero
+    that no measurement produced. A descriptor below a *soft* window is
+    kept and listed in ``low_confidence``, which names the key, the window
+    it needed and the window it had.
+
+    This is the choke point on purpose. Every descriptor that reaches
+    ``summary.json``, and from there the deposits, the catalogue and the
+    reports, passes through here --- including the per-state summaries of
+    :func:`resolve`, where segments are short and the problem is worst.
+
+    ``check_windows=False`` returns the raw set, for a caller that wants
+    what the computation produced rather than what it supports.
+    """
     from . import (analysis, anthrophony, background, biophony, ecology,
-                   geophony, iso, mechanical, spatial)
+                   geophony, iso, mechanical, spatial, timescales)
     s = analysis.summarize(F)
     s.update(background.summarize_foreground(F))
     s.update(ecology.summarize_ecology(F))
@@ -102,6 +120,10 @@ def full_summary(F: dict) -> dict:
     s.update(anthrophony.summarize_anthrophony(F))
     s.update(geophony.summarize_geophony(F))
     s.update(iso.summarize_psycho(F))
+    if check_windows:
+        s, low = timescales.check(s, float(len(F["t"])))
+        if low:
+            s["low_confidence"] = low
     return s
 
 

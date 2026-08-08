@@ -314,3 +314,32 @@ def test_xnode_figure_writes(tmp_path):
     p = C.xnode_figure(names, H, loud, tmp_path / "x.png",
                        title="test day", labels={"a": "node a (living)"})
     assert p.exists() and p.stat().st_size > 10_000
+
+
+# ------------------------------------------------- xnode figure layout
+
+def _xnode_fig(n_names=6):
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from ambiscape import compare as C
+    fig = plt.figure(figsize=(12.8, 2.3 + 0.6 * n_names))
+    axes = C._xnode_axes(fig, n_names)
+    return fig, axes
+
+
+def test_xnode_panels_are_the_same_width():
+    """The colorbar must not steal width from the heatmap alone: with it
+    inside ax[0], the two panels stop lining up and the strip no longer
+    reads against the hours above it."""
+    fig, (heat, strip, cax) = _xnode_fig()
+    fig.canvas.draw()
+    a, b = heat.get_position(), strip.get_position()
+    assert a.x0 == pytest.approx(b.x0, abs=1e-6)
+    assert a.x1 == pytest.approx(b.x1, abs=1e-6)
+    assert cax.get_position().x0 > a.x1      # colourbar sits outside both
+
+
+def test_xnode_hours_are_marked_every_four():
+    from ambiscape import compare as C
+    assert list(C._hour_ticks()) == [0, 4, 8, 12, 16, 20, 24]

@@ -566,6 +566,29 @@ def xnode_loudest(names: list, A: np.ndarray,
     return out
 
 
+def _hour_ticks(step: int = 4):
+    """Hour-of-day ticks. Every 4 h reads as morning/noon/evening;
+    matplotlib's default lands on 5, 10, 15, 20, which nobody thinks in."""
+    return list(range(0, 25, step))
+
+
+def _xnode_axes(fig, n_names: int):
+    """(heatmap, strip, colourbar) axes, with the two panels aligned.
+
+    A colourbar attached to the heatmap alone steals width from that panel
+    only, so the strip below ends up wider and its hours stop sitting under
+    the hours above it. Giving the colourbar its own gridspec column, with
+    an empty cell beneath, keeps both panels on the same x extent.
+    """
+    gs = fig.add_gridspec(2, 2, width_ratios=[60, 1],
+                          height_ratios=[n_names, 1],
+                          hspace=0.08, wspace=0.02)
+    heat = fig.add_subplot(gs[0, 0])
+    strip = fig.add_subplot(gs[1, 0], sharex=heat)
+    cax = fig.add_subplot(gs[0, 1])
+    return heat, strip, cax
+
+
 def xnode_figure(names: list, H: np.ndarray, loudest: list,
                  out_path: str | Path, title: str = "",
                  labels: dict | None = None, margin_db: float = 3.0,
@@ -581,9 +604,8 @@ def xnode_figure(names: list, H: np.ndarray, loudest: list,
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     nbin = H.shape[1]
-    fig, ax = plt.subplots(2, 1, figsize=(12.8, 2.3 + 0.6 * len(names)),
-                           dpi=130, sharex=True,
-                           height_ratios=[len(names), 1])
+    fig = plt.figure(figsize=(12.8, 2.3 + 0.6 * len(names)), dpi=130)
+    ax = _xnode_axes(fig, len(names))
     t = (np.arange(nbin) + 0.5) * 24 / nbin       # bin centres, hours
     t_edges = np.arange(nbin + 1) * 24 / nbin
     cmap = plt.get_cmap("magma").with_extremes(bad="0.88")  # no data: grey
@@ -592,23 +614,36 @@ def xnode_figure(names: list, H: np.ndarray, loudest: list,
                           shading="flat")
     ax[0].set_yticks(np.arange(len(names)) + 0.5,
                      [(labels or {}).get(n, str(n)) for n in names])
+    ax[0].tick_params(labelbottom=False)
     if title:
         ax[0].set_title(title)
-    fig.colorbar(im, ax=ax[0], label="dB re day median")
+    fig.colorbar(im, cax=ax[2], label="dB re day median")
     ld = np.array([names.index(v) if v is not None else np.nan
                    for v in loudest], float)
-    ax[1].scatter(t, ld, s=4, c=ld, cmap="tab10", vmin=0,
-                  vmax=max(len(names), 10))
+    awarded = int(np.isfinite(ld).sum())
+    ax[1].scatter(t, ld, s=18, c=ld, cmap="tab10", vmin=0,
+                  vmax=max(len(names), 10), zorder=3)
+    for y in range(len(names)):                   # guides: a lone dot needs
+        ax[1].axhline(y, color="0.92", lw=0.6, zorder=0)   # a row to sit on
     ax[1].set_yticks(range(len(names)), [str(n) for n in names])
+    ax[1].tick_params(axis="y", labelsize=7)   # one unit tall, n rows in it
     ax[1].set_ylim(-0.5, len(names) - 0.5)
+    ax[1].set_xlim(0, 24)
+    ax[1].set_xticks(_hour_ticks())
     ax[1].set(xlabel="hour of day", ylabel="loudest")
-    fig.tight_layout(rect=(0, 0.05, 1, 1))
-    fig.text(0.5, 0.01,
+    # left margin holds the node labels ("node 7 (living)"); too small and
+    # they are silently clipped rather than shrunk
+    longest = max((len(str((labels or {}).get(n, n))) for n in names),
+                  default=6)
+    fig.subplots_adjust(left=min(0.06 + 0.008 * longest, 0.22),
+                        right=0.93, top=0.93, bottom=0.16)
+    fig.text(0.5, 0.02,
              f"loudest marked only where the inter-node margin exceeds "
              f"{margin_db:g} dB (normalized levels) and the level clears "
              f"the node's floor_suspect-adjusted noise floor by "
              f"{floor_clear_db:g} dB; blank = near-tie or near-floor. "
-             f"Grey = no data.", ha="center", fontsize=7, color="0.35")
+             f"Grey = no data. {awarded} of {nbin} bins awarded.",
+             ha="center", fontsize=7, color="0.35")
     fig.savefig(out_path)
     plt.close(fig)
     return Path(out_path)

@@ -18,9 +18,16 @@ present in a section, which does not warrant a dependency.
 import re
 from pathlib import Path
 
+import pytest
+
 import ambiscape
 
 PYPROJECT = Path(__file__).resolve().parents[1] / "pyproject.toml"
+
+# Running against an installed wheel rather than a checkout: there is no
+# pyproject.toml to inspect and nothing here applies.
+pytestmark = pytest.mark.skipif(not PYPROJECT.exists(),
+                                reason="no pyproject.toml (installed package)")
 
 
 def _section(name: str) -> list[str]:
@@ -69,8 +76,18 @@ def test_build_reads_the_module_attribute():
 
 
 def test_setuptools_resolves_the_declared_version():
-    """The number setuptools would package equals the one the module reports."""
-    from setuptools.config.pyprojecttoml import read_configuration
+    """The number setuptools would package equals the one the module reports.
+
+    setuptools is a build-time dependency and is absent from a plain
+    runtime environment, so this cross-check skips rather than fails
+    where it is not installed. The three checks above need no imports and
+    carry the guard on their own.
+    """
+    try:
+        from setuptools.config.pyprojecttoml import read_configuration
+    except ImportError:
+        pytest.skip("setuptools is a build-time dependency and is not "
+                    "installed in this environment")
 
     resolved = read_configuration(str(PYPROJECT))["project"].get("version")
     assert resolved == ambiscape.__version__, (

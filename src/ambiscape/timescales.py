@@ -327,10 +327,11 @@ CONVENTIONS = [
      "6.0 s, and 24% run past 10 s into the unannotated stratum",
      "measured"),
     ("StillStanding365: one standstill a day (background)", 480.0, 480.0,
-     "365 daily standstill sessions through 2023, all 365 with audio; "
-     "the deposited per-second streams run 481 s at the median. Deposited "
-     "as 1 Hz non-identifying features rather than audio, which is the "
-     "publication unit private interiors allow",
+     "365 daily standstill sessions through 2023, all 365 with audio. Ten "
+     "minutes of standing, deposited as a median 481 s once the sync claps "
+     "and the settling into stillness are trimmed, so the deposit is the "
+     "steady middle. Deposited as 1 Hz non-identifying features rather "
+     "than audio, the publication unit private interiors allow",
      "measured"),
     ("this book's own long-form recordings", 600.0, 604800.0,
      "Intercontinental sessions, minutes to a continuous week", "measured"),

@@ -18596,30 +18596,7 @@ figure's caption line.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/compare.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">569</span>
-<span class="normal">570</span>
-<span class="normal">571</span>
-<span class="normal">572</span>
-<span class="normal">573</span>
-<span class="normal">574</span>
-<span class="normal">575</span>
-<span class="normal">576</span>
-<span class="normal">577</span>
-<span class="normal">578</span>
-<span class="normal">579</span>
-<span class="normal">580</span>
-<span class="normal">581</span>
-<span class="normal">582</span>
-<span class="normal">583</span>
-<span class="normal">584</span>
-<span class="normal">585</span>
-<span class="normal">586</span>
-<span class="normal">587</span>
-<span class="normal">588</span>
-<span class="normal">589</span>
-<span class="normal">590</span>
-<span class="normal">591</span>
-<span class="normal">592</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">592</span>
 <span class="normal">593</span>
 <span class="normal">594</span>
 <span class="normal">595</span>
@@ -18641,7 +18618,42 @@ figure's caption line.</p>
 <span class="normal">611</span>
 <span class="normal">612</span>
 <span class="normal">613</span>
-<span class="normal">614</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">xnode_figure</span><span class="p">(</span><span class="n">names</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">loudest</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+<span class="normal">614</span>
+<span class="normal">615</span>
+<span class="normal">616</span>
+<span class="normal">617</span>
+<span class="normal">618</span>
+<span class="normal">619</span>
+<span class="normal">620</span>
+<span class="normal">621</span>
+<span class="normal">622</span>
+<span class="normal">623</span>
+<span class="normal">624</span>
+<span class="normal">625</span>
+<span class="normal">626</span>
+<span class="normal">627</span>
+<span class="normal">628</span>
+<span class="normal">629</span>
+<span class="normal">630</span>
+<span class="normal">631</span>
+<span class="normal">632</span>
+<span class="normal">633</span>
+<span class="normal">634</span>
+<span class="normal">635</span>
+<span class="normal">636</span>
+<span class="normal">637</span>
+<span class="normal">638</span>
+<span class="normal">639</span>
+<span class="normal">640</span>
+<span class="normal">641</span>
+<span class="normal">642</span>
+<span class="normal">643</span>
+<span class="normal">644</span>
+<span class="normal">645</span>
+<span class="normal">646</span>
+<span class="normal">647</span>
+<span class="normal">648</span>
+<span class="normal">649</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">xnode_figure</span><span class="p">(</span><span class="n">names</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">loudest</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
                  <span class="n">out_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
                  <span class="n">labels</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">margin_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">,</span>
                  <span class="n">floor_clear_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">):</span>
@@ -18656,9 +18668,8 @@ figure's caption line.</p>
     <span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;Agg&quot;</span><span class="p">)</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
     <span class="n">nbin</span> <span class="o">=</span> <span class="n">H</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">12.8</span><span class="p">,</span> <span class="mf">2.3</span> <span class="o">+</span> <span class="mf">0.6</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)),</span>
-                           <span class="n">dpi</span><span class="o">=</span><span class="mi">130</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                           <span class="n">height_ratios</span><span class="o">=</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">),</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">12.8</span><span class="p">,</span> <span class="mf">2.3</span> <span class="o">+</span> <span class="mf">0.6</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">130</span><span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">_xnode_axes</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">))</span>
     <span class="n">t</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nbin</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="mi">24</span> <span class="o">/</span> <span class="n">nbin</span>       <span class="c1"># bin centres, hours</span>
     <span class="n">t_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nbin</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">24</span> <span class="o">/</span> <span class="n">nbin</span>
     <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s2">&quot;magma&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">with_extremes</span><span class="p">(</span><span class="n">bad</span><span class="o">=</span><span class="s2">&quot;0.88&quot;</span><span class="p">)</span>  <span class="c1"># no data: grey</span>
@@ -18667,23 +18678,36 @@ figure's caption line.</p>
                           <span class="n">shading</span><span class="o">=</span><span class="s2">&quot;flat&quot;</span><span class="p">)</span>
     <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">))</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">,</span>
                      <span class="p">[(</span><span class="n">labels</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">))</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">])</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelbottom</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">title</span><span class="p">:</span>
         <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
-    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;dB re day median&quot;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;dB re day median&quot;</span><span class="p">)</span>
     <span class="n">ld</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
                    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">loudest</span><span class="p">],</span> <span class="nb">float</span><span class="p">)</span>
-    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">ld</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">ld</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;tab10&quot;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                  <span class="n">vmax</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">),</span> <span class="mi">10</span><span class="p">))</span>
+    <span class="n">awarded</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">ld</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">ld</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">ld</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;tab10&quot;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                  <span class="n">vmax</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">),</span> <span class="mi">10</span><span class="p">),</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)):</span>                   <span class="c1"># guides: a lone dot needs</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;0.92&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>   <span class="c1"># a row to sit on</span>
     <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)),</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">])</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>   <span class="c1"># one unit tall, n rows in it</span>
     <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">24</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">_hour_ticks</span><span class="p">())</span>
     <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;hour of day&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;loudest&quot;</span><span class="p">)</span>
-    <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">rect</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-    <span class="n">fig</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span>
+    <span class="c1"># left margin holds the node labels (&quot;node 7 (living)&quot;); too small and</span>
+    <span class="c1"># they are silently clipped rather than shrunk</span>
+    <span class="n">longest</span> <span class="o">=</span> <span class="nb">max</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">((</span><span class="n">labels</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">)))</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">),</span>
+                  <span class="n">default</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="mf">0.06</span> <span class="o">+</span> <span class="mf">0.008</span> <span class="o">*</span> <span class="n">longest</span><span class="p">,</span> <span class="mf">0.22</span><span class="p">),</span>
+                        <span class="n">right</span><span class="o">=</span><span class="mf">0.93</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mf">0.93</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mf">0.16</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span>
              <span class="sa">f</span><span class="s2">&quot;loudest marked only where the inter-node margin exceeds &quot;</span>
              <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">margin_db</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> dB (normalized levels) and the level clears &quot;</span>
              <span class="sa">f</span><span class="s2">&quot;the node&#39;s floor_suspect-adjusted noise floor by &quot;</span>
              <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">floor_clear_db</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> dB; blank = near-tie or near-floor. &quot;</span>
-             <span class="sa">f</span><span class="s2">&quot;Grey = no data.&quot;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;0.35&quot;</span><span class="p">)</span>
+             <span class="sa">f</span><span class="s2">&quot;Grey = no data. </span><span class="si">{</span><span class="n">awarded</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="n">nbin</span><span class="si">}</span><span class="s2"> bins awarded.&quot;</span><span class="p">,</span>
+             <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;0.35&quot;</span><span class="p">)</span>
     <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span>
@@ -18714,42 +18738,7 @@ chorus). Returns the compare.json document.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/compare.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">628</span>
-<span class="normal">629</span>
-<span class="normal">630</span>
-<span class="normal">631</span>
-<span class="normal">632</span>
-<span class="normal">633</span>
-<span class="normal">634</span>
-<span class="normal">635</span>
-<span class="normal">636</span>
-<span class="normal">637</span>
-<span class="normal">638</span>
-<span class="normal">639</span>
-<span class="normal">640</span>
-<span class="normal">641</span>
-<span class="normal">642</span>
-<span class="normal">643</span>
-<span class="normal">644</span>
-<span class="normal">645</span>
-<span class="normal">646</span>
-<span class="normal">647</span>
-<span class="normal">648</span>
-<span class="normal">649</span>
-<span class="normal">650</span>
-<span class="normal">651</span>
-<span class="normal">652</span>
-<span class="normal">653</span>
-<span class="normal">654</span>
-<span class="normal">655</span>
-<span class="normal">656</span>
-<span class="normal">657</span>
-<span class="normal">658</span>
-<span class="normal">659</span>
-<span class="normal">660</span>
-<span class="normal">661</span>
-<span class="normal">662</span>
-<span class="normal">663</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">663</span>
 <span class="normal">664</span>
 <span class="normal">665</span>
 <span class="normal">666</span>
@@ -18760,7 +18749,42 @@ chorus). Returns the compare.json document.</p>
 <span class="normal">671</span>
 <span class="normal">672</span>
 <span class="normal">673</span>
-<span class="normal">674</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_compare</span><span class="p">(</span><span class="n">folders</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">],</span> <span class="n">out_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+<span class="normal">674</span>
+<span class="normal">675</span>
+<span class="normal">676</span>
+<span class="normal">677</span>
+<span class="normal">678</span>
+<span class="normal">679</span>
+<span class="normal">680</span>
+<span class="normal">681</span>
+<span class="normal">682</span>
+<span class="normal">683</span>
+<span class="normal">684</span>
+<span class="normal">685</span>
+<span class="normal">686</span>
+<span class="normal">687</span>
+<span class="normal">688</span>
+<span class="normal">689</span>
+<span class="normal">690</span>
+<span class="normal">691</span>
+<span class="normal">692</span>
+<span class="normal">693</span>
+<span class="normal">694</span>
+<span class="normal">695</span>
+<span class="normal">696</span>
+<span class="normal">697</span>
+<span class="normal">698</span>
+<span class="normal">699</span>
+<span class="normal">700</span>
+<span class="normal">701</span>
+<span class="normal">702</span>
+<span class="normal">703</span>
+<span class="normal">704</span>
+<span class="normal">705</span>
+<span class="normal">706</span>
+<span class="normal">707</span>
+<span class="normal">708</span>
+<span class="normal">709</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_compare</span><span class="p">(</span><span class="n">folders</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">],</span> <span class="n">out_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
                 <span class="n">lines</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">band</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hours</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                 <span class="n">state</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;machine_on&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compare analysed sessions of one place; write figures + compare.json.</span>

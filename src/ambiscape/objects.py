@@ -223,6 +223,83 @@ def object_facture(env: np.ndarray, dt: float, dur: float) -> tuple:
     return "sustained", ev
 
 
+def object_profile(env: np.ndarray, dt: float, dur: float | None = None,
+                   eps: float = 1e-12) -> dict:
+    """Morphology of one sound object, as numbers rather than as a type.
+
+    :func:`object_facture` already measures an attack time and an iteration
+    strength and then discards both, keeping only the label they imply.
+    That is a loss: two objects can share a facture and differ audibly, and
+    the numbers behind the label are what a comparison needs --- whether two
+    takes of the same action match, whether a machine's onset resembles a
+    deliberate one, whether an object is front-loaded or back-loaded.
+
+    This is a *meso-band* descriptor set, in the sense of
+    :mod:`ambiscape.timescales`: everything here is defined on a single
+    object of roughly 0.2 to 8 s and none of it needs a minute of audio.
+    The session-scale descriptors do, which is why a folder of short clips
+    returns almost nothing from ``analyze``.
+
+    ``env`` is the object's amplitude envelope (linear, one value every
+    ``dt`` seconds). Returns:
+
+    ``duration_s``
+        length of the envelope.
+    ``attack_s``
+        the 10-to-90 per cent rise towards the peak, as in facture typing.
+    ``decay_s``
+        the fall from the peak back through 10 per cent of it, or ``None``
+        when the object ends before decaying --- a sound cut off rather
+        than allowed to finish.
+    ``temporal_centroid``
+        where the energy sits along the object, from 0 at the very start to
+        1 at the very end. An impulse is front-loaded and lands near 0.2; a
+        held sound sits near 0.5. This separates impulsive from sustained
+        without reference to the typology.
+    ``crest_db``
+        peak over RMS. High for a single strike, low for a steady texture.
+    ``iteration_hz`` / ``iteration_strength``
+        best repetition rate in the envelope and how strongly it repeats,
+        from the same measurement that types iterative objects.
+    """
+    e = np.asarray(env, float)
+    e = e[np.isfinite(e)]
+    n = len(e)
+    if n < 3 or float(np.max(e)) <= eps:
+        return {}
+    dur = float(n * dt) if dur is None else float(dur)
+    pk = int(np.argmax(e))
+    peak = float(e[pk])
+
+    # attack: 10-90% of the rise to the peak
+    rise = e[:pk + 1]
+    lo, hi = 0.1 * peak, 0.9 * peak
+    idx = np.flatnonzero((rise >= lo) & (rise <= hi))
+    attack = float(len(idx) * dt) if len(idx) else 0.0
+
+    # decay: peak back down through 10% of it, if it gets there
+    tail = e[pk:]
+    below = np.flatnonzero(tail <= lo)
+    decay = float(below[0] * dt) if len(below) else None
+
+    t = np.arange(n) * dt
+    energy = e ** 2
+    tot = float(energy.sum())
+    tc = float((t * energy).sum() / tot / max(dur, eps)) if tot > eps else None
+    rms = float(np.sqrt(energy.mean()))
+    crest = float(20 * np.log10(peak / max(rms, eps)))
+    it_strength, it_hz = _iteration_strength(e, dt)   # (strength, rate)
+
+    return {"duration_s": round(dur, 3),
+            "attack_s": round(attack, 3),
+            "decay_s": None if decay is None else round(decay, 3),
+            "temporal_centroid": None if tc is None else round(tc, 3),
+            "crest_db": round(crest, 1),
+            "iteration_hz": None if not it_hz else round(float(it_hz), 2),
+            "iteration_strength": (None if it_strength is None
+                                   else round(float(it_strength), 3))}
+
+
 def _row_index(t_axis: np.ndarray, t: float, n: int) -> int:
     """Index of the frame that contains time ``t`` (frames start at their own
     time, so the search is right-sided: an onset exactly on a frame boundary

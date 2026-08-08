@@ -143,6 +143,33 @@ WINDOWS: dict[str, Window] = {w.key: w for w in [
            "companion to mech_periodicity_hz", "asserted",
            "dataset benchmark report"),
 
+    # Meso-band descriptors: defined on a single sound object, so they need
+    # an object rather than a minute. These are what makes the figure's
+    # second row reach left of a minute at all -- before them the toolbox
+    # could say nothing whatever about a six-second sound action.
+    Window("attack_s", 0.2, "hard",
+           "the 10-90% rise of one object's envelope; there is no attack "
+           "without an object",
+           "asserted", "objects.object_profile"),
+    Window("decay_s", 0.2, "hard",
+           "the fall from the peak back through a tenth of it",
+           "asserted", "objects.object_profile"),
+    Window("temporal_centroid", 0.2, "hard",
+           "where the energy sits along one object, 0 at its start and 1 at "
+           "its end",
+           "asserted", "objects.object_profile"),
+    Window("crest_db", 0.2, "soft",
+           "peak over RMS; meaningful on an object, unstable on a fragment "
+           "of one",
+           "asserted", "objects.object_profile"),
+    Window("iteration_hz", 0.2, "soft",
+           "the envelope's best repetition rate needs a few cycles inside "
+           "the object to be trusted",
+           "asserted", "objects.object_profile"),
+    Window("iteration_strength", 0.2, "soft",
+           "companion to iteration_hz", "asserted",
+           "objects.object_profile"),
+
     # Ecoacoustic indices. The length study ran to 360 s and these had not
     # settled by it, so the bound is where measurement stopped rather than
     # where the index becomes stable -- asserted, and deliberately not
@@ -352,6 +379,7 @@ GAPS = [
 #: and what sits at each. Members are checked against WINDOWS by the tests,
 #: so a family cannot quietly disagree with the registry it summarises.
 FAMILIES = [
+    ("sound-object morphology (attack, decay, crest)", 0.2, "asserted"),
     ("spectral event duration", 30.0, "measured"),
     ("percentile levels, dynamics, event rates", 60.0, "measured"),
     ("tonal prominence (undefined below)", 60.0, "measured"),

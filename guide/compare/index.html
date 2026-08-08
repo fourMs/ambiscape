@@ -2074,8 +2074,8 @@ fridge, and its <em>absence</em> from a new mic position). See the API reference
 <h2 id="cross-node-day-figures-uncalibrated-multi-room-deployments">Cross-node day figures (uncalibrated multi-room deployments)</h2>
 <p>For several <em>uncalibrated</em> recorders covering the same day of one building
 (the SINS deployment style), <code>xnode_day_matrix</code>, <code>xnode_floor</code>,
-<code>xnode_loudest</code> and <code>xnode_figure</code> build a day heatmap plus a loudest-room
-strip from per-node full-day 1 Hz level arrays:</p>
+<code>xnode_gain_offsets</code>, <code>xnode_loudest</code> and <code>xnode_figure</code> build a day heatmap
+plus a loudest-room strip from per-node full-day 1 Hz level arrays:</p>
 <ul>
 <li><strong>Heatmap</strong> — clock-binned power means shown as <em>dB above each node's own
   day median</em>, since raw dB from uncalibrated instruments are not
@@ -2083,10 +2083,11 @@ strip from per-node full-day 1 Hz level arrays:</p>
   takes) render as neutral grey, never as a colour of their own.</li>
 <li><strong>Loudest-room strip</strong> — a bin is awarded to a node only when <em>both</em>
   rules hold, and stays empty otherwise:<ol>
-<li><em>Margin rule</em>: the node's normalized level beats every other node's
-   by more than <code>margin_db</code> (default 3 dB). Uncalibrated nodes differ
-   by sensor gain, so a fractional-dB "win" says nothing about the
-   sound — without this rule, a quiet night renders as a solid row for
+<li><em>Margin rule</em>: the node's <strong>level</strong> beats every other node's by more
+   than <code>margin_db</code> (default 3 dB), after subtracting the per-node gain
+   offsets in <code>gain_offsets_db</code>. Uncalibrated nodes differ by sensor
+   gain, so a fractional-dB "win" says nothing about the sound —
+   without this rule, a quiet night renders as a solid row for
    whichever node has the hotter gain.</li>
 <li><em>Floor rule</em>: the node's absolute level clears its own noise floor
    (<code>xnode_floor</code>: a low percentile of the day's 1 Hz levels, raised by
@@ -2097,7 +2098,23 @@ strip from per-node full-day 1 Hz level arrays:</p>
 </ol>
 </li>
 </ul>
-<p>Both rules are restated in the figure's caption line. Historical note: fast
+<p>Both rules are restated in the figure's caption line.</p>
+<p>Pass gain offsets whenever you have them. <code>xnode_gain_offsets</code> derives them
+from the nodes' own floors: recorders in one building hear the same diffuse
+field when the place is empty, so their measured floors should agree and the
+spread between them reads as sensor gain. Measure those floors <em>without</em> the
+<code>floor_suspect</code> adjustment, which is a deliberate handicap for the floor rule
+and would otherwise charge a suspect node 3 dB of gain it does not have. The
+estimate conflates gain with position — a node in a genuinely quieter corner
+also shows a lower floor — so it assumes an empty building is diffuse enough
+for position not to matter, which is worth testing in your deployment.</p>
+<p>The margin rule works on level, never on the heatmap's normalization. Those
+answer different questions: a node's level minus its <em>own</em> day median is
+largest for the node whose day departs furthest from its own baseline, which
+is the peakiest node and may be the quietest one in the building. Ranking on
+it lets a quiet recorder with a sharp evening take every awarded bin from
+louder neighbours (observed on a four-node domestic day, where one node took
+110 of 113 awarded bins while having the lowest floor of the four). Historical note: fast
 feature caches written by ambiscape ≤ 0.24.1 carried a few <em>unfilled</em>
 125 ms frames past the last whole second of each take, stored as exactly
 0 dBFS (full scale) — a false click at every take boundary that painted
@@ -2127,7 +2144,7 @@ are clean without re-analysis.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 7, 2026 13:27:33 UTC">August 7, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 8, 2026 07:56:42 UTC">August 8, 2026</span>
   </span>
 
     

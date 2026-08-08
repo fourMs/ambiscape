@@ -25,11 +25,13 @@ run; no audio is reopened.
   time windows: the detector for near-floor sources (a quiet fan's shelf);
 - ``duty_cycle`` --- period, duty and regularity of a cycling source (a
   fridge) from a band-level autocorrelation;
-- ``xnode_day_matrix`` / ``xnode_floor`` / ``xnode_loudest`` /
-  ``xnode_figure`` --- several uncalibrated nodes of one building on one
-  day clock: binned heatmap rows (dB above each node's own day median), a
-  per-node noise floor, and a loudest-room timeline that only speaks when
-  the margin is real and the level is above the floor;
+- ``xnode_day_matrix`` / ``xnode_floor`` / ``xnode_gain_offsets`` /
+  ``xnode_loudest`` / ``xnode_figure`` --- several uncalibrated nodes of
+  one building on one day clock: binned heatmap rows (dB above each
+  node's own day median), a per-node noise floor, gain offsets read from
+  those floors, and a loudest-room timeline that ranks on gain-corrected
+  level and only speaks when the margin is real and the level is above
+  the floor;
 - ``run_compare`` --- orchestrate the above into figures + compare.json.
 
 Times follow the feature axis: seconds since midnight of each session's
@@ -479,28 +481,74 @@ def xnode_floor(arr, pct: float = 5.0, floor_suspect: bool = False,
                                            else 0.0)
 
 
-def xnode_loudest(names: list, A: np.ndarray, H: np.ndarray,
+def xnode_gain_offsets(floors_db: dict) -> dict:
+    """Per-node gain offsets estimated from the nodes' own noise floors.
+
+    Nodes of one building hear the same diffuse field when the place is
+    empty, so their measured floors should agree; the spread between them
+    is read here as sensor gain and returned as a per-node offset from the
+    median floor. Subtracting these makes absolute levels comparable
+    across uncalibrated recorders, which is what deciding *which room is
+    loudest* requires.
+
+    Pass floors measured without the ``floor_suspect`` adjustment of
+    :func:`xnode_floor`: that adjustment is a deliberate handicap for the
+    floor rule, and inheriting it here would charge a suspect node 3 dB of
+    gain it does not have.
+
+    The estimate conflates gain with position. A node in a genuinely
+    quieter corner also shows a lower floor and is credited with gain it
+    does not have. Separating the two needs a source every node hears, or
+    the assumption --- defensible in a small dwelling at four in the
+    morning, and worth testing --- that an empty building is diffuse
+    enough for position not to matter.
+    """
+    vals = [float(v) for v in floors_db.values() if np.isfinite(v)]
+    if not vals:
+        return {n: 0.0 for n in floors_db}
+    ref = float(np.median(vals))
+    return {n: (float(v) - ref if np.isfinite(v) else 0.0)
+            for n, v in floors_db.items()}
+
+
+def xnode_loudest(names: list, A: np.ndarray,
                   floors_db: dict | None = None, margin_db: float = 3.0,
-                  floor_clear_db: float = 3.0) -> list:
+                  floor_clear_db: float = 3.0,
+                  gain_offsets_db: dict | None = None) -> list:
     """Loudest node per clock bin — only where the call is defensible.
 
     A bin is awarded to a node only when **both** hold:
 
-    1. *margin rule* — its normalized level ``H`` beats every other
-       node's by more than ``margin_db``. Uncalibrated nodes differ by
-       sensor gain; a fractional-dB win says nothing about the sound, so
-       near-ties stay unmarked instead of one node sweeping the night.
+    1. *margin rule* — its gain-corrected level beats every other node's
+       by more than ``margin_db``. Uncalibrated nodes differ by sensor
+       gain, so ``gain_offsets_db`` (see :func:`xnode_gain_offsets`) is
+       subtracted from ``A`` first; a fractional-dB win says nothing about
+       the sound, so near-ties stay unmarked instead of one node sweeping
+       the night.
     2. *floor rule* — its absolute level ``A`` clears that node's noise
        floor (``floors_db``, e.g. from :func:`xnode_floor`, already
        ``floor_suspect``-adjusted) by at least ``floor_clear_db``: the
        winner must actually be hearing sound, not its own floor.
 
+    The margin rule works on levels, not on the display normalization
+    ``H`` returned beside ``A`` by :func:`xnode_day_matrix`. The two
+    answer different questions, and ranking on ``H`` answers the wrong
+    one: ``H`` is each node's level minus that node's *own* day median, so
+    the largest ``H`` belongs to the node whose day departs furthest from
+    its own baseline --- the peakiest node, which may be the quietest one
+    in the building. A node with a low median and a sharp evening will
+    take every awarded bin from louder neighbours. ``H`` stays correct for
+    the heatmap, where each row is read against its own baseline.
+
     Returns one entry per bin: the winning name, or None (bins with < 2
     finite nodes, near-ties, and near-floor bins) — rendered empty.
     """
+    off = np.array([(gain_offsets_db or {}).get(n, 0.0) for n in names],
+                   float)
+    G = np.asarray(A, float) - off[:, None]
     out = []
-    for b in range(H.shape[1]):
-        col = H[:, b]
+    for b in range(G.shape[1]):
+        col = G[:, b]
         if np.isfinite(col).sum() < 2:
             out.append(None)
             continue

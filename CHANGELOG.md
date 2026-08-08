@@ -7,7 +7,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/); the
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) loosely, in that the minor number has
 been carrying feature work throughout a pre-1.0 life.
 
-## [Unreleased]
+## [0.25.0] — 2026-08-08
+
 
 ### Changed
 - The Schaeffer map is built at the sound-object level. Schaeffer's *objet sonore* is a perceptual
@@ -192,6 +193,40 @@ been carrying feature work throughout a pre-1.0 life.
   for points alone in their grid cell. Cells with more than five objects — whose extra points were
   previously silently dropped by the fixed offset list — now draw every object with deterministic
   jitter, count-scaled marker size, and an `n=` count in the cell corner.
+
+### Changed
+- `compare.xnode_loudest` decides the loudest node on **level**, not on the display
+  normalization. The margin rule previously ranked nodes on `H`, each node's level minus that
+  node's own day median, which is the right quantity for the heatmap (where every row is read
+  against its own baseline) and the wrong one for deciding who is loudest: the largest `H` belongs
+  to the node whose day departs furthest from its own baseline, which is the peakiest node and can
+  be the quietest one in the building. Found on a four-node domestic day where one node took 110 of
+  113 awarded bins while having the lowest noise floor of the four and the lowest daily median on
+  six of seven days; it swept by construction, having the largest excursion above its own median
+  every day. The rule now ranks on absolute level, optionally corrected by `gain_offsets_db`.
+  BREAKING: `xnode_loudest` no longer takes `H` — the signature is
+  `xnode_loudest(names, A, floors_db=None, margin_db=3.0, floor_clear_db=3.0,
+  gain_offsets_db=None)`. Callers passing `H` positionally must drop it. `xnode_figure` is
+  unchanged and still takes `H`, which remains correct for the heatmap.
+
+### Added
+- `compare.xnode_gain_offsets`: per-node gain offsets estimated from the nodes' own noise floors.
+  Nodes of one building hear the same diffuse field when the place is empty, so their measured
+  floors should agree and the spread between them reads as sensor gain. Subtracting the offsets
+  makes absolute levels comparable across uncalibrated recorders, which is what deciding which room
+  is loudest requires; the hours when nobody is home are what make the occupied hours comparable.
+  Documented with its own limit: the estimate conflates gain with position, since a node in a
+  genuinely quieter corner also shows a lower floor, and separating the two needs a source every
+  node hears or the assumption that an empty building is diffuse.
+
+### Fixed
+- The package version has one source. `__version__` in `src/ambiscape/__init__.py` is now the only
+  place the number is written, and setuptools reads it from there via a dynamic version; the static
+  `version` in `pyproject.toml` is gone. The 0.24.1 entry below claims this was fixed and it was
+  not: that release bumped `pyproject.toml` alone, so the tagged 0.24.1 reports `__version__ ==
+  "0.24.0"`, the same drift as the two releases before it. `tests/test_version.py` now fails if a
+  static version reappears in `pyproject.toml`, if the build stops reading the module attribute, or
+  if the number setuptools would package differs from the one the module reports.
 
 ## [0.24.1] — 2026-08-07
 

@@ -232,7 +232,7 @@ def test_xnode_boundary_click_masked_and_silence_empty(tmp_path):
     names, A, H = C.xnode_day_matrix(day, bin_s=300)
     assert np.nanmax(H) < 3.0                # no bright boundary bins
     floors = {n: C.xnode_floor(day[n]) for n in names}
-    loud = C.xnode_loudest(names, A, H, floors_db=floors)
+    loud = C.xnode_loudest(names, A, floors_db=floors)
     assert all(v is None for v in loud)      # silence: strip stays empty
 
 
@@ -240,20 +240,69 @@ def test_xnode_margin_and_floor_rules():
     day = {"a": np.full(3600, -60.0), "b": np.full(3600, -58.0)}
     # flat gain offset: b is fractionally "louder" everywhere, no dots
     names, A, H = C.xnode_day_matrix(day, bin_s=300)
-    assert all(v is None for v in C.xnode_loudest(names, A, H))
-    # one genuine event on a (bin 2) + one near-floor excursion (bin 4)
+    assert all(v is None for v in C.xnode_loudest(names, A))
+    # one genuine event on a (bin 2) + one near-floor excursion (bin 4);
+    # both clear the 3 dB margin over b, which sits flat at -58 dB
     day["a"][600:900] = -40.0
-    day["a"][1200:1500] = -55.5
+    day["a"][1200:1500] = -54.5
     names, A, H = C.xnode_day_matrix(day, bin_s=300)
     floors = {n: C.xnode_floor(day[n]) for n in names}
-    loud = C.xnode_loudest(names, A, H, floors_db=floors, margin_db=3.0)
+    loud = C.xnode_loudest(names, A, floors_db=floors, margin_db=3.0)
     assert loud[2] == "a" and loud.count("a") == 2 and "b" not in loud
-    # floor_suspect raises the required clearance: the -55.5 dB excursion
-    # (4.5 dB margin, only 4.5 dB above the raw floor) is no longer trusted
+    # floor_suspect raises the required clearance by 3 dB: the -54.5 dB
+    # excursion still beats b, but no longer clears a's handicapped floor
     floors["a"] = C.xnode_floor(day["a"], floor_suspect=True)
     assert floors["a"] == pytest.approx(C.xnode_floor(day["a"]) + 3.0)
-    loud = C.xnode_loudest(names, A, H, floors_db=floors)
+    loud = C.xnode_loudest(names, A, floors_db=floors)
     assert loud[2] == "a" and loud[4] is None
+
+
+def test_xnode_loudest_ranks_on_level_not_on_own_baseline():
+    """A quiet node with a peaky day must not take a louder node's bins.
+
+    Ranking on the display normalization H (level minus that node's own
+    day median) rewards the largest excursion above a node's own
+    baseline, which is the peakiest node and not the loudest one. Here
+    'quiet' sits 10 dB below 'loud' all day and still swings further
+    above its own median, so an H-ranked rule hands it the evening.
+    """
+    quiet = np.full(3600, -70.0)
+    loud = np.full(3600, -60.0)
+    quiet[1800:2100] = -50.0                 # +20 dB over its own median
+    loud[1800:2100] = -45.0                  # +15 dB over its own median
+    day = {"loud": loud, "quiet": quiet}
+    names, A, H = C.xnode_day_matrix(day, bin_s=300)
+
+    # what an H-ranked rule sees: the quiet node wins the evening bin
+    i, j = names.index("quiet"), names.index("loud")
+    assert H[i, 6] - H[j, 6] > 3.0
+
+    # what the rule does now: the louder node takes it, on level
+    loudest = C.xnode_loudest(names, A)
+    assert loudest[6] == "loud"
+    assert "quiet" not in loudest
+
+
+def test_xnode_gain_offsets_make_nodes_comparable():
+    """Two recorders hearing one field differ only by gain, so neither wins."""
+    field = np.full(3600, -60.0)
+    field[1800:2100] = -40.0                 # an event both nodes hear
+    day = {"hot": field + 6.0, "cold": field.copy()}
+    names, A, _ = C.xnode_day_matrix(day, bin_s=300)
+    floors = {n: C.xnode_floor(day[n]) for n in names}
+
+    # uncorrected, the higher-gain recorder wins wherever the floor rule
+    # lets it speak, which is an artefact of its gain and nothing else
+    assert "hot" in C.xnode_loudest(names, A, floors_db=floors)
+
+    # the floors themselves estimate the offset, and correcting by it
+    # leaves two nodes that agree, so no bin is awarded
+    offs = C.xnode_gain_offsets(floors)
+    assert offs["hot"] == pytest.approx(3.0, abs=0.5)
+    assert offs["cold"] == pytest.approx(-3.0, abs=0.5)
+    corrected = C.xnode_loudest(names, A, floors_db=floors,
+                                gain_offsets_db=offs)
+    assert all(v is None for v in corrected)
 
 
 def test_xnode_figure_writes(tmp_path):
@@ -261,7 +310,7 @@ def test_xnode_figure_writes(tmp_path):
     day["a"][600:900] = -40.0
     day["b"][:300] = np.nan                  # a no-data bin
     names, A, H = C.xnode_day_matrix(day, bin_s=300)
-    loud = C.xnode_loudest(names, A, H)
+    loud = C.xnode_loudest(names, A)
     p = C.xnode_figure(names, H, loud, tmp_path / "x.png",
                        title="test day", labels={"a": "node a (living)"})
     assert p.exists() and p.stat().st_size > 10_000

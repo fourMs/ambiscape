@@ -53,8 +53,8 @@ fridge, and its *absence* from a new mic position). See the API reference.
 
 For several *uncalibrated* recorders covering the same day of one building
 (the SINS deployment style), `xnode_day_matrix`, `xnode_floor`,
-`xnode_loudest` and `xnode_figure` build a day heatmap plus a loudest-room
-strip from per-node full-day 1 Hz level arrays:
+`xnode_gain_offsets`, `xnode_loudest` and `xnode_figure` build a day heatmap
+plus a loudest-room strip from per-node full-day 1 Hz level arrays:
 
 - **Heatmap** — clock-binned power means shown as *dB above each node's own
   day median*, since raw dB from uncalibrated instruments are not
@@ -62,10 +62,11 @@ strip from per-node full-day 1 Hz level arrays:
   takes) render as neutral grey, never as a colour of their own.
 - **Loudest-room strip** — a bin is awarded to a node only when *both*
   rules hold, and stays empty otherwise:
-    1. *Margin rule*: the node's normalized level beats every other node's
-       by more than `margin_db` (default 3 dB). Uncalibrated nodes differ
-       by sensor gain, so a fractional-dB "win" says nothing about the
-       sound — without this rule, a quiet night renders as a solid row for
+    1. *Margin rule*: the node's **level** beats every other node's by more
+       than `margin_db` (default 3 dB), after subtracting the per-node gain
+       offsets in `gain_offsets_db`. Uncalibrated nodes differ by sensor
+       gain, so a fractional-dB "win" says nothing about the sound —
+       without this rule, a quiet night renders as a solid row for
        whichever node has the hotter gain.
     2. *Floor rule*: the node's absolute level clears its own noise floor
        (`xnode_floor`: a low percentile of the day's 1 Hz levels, raised by
@@ -74,7 +75,25 @@ strip from per-node full-day 1 Hz level arrays:
        excursions above it measure the recorder, not the room) by at least
        `floor_clear_db` (default 3 dB).
 
-Both rules are restated in the figure's caption line. Historical note: fast
+Both rules are restated in the figure's caption line.
+
+Pass gain offsets whenever you have them. `xnode_gain_offsets` derives them
+from the nodes' own floors: recorders in one building hear the same diffuse
+field when the place is empty, so their measured floors should agree and the
+spread between them reads as sensor gain. Measure those floors *without* the
+`floor_suspect` adjustment, which is a deliberate handicap for the floor rule
+and would otherwise charge a suspect node 3 dB of gain it does not have. The
+estimate conflates gain with position — a node in a genuinely quieter corner
+also shows a lower floor — so it assumes an empty building is diffuse enough
+for position not to matter, which is worth testing in your deployment.
+
+The margin rule works on level, never on the heatmap's normalization. Those
+answer different questions: a node's level minus its *own* day median is
+largest for the node whose day departs furthest from its own baseline, which
+is the peakiest node and may be the quietest one in the building. Ranking on
+it lets a quiet recorder with a sharp evening take every awarded bin from
+louder neighbours (observed on a four-node domestic day, where one node took
+110 of 113 awarded bins while having the lowest floor of the four). Historical note: fast
 feature caches written by ambiscape ≤ 0.24.1 carried a few *unfilled*
 125 ms frames past the last whole second of each take, stored as exactly
 0 dBFS (full scale) — a false click at every take boundary that painted

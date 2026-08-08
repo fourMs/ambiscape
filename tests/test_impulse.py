@@ -195,3 +195,99 @@ def test_cli_sweep_impulse_auralize(tmp_path, capsys):
     assert wfs == fs and len(wet) > len(dry)
     out = capsys.readouterr().out
     assert "STI" in out and "wrote" in out
+
+
+# --------------------------------------------------- octave-band IACC (E3)
+
+def test_iacc_e3_is_one_when_both_ears_hear_the_same_signal():
+    mono = _synth_ir()
+    r = impulse.iacc_e3(np.stack([mono, mono], axis=1), FS)
+    assert set(r["iacc"]) == {"500", "1000", "2000"}
+    assert all(v == pytest.approx(1.0, abs=1e-6) for v in r["iacc"].values())
+    assert r["iacc_e3"] == pytest.approx(1.0, abs=1e-6)
+
+
+def test_iacc_e3_takes_the_modulus_when_the_ears_are_antiphase():
+    """ISO 3382-1 maximises |IACF|, so an inverted ear still reads 1.0."""
+    mono = _synth_ir()
+    r = impulse.iacc_e3(np.stack([mono, -mono], axis=1), FS)
+    assert r["iacc_e3"] == pytest.approx(1.0, abs=1e-6)
+
+
+def test_iacc_e3_records_the_sign_the_modulus_discards():
+    """The signed peak is the one thing |IACF| throws away: anti-phase."""
+    mono = _synth_ir()
+    upright = impulse.iacc_e3(np.stack([mono, mono], axis=1), FS)
+    inverted = impulse.iacc_e3(np.stack([mono, -mono], axis=1), FS)
+    assert all(v == pytest.approx(1.0, abs=1e-6)
+               for v in upright["iacc_signed"].values())
+    assert all(v == pytest.approx(-1.0, abs=1e-6)
+               for v in inverted["iacc_signed"].values())
+
+
+def test_iacc_e3_is_the_mean_of_its_three_bands():
+    both = np.stack([_synth_ir(), _synth_ir(seed=9)], axis=1)
+    r = impulse.iacc_e3(both, FS)
+    assert r["iacc_e3"] == pytest.approx(
+        sum(r["iacc"].values()) / 3, abs=5e-4)
+
+
+def test_iacc_e3_falls_to_none_when_fs_cannot_carry_the_2k_band():
+    mono = _synth_ir(fs=5000, dur=0.5)
+    r = impulse.iacc_e3(np.stack([mono, mono], axis=1), 5000)
+    assert r["iacc_e3"] is None
+    assert "2000" not in r["iacc"]
+
+
+def test_iacc_e3_needs_two_ears():
+    assert impulse.iacc_e3(_synth_ir(), FS) is None
+    assert impulse.iacc_e3(np.zeros((100, 4)), FS) is None
+
+
+def _measure_binaural(tmp_path, invert_right=False):
+    """Sweep -> two-eared synthetic room -> impulse.json.
+
+    ``invert_right`` gives the right ear the left one's IR with its
+    polarity flipped: perfectly correlated, perfectly out of phase.
+    """
+    from ambiscape.cli import main
+    assert main(["sweep", "--duration", "2",
+                 "-o", str(tmp_path / "sweep.wav")]) == 0
+    sweep, fs = sf.read(str(tmp_path / "sweep.wav"), dtype="float64")
+    left = oaconvolve(sweep, _synth_ir(T60=0.4, dur=0.8, seed=1))
+    right = (-left if invert_right
+             else oaconvolve(sweep, _synth_ir(T60=0.4, dur=0.8, seed=2)))
+    rec = np.stack([left, right], axis=1)
+    rec_path = tmp_path / "binaural.wav"
+    sf.write(str(rec_path), rec.astype(np.float32), fs, subtype="FLOAT")
+    assert main(["impulse", str(rec_path)]) == 0
+    return json.loads((tmp_path / "impulse.json").read_text())
+
+
+def test_measure_reports_iacc_e3_for_a_binaural_recording(tmp_path):
+    doc = _measure_binaural(tmp_path)
+    assert set(doc["iacc"]) == {"500", "1000", "2000"}
+    assert 0.0 <= doc["iacc_e3"] <= 1.0
+
+
+def test_cli_prints_iacc_e3_beside_the_broadband_value(tmp_path, capsys):
+    _measure_binaural(tmp_path)
+    printed = capsys.readouterr().out
+    assert "IACC_E3" in printed
+    assert "500/1k/2k" in printed
+
+
+def test_cli_stays_quiet_about_sign_when_the_ears_are_uncorrelated(
+        tmp_path, capsys):
+    """A negative peak on a near-zero correlation is noise, not anti-phase."""
+    doc = _measure_binaural(tmp_path)
+    assert doc["iacc_e3"] < 0.5          # the two ears are decorrelated
+    assert "anti-phase" not in capsys.readouterr().out
+
+
+def test_cli_reports_anti_phase_when_an_ear_is_polarity_inverted(
+        tmp_path, capsys):
+    doc = _measure_binaural(tmp_path, invert_right=True)
+    assert doc["iacc_e3"] == pytest.approx(1.0, abs=1e-3)   # modulus: ISO
+    assert all(v < 0 for v in doc["iacc_signed"].values())
+    assert "anti-phase" in capsys.readouterr().out

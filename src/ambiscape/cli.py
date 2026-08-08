@@ -1277,7 +1277,7 @@ def main(argv=None):
         return 0
 
     if args.cmd == "impulse":
-        from .impulse import measure
+        from .impulse import IACC_SIGN_FLOOR, measure
         doc = measure(args.recording, inverse=args.inverse,
                       params=args.params, out_path=args.out,
                       pre_ms=args.pre_ms, dur=args.dur)
@@ -1293,7 +1293,22 @@ def main(argv=None):
             print(f"  STI {doc['sti']} (indirect method, male weights; "
                   f"noise-free assumption — reverberation only)")
         if doc.get("iacc_early") is not None:
-            print(f"  IACC(early, 0-80 ms) {doc['iacc_early']}")
+            print(f"  IACC(early, 0-80 ms) {doc['iacc_early']} broadband")
+        if doc.get("iacc_e3") is not None:
+            print(f"  IACC_E3 {doc['iacc_e3']} (mean of the 500/1k/2k "
+                  f"octave bands — compare hall literature against this, "
+                  f"not the broadband value)")
+            print("    " + ", ".join(f"{c} Hz {v}"
+                                     for c, v in doc["iacc"].items()))
+            # Only worth saying when the correlation is strong enough for
+            # its sign to mean anything: the sign of a near-zero peak is
+            # noise, and decorrelated ears would otherwise read as
+            # "anti-phase" on every band.
+            neg = [c for c, v in doc.get("iacc_signed", {}).items()
+                   if v <= -IACC_SIGN_FLOOR]
+            if neg:
+                print(f"    anti-phase at the ears in {', '.join(neg)} Hz "
+                      f"— the modulus hides this")
         out_dir = Path(doc["ir_path"]).parent
         print(f"wrote {doc['ir_path']} and {out_dir/'impulse.json'}")
         return 0

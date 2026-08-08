@@ -7,6 +7,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/); the
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) loosely, in that the minor number has
 been carrying feature work throughout a pre-1.0 life.
 
+## [0.28.0] — 2026-08-08
+
+### Added
+- `impulse.iacc_e3`: octave-band early IACC and the IACC_E3 average (the
+  mean of the 500, 1000 and 2000 Hz bands). `iacc_early` is broadband,
+  while the concert-hall literature reports IACC_E3 — the two are not the
+  same quantity, and low-frequency content moves the broadband value, so
+  comparing a broadband number against published hall figures compares
+  different things. `measure` now reports both, and the `impulse` command
+  prints the per-band values beside the average.
+- `impulse.iacc_signed` (inside the `iacc_e3` result): the signed
+  correlation at the same lag as the reported IACC. ISO 3382-1 maximises
+  the *modulus*, which discards the one case where the sign matters — ears
+  receiving anti-phase sound read as strongly correlated. The CLI flags it
+  only above `IACC_SIGN_FLOOR` (0.5), because the sign of a near-zero peak
+  is noise: decorrelated ears would otherwise report anti-phase on every
+  band.
+
+### Note
+- No behaviour changed in `iacc_early`. It already computed the maximum of
+  the modulus, which *is* ISO 3382-1's definition; a note in the book's
+  `toolbox-integration.md` claiming it deviated from a "signed maximum" was
+  wrong and has been corrected there.
+
 ## [0.27.0] — 2026-08-08
 
 ### Added

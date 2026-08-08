@@ -11,9 +11,14 @@ The measurement chain is Farina's exponential sine sweep (ESS) method:
    (the point of the ESS method), so trimming everything earlier than a few
    milliseconds before the direct-sound peak (:func:`extract_ir`) removes
    both pre-ringing and loudspeaker distortion.
-3. :func:`ir_metrics`, :func:`sti`, and :func:`iacc_early` characterise the
-   room from the IR; :func:`auralize` convolves dry material with it
-   (uniformly partitioned FFT convolution).
+3. :func:`ir_metrics`, :func:`sti`, :func:`iacc_early` and :func:`iacc_e3`
+   characterise the room from the IR; :func:`auralize` convolves dry
+   material with it (uniformly partitioned FFT convolution).
+
+For anything compared against the concert-hall literature use
+:func:`iacc_e3`, not :func:`iacc_early`: published hall values are IACC_E3,
+the mean of the 500, 1000 and 2000 Hz octave bands, and the broadband
+figure is a different quantity that low-frequency content moves around.
 
 Headroom: sweeps are written at peak −6 dBFS (``amplitude=0.5``) so a
 playback chain with a mild bass boost or resonance does not clip; the
@@ -37,6 +42,14 @@ EPS = 1e-20
 
 #: Octave-band centre frequencies used for IR metrics and STI (Hz).
 OCTAVE_CENTERS = (125, 250, 500, 1000, 2000, 4000, 8000)
+
+#: The three octave bands averaged into IACC_E3 by the hall literature (Hz).
+IACC_E3_CENTERS = (500, 1000, 2000)
+
+#: Below this |IACC| the sign of the signed peak is noise, not anti-phase:
+#: two decorrelated ears produce a near-zero peak whose sign is arbitrary.
+#: A reporting threshold only — nothing in ISO 3382-1 defines it.
+IACC_SIGN_FLOOR = 0.5
 
 # IEC 60268-16:2011 male-speech octave weights (alpha) and adjacent-band
 # redundancy corrections (beta) for the seven bands 125 Hz .. 8 kHz.
@@ -259,6 +272,53 @@ def iacc_early(ir: np.ndarray, fs: int, window_ms=80.0, max_lag_ms=1.0):
     return round(float(np.abs(cc).max() / denom), 3)
 
 
+def iacc_e3(ir: np.ndarray, fs: int, window_ms=80.0, max_lag_ms=1.0,
+            centers=IACC_E3_CENTERS):
+    """Octave-band early IACC and the IACC_E3 average.
+
+    :func:`iacc_early` is broadband; the concert-hall literature reports
+    IACC_E3, the mean of the 500, 1000 and 2000 Hz octave bands. The two
+    are not the same quantity — low-frequency content moves the broadband
+    value — so comparing a broadband number against published hall values
+    compares different things. Use this one for any such comparison.
+
+    Per band, ISO 3382-1: the maximum of the *modulus* of the normalised
+    interaural cross-correlation over lags of ±``max_lag_ms``, within the
+    first ``window_ms`` after the direct sound.
+
+    ``iacc_signed`` carries the signed correlation at that same lag, which
+    is the one thing the modulus discards: a negative value means the ears
+    receive anti-phase sound, perceptually very different from the strong
+    correlation an IACC near 1 otherwise implies. It is a diagnostic, not
+    an ISO quantity.
+
+    Returns ``{"iacc_e3", "iacc": {centre: v}, "iacc_signed": {centre: v}}``,
+    with ``iacc_e3`` None when the sample rate cannot carry all three bands.
+    Returns None unless the IR has exactly two channels.
+    """
+    from scipy import signal as sg
+    h = np.atleast_2d(np.asarray(ir, np.float64).T).T
+    if h.shape[1] != 2:
+        return None
+    pk = int(np.abs(h).max(axis=1).argmax())
+    seg = h[pk:pk + int(round(window_ms * fs / 1000))]
+    lag = int(round(max_lag_ms * fs / 1000))
+    edges = _octave_edges(centers, fs)
+    iacc, signed = {}, {}
+    for c, lo, hi in edges:
+        sos = sg.butter(4, [lo, hi], "bandpass", fs=fs, output="sos")
+        left, right = sg.sosfilt(sos, seg[:, 0]), sg.sosfilt(sos, seg[:, 1])
+        denom = np.sqrt((left ** 2).sum() * (right ** 2).sum()) + EPS
+        cc = (np.correlate(left, right, "full")
+              [len(seg) - 1 - lag:len(seg) + lag] / denom)
+        peak = cc[int(np.abs(cc).argmax())]
+        iacc[str(c)] = round(float(abs(peak)), 3)
+        signed[str(c)] = round(float(peak), 3)
+    e3 = (round(float(np.mean(list(iacc.values()))), 3)
+          if len(edges) == len(centers) else None)
+    return {"iacc_e3": e3, "iacc": iacc, "iacc_signed": signed}
+
+
 # ------------------------------------------------------------- auralization
 
 def partitioned_convolve(x: np.ndarray, h: np.ndarray,
@@ -381,7 +441,8 @@ def measure(recording, inverse=None, params=None, out_path=None,
            "pre_ms": pre_ms, "peak_dbfs": -6.02,
            "gain_db": round(float(20 * np.log10(0.5 / peak)), 2),
            "bands": ir_metrics(ir, fs), **sti(ir, fs),
-           "iacc_early": iacc_early(ir, fs), "ir_path": str(out_path)}
+           "iacc_early": iacc_early(ir, fs), **(iacc_e3(ir, fs) or {}),
+           "ir_path": str(out_path)}
     (out_path.parent / "impulse.json").write_text(
         json.dumps(doc, indent=2, default=float))
     return doc

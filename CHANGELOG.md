@@ -29,6 +29,18 @@ been carrying feature work throughout a pre-1.0 life.
   Digital silence is left untouched rather than normalised, so a silent file
   is not amplified into noise the detector can find.
 
+### Added
+- **`analysis.floor_occupancy`**: what fraction of a session sits within a
+  few dB of its own noise floor. `floor_suspicion` asks whether a *band's*
+  floor is self-noise, which is the right question but fires for every node
+  in a sensor network, since every recorder's top octaves are its own hiss
+  during quiet hours. This asks the second question and separates a room
+  that is empty from a recorder that is deaf. Across the SINS network the
+  living-room and kitchen nodes sit at their floor 28–56 % of the time while
+  the bedroom node sits there 96 %, a median of 0.4 dB above it. Being each
+  session against its own floor, it does not move with recording gain and is
+  comparable across uncalibrated instruments.
+
 ## [0.28.1] — 2026-08-09
 
 ### Fixed

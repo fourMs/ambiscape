@@ -104,3 +104,39 @@ def test_readme_warning_line(tmp_path):
     summary["floor_suspect"] = False
     report.write_readme(sess, summary, out)
     assert "self-noise" not in (tmp_path / "README.md").read_text()
+
+
+# ------------------------------------------------- how much of it is floor
+
+def _F_occupied(nsec=21600, active_frac=0.5, seed=1):
+    """A room used for part of the session: a quiet floor with activity
+    raising the broadband level well above it for ``active_frac`` of the
+    time."""
+    rng = np.random.default_rng(seed)
+    op = 1e-7 * 10 ** (0.05 * rng.standard_normal((nsec, 10)))   # near floor
+    n_active = int(active_frac * nsec)
+    if n_active:
+        op[:n_active] *= 10 ** (1.5 + 0.3 * rng.standard_normal((n_active, 1)))
+    return {"oct_pow": op, "fs": 48000}
+
+
+def test_floor_occupancy_separates_an_empty_room_from_a_used_one():
+    """`floor_suspicion` fires for every node in the SINS corpus, so it
+    cannot tell a self-noise band from a room that is empty all week. The
+    fraction of a session sitting within a few dB of its own floor can:
+    that is a fact about the room, not a fault in the recorder."""
+    empty = analysis.floor_occupancy(_F_occupied(active_frac=0.02))
+    used = analysis.floor_occupancy(_F_occupied(active_frac=0.6))
+    assert empty["at_floor_fraction"] > 0.9
+    assert used["at_floor_fraction"] < 0.5
+    assert empty["at_floor_fraction"] > used["at_floor_fraction"]
+
+
+def test_floor_occupancy_is_level_invariant():
+    """A quiet room and a loud one are not distinguished by gain: the
+    measure is each session against its own floor."""
+    F = _F_occupied(active_frac=0.3)
+    loud = {"oct_pow": F["oct_pow"] * 100.0, "fs": F["fs"]}
+    a = analysis.floor_occupancy(F)["at_floor_fraction"]
+    b = analysis.floor_occupancy(loud)["at_floor_fraction"]
+    assert a == b

@@ -2146,37 +2146,41 @@ each guarding against a failure mode common in field recordings:</p>
 <p class="admonition-title">Camera audio can replace a recorder for T60 — and not for the rest</p>
 <p>Measured on 7 days where a GoPro MAX and a Zoom H3-VR recorded the same
 room and the same clap, aligned by envelope cross-correlation and
-verified before comparison:</p>
+verified before comparison, reading the camera's <strong>4-channel PCM
+ambisonic</strong> track:</p>
 <table>
 <thead>
 <tr>
 <th></th>
 <th>camera − recorder (median)</th>
-<th>recorder median</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><strong>T60</strong></td>
 <td><strong>−0.01 s</strong></td>
-<td>0.41 s</td>
 </tr>
 <tr>
 <td>EDT</td>
-<td><strong>+0.24 s</strong></td>
-<td>0.34 s</td>
+<td><strong>+0.18 s</strong></td>
 </tr>
 <tr>
 <td>C50</td>
-<td><strong>−5.5 dB</strong></td>
-<td>8.2 dB</td>
+<td><strong>−2.9 dB</strong></td>
 </tr>
 </tbody>
 </table>
 <p>Reverberation time survives the substitution almost exactly. The early
-field does not: the camera reports a slower early decay and a room 5.5 dB
-less clear than it is, consistent with its own gain and noise processing
-lifting the tail — which is where EDT and C50 live.</p>
+field does not: the camera reports a slower early decay and a room about
+3 dB less clear than it is.</p>
+<p><strong>Read the right track.</strong> A GoPro MAX <code>.360</code> carries both a processed
+stereo AAC mix and a 4-channel PCM ambisonic stream, and <code>ffmpeg</code> will
+hand you the stereo one by default. Measured on the stereo track the same
+comparison gives EDT +0.24 s and C50 −5.5 dB — so roughly half the
+apparent clarity deficit is the convenience track, not the camera. Find
+the stream with four channels and a PCM codec. Note also that the small
+<code>.LRV</code> proxy carries <strong>only</strong> the stereo mix, so it cannot be used as a
+cheap stand-in for ambisonic work.</p>
 <p>This matters well beyond one corpus. Cameras are often the recorder with
 full coverage, and consumer cameras do not document their processing, so
 treat any camera-derived clarity or early-decay figure as unusable and
@@ -2320,7 +2324,7 @@ audio pass.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 9, 2026 12:33:51 UTC">August 9, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 9, 2026 13:59:09 UTC">August 9, 2026</span>
   </span>
 
     

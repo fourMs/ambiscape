@@ -220,6 +220,43 @@ def decay_metrics(x: np.ndarray, fs: int, bands=((250, 500), (500, 1000),
     return out
 
 
+def quietest_channel(x, fs: int, pct: float = 5.0, frame_s: float = 1.0):
+    """Which capsule of a multi-microphone node has the most room to measure in.
+
+    A node's capsules share a housing, a preamp and a gain setting, so they
+    should agree. When one does not — a blocked port, a damaged capsule — it
+    reaches the same peaks as its siblings but on a raised floor, which costs
+    dynamic range on every descriptor computed from it. Reading channel 0 by
+    convention is then a coin toss.
+
+    Measured in the SINS network: node 9's four capsules reached the same
+    98th-percentile level within 0.7 dB, while channel 0's floor sat 5.5 dB
+    higher than the other three. Analysing channel 0 halved that node's
+    apparent dynamics and pushed the fraction of time it spent at its own
+    floor from about 75 % to 96 %, which is most of what made it look broken.
+
+    Run over that corpus it is decisive where it matters and indifferent
+    where it does not: on node 9 it picks the same channel on every minute
+    tried, away from the raised one; on a node whose capsules agree within
+    2 dB it picks whichever is marginally lower, which is of no consequence.
+
+    Returns ``(index, floors_db)`` — the channel with the lowest floor, and
+    every channel's floor, so the caller can see how much the choice matters.
+    A mono signal returns ``(0, [floor])``.
+    """
+    a = np.asarray(x, float)
+    if a.ndim == 1:
+        a = a[:, None]
+    n = max(1, int(frame_s * fs))
+    floors = []
+    for c in range(a.shape[1]):
+        y = a[:, c] - a[:, c].mean()
+        lv = np.array([10 * np.log10((y[i:i + n] ** 2).mean() + EPS)
+                       for i in range(0, max(len(y) - n, 1), n)])
+        floors.append(float(np.percentile(lv, pct)) if len(lv) else float("nan"))
+    return int(np.nanargmin(floors)), floors
+
+
 FLOOR_SPREAD_THRESH_DB = 1.5
 
 #: How close to its own floor a second must sit to count as "at the floor".

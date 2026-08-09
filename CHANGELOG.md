@@ -9,6 +9,18 @@ been carrying feature work throughout a pre-1.0 life.
 
 ## [0.30.0] — 2026-08-09
 
+### Added
+- **`analysis.quietest_channel`** — which capsule of a multi-microphone node
+  has the most room to measure in. A node's capsules share a housing, a
+  preamp and a gain setting, so they should agree; when one does not, it
+  reaches the same peaks on a raised floor and costs dynamic range on every
+  descriptor computed from it, and reading channel 0 by convention becomes a
+  coin toss. In the SINS network node 9's four capsules reached the same
+  98th-percentile level within 0.7 dB while channel 0's floor sat 5.5 dB
+  higher — analysing channel 0 halved that node's apparent dynamics and
+  pushed its time-at-own-floor from about 75 % to 96 %, which is most of what
+  made it look broken.
+
 ### Fixed
 - **`compare.xnode_loudest` no longer awards bins to a node that is not
   reporting room activity.** A third rule joins the margin and floor rules:

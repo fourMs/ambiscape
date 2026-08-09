@@ -140,3 +140,29 @@ def test_floor_occupancy_is_level_invariant():
     a = analysis.floor_occupancy(F)["at_floor_fraction"]
     b = analysis.floor_occupancy(loud)["at_floor_fraction"]
     assert a == b
+
+
+# ------------------------------------------------- picking a capsule to trust
+
+def test_quietest_channel_picks_the_one_with_the_most_room_to_measure_in():
+    """A multi-capsule node shares one gain chain, so its channels should
+    agree. In the SINS network node 9's four capsules reached the same peak
+    within 0.7 dB while channel 0's floor sat 5.5 dB higher — half the usable
+    range, on the channel the analysis happened to read."""
+    rng = np.random.default_rng(5)
+    n = 16000 * 30
+    room = 10 ** (-58 / 20) * rng.standard_normal(n)      # shared room sound
+    x = np.stack([room + 10 ** (-55 / 20) * rng.standard_normal(n),   # noisy
+                  room + 10 ** (-64 / 20) * rng.standard_normal(n),
+                  room + 10 ** (-63 / 20) * rng.standard_normal(n),
+                  room + 10 ** (-65 / 20) * rng.standard_normal(n)],  # best
+                 axis=1)
+    ch, floors = analysis.quietest_channel(x, 16000)
+    assert ch == 3
+    assert len(floors) == 4
+    assert floors[3] < floors[0] - 2      # the noisy channel is clearly worse
+
+
+def test_quietest_channel_on_mono_returns_the_only_channel():
+    ch, floors = analysis.quietest_channel(np.zeros(16000), 16000)
+    assert ch == 0 and len(floors) == 1

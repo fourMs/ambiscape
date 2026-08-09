@@ -21,7 +21,7 @@ from . import (anthrophony, array, biophony, capture, catalog, compare,
                mechanical, network, resolve, starss, states, taxonomy,
                vision, iso)
 
-__version__ = "0.28.1"
+__version__ = "0.29.0"
 __all__ = [
     "open_session", "open_recording", "open_clips", "read_bext",
     "read_span", "export_segment", "stereo_preview",

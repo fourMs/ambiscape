@@ -7,6 +7,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/); the
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) loosely, in that the minor number has
 been carrying feature work throughout a pre-1.0 life.
 
+## [0.29.0] — 2026-08-09
+
+### Changed
+- **`ml.speech_fraction` now normalises its input level before detection.**
+  silero applies a fixed probability threshold to whatever level arrives, so
+  the result was a function of recording gain as much as of speech. On one
+  minute of a real recording, the *same conversation* measured 0.513 at
+  unity gain, 0.289 at −12 dB, 0.110 at −24 dB and **0.000 at −30 dB**.
+  Uncalibrated recorders were therefore not comparable with each other, and
+  a gain difference between microphones read as a difference between rooms —
+  which is exactly how a spurious two-zone result was produced from a
+  seven-node array and believed for a day. After the change the same minute
+  reads 0.537 at every one of those gains.
+
+  `speech_fraction(..., normalize=False)` reproduces the old numbers.
+  **Anything comparing speech fractions across recorders should be
+  recomputed.** A single recorder compared against itself over time is
+  much less affected, since its gain does not move.
+
+  Digital silence is left untouched rather than normalised, so a silent file
+  is not amplified into noise the detector can find.
+
 ## [0.28.1] — 2026-08-09
 
 ### Fixed

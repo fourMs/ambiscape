@@ -148,12 +148,48 @@ def birdnet_session(sess, F=None, windows=None, win_s: float = 9.0,
             "species": species, "windows": per_window}
 
 
-def speech_fraction(x: np.ndarray, fs: int) -> dict:
-    """silero-vad speech statistics for one mono signal."""
+#: RMS the detector's input is scaled to (about -26 dBFS).
+_VAD_TARGET_RMS = 0.05
+
+
+def _vad_input(x: np.ndarray, target_rms: float = _VAD_TARGET_RMS):
+    """Scale a signal to a fixed RMS before voice-activity detection.
+
+    silero applies a fixed probability threshold to whatever level arrives,
+    so without this the result is a function of recording gain as much as of
+    speech. Measured on one minute of a real recording: 0.513 speech at
+    unity, 0.289 at -12 dB, 0.110 at -24 dB, 0.000 at -30 dB — the same
+    conversation, four answers. Uncalibrated recorders are then not
+    comparable with each other, which is how a gain difference between
+    microphones becomes an apparent difference between rooms.
+
+    Digital silence is returned untouched: there is no level to normalise
+    to, and amplifying it would manufacture noise for the detector to find.
+    """
+    x = np.asarray(x, np.float64)
+    rms = float(np.sqrt((x ** 2).mean())) if x.size else 0.0
+    if rms <= 0:
+        return x
+    y = x * (target_rms / rms)
+    peak = float(np.abs(y).max())
+    if peak > 1.0:                       # keep inside the model's range
+        y = y / peak
+    return y
+
+
+def speech_fraction(x: np.ndarray, fs: int, normalize: bool = True) -> dict:
+    """silero-vad speech statistics for one mono signal.
+
+    ``normalize`` scales the input to a fixed RMS first, so the result
+    describes speech rather than recording gain — see :func:`_vad_input`.
+    Pass ``normalize=False`` to reproduce numbers computed before 0.29.0.
+    """
     import torch
     from silero_vad import load_silero_vad, get_speech_timestamps
     model = load_silero_vad()
-    y = _resample(x.astype(np.float32), fs, 16000)
+    if normalize:
+        x = _vad_input(x)
+    y = _resample(np.asarray(x, np.float32), fs, 16000)
     ts = get_speech_timestamps(torch.from_numpy(np.ascontiguousarray(y)),
                                model, sampling_rate=16000)
     dur = len(y) / 16000

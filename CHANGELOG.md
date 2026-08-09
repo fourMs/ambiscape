@@ -7,6 +7,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/); the
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) loosely, in that the minor number has
 been carrying feature work throughout a pre-1.0 life.
 
+## [0.28.1] — 2026-08-09
+
+### Fixed
+- **`impulse.ir_metrics` no longer reads a noise floor off its own padding.**
+  It prepends half a second of digital silence when the peak sits near the
+  start of the buffer, so the estimator has samples before it — but
+  `decay_metrics` was then measuring the noise floor on that silence. A
+  trimmed IR with a real 45 dB floor reported **173 dB** of dynamic range,
+  which satisfies every guard downstream and lets T20/T30 be fitted over
+  noise without complaint. `decay_metrics` now takes `pre_roll`, and when
+  the pre-roll is fabricated it reads the floor from the quietest part of
+  the decay instead.
+
+  **This changes reported numbers for trimmed IRs** — archive material,
+  anything cut before its decay finished. `dr_db` now tracks the real SNR
+  (30 dB in gives 27, 40 gives 38, 60 gives 57), and bands that cannot
+  support a fit are dropped as they always should have been. Results
+  computed on trimmed IRs with 0.28.0 or earlier should be regenerated.
+  IRs with genuine pre-roll are unaffected.
+- **`compare.xnode_figure` panels now line up.** The colourbar was attached
+  to the heatmap alone, so it stole width from that panel only and the
+  loudest-room strip below no longer sat under the hours above it. It has
+  its own gridspec column now, with a test asserting the two panels share
+  their x extent. Hours tick every 4 rather than matplotlib's 5, the
+  strip's marks are legible on faint row guides, and the caption states how
+  many bins were awarded so a sparse strip reads as a result rather than a
+  broken plot.
+
 ## [0.28.0] — 2026-08-08
 
 ### Added

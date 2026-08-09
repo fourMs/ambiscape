@@ -18776,6 +18776,25 @@ its own baseline --- the peakiest node, which may be the quietest one
 in the building. A node with a low median and a sharp evening will
 take every awarded bin from louder neighbours. <code>H</code> stays correct for
 the heatmap, where each row is read against its own baseline.</p>
+<p>.. warning::</p>
+<p><strong>This ranks on level above each node's own floor, not on level.</strong>
+   <code>xnode_gain_offsets</code> returns <code>floor_i − median(floors)</code>, and the
+   median term is the same for every node, so it cancels in the
+   comparison: what is compared is <code>A_i − floor_i</code>. That is correct
+   only if the floors differ by <em>gain</em>. Where they differ because one
+   room is genuinely quieter, the quieter room is credited with gain it
+   does not have and wins bins it should not.</p>
+<p>Measured on the SINS network: the correlation between a node's floor
+   depth and the bins it is awarded is <strong>r = −0.81</strong>, and the two
+   deepest-floored nodes take 37 awards each while every other node
+   takes between 0 and 7. Synthetically, a node at −55 dBFS with a
+   −80 dB floor beats a node at −40 dBFS with a −60 dB floor.</p>
+<p>This is the pathology the paragraph above warns about for <code>H</code>,
+   reinstated with the floor in place of the day median. Deciding which
+   room is actually loudest needs a common reference — calibration, or a
+   source every node hears — which uncalibrated nodes do not supply.
+   Read the strip as <em>which node stood highest above its own floor</em>, and
+   nothing more.</p>
 <p>Returns one entry per bin: the winning name, or None (bins with &lt; 2
 finite nodes, near-ties, and near-floor bins) — rendered empty.</p>
 
@@ -18834,7 +18853,30 @@ finite nodes, near-ties, and near-floor bins) — rendered empty.</p>
 <span class="normal">563</span>
 <span class="normal">564</span>
 <span class="normal">565</span>
-<span class="normal">566</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">xnode_loudest</span><span class="p">(</span><span class="n">names</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">A</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="normal">566</span>
+<span class="normal">567</span>
+<span class="normal">568</span>
+<span class="normal">569</span>
+<span class="normal">570</span>
+<span class="normal">571</span>
+<span class="normal">572</span>
+<span class="normal">573</span>
+<span class="normal">574</span>
+<span class="normal">575</span>
+<span class="normal">576</span>
+<span class="normal">577</span>
+<span class="normal">578</span>
+<span class="normal">579</span>
+<span class="normal">580</span>
+<span class="normal">581</span>
+<span class="normal">582</span>
+<span class="normal">583</span>
+<span class="normal">584</span>
+<span class="normal">585</span>
+<span class="normal">586</span>
+<span class="normal">587</span>
+<span class="normal">588</span>
+<span class="normal">589</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">xnode_loudest</span><span class="p">(</span><span class="n">names</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">A</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                   <span class="n">floors_db</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">margin_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">,</span>
                   <span class="n">floor_clear_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">,</span>
                   <span class="n">gain_offsets_db</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
@@ -18862,6 +18904,29 @@ finite nodes, near-ties, and near-floor bins) — rendered empty.</p>
 <span class="sd">    in the building. A node with a low median and a sharp evening will</span>
 <span class="sd">    take every awarded bin from louder neighbours. ``H`` stays correct for</span>
 <span class="sd">    the heatmap, where each row is read against its own baseline.</span>
+
+<span class="sd">    .. warning::</span>
+
+<span class="sd">       **This ranks on level above each node&#39;s own floor, not on level.**</span>
+<span class="sd">       ``xnode_gain_offsets`` returns ``floor_i − median(floors)``, and the</span>
+<span class="sd">       median term is the same for every node, so it cancels in the</span>
+<span class="sd">       comparison: what is compared is ``A_i − floor_i``. That is correct</span>
+<span class="sd">       only if the floors differ by *gain*. Where they differ because one</span>
+<span class="sd">       room is genuinely quieter, the quieter room is credited with gain it</span>
+<span class="sd">       does not have and wins bins it should not.</span>
+
+<span class="sd">       Measured on the SINS network: the correlation between a node&#39;s floor</span>
+<span class="sd">       depth and the bins it is awarded is **r = −0.81**, and the two</span>
+<span class="sd">       deepest-floored nodes take 37 awards each while every other node</span>
+<span class="sd">       takes between 0 and 7. Synthetically, a node at −55 dBFS with a</span>
+<span class="sd">       −80 dB floor beats a node at −40 dBFS with a −60 dB floor.</span>
+
+<span class="sd">       This is the pathology the paragraph above warns about for ``H``,</span>
+<span class="sd">       reinstated with the floor in place of the day median. Deciding which</span>
+<span class="sd">       room is actually loudest needs a common reference — calibration, or a</span>
+<span class="sd">       source every node hears — which uncalibrated nodes do not supply.</span>
+<span class="sd">       Read the strip as *which node stood highest above its own floor*, and</span>
+<span class="sd">       nothing more.</span>
 
 <span class="sd">    Returns one entry per bin: the winning name, or None (bins with &lt; 2</span>
 <span class="sd">    finite nodes, near-ties, and near-floor bins) — rendered empty.</span>
@@ -18913,30 +18978,7 @@ figure's caption line.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/compare.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">592</span>
-<span class="normal">593</span>
-<span class="normal">594</span>
-<span class="normal">595</span>
-<span class="normal">596</span>
-<span class="normal">597</span>
-<span class="normal">598</span>
-<span class="normal">599</span>
-<span class="normal">600</span>
-<span class="normal">601</span>
-<span class="normal">602</span>
-<span class="normal">603</span>
-<span class="normal">604</span>
-<span class="normal">605</span>
-<span class="normal">606</span>
-<span class="normal">607</span>
-<span class="normal">608</span>
-<span class="normal">609</span>
-<span class="normal">610</span>
-<span class="normal">611</span>
-<span class="normal">612</span>
-<span class="normal">613</span>
-<span class="normal">614</span>
-<span class="normal">615</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">615</span>
 <span class="normal">616</span>
 <span class="normal">617</span>
 <span class="normal">618</span>
@@ -18970,7 +19012,33 @@ figure's caption line.</p>
 <span class="normal">646</span>
 <span class="normal">647</span>
 <span class="normal">648</span>
-<span class="normal">649</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">xnode_figure</span><span class="p">(</span><span class="n">names</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">loudest</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+<span class="normal">649</span>
+<span class="normal">650</span>
+<span class="normal">651</span>
+<span class="normal">652</span>
+<span class="normal">653</span>
+<span class="normal">654</span>
+<span class="normal">655</span>
+<span class="normal">656</span>
+<span class="normal">657</span>
+<span class="normal">658</span>
+<span class="normal">659</span>
+<span class="normal">660</span>
+<span class="normal">661</span>
+<span class="normal">662</span>
+<span class="normal">663</span>
+<span class="normal">664</span>
+<span class="normal">665</span>
+<span class="normal">666</span>
+<span class="normal">667</span>
+<span class="normal">668</span>
+<span class="normal">669</span>
+<span class="normal">670</span>
+<span class="normal">671</span>
+<span class="normal">672</span>
+<span class="normal">673</span>
+<span class="normal">674</span>
+<span class="normal">675</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">xnode_figure</span><span class="p">(</span><span class="n">names</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">loudest</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
                  <span class="n">out_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
                  <span class="n">labels</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">margin_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">,</span>
                  <span class="n">floor_clear_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">):</span>
@@ -19011,7 +19079,7 @@ figure's caption line.</p>
     <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
     <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">24</span><span class="p">)</span>
     <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">_hour_ticks</span><span class="p">())</span>
-    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;hour of day&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;loudest&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;hour of day&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;highest above</span><span class="se">\n</span><span class="s2">its own floor&quot;</span><span class="p">)</span>
     <span class="c1"># left margin holds the node labels (&quot;node 7 (living)&quot;); too small and</span>
     <span class="c1"># they are silently clipped rather than shrunk</span>
     <span class="n">longest</span> <span class="o">=</span> <span class="nb">max</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">((</span><span class="n">labels</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">)))</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">),</span>
@@ -19019,7 +19087,10 @@ figure's caption line.</p>
     <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="mf">0.06</span> <span class="o">+</span> <span class="mf">0.008</span> <span class="o">*</span> <span class="n">longest</span><span class="p">,</span> <span class="mf">0.22</span><span class="p">),</span>
                         <span class="n">right</span><span class="o">=</span><span class="mf">0.93</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mf">0.93</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mf">0.16</span><span class="p">)</span>
     <span class="n">fig</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span>
-             <span class="sa">f</span><span class="s2">&quot;loudest marked only where the inter-node margin exceeds &quot;</span>
+             <span class="sa">f</span><span class="s2">&quot;NOT which room is loudest: nodes are uncalibrated, so this &quot;</span>
+             <span class="sa">f</span><span class="s2">&quot;ranks each node&#39;s level above its own noise floor, which &quot;</span>
+             <span class="sa">f</span><span class="s2">&quot;favours the deepest-floored node. Marked only where the &quot;</span>
+             <span class="sa">f</span><span class="s2">&quot;inter-node margin exceeds &quot;</span>
              <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">margin_db</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> dB (normalized levels) and the level clears &quot;</span>
              <span class="sa">f</span><span class="s2">&quot;the node&#39;s floor_suspect-adjusted noise floor by &quot;</span>
              <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">floor_clear_db</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> dB; blank = near-tie or near-floor. &quot;</span>
@@ -19055,33 +19126,7 @@ chorus). Returns the compare.json document.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/compare.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">663</span>
-<span class="normal">664</span>
-<span class="normal">665</span>
-<span class="normal">666</span>
-<span class="normal">667</span>
-<span class="normal">668</span>
-<span class="normal">669</span>
-<span class="normal">670</span>
-<span class="normal">671</span>
-<span class="normal">672</span>
-<span class="normal">673</span>
-<span class="normal">674</span>
-<span class="normal">675</span>
-<span class="normal">676</span>
-<span class="normal">677</span>
-<span class="normal">678</span>
-<span class="normal">679</span>
-<span class="normal">680</span>
-<span class="normal">681</span>
-<span class="normal">682</span>
-<span class="normal">683</span>
-<span class="normal">684</span>
-<span class="normal">685</span>
-<span class="normal">686</span>
-<span class="normal">687</span>
-<span class="normal">688</span>
-<span class="normal">689</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">689</span>
 <span class="normal">690</span>
 <span class="normal">691</span>
 <span class="normal">692</span>
@@ -19101,7 +19146,33 @@ chorus). Returns the compare.json document.</p>
 <span class="normal">706</span>
 <span class="normal">707</span>
 <span class="normal">708</span>
-<span class="normal">709</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_compare</span><span class="p">(</span><span class="n">folders</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">],</span> <span class="n">out_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+<span class="normal">709</span>
+<span class="normal">710</span>
+<span class="normal">711</span>
+<span class="normal">712</span>
+<span class="normal">713</span>
+<span class="normal">714</span>
+<span class="normal">715</span>
+<span class="normal">716</span>
+<span class="normal">717</span>
+<span class="normal">718</span>
+<span class="normal">719</span>
+<span class="normal">720</span>
+<span class="normal">721</span>
+<span class="normal">722</span>
+<span class="normal">723</span>
+<span class="normal">724</span>
+<span class="normal">725</span>
+<span class="normal">726</span>
+<span class="normal">727</span>
+<span class="normal">728</span>
+<span class="normal">729</span>
+<span class="normal">730</span>
+<span class="normal">731</span>
+<span class="normal">732</span>
+<span class="normal">733</span>
+<span class="normal">734</span>
+<span class="normal">735</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_compare</span><span class="p">(</span><span class="n">folders</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">],</span> <span class="n">out_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
                 <span class="n">lines</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">band</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hours</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                 <span class="n">state</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;machine_on&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compare analysed sessions of one place; write figures + compare.json.</span>

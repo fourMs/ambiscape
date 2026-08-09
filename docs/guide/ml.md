@@ -37,6 +37,19 @@ fail above 1 % speech). Run it on every excerpt before publishing
 routinely catch a few words the recordist forgot. Exit code 2 on any
 failure, so it slots into scripts.
 
+!!! warning "Level normalisation, and comparing recorders (0.29.0)"
+
+    silero applies a fixed probability threshold to whatever level reaches
+    it, so before 0.29.0 the result was a function of recording gain as much
+    as of speech. The same minute of a real recording measured 0.513 speech
+    at unity gain, 0.289 at −12 dB, 0.110 at −24 dB and **0.000 at −30 dB**.
+
+    `speech_fraction` now scales its input to a fixed RMS first, and that
+    minute reads 0.537 at all four gains. Anything that compared speech
+    fractions **between** recorders before 0.29.0 was comparing their gains
+    too, and should be recomputed; a single recorder against itself over
+    time is far less affected. `normalize=False` reproduces the old numbers.
+
 The gate detects *voice activity*, not intelligibility, which makes it a
 conservative proxy. For a stricter check on borderline files, listen to the flagged
 regions (`first_speech_at_s` is reported).

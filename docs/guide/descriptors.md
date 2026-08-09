@@ -133,6 +133,25 @@ This is an annotation, not a correction — no descriptor value changes.
 Sessions shorter than six chunks (30 min) are never flagged, and bands
 with no content below the Nyquist frequency are excluded.
 
+### How much of the session is floor (`floor_occupancy`, 0.29.0)
+
+The guard above asks whether a *band's* floor is self-noise. Run across a
+whole sensor network it tends to fire for every node, because every
+recorder's top octaves are its own hiss during quiet hours — so it cannot
+separate "this band is the instrument" from "this room was empty all week".
+
+`analysis.floor_occupancy` asks the second question: what fraction of the
+session sits within a few dB of that session's own floor. Across the SINS
+network the living-room and kitchen nodes read 0.28–0.56 while the bedroom
+node reads **0.96**, a median of 0.4 dB above its own floor against 2.4–9.8
+dB for rooms in use.
+
+That is a description of how a room is used, not a fault in the recorder —
+a distinction worth having, since a microphone in a mostly-empty bedroom
+otherwise looks exactly like a broken one. Being each session against its
+own floor, the measure does not move with recording gain, so it compares
+across uncalibrated instruments where an absolute level cannot.
+
 ## Modulation profile (`modspec`)
 
 Environmental rhythm at three scales from cached envelopes: micro

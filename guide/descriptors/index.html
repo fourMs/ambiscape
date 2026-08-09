@@ -622,6 +622,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#which-capsule-to-read-quietest_channel-0300" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Which capsule to read (quietest_channel, 0.30.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2230,6 +2241,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#which-capsule-to-read-quietest_channel-0300" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Which capsule to read (quietest_channel, 0.30.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2491,6 +2513,19 @@ a distinction worth having, since a microphone in a mostly-empty bedroom
 otherwise looks exactly like a broken one. Being each session against its
 own floor, the measure does not move with recording gain, so it compares
 across uncalibrated instruments where an absolute level cannot.</p>
+<h3 id="which-capsule-to-read-quietest_channel-0300">Which capsule to read (<code>quietest_channel</code>, 0.30.0)</h3>
+<p>A multi-microphone node's capsules share a housing, a preamp and a gain
+setting, so they should agree. When one does not — a blocked port, a damaged
+capsule — it reaches the same peaks as its siblings on a raised floor, and so
+has less room to measure in. Reading channel 0 by convention is then a coin
+toss.</p>
+<p><code>analysis.quietest_channel(x, fs)</code> returns the channel with the lowest floor
+and every channel's floor, so the caller can see whether the choice matters.
+In the SINS network one node's four capsules reached the same 98th-percentile
+level within 0.7 dB while channel 0's floor sat 5.5 dB higher: analysing
+channel 0 halved that node's apparent dynamics and pushed its time-at-own-
+floor from about 75 % to 96 %. On nodes whose capsules agree, the function
+picks whichever is marginally lower, which is of no consequence.</p>
 <h2 id="modulation-profile-modspec">Modulation profile (<code>modspec</code>)</h2>
 <p>Environmental rhythm at three scales from cached envelopes: micro
 (0.5–20 Hz strike/speech-rate rhythm, from the 20 ms <code>env_hi</code> envelope),
@@ -2560,7 +2595,7 @@ typical, and (when a &gt;6 dB state change exists) the transition.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 9, 2026 07:24:35 UTC">August 9, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 9, 2026 09:59:43 UTC">August 9, 2026</span>
   </span>
 
     

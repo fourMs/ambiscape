@@ -1,7 +1,9 @@
 # Impulse response & auralization
 
 Clap-based T60 ([`decay_time`](acoustics.md)) is fine for incidental
-impulses, but a deliberate measurement deserves a deliberate excitation.
+impulses, but a deliberate measurement deserves a deliberate excitation. If the only
+recording of a room is a camera's, see the substitution warning in the
+[clap-based guide](acoustics.md): T60 survives it, the early field does not.
 The `impulse` module implements Farina's exponential sine sweep (ESS)
 method: tens of decibels more dynamic range than any clap, and the
 loudspeaker's harmonic distortion is pushed *ahead* of the linear

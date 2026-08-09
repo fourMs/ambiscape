@@ -19,6 +19,37 @@ each guarding against a failure mode common in field recordings:
    find, so the fixed-range fits would otherwise extrapolate past the end
    of the file; T60 (adaptive range) and EDT still stand.
 
+!!! warning "Camera audio can replace a recorder for T60 — and not for the rest"
+
+    Measured on 7 days where a GoPro MAX and a Zoom H3-VR recorded the same
+    room and the same clap, aligned by envelope cross-correlation and
+    verified before comparison:
+
+    | | camera − recorder (median) | recorder median |
+    |---|---|---|
+    | **T60** | **−0.01 s** | 0.41 s |
+    | EDT | **+0.24 s** | 0.34 s |
+    | C50 | **−5.5 dB** | 8.2 dB |
+
+    Reverberation time survives the substitution almost exactly. The early
+    field does not: the camera reports a slower early decay and a room 5.5 dB
+    less clear than it is, consistent with its own gain and noise processing
+    lifting the tail — which is where EDT and C50 live.
+
+    This matters well beyond one corpus. Cameras are often the recorder with
+    full coverage, and consumer cameras do not document their processing, so
+    treat any camera-derived clarity or early-decay figure as unusable and
+    any camera-derived T60 as sound. **Do not mix the two sources in one
+    distribution without checking**, and do not assume the result transfers
+    to another camera model: this was measured on one, and the processing is
+    undocumented and may change with firmware.
+
+    Matching matters too. The recorders here are unsynchronised — the
+    measured offsets ran from −51 s to +14 s — so pairing by timestamp
+    compares different events. Waveform correlation cannot verify a pair
+    either, since the camera's coding changes the waveform of the same clap
+    (peaks of 0.03–0.14 on every day tried). Align on the level envelope.
+
 !!! warning "Trimmed IRs: regenerate anything measured before 0.28.1"
 
     `ir_metrics` prepends silence when the peak sits near the start of the

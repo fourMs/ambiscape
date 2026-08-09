@@ -608,6 +608,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Sensor-noise-floor guard">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-much-of-the-session-is-floor-floor_occupancy-0290" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How much of the session is floor (floor_occupancy, 0.29.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2199,6 +2216,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Sensor-noise-floor guard">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-much-of-the-session-is-floor-floor_occupancy-0290" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How much of the session is floor (floor_occupancy, 0.29.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2442,6 +2476,21 @@ range may reflect the instrument, not the room.</p>
 <p>This is an annotation, not a correction — no descriptor value changes.
 Sessions shorter than six chunks (30 min) are never flagged, and bands
 with no content below the Nyquist frequency are excluded.</p>
+<h3 id="how-much-of-the-session-is-floor-floor_occupancy-0290">How much of the session is floor (<code>floor_occupancy</code>, 0.29.0)</h3>
+<p>The guard above asks whether a <em>band's</em> floor is self-noise. Run across a
+whole sensor network it tends to fire for every node, because every
+recorder's top octaves are its own hiss during quiet hours — so it cannot
+separate "this band is the instrument" from "this room was empty all week".</p>
+<p><code>analysis.floor_occupancy</code> asks the second question: what fraction of the
+session sits within a few dB of that session's own floor. Across the SINS
+network the living-room and kitchen nodes read 0.28–0.56 while the bedroom
+node reads <strong>0.96</strong>, a median of 0.4 dB above its own floor against 2.4–9.8
+dB for rooms in use.</p>
+<p>That is a description of how a room is used, not a fault in the recorder —
+a distinction worth having, since a microphone in a mostly-empty bedroom
+otherwise looks exactly like a broken one. Being each session against its
+own floor, the measure does not move with recording gain, so it compares
+across uncalibrated instruments where an absolute level cannot.</p>
 <h2 id="modulation-profile-modspec">Modulation profile (<code>modspec</code>)</h2>
 <p>Environmental rhythm at three scales from cached envelopes: micro
 (0.5–20 Hz strike/speech-rate rhythm, from the 20 ms <code>env_hi</code> envelope),
@@ -2511,7 +2560,7 @@ typical, and (when a &gt;6 dB state change exists) the transition.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 7, 2026 17:22:13 UTC">August 7, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 9, 2026 07:24:35 UTC">August 9, 2026</span>
   </span>
 
     

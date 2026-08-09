@@ -7,6 +7,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/); the
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) loosely, in that the minor number has
 been carrying feature work throughout a pre-1.0 life.
 
+## [0.30.0] — 2026-08-09
+
+### Fixed
+- **`compare.xnode_loudest` no longer awards bins to a node that is not
+  reporting room activity.** A third rule joins the margin and floor rules:
+  a node's loudest bins must rise at least `MIN_NODE_DYNAMICS_DB` (3 dB)
+  above its own median before it can win anything.
+
+  The floor rule alone did not catch this. A stationary node with occasional
+  dropouts has its *estimated* floor dragged down by them, so every ordinary
+  bin clears that floor by several dB and the node reads as permanently in
+  activity — taking the award whenever the real rooms fall quiet. In the SINS
+  sensor network a bedroom node, whose level reached only 1.9 dB above its
+  own floor at the 90th percentile against 18–22 dB for rooms in use, swept
+  the nights.
+
+  The statistic is the *upper* spread (98th percentile above the median),
+  not a symmetric range: a room can be silent for eleven of twelve bins and
+  still be reporting activity in the twelfth, and a measure of typical
+  variation would disqualify exactly the sparse, eventful rooms the figure
+  exists to show. Dropouts move the lower tail and not the median, so they
+  cannot buy eligibility.
+
+  An ineligible node stays in the comparison — its level is real, and a
+  neighbour must still beat it — but cannot be awarded a bin. Where it is
+  the loudest, the bin goes unmarked, because the question has no defensible
+  answer.
+
 ## [0.29.0] — 2026-08-09
 
 ### Changed

@@ -511,13 +511,19 @@ def xnode_gain_offsets(floors_db: dict) -> dict:
             for n, v in floors_db.items()}
 
 
+#: How far a node's loudest bins must rise above its own median before it
+#: is treated as reporting room activity at all.
+MIN_NODE_DYNAMICS_DB = 3.0
+
+
 def xnode_loudest(names: list, A: np.ndarray,
                   floors_db: dict | None = None, margin_db: float = 3.0,
                   floor_clear_db: float = 3.0,
-                  gain_offsets_db: dict | None = None) -> list:
+                  gain_offsets_db: dict | None = None,
+                  min_dynamics_db: float = MIN_NODE_DYNAMICS_DB) -> list:
     """Loudest node per clock bin — only where the call is defensible.
 
-    A bin is awarded to a node only when **both** hold:
+    A bin is awarded to a node only when **all three** hold:
 
     1. *margin rule* — its gain-corrected level beats every other node's
        by more than ``margin_db``. Uncalibrated nodes differ by sensor
@@ -529,6 +535,24 @@ def xnode_loudest(names: list, A: np.ndarray,
        floor (``floors_db``, e.g. from :func:`xnode_floor`, already
        ``floor_suspect``-adjusted) by at least ``floor_clear_db``: the
        winner must actually be hearing sound, not its own floor.
+
+    3. *dynamics rule* — that node's own levels vary across the day by at
+       least ``min_dynamics_db``, measured as an interquartile range. A node
+       that never departs from its own floor is not reporting room activity,
+       whatever its absolute level, and the first two rules do not catch it:
+       a stationary node with occasional dropouts has its *estimated* floor
+       dragged down by them, so every ordinary bin clears that floor by
+       several dB and the node reads as permanently in activity. Measured
+       across the SINS network, the bedroom node's level reached only
+       1.9 dB above its own floor at the 90th percentile, where rooms in use
+       reached 18–22 dB.
+
+       The statistic is the *upper* spread — the 98th percentile above the
+       median — not a symmetric range. A room can be silent for eleven of
+       twelve bins and still be reporting activity in the twelfth, so a
+       measure of typical variation would disqualify exactly the sparse,
+       eventful rooms this figure exists to show. Dropouts move the lower
+       tail and the median not at all, so they cannot buy eligibility.
 
     The margin rule works on levels, not on the display normalization
     ``H`` returned beside ``A`` by :func:`xnode_day_matrix`. The two
@@ -546,6 +570,13 @@ def xnode_loudest(names: list, A: np.ndarray,
     off = np.array([(gain_offsets_db or {}).get(n, 0.0) for n in names],
                    float)
     G = np.asarray(A, float) - off[:, None]
+    # a node is eligible only if its own day varies; see the dynamics rule
+    eligible = np.ones(len(names), bool)
+    for i in range(len(names)):
+        row = G[i][np.isfinite(G[i])]
+        if len(row) >= 4:
+            rise = float(np.percentile(row, 98) - np.median(row))
+            eligible[i] = rise >= min_dynamics_db
     out = []
     for b in range(G.shape[1]):
         col = G[:, b]
@@ -554,6 +585,13 @@ def xnode_loudest(names: list, A: np.ndarray,
             continue
         order = np.argsort(np.where(np.isfinite(col), col, -np.inf))
         w, runner = order[-1], order[-2]
+        # An ineligible node stays in the comparison — its level is real and
+        # a neighbour must still beat it — but it cannot itself be awarded
+        # the bin. If it is the loudest, the question has no defensible
+        # answer and the bin goes unmarked.
+        if not eligible[w]:
+            out.append(None)
+            continue
         if col[w] - col[runner] <= margin_db:
             out.append(None)
             continue

@@ -7,6 +7,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/); the
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) loosely, in that the minor number has
 been carrying feature work throughout a pre-1.0 life.
 
+## [0.30.1] — 2026-08-09
+
+### Documentation
+- **`compare.xnode_loudest` does not show which room is loudest, and now
+  says so.** `xnode_gain_offsets` returns `floor_i − median(floors)`; the
+  median term is identical for every node and cancels in the comparison, so
+  what is ranked is `A_i − floor_i` — each node's level above its *own*
+  noise floor. That is right only if the floors differ by gain. Where one
+  room is genuinely quieter, it is credited with gain it does not have.
+
+  On the SINS network the correlation between a node's floor depth and the
+  bins it wins is **r = −0.81**: the two deepest-floored nodes take 37
+  awards each while every other node takes 0–7. Synthetically, a node at
+  −55 dBFS with a −80 dB floor beats one at −40 dBFS with a −60 dB floor.
+
+  This is the pathology the function's own docstring warns about for the
+  display normalisation `H`, reinstated with the floor in place of the day
+  median. No behaviour is changed — deciding which room is loudest needs a
+  common reference that uncalibrated nodes cannot supply — but the docstring
+  now states the limitation, the figure's axis reads "highest above its own
+  floor", and its caption opens by saying what the strip is not.
+
 ## [0.30.0] — 2026-08-09
 
 ### Added

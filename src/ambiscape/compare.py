@@ -540,6 +540,29 @@ def xnode_loudest(names: list, A: np.ndarray,
     take every awarded bin from louder neighbours. ``H`` stays correct for
     the heatmap, where each row is read against its own baseline.
 
+    .. warning::
+
+       **This ranks on level above each node's own floor, not on level.**
+       ``xnode_gain_offsets`` returns ``floor_i − median(floors)``, and the
+       median term is the same for every node, so it cancels in the
+       comparison: what is compared is ``A_i − floor_i``. That is correct
+       only if the floors differ by *gain*. Where they differ because one
+       room is genuinely quieter, the quieter room is credited with gain it
+       does not have and wins bins it should not.
+
+       Measured on the SINS network: the correlation between a node's floor
+       depth and the bins it is awarded is **r = −0.81**, and the two
+       deepest-floored nodes take 37 awards each while every other node
+       takes between 0 and 7. Synthetically, a node at −55 dBFS with a
+       −80 dB floor beats a node at −40 dBFS with a −60 dB floor.
+
+       This is the pathology the paragraph above warns about for ``H``,
+       reinstated with the floor in place of the day median. Deciding which
+       room is actually loudest needs a common reference — calibration, or a
+       source every node hears — which uncalibrated nodes do not supply.
+       Read the strip as *which node stood highest above its own floor*, and
+       nothing more.
+
     Returns one entry per bin: the winning name, or None (bins with < 2
     finite nodes, near-ties, and near-floor bins) — rendered empty.
     """
@@ -630,7 +653,7 @@ def xnode_figure(names: list, H: np.ndarray, loudest: list,
     ax[1].set_ylim(-0.5, len(names) - 0.5)
     ax[1].set_xlim(0, 24)
     ax[1].set_xticks(_hour_ticks())
-    ax[1].set(xlabel="hour of day", ylabel="loudest")
+    ax[1].set(xlabel="hour of day", ylabel="highest above\nits own floor")
     # left margin holds the node labels ("node 7 (living)"); too small and
     # they are silently clipped rather than shrunk
     longest = max((len(str((labels or {}).get(n, n))) for n in names),
@@ -638,7 +661,10 @@ def xnode_figure(names: list, H: np.ndarray, loudest: list,
     fig.subplots_adjust(left=min(0.06 + 0.008 * longest, 0.22),
                         right=0.93, top=0.93, bottom=0.16)
     fig.text(0.5, 0.02,
-             f"loudest marked only where the inter-node margin exceeds "
+             f"NOT which room is loudest: nodes are uncalibrated, so this "
+             f"ranks each node's level above its own noise floor, which "
+             f"favours the deepest-floored node. Marked only where the "
+             f"inter-node margin exceeds "
              f"{margin_db:g} dB (normalized levels) and the level clears "
              f"the node's floor_suspect-adjusted noise floor by "
              f"{floor_clear_db:g} dB; blank = near-tie or near-floor. "

@@ -23,18 +23,27 @@ each guarding against a failure mode common in field recordings:
 
     Measured on 7 days where a GoPro MAX and a Zoom H3-VR recorded the same
     room and the same clap, aligned by envelope cross-correlation and
-    verified before comparison:
+    verified before comparison, reading the camera's **4-channel PCM
+    ambisonic** track:
 
-    | | camera − recorder (median) | recorder median |
-    |---|---|---|
-    | **T60** | **−0.01 s** | 0.41 s |
-    | EDT | **+0.24 s** | 0.34 s |
-    | C50 | **−5.5 dB** | 8.2 dB |
+    | | camera − recorder (median) |
+    |---|---|
+    | **T60** | **−0.01 s** |
+    | EDT | **+0.18 s** |
+    | C50 | **−2.9 dB** |
 
     Reverberation time survives the substitution almost exactly. The early
-    field does not: the camera reports a slower early decay and a room 5.5 dB
-    less clear than it is, consistent with its own gain and noise processing
-    lifting the tail — which is where EDT and C50 live.
+    field does not: the camera reports a slower early decay and a room about
+    3 dB less clear than it is.
+
+    **Read the right track.** A GoPro MAX `.360` carries both a processed
+    stereo AAC mix and a 4-channel PCM ambisonic stream, and `ffmpeg` will
+    hand you the stereo one by default. Measured on the stereo track the same
+    comparison gives EDT +0.24 s and C50 −5.5 dB — so roughly half the
+    apparent clarity deficit is the convenience track, not the camera. Find
+    the stream with four channels and a PCM codec. Note also that the small
+    `.LRV` proxy carries **only** the stereo mix, so it cannot be used as a
+    cheap stand-in for ambisonic work.
 
     This matters well beyond one corpus. Cameras are often the recorder with
     full coverage, and consumer cameras do not document their processing, so

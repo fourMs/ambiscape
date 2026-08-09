@@ -19,6 +19,19 @@ each guarding against a failure mode common in field recordings:
    find, so the fixed-range fits would otherwise extrapolate past the end
    of the file; T60 (adaptive range) and EDT still stand.
 
+!!! warning "Trimmed IRs: regenerate anything measured before 0.28.1"
+
+    `ir_metrics` prepends silence when the peak sits near the start of the
+    buffer, so the estimator has samples before it. Until 0.28.1 the noise
+    floor was then measured *on that silence*: a trimmed IR with a real
+    45 dB floor reported 173 dB of dynamic range, which satisfies every
+    guard above and lets T20/T30 be fitted over noise without complaint.
+
+    Since 0.28.1 the floor is read from the quietest part of the decay
+    instead, and `dr_db` tracks the real signal-to-noise ratio. Numbers
+    change for trimmed material only — an IR with genuine pre-roll was
+    never affected.
+
 Report T20/T30-style extrapolations only when they agree; treat impact
 sources as ±20 % (they ring structurally, which reads as extra decay,
 especially below 250 Hz). A balloon pop at ≥ 2 m with 5 s of stillness

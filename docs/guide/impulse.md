@@ -59,7 +59,10 @@ level-invariant). Alongside it, `impulse.json` holds:
   `dr_db` behind each fit. These reuse the toolbox's
   truncated-Schroeder machinery (`analysis.decay_metrics`) — the same
   noise-floor and re-attack safeguards as the clap path, here fed a proper
-  excitation.
+  excitation. On a *trimmed* IR, one with no recording before its peak,
+  `dr_db` is measured from the quietest part of the decay rather than from
+  the silence `ir_metrics` prepends to let the estimator run (fixed in
+  0.28.1; before that it read the padding and reported around 190 dB).
 - **STI** (IEC 60268-16, *indirect method*): modulation transfer functions
   from Schroeder's integral of the squared IR at the 14 standard
   modulation frequencies, male-speech weights.

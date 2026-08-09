@@ -21,29 +21,46 @@ each guarding against a failure mode common in field recordings:
 
 !!! warning "Camera audio can replace a recorder for T60 — and not for the rest"
 
-    Measured on 7 days where a GoPro MAX and a Zoom H3-VR recorded the same
-    room and the same clap, aligned by envelope cross-correlation and
-    verified before comparison, reading the camera's **4-channel PCM
-    ambisonic** track:
+    Measured over a full year: a GoPro MAX and a Zoom H3-VR recording the
+    same room and the same clap, 369 paired events, aligned by envelope
+    cross-correlation and each window verified to contain a transient before
+    it was measured. Reading the camera's **4-channel PCM ambisonic** track:
 
-    | | camera − recorder (median) |
-    |---|---|
-    | **T60** | **−0.01 s** |
-    | EDT | **+0.18 s** |
-    | C50 | **−2.9 dB** |
+    | | camera − recorder | 95 % limits of agreement |
+    |---|---|---|
+    | **T60** | **+0.02 s** | −1.04 to +1.00 s |
+    | EDT | **+0.24 s** | |
+    | C50 | **−3.6 dB** | |
 
-    Reverberation time survives the substitution almost exactly. The early
-    field does not: the camera reports a slower early decay and a room about
-    3 dB less clear than it is.
+    Reverberation time survives the substitution in the median almost
+    exactly. The early field does not: the camera reports a slower early
+    decay and a room about 3.6 dB less clear than it is.
 
-    **Read the right track.** A GoPro MAX `.360` carries both a processed
-    stereo AAC mix and a 4-channel PCM ambisonic stream, and `ffmpeg` will
-    hand you the stereo one by default. Measured on the stereo track the same
-    comparison gives EDT +0.24 s and C50 −5.5 dB — so roughly half the
-    apparent clarity deficit is the convenience track, not the camera. Find
-    the stream with four channels and a PCM codec. Note also that the small
-    `.LRV` proxy carries **only** the stereo mix, so it cannot be used as a
-    cheap stand-in for ambisonic work.
+    **Read the limits, not just the median.** Those T60 limits span two
+    seconds. The camera is *unbiased and imprecise*: a distribution of T60
+    computed from camera audio lands where the recorder's would, and any
+    single measurement may be far out. Per event the camera falls within the
+    ±20 % usually granted to a clap-derived estimate on 72 % of days. Use
+    camera audio to populate a distribution; do not use it to certify a room.
+
+    **Read the right track** — but for precision, not accuracy. A GoPro MAX
+    `.360` carries both a processed stereo AAC mix and a 4-channel PCM
+    ambisonic stream, and `ffmpeg` will hand you the stereo one by default.
+    On bias the two layers are near-identical (C50 −3.6 dB against −3.8 dB);
+    where they differ is spread, the stereo mix giving T60 limits of −1.80
+    to +1.67 s against the ambisonic stream's −1.04 to +1.00. Note also that
+    the small `.LRV` proxy carries **only** the stereo mix, so it cannot be
+    used as a cheap stand-in for ambisonic work.
+
+    *Corrected 2026-08-09.* This box previously said that "roughly half the
+    apparent clarity deficit is the convenience track", from EDT +0.24 s and
+    C50 −5.5 dB on the stereo track over 7 days. That was two artefacts, not
+    a finding: the windows were cut from an alignment rather than from the
+    transient, and the stereo layer was measured on its **left channel**
+    while the ambisonic layers were measured on W. A directional channel
+    collects a different share of the direct sound, which is exactly what
+    C50 measures. Measured on the mid signal (L+R)/2, with windows centred
+    on the clap, the difference between the layers' bias disappears.
 
     This matters well beyond one corpus. Cameras are often the recorder with
     full coverage, and consumer cameras do not document their processing, so
@@ -58,6 +75,19 @@ each guarding against a failure mode common in field recordings:
     compares different events. Waveform correlation cannot verify a pair
     either, since the camera's coding changes the waveform of the same clap
     (peaks of 0.03–0.14 on every day tried). Align on the level envelope.
+
+    **Verify the alignment on the signal, not on the correlation peak.** The
+    envelope correlation reports a peak height relative to its own median,
+    and that number can be large and wrong: aligning the proxy `.LRV`
+    instead of the `.360` agreed exactly with the full file on three days
+    out of four and on the fourth returned an offset 60 s out — with a peak
+    standing 50× above median, well past any plausible threshold. The cheap,
+    decisive check is to cut the window at the predicted position and ask
+    whether a transient is there at all: a real clap window shows 25–45 dB
+    between the 20 ms after the onset and the 20 ms before it, and a
+    mis-aligned one shows about zero. Gate on that, not on the correlation's
+    self-report. (The proxy is also 60× faster to read, so it is tempting;
+    treat it as a hint that must be confirmed against the full file.)
 
 !!! warning "Trimmed IRs: regenerate anything measured before 0.28.1"
 

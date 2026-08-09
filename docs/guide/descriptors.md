@@ -152,6 +152,22 @@ otherwise looks exactly like a broken one. Being each session against its
 own floor, the measure does not move with recording gain, so it compares
 across uncalibrated instruments where an absolute level cannot.
 
+### Which capsule to read (`quietest_channel`, 0.30.0)
+
+A multi-microphone node's capsules share a housing, a preamp and a gain
+setting, so they should agree. When one does not — a blocked port, a damaged
+capsule — it reaches the same peaks as its siblings on a raised floor, and so
+has less room to measure in. Reading channel 0 by convention is then a coin
+toss.
+
+`analysis.quietest_channel(x, fs)` returns the channel with the lowest floor
+and every channel's floor, so the caller can see whether the choice matters.
+In the SINS network one node's four capsules reached the same 98th-percentile
+level within 0.7 dB while channel 0's floor sat 5.5 dB higher: analysing
+channel 0 halved that node's apparent dynamics and pushed its time-at-own-
+floor from about 75 % to 96 %. On nodes whose capsules agree, the function
+picks whichever is marginally lower, which is of no consequence.
+
 ## Modulation profile (`modspec`)
 
 Environmental rhythm at three scales from cached envelopes: micro

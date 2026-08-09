@@ -11263,7 +11263,7 @@ in distinct events (rail, church bells, sparse traffic).</p>
 
 
 <h2 id="ambiscape.analysis.decay_metrics" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">decay_metrics</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">bands</span><span class="o">=</span><span class="p">((</span><span class="mi">250</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span> <span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span> <span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">),</span> <span class="p">(</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">),</span> <span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="mi">8000</span><span class="p">)))</span></code>
+            <code class="highlight language-python"><span class="n">decay_metrics</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">bands</span><span class="o">=</span><span class="p">((</span><span class="mi">250</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span> <span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span> <span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">),</span> <span class="p">(</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">),</span> <span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="mi">8000</span><span class="p">)),</span> <span class="n">pre_roll</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
 
 </h2>
 
@@ -11271,6 +11271,12 @@ in distinct events (rail, church bells, sparse traffic).</p>
     <div class="doc doc-contents ">
 
         <p>T60, EDT, C50, C80 (dB) and D50 per octave band from an impulse.</p>
+<p><code>pre_roll=False</code> says the samples before the peak are not a recording
+of the room but silence prepended by a caller so this estimator can run
+on a trimmed IR. The noise floor is then taken from the quietest part of
+the decay itself rather than from that silence. Read off the padding it
+comes out near 200 dB, which silently satisfies every dynamic-range
+guard below and lets T20/T30 be fitted over noise.</p>
 <p>Same truncated-Schroeder machinery as :func:<code>decay_time</code> (which is
 kept unchanged — its output feeds frozen corpus reports), plus the
 standard companions: EDT from the 0…−10 dB fit (perceived
@@ -11365,9 +11371,31 @@ Returns <code>{band: {"T60", "T20", "T30", "EDT", "C50", "C80", "D50",
 <span class="normal">203</span>
 <span class="normal">204</span>
 <span class="normal">205</span>
-<span class="normal">206</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">decay_metrics</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bands</span><span class="o">=</span><span class="p">((</span><span class="mi">250</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span> <span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>
-                  <span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">),</span> <span class="p">(</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">),</span> <span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="mi">8000</span><span class="p">)))</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">decay_metrics</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bands</span><span class="o">=</span><span class="p">((</span><span class="mi">250</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span> <span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>
+                  <span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">),</span> <span class="p">(</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">),</span> <span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="mi">8000</span><span class="p">)),</span>
+                  <span class="n">pre_roll</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;T60, EDT, C50, C80 (dB) and D50 per octave band from an impulse.</span>
+
+<span class="sd">    ``pre_roll=False`` says the samples before the peak are not a recording</span>
+<span class="sd">    of the room but silence prepended by a caller so this estimator can run</span>
+<span class="sd">    on a trimmed IR. The noise floor is then taken from the quietest part of</span>
+<span class="sd">    the decay itself rather than from that silence. Read off the padding it</span>
+<span class="sd">    comes out near 200 dB, which silently satisfies every dynamic-range</span>
+<span class="sd">    guard below and lets T20/T30 be fitted over noise.</span>
 
 <span class="sd">    Same truncated-Schroeder machinery as :func:`decay_time` (which is</span>
 <span class="sd">    kept unchanged — its output feeds frozen corpus reports), plus the</span>
@@ -11399,7 +11427,13 @@ Returns <code>{band: {"T60", "T20", "T30", "EDT", "C50", "C80", "D50",
             <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">pk_i</span> <span class="o">-</span> <span class="mi">2400</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">pk</span> <span class="o">&lt;</span> <span class="n">fs</span> <span class="o">//</span> <span class="mi">4</span><span class="p">:</span>
             <span class="k">continue</span>
-        <span class="n">noise</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">env</span><span class="p">[:</span><span class="n">pk</span> <span class="o">-</span> <span class="n">fs</span> <span class="o">//</span> <span class="mi">8</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">pre_roll</span><span class="p">:</span>
+            <span class="n">noise</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">env</span><span class="p">[:</span><span class="n">pk</span> <span class="o">-</span> <span class="n">fs</span> <span class="o">//</span> <span class="mi">8</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Nothing of the room was recorded before the peak, so the only</span>
+            <span class="c1"># floor available is the quietest part of what the IR contains.</span>
+            <span class="n">after</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="n">pk</span><span class="p">:]</span>
+            <span class="n">noise</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">after</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">after</span><span class="p">)</span> <span class="k">else</span> <span class="mf">0.0</span>
         <span class="n">dr</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">env</span><span class="p">[</span><span class="n">pk</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">noise</span> <span class="o">+</span> <span class="n">EPS</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">dr</span> <span class="o">&lt;</span> <span class="mi">20</span><span class="p">:</span>
             <span class="k">continue</span>
@@ -11491,21 +11525,7 @@ the last three are None when nothing is flagged.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">212</span>
-<span class="normal">213</span>
-<span class="normal">214</span>
-<span class="normal">215</span>
-<span class="normal">216</span>
-<span class="normal">217</span>
-<span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
-<span class="normal">225</span>
-<span class="normal">226</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">226</span>
 <span class="normal">227</span>
 <span class="normal">228</span>
 <span class="normal">229</span>
@@ -11554,7 +11574,21 @@ the last three are None when nothing is flagged.</p>
 <span class="normal">272</span>
 <span class="normal">273</span>
 <span class="normal">274</span>
-<span class="normal">275</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">floor_suspicion</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">chunk_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">300.0</span><span class="p">,</span> <span class="n">pct</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">floor_suspicion</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">chunk_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">300.0</span><span class="p">,</span> <span class="n">pct</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
                     <span class="n">spread_thresh_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">FLOOR_SPREAD_THRESH_DB</span><span class="p">,</span>
                     <span class="n">min_chunks</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">hf_min_hz</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2000.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Flag high-frequency band floors that look like recorder self-noise.</span>
@@ -11640,11 +11674,11 @@ the last three are None when nothing is flagged.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">278</span>
-<span class="normal">279</span>
-<span class="normal">280</span>
-<span class="normal">281</span>
-<span class="normal">282</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">circular_stats</span><span class="p">(</span><span class="n">az_deg</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">circular_stats</span><span class="p">(</span><span class="n">az_deg</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Energy-weighted circular mean (deg) and resultant length R.&quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.circstats</span><span class="w"> </span><span class="kn">import</span> <span class="n">mean_resultant</span>
     <span class="n">mu</span><span class="p">,</span> <span class="n">R</span> <span class="o">=</span> <span class="n">mean_resultant</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">az_deg</span><span class="p">,</span> <span class="nb">float</span><span class="p">)),</span> <span class="n">weights</span><span class="p">)</span>
@@ -11671,21 +11705,7 @@ the last three are None when nothing is flagged.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">285</span>
-<span class="normal">286</span>
-<span class="normal">287</span>
-<span class="normal">288</span>
-<span class="normal">289</span>
-<span class="normal">290</span>
-<span class="normal">291</span>
-<span class="normal">292</span>
-<span class="normal">293</span>
-<span class="normal">294</span>
-<span class="normal">295</span>
-<span class="normal">296</span>
-<span class="normal">297</span>
-<span class="normal">298</span>
-<span class="normal">299</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">299</span>
 <span class="normal">300</span>
 <span class="normal">301</span>
 <span class="normal">302</span>
@@ -11726,7 +11746,21 @@ the last three are None when nothing is flagged.</p>
 <span class="normal">337</span>
 <span class="normal">338</span>
 <span class="normal">339</span>
-<span class="normal">340</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">summarize</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">summarize</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Session descriptor dict from concatenated features (see features.load_features).&quot;&quot;&quot;</span>
     <span class="n">fast</span><span class="p">,</span> <span class="n">fasta</span> <span class="o">=</span> <span class="n">F</span><span class="p">[</span><span class="s2">&quot;fast_db&quot;</span><span class="p">],</span> <span class="n">F</span><span class="p">[</span><span class="s2">&quot;fast_dba&quot;</span><span class="p">]</span>
     <span class="n">dt</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">F</span><span class="p">[</span><span class="s2">&quot;t_fast&quot;</span><span class="p">])))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">F</span><span class="p">[</span><span class="s2">&quot;t_fast&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mf">0.125</span>
@@ -11808,21 +11842,7 @@ Returns {band: (T60, dynamic_range_db)}.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">343</span>
-<span class="normal">344</span>
-<span class="normal">345</span>
-<span class="normal">346</span>
-<span class="normal">347</span>
-<span class="normal">348</span>
-<span class="normal">349</span>
-<span class="normal">350</span>
-<span class="normal">351</span>
-<span class="normal">352</span>
-<span class="normal">353</span>
-<span class="normal">354</span>
-<span class="normal">355</span>
-<span class="normal">356</span>
-<span class="normal">357</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">357</span>
 <span class="normal">358</span>
 <span class="normal">359</span>
 <span class="normal">360</span>
@@ -11848,7 +11868,21 @@ Returns {band: (T60, dynamic_range_db)}.</p>
 <span class="normal">380</span>
 <span class="normal">381</span>
 <span class="normal">382</span>
-<span class="normal">383</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">decay_time</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bands</span><span class="o">=</span><span class="p">((</span><span class="mi">250</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span> <span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">decay_time</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bands</span><span class="o">=</span><span class="p">((</span><span class="mi">250</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span> <span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>
                <span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">),</span> <span class="p">(</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">),</span> <span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="mi">8000</span><span class="p">)))</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;T60 estimates from an impulse via truncated Schroeder integration.</span>
 
@@ -11918,21 +11952,7 @@ several identical "representative" segments.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">386</span>
-<span class="normal">387</span>
-<span class="normal">388</span>
-<span class="normal">389</span>
-<span class="normal">390</span>
-<span class="normal">391</span>
-<span class="normal">392</span>
-<span class="normal">393</span>
-<span class="normal">394</span>
-<span class="normal">395</span>
-<span class="normal">396</span>
-<span class="normal">397</span>
-<span class="normal">398</span>
-<span class="normal">399</span>
-<span class="normal">400</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">400</span>
 <span class="normal">401</span>
 <span class="normal">402</span>
 <span class="normal">403</span>
@@ -11953,7 +11973,21 @@ several identical "representative" segments.</p>
 <span class="normal">418</span>
 <span class="normal">419</span>
 <span class="normal">420</span>
-<span class="normal">421</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pick_segments</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">seg_s</span><span class="o">=</span><span class="mf">600.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="normal">421</span>
+<span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span>
+<span class="normal">428</span>
+<span class="normal">429</span>
+<span class="normal">430</span>
+<span class="normal">431</span>
+<span class="normal">432</span>
+<span class="normal">433</span>
+<span class="normal">434</span>
+<span class="normal">435</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pick_segments</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">seg_s</span><span class="o">=</span><span class="mf">600.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Suggest representative windows: quietest, most active, median-typical,</span>
 <span class="sd">    and (if present) the strongest state transition.</span>
 
@@ -12416,7 +12450,13 @@ pre-trimmed archive IR commonly yields T60 and EDT but neither).</p>
 <span class="normal">198</span>
 <span class="normal">199</span>
 <span class="normal">200</span>
-<span class="normal">201</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">ir_metrics</span><span class="p">(</span><span class="n">ir</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">centers</span><span class="o">=</span><span class="n">OCTAVE_CENTERS</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">ir_metrics</span><span class="p">(</span><span class="n">ir</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">centers</span><span class="o">=</span><span class="n">OCTAVE_CENTERS</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Octave-band T60/T20/T30, EDT, C50/C80, D50 from an impulse response.</span>
 
 <span class="sd">    A thin wrapper over :func:`ambiscape.analysis.decay_metrics` (the same</span>
@@ -12435,10 +12475,16 @@ pre-trimmed archive IR commonly yields T60 and EDT but neither).</p>
     <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="n">EPS</span><span class="p">)</span>     <span class="c1"># metrics are level-invariant</span>
-    <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">argmax</span><span class="p">())</span> <span class="o">&lt;</span> <span class="n">fs</span> <span class="o">//</span> <span class="mi">4</span><span class="p">:</span>
+    <span class="n">pre_roll</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">argmax</span><span class="p">())</span> <span class="o">&gt;=</span> <span class="n">fs</span> <span class="o">//</span> <span class="mi">4</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">pre_roll</span><span class="p">:</span>
+        <span class="c1"># The estimator needs samples before the peak. Padding supplies them,</span>
+        <span class="c1"># but they are silence, not room: `pre_roll=False` stops the noise</span>
+        <span class="c1"># floor being read off the padding, which would report a dynamic</span>
+        <span class="c1"># range near 200 dB and disable every guard downstream.</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">fs</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span> <span class="n">x</span><span class="p">])</span>
     <span class="n">edges</span> <span class="o">=</span> <span class="n">_octave_edges</span><span class="p">(</span><span class="n">centers</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
-    <span class="n">dm</span> <span class="o">=</span> <span class="n">decay_metrics</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">bands</span><span class="o">=</span><span class="nb">tuple</span><span class="p">((</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">))</span>
+    <span class="n">dm</span> <span class="o">=</span> <span class="n">decay_metrics</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">bands</span><span class="o">=</span><span class="nb">tuple</span><span class="p">((</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">),</span>
+                       <span class="n">pre_roll</span><span class="o">=</span><span class="n">pre_roll</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">):</span> <span class="n">dm</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lo</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">hi</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="ow">in</span> <span class="n">edges</span>
             <span class="k">if</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lo</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">hi</span><span class="si">}</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">dm</span><span class="p">}</span>
 </code></pre></div></td></tr></table></div>
@@ -12476,13 +12522,7 @@ IRs use channel 0.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/impulse.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span>
-<span class="normal">209</span>
-<span class="normal">210</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">210</span>
 <span class="normal">211</span>
 <span class="normal">212</span>
 <span class="normal">213</span>
@@ -12521,7 +12561,13 @@ IRs use channel 0.</p>
 <span class="normal">246</span>
 <span class="normal">247</span>
 <span class="normal">248</span>
-<span class="normal">249</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">sti</span><span class="p">(</span><span class="n">ir</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">sti</span><span class="p">(</span><span class="n">ir</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Speech Transmission Index from an IR (IEC 60268-16 indirect method).</span>
 
 <span class="sd">    Per octave band (125 Hz – 8 kHz), the modulation transfer function at</span>
@@ -12595,13 +12641,7 @@ Returns None unless the IR has exactly two channels.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/impulse.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">252</span>
-<span class="normal">253</span>
-<span class="normal">254</span>
-<span class="normal">255</span>
-<span class="normal">256</span>
-<span class="normal">257</span>
-<span class="normal">258</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">258</span>
 <span class="normal">259</span>
 <span class="normal">260</span>
 <span class="normal">261</span>
@@ -12615,7 +12655,13 @@ Returns None unless the IR has exactly two channels.</p>
 <span class="normal">269</span>
 <span class="normal">270</span>
 <span class="normal">271</span>
-<span class="normal">272</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">iacc_early</span><span class="p">(</span><span class="n">ir</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">window_ms</span><span class="o">=</span><span class="mf">80.0</span><span class="p">,</span> <span class="n">max_lag_ms</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">iacc_early</span><span class="p">(</span><span class="n">ir</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">window_ms</span><span class="o">=</span><span class="mf">80.0</span><span class="p">,</span> <span class="n">max_lag_ms</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Early interaural cross-correlation of a stereo/binaural IR.</span>
 
 <span class="sd">    IACC_E per ISO 3382-1: the maximum of the normalised cross-correlation</span>
@@ -12674,13 +12720,7 @@ Returns None unless the IR has exactly two channels.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/impulse.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">275</span>
-<span class="normal">276</span>
-<span class="normal">277</span>
-<span class="normal">278</span>
-<span class="normal">279</span>
-<span class="normal">280</span>
-<span class="normal">281</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">281</span>
 <span class="normal">282</span>
 <span class="normal">283</span>
 <span class="normal">284</span>
@@ -12718,7 +12758,13 @@ Returns None unless the IR has exactly two channels.</p>
 <span class="normal">316</span>
 <span class="normal">317</span>
 <span class="normal">318</span>
-<span class="normal">319</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">iacc_e3</span><span class="p">(</span><span class="n">ir</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">window_ms</span><span class="o">=</span><span class="mf">80.0</span><span class="p">,</span> <span class="n">max_lag_ms</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">iacc_e3</span><span class="p">(</span><span class="n">ir</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">window_ms</span><span class="o">=</span><span class="mf">80.0</span><span class="p">,</span> <span class="n">max_lag_ms</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
             <span class="n">centers</span><span class="o">=</span><span class="n">IACC_E3_CENTERS</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Octave-band early IACC and the IACC_E3 average.</span>
 
@@ -12790,13 +12836,7 @@ length <code>len(x) + len(h) − 1</code>.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/impulse.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">324</span>
-<span class="normal">325</span>
-<span class="normal">326</span>
-<span class="normal">327</span>
-<span class="normal">328</span>
-<span class="normal">329</span>
-<span class="normal">330</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">330</span>
 <span class="normal">331</span>
 <span class="normal">332</span>
 <span class="normal">333</span>
@@ -12815,7 +12855,13 @@ length <code>len(x) + len(h) − 1</code>.</p>
 <span class="normal">346</span>
 <span class="normal">347</span>
 <span class="normal">348</span>
-<span class="normal">349</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">partitioned_convolve</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">h</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">partitioned_convolve</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">h</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                          <span class="n">block</span><span class="o">=</span><span class="mi">8192</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Uniformly partitioned FFT convolution (overlap-save, mono in/out).</span>
 
@@ -12876,13 +12922,7 @@ comparable levels. <code>normalize=None</code> keeps the raw convolution.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/impulse.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">352</span>
-<span class="normal">353</span>
-<span class="normal">354</span>
-<span class="normal">355</span>
-<span class="normal">356</span>
-<span class="normal">357</span>
-<span class="normal">358</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">358</span>
 <span class="normal">359</span>
 <span class="normal">360</span>
 <span class="normal">361</span>
@@ -12921,7 +12961,13 @@ comparable levels. <code>normalize=None</code> keeps the raw convolution.</p>
 <span class="normal">394</span>
 <span class="normal">395</span>
 <span class="normal">396</span>
-<span class="normal">397</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">auralize</span><span class="p">(</span><span class="n">dry</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">ir</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs_ir</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">auralize</span><span class="p">(</span><span class="n">dry</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">ir</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs_ir</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
              <span class="n">block</span><span class="o">=</span><span class="mi">8192</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="s2">&quot;match&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convolve dry audio with a room impulse response.</span>
 
@@ -12995,13 +13041,7 @@ float32, rescaled to peak 0.5 (−6 dBFS; the applied gain is logged in
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/impulse.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">402</span>
-<span class="normal">403</span>
-<span class="normal">404</span>
-<span class="normal">405</span>
-<span class="normal">406</span>
-<span class="normal">407</span>
-<span class="normal">408</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">408</span>
 <span class="normal">409</span>
 <span class="normal">410</span>
 <span class="normal">411</span>
@@ -13041,7 +13081,13 @@ float32, rescaled to peak 0.5 (−6 dBFS; the applied gain is logged in
 <span class="normal">445</span>
 <span class="normal">446</span>
 <span class="normal">447</span>
-<span class="normal">448</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">measure</span><span class="p">(</span><span class="n">recording</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">out_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="normal">448</span>
+<span class="normal">449</span>
+<span class="normal">450</span>
+<span class="normal">451</span>
+<span class="normal">452</span>
+<span class="normal">453</span>
+<span class="normal">454</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">measure</span><span class="p">(</span><span class="n">recording</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">out_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">pre_ms</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Full measurement pass: recorded sweep → ir.wav + metrics dict.</span>
 

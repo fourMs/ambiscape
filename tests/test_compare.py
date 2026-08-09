@@ -343,33 +343,3 @@ def test_xnode_panels_are_the_same_width():
 def test_xnode_hours_are_marked_every_four():
     from ambiscape import compare as C
     assert list(C._hour_ticks()) == [0, 4, 8, 12, 16, 20, 24]
-
-
-# ------------------------------------- a flat node cannot be the loudest room
-
-def test_loudest_ignores_a_node_with_no_dynamics_of_its_own():
-    """A node whose level never clears its own floor is not reporting room
-    activity, whatever its absolute level. In the SINS network the bedroom
-    node rose 1.9 dB above its own floor at the 90th percentile, against
-    18-22 dB for rooms in use.
-
-    Per-bin floor clearance does not catch it. A stationary node with a few
-    dropouts has its *estimated* floor pulled down by them, so every ordinary
-    bin clears that floor by ~10 dB and the node reads as permanently in
-    activity. Eligibility has to be judged over the day, and with a statistic
-    the dropouts cannot move — hence the interquartile range.
-    """
-    import numpy as np
-    from ambiscape import compare as C
-    nbin = 96
-    rng = np.random.default_rng(3)
-    live = -55 + 30 * rng.random(nbin)          # a room in use
-    flat = -30 + 0.5 * rng.standard_normal(nbin)   # loud, stationary
-    flat[::10] = -42                            # dropouts drag the floor down
-    A = np.vstack([live, flat])
-    floors = {1: float(np.percentile(live, 5)),
-              2: float(np.percentile(flat, 5))}
-    assert np.median(flat) - floors[2] > 8, "synthetic should clear its floor"
-    won = C.xnode_loudest([1, 2], A, floors_db=floors)
-    assert 2 not in won, "a node with no dynamics of its own won a bin"
-    assert 1 in won, "the live node should still win where it is defensible"

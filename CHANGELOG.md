@@ -18,34 +18,21 @@ been carrying feature work throughout a pre-1.0 life.
   coin toss. In the SINS network node 9's four capsules reached the same
   98th-percentile level within 0.7 dB while channel 0's floor sat 5.5 dB
   higher — analysing channel 0 halved that node's apparent dynamics and
-  pushed its time-at-own-floor from about 75 % to 96 %, which is most of what
-  made it look broken.
+  pushed its time-at-own-floor from about 75 % to 96 %.
 
-### Fixed
-- **`compare.xnode_loudest` no longer awards bins to a node that is not
-  reporting room activity.** A third rule joins the margin and floor rules:
-  a node's loudest bins must rise at least `MIN_NODE_DYNAMICS_DB` (3 dB)
-  above its own median before it can win anything.
+  Run over that corpus it is decisive where it matters and indifferent where
+  it is not: it picks the same channel on every minute of the affected node,
+  and shrugs where capsules agree within 2 dB.
 
-  The floor rule alone did not catch this. A stationary node with occasional
-  dropouts has its *estimated* floor dragged down by them, so every ordinary
-  bin clears that floor by several dB and the node reads as permanently in
-  activity — taking the award whenever the real rooms fall quiet. In the SINS
-  sensor network a bedroom node, whose level reached only 1.9 dB above its
-  own floor at the 90th percentile against 18–22 dB for rooms in use, swept
-  the nights.
-
-  The statistic is the *upper* spread (98th percentile above the median),
-  not a symmetric range: a room can be silent for eleven of twelve bins and
-  still be reporting activity in the twelfth, and a measure of typical
-  variation would disqualify exactly the sparse, eventful rooms the figure
-  exists to show. Dropouts move the lower tail and not the median, so they
-  cannot buy eligibility.
-
-  An ineligible node stays in the comparison — its level is real, and a
-  neighbour must still beat it — but cannot be awarded a bin. Where it is
-  the loudest, the bin goes unmarked, because the question has no defensible
-  answer.
+### Not changed
+- An earlier draft of this release added a third rule to
+  `compare.xnode_loudest`, disqualifying a node whose levels never depart
+  from its own median. It was **withdrawn before release**: it passed its
+  synthetic tests and changed nothing whatever on the corpus that motivated
+  it (135 awarded bins before and after, identically distributed). The
+  premise turned out to be wrong — the node in question does not behave as
+  reported — so the rule solved a problem that had not been shown to exist.
+  The loudest-room rule is unchanged and the underlying question is open.
 
 ## [0.29.0] — 2026-08-09
 

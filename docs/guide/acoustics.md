@@ -28,27 +28,27 @@ each guarding against a failure mode common in field recordings:
 
     | | camera − recorder | 95 % limits of agreement |
     |---|---|---|
-    | **T60** | **+0.02 s** | −1.04 to +1.00 s |
-    | EDT | **+0.24 s** | |
-    | C50 | **−3.6 dB** | |
+    | **T60** | **+0.03 s** | −0.39 to +0.40 s |
+    | EDT | **+0.31 s** | |
+    | C50 | **−4.0 dB** | |
 
     Reverberation time survives the substitution in the median almost
     exactly. The early field does not: the camera reports a slower early
     decay and a room about 3.6 dB less clear than it is.
 
-    **Read the limits, not just the median.** Those T60 limits span two
-    seconds. The camera is *unbiased and imprecise*: a distribution of T60
+    **Read the limits, not just the median.** Those T60 limits span about
+    0.8 s, against a median room of half a second. The camera is *unbiased and imprecise*: a distribution of T60
     computed from camera audio lands where the recorder's would, and any
     single measurement may be far out. Per event the camera falls within the
-    ±20 % usually granted to a clap-derived estimate on 72 % of days. Use
+    ±20 % usually granted to a clap-derived estimate on 77 % of days. Use
     camera audio to populate a distribution; do not use it to certify a room.
 
     **Read the right track** — but for precision, not accuracy. A GoPro MAX
     `.360` carries both a processed stereo AAC mix and a 4-channel PCM
     ambisonic stream, and `ffmpeg` will hand you the stereo one by default.
     On bias the two layers are near-identical (C50 −3.6 dB against −3.8 dB);
-    where they differ is spread, the stereo mix giving T60 limits of −1.80
-    to +1.67 s against the ambisonic stream's −1.04 to +1.00. Note also that
+    where they differ is spread, the stereo mix giving T60 limits of −0.59
+    to +0.53 s against the ambisonic stream's −0.39 to +0.40. Note also that
     the small `.LRV` proxy carries **only** the stereo mix, so it cannot be
     used as a cheap stand-in for ambisonic work.
 

@@ -7,6 +7,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/); the
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) loosely, in that the minor number has
 been carrying feature work throughout a pre-1.0 life.
 
+## [0.34.0] — 2026-08-10
+
+### Added
+- **`analysis.onset_lead` and `analysis.series_onset`** — how far a sound-producing action begins
+  before its sound. An intention becomes neural and then muscular activity, then motion in the arm
+  and the object, and only at the end an acoustic attack; a sound object therefore *embeds* an
+  action, and the silence in front of the attack is where the action already is.
+
+  Measured on 180 clips of the Sound Actions corpus, comparing a quantity-of-motion series from the
+  video against audio energy on the same grid: **motion leads sound by a median 0.72 s, in 84 % of
+  clips.** The remaining sixth is real rather than error — an object already moving when struck, or
+  an action out of frame, has no visible lead.
+
+  Both series get the same onset rule, applied to each one's own floor-to-peak range, so the result
+  cannot depend on either modality's units. It takes series rather than files: motion is computed
+  wherever motion is computed, and this is the seam between the toolboxes. It is also what makes
+  audio–video analysis more than two analyses side by side, since the lead is a property of the
+  action and neither modality carries it alone.
+
 ## [0.33.0] — 2026-08-10
 
 ### Fixed

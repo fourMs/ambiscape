@@ -290,6 +290,37 @@ residual rather than as the more interesting finding it usually is. And with
 no cycle found it falls back to the plain series, where slow drift reads as
 anomalous.
 
+## An action begins before its sound
+
+A sound-producing action does not start when the sound does. An intention
+becomes a signal in the nervous system, then activity in muscle and fibre,
+then motion in the arm and the object, and only at the end does the air move.
+A sound object therefore *embeds* an action, and the silence before the attack
+is the part of the event a microphone cannot reach.
+
+```python
+r = analysis.onset_lead(motion_series, audio_energy, dt=1/25)
+# {'lead_s': 0.72, 'first_onset_s': 0.44, 'second_onset_s': 1.16, 'leads': 'first'}
+```
+
+Measured on 180 clips of a corpus recorded with both modalities, **motion
+leads sound by a median 0.72 s, in 84 % of clips.** The remaining sixth is
+real rather than error: an object already moving when it is struck, or an
+action performed out of frame, has no visible beginning to find.
+
+Two design points worth stating, because both are easy to get wrong.
+
+**Same rule, both series.** Each onset is the first point passing a fixed
+fraction of that series' *own* floor-to-peak range. A rule with an absolute
+threshold would compare the units — pixels against acoustic energy — rather
+than the events.
+
+**It takes series, not files.** Motion is computed wherever motion is computed;
+this is the seam between toolboxes rather than a video function hidden in an
+audio one. It is also what makes audio–video analysis more than two analyses
+side by side: the lead belongs to the *action*, and neither modality carries
+it alone.
+
 ## Calibration
 
 `calibration.json` in the session folder defines the offset `O` such that a

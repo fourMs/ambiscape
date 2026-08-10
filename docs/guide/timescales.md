@@ -24,9 +24,9 @@ still be the wrong kind of evidence for the claim being made of it.
 Every descriptor that reaches `summary.json` passes through
 `resolve.full_summary`, which checks it against the window it needs:
 
-- below a **hard** window the value becomes `None`, because below it the
+- below a *hard* window the value becomes `None`, because below it the
   quantity does not exist;
-- below a **soft** window the value is kept and the key is listed in
+- below a *soft* window the value is kept and the key is listed in
   `low_confidence`, with the window it needed and the window it had.
 
 ```json
@@ -53,7 +53,7 @@ ambiscape timescales --csv        # for a report
 ambiscape timescales --figure timescales.png
 ```
 
-Each window records whether it was **measured** or **asserted**. Some
+Each window records whether it was *measured* or *asserted*. Some
 bounds were established on this project's own material; others are honest
 judgement — machine periodicity "needs hours" rests on its not having
 converged by six minutes, which is weaker than a measurement. Ten of the

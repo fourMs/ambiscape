@@ -60,7 +60,7 @@ clock-of-day readings, by construction, mean nothing for these takes.
 
 For each clip, the audio is band-passed to the corpus DOA band (80–3000 Hz)
 and the pseudo-intensity azimuth is taken per 100 ms frame — the label grid.
-On every frame labelled with **exactly one** active source, the signed
+On every frame labelled with *exactly one* active source, the signed
 circular difference between estimated and labelled azimuth is recorded.
 
 Multi-source frames are excluded by design, not for convenience: the energy

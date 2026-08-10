@@ -19,7 +19,7 @@ None was a coding error. Each was a *translation* nobody had written down.
 `ambiscape.grounding` writes it down. It is the companion to
 [`ambiscape.timescales`](timescales.md) and deliberately the same shape: a
 registry, a check, and a list of what is not yet covered. Where the timescale
-registry answers **over how long is this valid**, this one answers **what is it
+registry answers *over how long is this valid*, this one answers **what is it
 evidence about**.
 
 ## The four tiers
@@ -31,7 +31,7 @@ evidence about**.
 | `PC` | **perceptually calibrated** — the transform embeds a measured property of hearing | "this is weighted the way ears are". Still not a report of what anyone heard |
 | `PD` | **perceptually defined** — the quantity only exists as a fact about a listener | nothing, without a listener. The number is evidence about the *proxy* until somebody asks one |
 
-Current coverage is all **71** descriptors the toolbox emits:
+Current coverage is all *71* descriptors the toolbox emits:
 
 | `S` | `PM` | `PC` | `PD` |
 |---|---|---|---|
@@ -78,7 +78,7 @@ fg_fraction_median: figure and ground are a relation between a sound and a
 On a full summary, where all five perceptually-defined descriptors are
 present, all five are named and the tally reads `19`.
 
-`check` raises a caution for every `PD` quantity present and **counts** the
+`check` raises a caution for every `PD` quantity present and *counts* the
 `PM` ones without itemising them. That asymmetry is deliberate: there are
 nineteen `PM` descriptors, and a warning that fires on all of them every time
 is a warning nobody reads.
@@ -139,7 +139,7 @@ argue with.
 
 ## What this does not cover
 
-The registry covers the **session summary**. It does not yet reach:
+The registry covers the *session summary*. It does not yet reach:
 
 - **object-level typing.** `object_facture` returns "impulsive", "sustained" or
   "iterative" — Schaeffer's categories, which are perceptual by definition and

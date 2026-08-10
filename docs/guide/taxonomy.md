@@ -29,11 +29,11 @@ soundscape ecology. Nothing about the first determines the second or the third.
 
 The two questions are also asked of different lengths of sound, and this matters more than it looks.
 
-A Schafer **keynote** is a level that persists. The ventilation bed, the motorway a valley away, the
+A Schafer *keynote* is a level that persists. The ventilation bed, the motorway a valley away, the
 refrigerator: minutes to hours of ground, heard as the condition of a place rather than as anything
 happening in it. One does not attend to a keynote; one notices it when it stops.
 
-A Schaeffer **sound object** is what the ear can hold whole in a single act of attention. In the
+A Schaeffer *sound object* is what the ear can hold whole in a single act of attention. In the
 *Traité* that horizon runs from roughly half a second to about five seconds. Shorter than that and
 there is no shape to hear, only a mark; longer and attention stops holding the whole and begins to
 follow a texture instead. A door closing, a kettle's rattle, one stroke of a bell: these are sound
@@ -71,7 +71,7 @@ sustained on a continuous axis rather than in categories: an impulse lands
 near 0.04 and a held sound near 0.49, so two objects of the same facture
 can still be told apart.
 
-These are **meso-band** descriptors in the sense of the
+These are *meso-band* descriptors in the sense of the
 [timescales guide](timescales.md): each is defined on a single object of
 roughly 0.2–8 s and none needs a minute of audio. That matters for clip
 corpora, where the session-scale descriptors return almost nothing.
@@ -185,8 +185,8 @@ are read off it, both deliberately blind to overall spectral tilt, since brightn
 | otherwise | `complex` — energy in one or a few narrow regions, none of them a pitch |
 
 **Facture** comes from the object's own amplitude envelope, the 20 ms broadband envelope of the
-feature cache. Two numbers again: the **attack time**, the conventional 10-to-90 per cent rise
-towards the peak, and the **iteration strength**, the normalised envelope autocorrelation at its best
+feature cache. Two numbers again: the *attack time*, the conventional 10-to-90 per cent rise
+towards the peak, and the *iteration strength*, the normalised envelope autocorrelation at its best
 repetition lag between 3 and 20 Hz — a single attack and decay has a monotonically falling
 autocorrelation and scores nothing, while a rattle, roll or grain scores at its own period.
 
@@ -254,7 +254,7 @@ render exactly as without the option.
 
 ### The activity-first timeline
 
-With activities present the timeline inverts, by default, into the **activity-first layout**: the
+With activities present the timeline inverts, by default, into the *activity-first layout*: the
 human activities become the organising structure, not an overlay on the acoustic one. Each activity
 class gets a lane of its own, ordered by total time (longest first), with classes under ~0.5% of the
 session's labelled time pooled into an `other` lane at the bottom of the block. Each span's fill is
@@ -294,7 +294,7 @@ kind, with the class colours shared with the timeline ribbon's legend, and point
 the plane a household activity fills: dishwashing lands in impulse and noise, watching television
 fills the sustained column at every mass.
 
-The two provenances are never conflated. The activities are **data** — human annotations shipped
+The two provenances are never conflated. The activities are *data* — human annotations shipped
 with the dataset, attributed in the caption (`activities: human annotations, Dekkers et al. 2017`) —
 while mass/facture, the level measurements and the bed structure remain machine output: the beds
 keep their "listen to confirm" marking, and the acoustic summaries are measured, not judged. Note

@@ -22,7 +22,7 @@ default 0.5.) The command writes three files:
 
 - `sweep.wav` — the exponential sweep, equal time per octave, with
   raised-cosine fades (100 ms in, 20 ms out) so the loudspeaker is not
-  stepped, at peak **−6 dBFS** (`--amplitude 0.5`). The headroom is
+  stepped, at peak *−6 dBFS* (`--amplitude 0.5`). The headroom is
   deliberate: playback chains have bass boosts and resonances, and a sweep
   that clips anywhere in the chain injects distortion the method can no
   longer separate out.
@@ -72,7 +72,7 @@ level-invariant). Alongside it, `impulse.json` holds:
     !!! warning "STI assumptions"
         The indirect method assumes the measurement chain is noise-free
         and the room linear and time-invariant. No ambient-noise or
-        masking correction is applied, so the value is an **upper bound**
+        masking correction is applied, so the value is an *upper bound*
         describing reverberant smearing only — an occupied or noisy room
         will have a lower effective STI. Treat it as a room descriptor,
         not an occupancy-condition prediction.

@@ -66,13 +66,13 @@ ambiscape network house
 
 ## Reading the graph
 
-- A **strong edge with near-zero lag** usually means a shared source
+- A *strong edge with near-zero lag* usually means a shared source
   (ventilation plant, street noise reaching both windows) rather than
   transmission from room to room.
-- A **strong edge with a stable lag** points at a propagation or
+- A *strong edge with a stable lag* points at a propagation or
   causation path: the kitchen's activity heard in the hall half a second
   later, morning after morning.
-- The **hub** is the room acoustically closest to everything — often the
+- The *hub* is the room acoustically closest to everything — often the
   circulation space. If the hub changes by hour, the house has different
   acoustic centres by day and night.
 - **Density over the day** is a one-line occupancy signature of the whole

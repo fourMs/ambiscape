@@ -1,7 +1,7 @@
 # Perceptual survey (ISO 12913-2)
 
 Everything else in the toolbox measures a soundscape; the `survey` command
-asks people. It ingests ISO 12913-2 **Method A** questionnaire responses —
+asks people. It ingests ISO 12913-2 *Method A* questionnaire responses —
 the eight perceived affective qualities *pleasant, chaotic, vibrant,
 uneventful, calm, annoying, eventful, monotonous* — and projects them onto
 the ISO/TS 12913-3 two-dimensional circumplex:
@@ -36,7 +36,7 @@ One row per respondent; the eight scale names as columns
 within 1–5 read as the printed 5-point Likert form, anything larger as
 the 0–100 digital slider — both normalise to the same circumplex. A
 `respondent`/`participant`/`id`/`subject` column (if present) names the
-rows; **extra columns** such as appropriateness or loudness ratings ride
+rows; *extra columns* such as appropriateness or loudness ratings ride
 along into `survey.json`, with numeric ones averaged into the summary.
 Rows with a missing scale value are skipped and counted.
 

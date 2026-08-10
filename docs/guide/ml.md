@@ -42,11 +42,11 @@ failure, so it slots into scripts.
     silero applies a fixed probability threshold to whatever level reaches
     it, so before 0.29.0 the result was a function of recording gain as much
     as of speech. The same minute of a real recording measured 0.513 speech
-    at unity gain, 0.289 at −12 dB, 0.110 at −24 dB and **0.000 at −30 dB**.
+    at unity gain, 0.289 at −12 dB, 0.110 at −24 dB and *0.000 at −30 dB*.
 
     `speech_fraction` now scales its input to a fixed RMS first, and that
     minute reads 0.537 at all four gains. Anything that compared speech
-    fractions **between** recorders before 0.29.0 was comparing their gains
+    fractions *between* recorders before 0.29.0 was comparing their gains
     too, and should be recomputed; a single recorder against itself over
     time is far less affected. `normalize=False` reproduces the old numbers.
 

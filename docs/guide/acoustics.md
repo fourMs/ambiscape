@@ -24,7 +24,7 @@ each guarding against a failure mode common in field recordings:
     Measured over a full year: a GoPro MAX and a Zoom H3-VR recording the
     same room and the same clap, 369 paired events, aligned by envelope
     cross-correlation and each window verified to contain a transient before
-    it was measured. Reading the camera's **4-channel PCM ambisonic** track:
+    it was measured. Reading the camera's *4-channel PCM ambisonic* track:
 
     | | camera − recorder | 95 % limits of agreement |
     |---|---|---|
@@ -49,14 +49,14 @@ each guarding against a failure mode common in field recordings:
     On bias the two layers are near-identical (C50 −3.6 dB against −3.8 dB);
     where they differ is spread, the stereo mix giving T60 limits of −0.59
     to +0.53 s against the ambisonic stream's −0.39 to +0.40. Note also that
-    the small `.LRV` proxy carries **only** the stereo mix, so it cannot be
+    the small `.LRV` proxy carries *only* the stereo mix, so it cannot be
     used as a cheap stand-in for ambisonic work.
 
     *Corrected 2026-08-09.* This box previously said that "roughly half the
     apparent clarity deficit is the convenience track", from EDT +0.24 s and
     C50 −5.5 dB on the stereo track over 7 days. That was two artefacts, not
     a finding: the windows were cut from an alignment rather than from the
-    transient, and the stereo layer was measured on its **left channel**
+    transient, and the stereo layer was measured on its *left channel*
     while the ambisonic layers were measured on W. A directional channel
     collects a different share of the direct sound, which is exactly what
     C50 measures. Measured on the mid signal (L+R)/2, with windows centred
@@ -164,7 +164,7 @@ Three parts, and the third is the one usually skipped:
     that is precisely wrong: they are steady for minutes at a time and they
     are usually the thing being studied.
 
-    What separates them from the recorder is that **they turn off**. Self-noise
+    What separates them from the recorder is that *they turn off*. Self-noise
     does not. `steady_sources` uses that:
 
     ```python
@@ -421,10 +421,10 @@ MoSQITo (≤ 1.2.x) offers no fluctuation strength, and no standard exists
 for it, so `iso.fluctuation_strength` implements the Fastl & Zwicker
 envelope-modulation model in spirit: per Zwicker critical band, the
 < 32 Hz envelope level depth ΔL is weighted by the band-pass
-modulation-frequency weighting that peaks at **4 Hz** (the slow wobble
+modulation-frequency weighting that peaks at *4 Hz* (the slow wobble
 sitting between level drift and roughness) and by the coherence of the
 dominant modulation, then summed over Bark bands and scaled so the classic
-reference — a 1 kHz tone, 100 % AM at 4 Hz — reads **1 vacil**. Treat
+reference — a 1 kHz tone, 100 % AM at 4 Hz — reads *1 vacil*. Treat
 absolute values as indicative and same-pipeline comparisons as the
 meaningful output; masking-based depth and level dependence are
 simplified. It is pure numpy/scipy (no `[iso]` extra needed on its own)

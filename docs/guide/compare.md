@@ -62,7 +62,7 @@ plus a loudest-room strip from per-node full-day 1 Hz level arrays:
   takes) render as neutral grey, never as a colour of their own.
 - **Loudest-room strip** — a bin is awarded to a node only when *both*
   rules hold, and stays empty otherwise:
-    1. *Margin rule*: the node's **level** beats every other node's by more
+    1. *Margin rule*: the node's *level* beats every other node's by more
        than `margin_db` (default 3 dB), after subtracting the per-node gain
        offsets in `gain_offsets_db`. Uncalibrated nodes differ by sensor
        gain, so a fractional-dB "win" says nothing about the sound —

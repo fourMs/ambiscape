@@ -35,7 +35,7 @@ Foreground/background splits use energy quartiles (loudest vs quietest
 The conventions are frozen (matching the Intercontinental-database
 reports), so that rows stay comparable across studies:
 
-- **Leq, LAeq** (energy means of the fast level), **LAeq trimmed** (the
+- **Leq, LAeq** (energy means of the fast level), *LAeq trimmed* (the
   same A-weighted energy mean with the loudest 5 % of frames discarded,
   `laeq_trim5_dbfs`), L10/L50/L90 exceedance percentiles, dynamics
   L10−L90;
@@ -120,7 +120,7 @@ octave band centred at 2 kHz and above: the session is cut into 300 s
 chunks, each chunk's 10th-percentile band level is its floor, and the
 temporal spread is taken as the median minus the 5th-percentile chunk
 floor — a low-tail statistic, so chunks whose floor is raised by activity
-do not hide a pinned quiet-time floor. A spread under **1.5 dB** flags the
+do not hide a pinned quiet-time floor. A spread under *1.5 dB* flags the
 band: the threshold sits between the SINS self-noise band (≤ 0.8 dB) and
 the quietest genuinely acoustic bands there (≥ 2.4 dB), with at least
 0.7 dB of margin to each side. `summary.json` gains `floor_suspect`
@@ -143,7 +143,7 @@ separate "this band is the instrument" from "this room was empty all week".
 `analysis.floor_occupancy` asks the second question: what fraction of the
 session sits within a few dB of that session's own floor. Across the SINS
 network the living-room and kitchen nodes read 0.28–0.56 while the bedroom
-node reads **0.96**, a median of 0.4 dB above its own floor against 2.4–9.8
+node reads *0.96*, a median of 0.4 dB above its own floor against 2.4–9.8
 dB for rooms in use.
 
 That is a description of how a room is used, not a fault in the recorder —

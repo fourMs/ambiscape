@@ -441,27 +441,60 @@ def cycle_band(period_s: float) -> str:
     return "micro" if period_s < 0.5 else "archival"
 
 
-def _full_acf(level_db):
-    """Normalised autocorrelation at every lag, by FFT.
-
-    Sampling a log grid of candidate periods does not work here, and the
-    reason is worth stating: an autocorrelation peak can be far narrower
-    than the grid. With a fridge cycling inside a day, a lag 1.4 % away
-    from 24 h is half a fridge cycle out, which decorrelates that component
-    completely — so the day's true peak of 0.83 reads as 0.25 a few hundred
-    seconds to either side, and a 3 % grid steps straight over it. Computing
-    every lag removes the problem and costs one FFT.
-    """
-    x = np.asarray(level_db, float)
-    ok = np.isfinite(x)
-    if ok.sum() < 8:
-        return np.array([])
-    x = np.where(ok, x, np.nanmean(x[ok]))
-    x = x - x.mean()
+def _full_acf(x):
+    """Normalised autocorrelation at every lag, by FFT."""
+    x = np.asarray(x, float)
     n = len(x)
+    if n < 8:
+        return np.array([])
+    x = x - x.mean()
     fft = np.fft.rfft(x, 2 * n)
     acf = np.fft.irfft(fft * np.conj(fft), 2 * n)[:n]
     return acf / acf[0] if acf[0] > 0 else np.zeros(n)
+
+
+def _prepare(level_db):
+    x = np.asarray(level_db, float)
+    ok = np.isfinite(x)
+    if ok.sum() < 8:
+        return None
+    return np.where(ok, x, np.nanmean(x[ok]))
+
+
+def _smooth(x, n):
+    if n < 2:
+        return x
+    k = np.ones(int(n)) / float(int(n))
+    return np.convolve(x, k, mode="same")
+
+
+def _scaled_acf(x, dt, lo_lag, hi_lag):
+    """Autocorrelation evaluated at the scale of the period being asked about.
+
+    A cycle is only visible in a series that has been looked at from far
+    enough away. A day-long rhythm inside a room's minute-to-minute
+    fluctuation explains a small share of the total variance, so a raw
+    autocorrelation scores it near 0.15 and any sane threshold discards it —
+    even though the shape is textbook, negative at twelve hours and positive
+    at twenty-four.
+
+    So the series is smoothed to roughly an eighth of the period before its
+    autocorrelation is read, one octave of periods at a time. This is the
+    same principle the rest of this module keeps running into: the answer
+    depends on the window, and the window has to be chosen to suit the
+    question rather than left at whatever the recording happened to give.
+    """
+    out = np.zeros(hi_lag + 1)
+    lag = max(1, lo_lag)
+    while lag <= hi_lag:
+        top = min(hi_lag, lag * 2)
+        acf = _full_acf(_smooth(x, max(1, lag // 8)))
+        if len(acf):
+            hi = min(top, len(acf) - 1)
+            if hi >= lag:
+                out[lag:hi + 1] = acf[lag:hi + 1]
+        lag = top + 1
+    return out
 
 
 def cycle_spectrum(level_db, dt: float, min_period_s: float = 60.0,
@@ -475,22 +508,35 @@ def cycle_spectrum(level_db, dt: float, min_period_s: float = 60.0,
     periodicity, asked at every timescale at once, and the period that
     answers it also names the thing.
 
-    Returns ``(periods_s, strength)`` with strength in 0–1, sampled onto a
-    log grid for reporting — each grid point carrying the *strongest* lag in
-    its bin, so a sharp peak survives being summarised. `nan` samples are
-    tolerated, since recordings have gaps.
+    Each period is judged on a version of the series smoothed to suit it —
+    see :func:`_scaled_acf`. Returns ``(periods_s, strength)`` in 0–1, log
+    spaced, each grid point carrying the strongest lag in its bin so a sharp
+    peak survives being summarised. `nan` samples are tolerated.
+
+    .. warning::
+       **Validated at the ``cyclic`` band; provisional above it.** On real
+       recordings this reliably recovers machinery — two rooms of a domestic
+       network agreeing on a 62-minute cycle. At ``circadian`` and longer it
+       is not yet trustworthy: over six days of real data it returned a
+       48-hour harmonic rather than the 24-hour fundamental, and a spurious
+       two-hour peak on a dead channel. Six days is five repetitions of a
+       daily cycle, which is thin, and the estimate is sensitive to how the
+       series is smoothed. Treat any period beyond a few hours as a
+       hypothesis to check by other means, and prefer a direct test — how a
+       quantity varies by hour of day — for anything circadian.
 
     Working on the level series rather than the waveform is deliberate. What
     repeats at these scales is loudness, not pressure, and the level series
     survives coding, resampling and even a change of recorder.
     """
-    acf = _full_acf(level_db)
-    if not len(acf):
+    x = _prepare(level_db)
+    if x is None:
         return np.array([]), np.array([])
     lo = max(min_period_s, 2 * dt)
-    hi = min(max_period_s, len(acf) * dt / 2.5)
+    hi = min(max_period_s, len(x) * dt / 2.5)
     if hi <= lo:
         return np.array([]), np.array([])
+    acf = _scaled_acf(x, dt, int(lo / dt), int(hi / dt))
     edges = np.geomspace(lo, hi, n_periods + 1)
     periods, strength = [], []
     for a, b in zip(edges[:-1], edges[1:]):
@@ -528,13 +574,14 @@ def dominant_cycles(level_db, dt: float, min_period_s: float = 60.0,
     shorter period is dropped. The bound matters: a day is 32 fridge cycles
     long and is emphatically its own thing.
     """
-    acf = _full_acf(level_db)
-    if not len(acf):
+    x = _prepare(level_db)
+    if x is None:
         return []
     lo_lag = max(1, int(max(min_period_s, 2 * dt) / dt))
-    hi_lag = min(len(acf) - 1, int(min(max_period_s, len(acf) * dt / 2.5) / dt))
+    hi_lag = min(len(x) - 1, int(min(max_period_s, len(x) * dt / 2.5) / dt))
     if hi_lag <= lo_lag + 2:
         return []
+    acf = _scaled_acf(x, dt, lo_lag, hi_lag)
 
     peaks = []
     for i in range(lo_lag + 1, hi_lag):

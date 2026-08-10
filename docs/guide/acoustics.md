@@ -230,11 +230,27 @@ without any calibration: the living room and the kitchen both carry a
 62-minute cycle, and the noise-dominated nodes are stationary at every scale.
 **A node with no rhythm has nothing in it but its own electronics.**
 
+!!! warning "Validated for machinery; provisional for anything daily"
+
+    On real recordings `dominant_cycles` reliably finds machinery — two rooms
+    of a domestic network agreeing on a 62-minute cycle. **At `circadian` and
+    longer it is not yet trustworthy.** Over six days of real data it returned
+    a 48-hour harmonic instead of the 24-hour fundamental, and a spurious
+    two-hour peak on a dead channel; six days is only five repetitions of a
+    daily cycle, and the estimate moves with how the series is smoothed.
+
+    For anything circadian, prefer a direct test — how the quantity varies by
+    hour of day — and treat a long period from this function as a hypothesis
+    rather than a finding.
+
 !!! warning "The instrument has a rhythm too"
 
     Periodicity alone does not mean "this is the room". A converter warms and
-    cools with the building, so a *dead channel* still shows a clean 24-hour
-    cycle. What distinguishes a household is that it also leaves faster marks
+    cools with the building, so a *dead channel* still varies across the day:
+    in the corpus behind this, the dead node cleared its own floor in 8 % of
+    night hours, 83 % of midday hours and 17 % of evening hours — the
+    opposite phase to a household, which peaks in the evening. (That comes
+    from the by-hour test, not from `dominant_cycles`; see the caution above.) What distinguishes a household is that it also leaves faster marks
     — a kettle, a shower, a fridge — which is what `cycle_profile` reports as
     `has_sub_daily_cycle`. A diurnal rhythm with nothing underneath it is an
     instrument breathing, not a home.

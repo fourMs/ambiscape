@@ -61,7 +61,7 @@ def test_windows_declare_their_provenance():
 
 def test_bands_are_contiguous_and_ordered():
     lo = 0.0
-    for name in ("micro", "meso", "macro"):
+    for name in ts.BANDS:          # every rung, however many there are now
         b = ts.BANDS[name]
         assert b["t_lo"] == lo, f"{name} does not start where the last ended"
         lo = b["t_hi"]
@@ -71,7 +71,11 @@ def test_bands_are_contiguous_and_ordered():
 def test_band_of():
     assert ts.band_of(0.1) == "micro"
     assert ts.band_of(1.0) == "meso"        # the sound object, and meso motion
-    assert ts.band_of(3600.0) == "macro"
+    assert ts.band_of(60.0) == "macro"
+    # the ladder reaches past a day now: an hour is a building's rhythm,
+    # not the same kind of thing as a minute
+    assert ts.band_of(3600.0) == "cyclic"
+    assert ts.band_of(24 * 3600.0) == "circadian"
 
 
 # ------------------------------------------------------------------ guard

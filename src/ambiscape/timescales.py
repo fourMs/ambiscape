@@ -53,9 +53,35 @@ BANDS = {
         "memory": "short-term / working",
     },
     "macro": {
-        "t_lo": 5.0, "t_hi": float("inf"),
+        "t_lo": 5.0, "t_hi": 600.0,
         "space_body": "> 1 m", "space_room": "the room, the building",
         "memory": "long-term",
+    },
+    # Above `macro` the ladder used to stop, which put a thirty-second
+    # descriptor and a three-hour one in the same category and left no way to
+    # say "this is a circadian quantity". The bands below are where a
+    # building's own rhythms live: machinery turns over in tens of minutes, a
+    # household in a day, heating across a season. They are the scales at
+    # which a room is a process rather than a place.
+    "cyclic": {
+        "t_lo": 600.0, "t_hi": 6 * 3600.0,
+        "space_body": "beyond the body", "space_room": "the building's plant",
+        "memory": "episodic",
+    },
+    "circadian": {
+        "t_lo": 6 * 3600.0, "t_hi": 3 * 86400.0,
+        "space_body": "the day's movements", "space_room": "the dwelling in use",
+        "memory": "episodic / autobiographical",
+    },
+    "seasonal": {
+        "t_lo": 3 * 86400.0, "t_hi": 365 * 86400.0,
+        "space_body": "habit and routine", "space_room": "the building and its climate",
+        "memory": "autobiographical",
+    },
+    "archival": {
+        "t_lo": 365 * 86400.0, "t_hi": float("inf"),
+        "space_body": "a life", "space_room": "the building's own lifetime",
+        "memory": "documentary — outside the body",
     },
 }
 
@@ -406,7 +432,9 @@ def figure(out_path, dpi: int = 150):
     lo, hi = 1e-3, 3.2e7
     fig, ax = plt.subplots(figsize=(11.0, 6.4), dpi=dpi)
 
-    band_col = {"micro": "#eef2f7", "meso": "#dbe6f0", "macro": "#eef2f7"}
+    # alternating tints so a new band cannot render as a missing key
+    _tints = ("#eef2f7", "#dbe6f0")
+    band_col = {n: _tints[i % 2] for i, n in enumerate(BANDS)}
     for name, b in BANDS.items():
         a, z = max(b["t_lo"], lo), min(b["t_hi"], hi)
         if z <= a:

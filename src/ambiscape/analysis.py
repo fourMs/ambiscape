@@ -419,26 +419,20 @@ def steady_sources(level_db, dt: float, short_s: float = 120.0,
     }
 
 
-# Where a period places a thing. The bands above `macro` are the ones the
-# descriptor registry does not yet carry, and they are the ones that matter
-# for telling a machine from a household from a season.
-CYCLE_BANDS = (
-    ("meso", 0.5, 5.0),
-    ("macro", 5.0, 600.0),
-    ("cyclic", 600.0, 6 * 3600.0),          # machinery, a meal, a rehearsal
-    ("circadian", 6 * 3600.0, 3 * 86400.0),  # the household's day
-    ("seasonal", 3 * 86400.0, 365 * 86400.0),
-    ("archival", 365 * 86400.0, float("inf")),
-)
+# One ladder for the whole toolbox: the descriptor registry's bands, which
+# now reach past a day. Two sets of timescale names in one library is a
+# contradiction waiting to happen.
 CYCLE_MIN_STRENGTH = 0.25
 
 
 def cycle_band(period_s: float) -> str:
-    """Which rung of the ladder a period sits on."""
-    for name, lo, hi in CYCLE_BANDS:
-        if lo <= period_s < hi:
-            return name
-    return "micro" if period_s < 0.5 else "archival"
+    """Which rung of the ladder a period sits on.
+
+    Delegates to the descriptor registry so that a period and a descriptor
+    window are named by the same scheme.
+    """
+    from .timescales import band_of
+    return band_of(period_s)
 
 
 def _full_acf(x):

@@ -501,3 +501,46 @@ def cell_counts(objects: list) -> dict:
             continue
         out[key] = out.get(key, 0) + 1
     return out
+
+def profile_clips(folder, verbose: bool = False) -> list[dict]:
+    """Profile every clip in a folder as one sound object each.
+
+    A corpus of short clips is the case the session-scale descriptors cannot
+    serve: almost everything in a session summary needs a minute of audio and
+    returns ``None`` for a six-second recording. Here each clip is taken whole
+    as one object and given the meso-band descriptors --- the envelope set
+    from :func:`object_profile` and the spectral set from
+    :func:`object_spectrum`.
+
+    Taking the clip whole is the assumption to be aware of. It is right for a
+    corpus of single actions, each recorded deliberately, and wrong for a clip
+    that happens to contain three events; for those, run
+    :func:`extract_objects` over a session instead and let the detector find
+    the boundaries.
+
+    Returns one dict per clip, in sorted filename order, each carrying
+    ``clip`` and the two descriptor sets. ``n_frames`` will be small --- the
+    cached log spectrogram has one row per second, so a six-second clip gives
+    six --- and the spectral fields should be read as indicative below about
+    five.
+    """
+    from .features import extract_take
+    from .io import open_clips
+    sess = open_clips(folder)
+    out = []
+    for tk in sess.takes:
+        try:
+            F = extract_take(tk)
+        except Exception as e:                                   # noqa: BLE001
+            if verbose:
+                print(f"  {tk.path.name}: unreadable ({e})")
+            continue
+        env = np.sqrt(np.asarray(F["env_hi"], float))
+        row = {"clip": tk.path.name}
+        row.update(object_profile(env, float(F["hi_dt"]),
+                                  logspec=F.get("logspec"),
+                                  logf=F.get("logf")))
+        out.append(row)
+        if verbose:
+            print(f"  {tk.path.name}: {row.get('duration_s')} s")
+    return out

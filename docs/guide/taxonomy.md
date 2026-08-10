@@ -99,6 +99,21 @@ all (39.5 per second against 39.7, p = 0.56) and nor does brightness. Use
 them to describe an object and to compare objects; use `object_facture` to
 type one.
 
+### A whole corpus of clips
+
+```
+ambiscape objects <folder>          # -> <folder>/objects.csv, a row per clip
+```
+
+Each clip is taken whole as one object and given both descriptor sets. That
+assumption is right for a corpus of single deliberate actions and wrong for a
+clip holding three events; for those, run `extract_objects` over a session and
+let the detector find the boundaries.
+
+The cached log spectrogram has one row per second, so a six-second clip gives
+six and the command says how many clips fell under five rows. `open_clips`
+skips and names a file it cannot read rather than failing the batch.
+
 These are *meso-band* descriptors in the sense of the
 [timescales guide](timescales.md): each is defined on a single object of
 roughly 0.2–8 s and none needs a minute of audio. That matters for clip

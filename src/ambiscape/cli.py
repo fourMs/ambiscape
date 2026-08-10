@@ -47,6 +47,15 @@ def main(argv=None):
                          "objects, in seconds (default 0.2 8): detected "
                          "events outside it are counted in the caption but "
                          "are not objects")
+    ob = sub.add_parser("objects",
+                        help="profile every clip in a folder as one sound "
+                             "object (meso-band descriptors; the session "
+                             "descriptors need a minute and return nothing "
+                             "on clips)")
+    ob.add_argument("folder")
+    ob.add_argument("-o", "--out", default=None, metavar="CSV",
+                    help="write a row per clip (default <folder>/objects.csv)")
+
     dr = sub.add_parser("draft",
                         help="pre-fill annotations.draft.json from detected "
                              "states and events (needs a prior analyze run)")
@@ -1341,6 +1350,26 @@ def main(argv=None):
                        object_window=args.object_window)
         for p in paths:
             print(f"wrote {p}")
+        return 0
+
+    if args.cmd == "objects":
+        import csv as _csv
+        from .objects import profile_clips
+        rows = profile_clips(args.folder, verbose=True)
+        if not rows:
+            print("no readable clips found")
+            return 1
+        out = Path(args.out or Path(args.folder) / "objects.csv")
+        keys = list(dict.fromkeys(k for r in rows for k in r))
+        with open(out, "w", newline="") as fh:
+            w = _csv.DictWriter(fh, fieldnames=keys, lineterminator="\n")
+            w.writeheader()
+            w.writerows(rows)
+        few = sum(1 for r in rows if (r.get("n_frames") or 0) < 5)
+        print(f"wrote {out} ({len(rows)} clips)")
+        if few:
+            print(f"  note: {few} clip(s) gave under five spectrogram rows; "
+                  f"their spectral fields are indicative only")
         return 0
 
     from .io import open_session

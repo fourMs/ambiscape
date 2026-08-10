@@ -376,8 +376,15 @@ def open_clips(folder: str | Path) -> Session:
         raise FileNotFoundError(f"no audio files in {folder}")
     sess = Session(folder=folder, day0=_dt.date(1970, 1, 1))
     cursor = 0.0
+    skipped = []
     for p in paths:
-        m = _probe_recording(p)
+        try:
+            m = _probe_recording(p)
+        except Exception as e:                                   # noqa: BLE001
+            # a corpus folder is a batch, and one unreadable member should
+            # not cost the other 364. Named, not swallowed.
+            skipped.append((p.name, e))
+            continue
         info = m["info"]
         c = int(cursor)
         sess.takes.append(Take(
@@ -388,6 +395,15 @@ def open_clips(folder: str | Path) -> Session:
             clock=f"{c // 3600:02d}:{c % 3600 // 60:02d}:{c % 60:02d}",
             order=m["order"], mode=channel_mode(info.channels)))
         cursor = sess.takes[-1].end
+    if skipped:
+        names = ", ".join(n for n, _ in skipped[:5])
+        more = f" and {len(skipped) - 5} more" if len(skipped) > 5 else ""
+        print(f"open_clips: skipped {len(skipped)} unreadable file(s): "
+              f"{names}{more}")
+    if not sess.takes:
+        raise FileNotFoundError(
+            f"no readable audio in {folder} "
+            f"({len(skipped)} file(s) could not be opened)")
     return sess
 
 

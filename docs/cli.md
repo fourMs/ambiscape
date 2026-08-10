@@ -12,6 +12,7 @@ Every command works on a *session*—a folder of WAV files on one absolute clock
 | `ambiscape taxonomy <session>` | Render the Schaeffer map and Schafer timeline from `annotations.json`. |
 | `ambiscape resolve <session>` | Per-state descriptors: split by machine on/off (`--by machine`) or day/night (`--by diel`) (*cache*). |
 | `ambiscape scenes <folder>` | Analyse each WAV in a folder as an independent one-off scene. |
+| `ambiscape objects <folder>` | Profile every clip in a folder as one sound object: envelope and spectral morphology, one CSV row per clip. |
 
 See [Sessions & conventions](guide/sessions.md), [Features & descriptors](guide/descriptors.md), [State-resolved descriptors](guide/resolve.md), and [Taxonomy](guide/taxonomy.md).
 

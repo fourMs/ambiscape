@@ -2331,8 +2331,8 @@ on the clap, the difference between the layers' bias disappears.</p>
 <p>This matters well beyond one corpus. Cameras are often the recorder with
 full coverage, and consumer cameras do not document their processing, so
 treat any camera-derived clarity or early-decay figure as unusable and
-any camera-derived T60 as sound. <strong>Do not mix the two sources in one
-distribution without checking</strong>, and do not assume the result transfers
+any camera-derived T60 as sound. <em>Do not mix the two sources in one
+distribution without checking</em>, and do not assume the result transfers
 to another camera model: this was measured on one, and the processing is
 undocumented and may change with firmware.</p>
 <p>Matching matters too. The recorders here are unsynchronised — the
@@ -2441,7 +2441,7 @@ fridge running 60 % of the time reported at 17 %, and only then does the
 floor climb toward the machine. If the duty looks implausibly low for a
 machine you can hear, lengthen the window before believing the floor.</p>
 </div>
-<p><strong>What coverage is for.</strong> A level computed over 4 % of a session and one
+<p><em>What coverage is for.</em> A level computed over 4 % of a session and one
 computed over 96 % are different kinds of statement, and the level alone
 cannot tell them apart. In the corpus this came from, a node reading a
 plausible 6.6 dB below the living room cleared its own floor on 5 % of frames;
@@ -2454,8 +2454,8 @@ floor-dominated node never exceeds 18 % at any hour of the day.</p>
 "what here ever changes?" A recorder's own hiss is stationary. Everything else
 in a room turns over eventually: a fridge in tens of minutes, a ventilation
 plant in hours, a household in a day, a heating system across a season. So
-whether something is signal or noise is a question about <strong>periodicity across
-timescales</strong> — and the period that answers it also names the thing.</p>
+whether something is signal or noise is a question about <em>periodicity across
+timescales</em> — and the period that answers it also names the thing.</p>
 <div class="highlight"><pre><span></span><code><span class="n">analysis</span><span class="o">.</span><span class="n">dominant_cycles</span><span class="p">(</span><span class="n">level_db</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">min_period_s</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">max_period_s</span><span class="o">=</span><span class="mi">4</span><span class="o">*</span><span class="mi">3600</span><span class="p">)</span>
 <span class="c1"># [{&#39;period_s&#39;: 3720.0, &#39;strength&#39;: 0.42, &#39;band&#39;: &#39;cyclic&#39;}]</span>
 </code></pre></div>
@@ -2506,8 +2506,8 @@ cycle from a season:</p>
 <p>On a domestic sensor network this separates the rooms from the instruments
 without any calibration: on a given day the living room and the kitchen
 independently show a 62-minute cycle, while the floor-dominated nodes are
-stationary at every scale. <strong>A node with no rhythm has nothing in it but its
-own electronics.</strong></p>
+stationary at every scale. <em>A node with no rhythm has nothing in it but its
+own electronics.</em></p>
 <p>Check persistence before generalising, though. That 62-minute cycle held for
 the day it was measured on and not for the week: across six 24-hour windows
 only one carried it, and six-hour windows returned periods scattered from 30
@@ -2518,8 +2518,8 @@ the period holds.</p>
 <div class="admonition warning">
 <p class="admonition-title">Validated for machinery; provisional for anything daily</p>
 <p>On real recordings <code>dominant_cycles</code> reliably finds machinery — two rooms
-of a domestic network agreeing on a 62-minute cycle. <strong>At <code>circadian</code> and
-longer it is not yet trustworthy.</strong> Over six days of real data it returned
+of a domestic network agreeing on a 62-minute cycle. <em>At <code>circadian</code> and
+longer it is not yet trustworthy.</em> Over six days of real data it returned
 a 48-hour harmonic instead of the 24-hour fundamental, and a spurious
 two-hour peak on a floor-dominated node; six days is only five repetitions of a
 daily cycle, and the estimate moves with how the series is smoothed.</p>
@@ -2568,16 +2568,16 @@ is the part of the event a microphone cannot reach.</p>
 <div class="highlight"><pre><span></span><code><span class="n">r</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">onset_lead</span><span class="p">(</span><span class="n">motion_series</span><span class="p">,</span> <span class="n">audio_energy</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="mi">25</span><span class="p">)</span>
 <span class="c1"># {&#39;lead_s&#39;: 0.72, &#39;first_onset_s&#39;: 0.44, &#39;second_onset_s&#39;: 1.16, &#39;leads&#39;: &#39;first&#39;}</span>
 </code></pre></div>
-<p>Measured on 180 clips of a corpus recorded with both modalities, <strong>motion
-leads sound by a median 0.72 s, in 84 % of clips.</strong> The remaining sixth is
+<p>Measured on 180 clips of a corpus recorded with both modalities, <em>motion
+leads sound by a median 0.72 s, in 84 % of clips.</em> The remaining sixth is
 real rather than error: an object already moving when it is struck, or an
 action performed out of frame, has no visible beginning to find.</p>
 <p>Two design points worth stating, because both are easy to get wrong.</p>
-<p><strong>Same rule, both series.</strong> Each onset is the first point passing a fixed
+<p><em>Same rule, both series.</em> Each onset is the first point passing a fixed
 fraction of that series' <em>own</em> floor-to-peak range. A rule with an absolute
 threshold would compare the units — pixels against acoustic energy — rather
 than the events.</p>
-<p><strong>It takes series, not files.</strong> Motion is computed wherever motion is computed;
+<p><em>It takes series, not files.</em> Motion is computed wherever motion is computed;
 this is the seam between toolboxes rather than a video function hidden in an
 audio one. It is also what makes audio–video analysis more than two analyses
 side by side: the lead belongs to the <em>action</em>, and neither modality carries
@@ -2693,7 +2693,7 @@ audio pass.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 10, 2026 13:01:04 UTC">August 10, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 10, 2026 13:03:20 UTC">August 10, 2026</span>
   </span>
 
     

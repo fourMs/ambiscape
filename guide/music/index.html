@@ -2120,7 +2120,7 @@ musical material. They were developed on a five-album solo-harp catalogue
 <div class="highlight"><pre><span></span><code><span class="n">music</span><span class="o">.</span><span class="n">pulse_clarity</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">sr</span><span class="p">)</span>
 <span class="c1"># {&quot;R&quot;: 0.05, &quot;period_s&quot;: 0.47, &quot;period_bpm&quot;: 127.7, &quot;rayleigh_p&quot;: ..., &quot;n_onsets&quot;: 412}</span>
 </code></pre></div>
-<p><strong><code>pulse_clarity</code></strong> measures <em>metric lock</em> rather than tempo: onsets are
+<p><em><code>pulse_clarity</code></em> measures <em>metric lock</em> rather than tempo: onsets are
 folded at the dominant period and the strength-weighted resultant length R
 taken as the score, where 0 is free rubato and 1 metronomic. The period is chosen
 among the envelope-ACF peak and its metrical octaves by maximising R itself
@@ -2131,7 +2131,7 @@ tempo drift also reads as low R.</p>
 <div class="highlight"><pre><span></span><code><span class="n">music</span><span class="o">.</span><span class="n">fifths_center</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>          <span class="c1"># one recording&#39;s tonal center + focus</span>
 <span class="n">music</span><span class="o">.</span><span class="n">tonal_center_spread</span><span class="p">([</span><span class="n">c1</span><span class="p">,</span> <span class="n">c2</span><span class="p">,</span> <span class="n">c3</span><span class="p">])</span> <span class="c1"># how tightly a corpus clusters in key space</span>
 </code></pre></div>
-<p><strong><code>fifths_center</code></strong> places the 12 pitch classes a fifth apart around a
+<p><em><code>fifths_center</code></em> places the 12 pitch classes a fifth apart around a
 circle and takes the chroma-weighted resultant: the mean angle is the tonal
 centre, R the tonal focus (diatonic material concentrates, chromatic or
 inharmonic material smears). <code>tonal_center_spread</code> applies the same
@@ -2143,7 +2143,7 @@ meaningful linear mean: the average of C and B is not F sharp.</p>
 <div class="highlight"><pre><span></span><code><span class="n">music</span><span class="o">.</span><span class="n">tartyp_profile</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">sr</span><span class="p">)</span>
 <span class="c1"># {&quot;dist&quot;: {&quot;N&quot;: 0.62, &quot;N&#39;&quot;: 0.35, &quot;N&#39;&#39;&quot;: 0.02, &quot;Y&quot;: 0.01}, &quot;n_objects&quot;: 803}</span>
 </code></pre></div>
-<p><strong><code>tartyp_profile</code></strong> segments a recording into onset-bounded sound objects
+<p><em><code>tartyp_profile</code></em> segments a recording into onset-bounded sound objects
 and classifies each on a simplified TARTYP grid—mass N (tonic) / Y
 (variable) / X (complex) from spectral flatness and centroid drift, facture
 held / impulse (<code>'</code>) / iteration (<code>''</code>) from duration and 4–20 Hz envelope
@@ -2176,7 +2176,7 @@ for reduced listening, not a verdict.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 6, 2026 15:21:37 UTC">August 6, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 10, 2026 13:03:20 UTC">August 10, 2026</span>
   </span>
 
     

@@ -94,6 +94,28 @@ def harmonic_sieve(fq: np.ndarray, power: np.ndarray, f0_min=60.0,
     power-weighted fraction of peaks within ``tol_cents`` of a harmonic.
     Returns (f0, harmonicity in [0,1]) — harmonicity is the explained power
     fraction; 1 − harmonicity is the inharmonicity index.
+
+    **The defaults are tuned for voices and music, and mislead on
+    machinery.** Three of them, each demonstrated on a dishwasher's
+    circulation pump whose peak structure puts its shaft near 46 Hz:
+
+    ``f0_min`` at 60 Hz sits above many machine shaft rates. On that pump it
+    excludes the fundamental and returns its second harmonic, 91.9 Hz. Lower
+    it for anything mechanical.
+
+    ``tol_cents`` is proportional, so 35 cents is ±5.6 Hz at 275 Hz and
+    ±17 Hz at 825 Hz — wide enough that a candidate can collect high
+    harmonics by coincidence. The default returns 68.6 Hz at harmonicity
+    0.73; tightening to 8 cents returns 46.0 Hz at 0.45. The looser fit
+    *scores higher while explaining fewer of the strong low peaks*, so a
+    harmonicity figure means little without the tolerance beside it.
+
+    ``max_harm`` at 12 is short for a machine comb; the same pump is
+    tracked to k = 26.
+
+    None of this is a defect in the sieve. It is that "which harmonic
+    series is this" has more than one defensible answer, and the parameters
+    choose between them rather than merely tuning precision. Report them.
     """
     if len(fq) == 0:
         return None, 0.0

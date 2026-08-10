@@ -2568,6 +2568,9 @@ is the part of the event a microphone cannot reach.</p>
 <div class="highlight"><pre><span></span><code><span class="n">r</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">onset_lead</span><span class="p">(</span><span class="n">motion_series</span><span class="p">,</span> <span class="n">audio_energy</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="mi">25</span><span class="p">)</span>
 <span class="c1"># {&#39;lead_s&#39;: 0.72, &#39;first_onset_s&#39;: 0.44, &#39;second_onset_s&#39;: 1.16, &#39;leads&#39;: &#39;first&#39;}</span>
 </code></pre></div>
+<p><code>lead_s</code> is the quantity this is for. The two onset times are returned for
+inspection and are not reliable <em>times</em> at the default <code>rise</code> — see the third
+design point below.</p>
 <p>Measured on 180 clips of a corpus recorded with both modalities, <em>motion
 leads sound by a median 0.72 s, in 84 % of clips.</em> The remaining sixth is
 real rather than error: an object already moving when it is struck, or an
@@ -2577,6 +2580,15 @@ action performed out of frame, has no visible beginning to find.</p>
 fraction of that series' <em>own</em> floor-to-peak range. A rule with an absolute
 threshold would compare the units — pixels against acoustic energy — rather
 than the events.</p>
+<p><em>The default rise finds a different onset than you may want.</em> Each onset is
+the first point passing a quarter of that series' floor-to-peak range, and on
+a recording of a person that is reached by the action's own handling noises —
+an object picked up, a step — well before the sound the clip is of. On the
+Sound Actions clips the default lands a median 1.78 s earlier than
+hand-checked onsets and agrees within a quarter second on 17 % of them, where
+<code>rise=0.75</code> lands +0.01 s and agrees on 77 %. It is not noise against signal
+but which sound counts as the onset. Raise <code>rise</code> whenever the answer wanted
+is a time rather than a lead.</p>
 <p><em>It takes series, not files.</em> Motion is computed wherever motion is computed;
 this is the seam between toolboxes rather than a video function hidden in an
 audio one. It is also what makes audio–video analysis more than two analyses
@@ -2693,7 +2705,7 @@ audio pass.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 10, 2026 13:03:20 UTC">August 10, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 10, 2026 18:08:03 UTC">August 10, 2026</span>
   </span>
 
     

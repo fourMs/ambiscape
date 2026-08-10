@@ -1155,6 +1155,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="In Python">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#on-machinery-change-all-three-defaults" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        On machinery, change all three defaults
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -2039,6 +2056,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="In Python">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#on-machinery-change-all-three-defaults" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        On machinery, change all three defaults
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -2101,6 +2135,48 @@ a 12-bin <code>pitch_class_profile</code> and <code>top_pitch_classes</code>) an
 <p>Read <code>harmonicity_median</code> beside the carillon and rhythm analyses: a low
 median with strong tonal tracks is the signature of bell-like, inharmonic
 sources, and a high median points to voices, engines, or music.</p>
+<h3 id="on-machinery-change-all-three-defaults">On machinery, change all three defaults</h3>
+<p><code>harmonic_sieve</code> is tuned for voices and music, and its parameters choose
+between defensible answers rather than merely setting precision. A
+dishwasher's circulation pump, whose strong low peaks put its shaft near
+46 Hz, shows each:</p>
+<table>
+<thead>
+<tr>
+<th>parameter</th>
+<th>default</th>
+<th>what it gives on the pump</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>f0_min</code></td>
+<td>60 Hz</td>
+<td>above the shaft, so the second harmonic, 91.9 Hz</td>
+</tr>
+<tr>
+<td><code>tol_cents</code></td>
+<td>35</td>
+<td>a different fundamental, 68.6 Hz at harmonicity 0.73</td>
+</tr>
+<tr>
+<td><code>max_harm</code></td>
+<td>12</td>
+<td>short for a comb tracked to k = 26</td>
+</tr>
+</tbody>
+</table>
+<p>The tolerance is the one to watch, because a cents window is proportional:
+35 cents is ±5.6 Hz at 275 Hz but ±17 Hz at 825 Hz, wide enough to collect
+high harmonics by coincidence. The loose fit above <em>scores higher</em> than the
+tight one, 0.73 against 0.45, while explaining nine of twenty-seven peaks
+rather than fourteen, fitting the strongest peak less exactly and missing
+the second-strongest by two semitones.</p>
+<div class="highlight"><pre><span></span><code><span class="n">f0</span><span class="p">,</span> <span class="n">harmonicity</span> <span class="o">=</span> <span class="n">tonality</span><span class="o">.</span><span class="n">harmonic_sieve</span><span class="p">(</span>
+    <span class="n">fq</span><span class="p">,</span> <span class="n">power</span><span class="p">,</span> <span class="n">f0_min</span><span class="o">=</span><span class="mf">40.0</span><span class="p">,</span> <span class="n">tol_cents</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span> <span class="n">max_harm</span><span class="o">=</span><span class="mi">28</span><span class="p">)</span>
+</code></pre></div>
+<p>Quote a harmonicity with the tolerance it was computed at. On its own it
+does not say which series was chosen.</p>
 
 
 
@@ -2123,7 +2199,7 @@ sources, and a high median points to voices, engines, or music.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 2, 2026 16:26:29 UTC">August 2, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 10, 2026 18:08:03 UTC">August 10, 2026</span>
   </span>
 
     

@@ -32,6 +32,52 @@ Pass an explicit `thresh_db` when the timeline is not clearly bimodal.
 Segment times (`t0_s`) index the 1 Hz feature rows, so map them through
 `F["t"]` for absolute clock time in multi-take sessions.
 
+### Ask whether there are two states before splitting
+
+```python
+sep = states.bimodal_separation(lvl)
+if sep["bimodal"]:
+    segs = states.state_segments(lvl, thresh_db=sep["threshold_db"])
+```
+
+Otsu's method returns a threshold for any series, including one with a
+single populated mode. The split then divides noise and `duty_cycle`
+reports a period for a machine nothing detected, with nothing in the chain
+signalling a problem. `bimodal_separation` returns the two class means,
+their `separation_db`, the `upper_fraction`, and a `bimodal` flag that is
+False when the modes are closer than `min_separation_db` or one class is
+nearly empty.
+
+One refrigerator in two rooms of the same house shows the range: 8.4 dB of
+separation and twelve clean cycles in the kitchen, 0.6 dB and a single
+night-long segment in the living room. A False flag does not prove the
+machine is absent — only that a two-state split of this timeline is not
+evidence that it is present.
+
+### A cycle is two quantities, not one
+
+```python
+c = states.cycle_series(segs)
+c["on_s"], c["period_s"]                 # per cycle, not medians
+c["on_trend"]["rho"], c["period_trend"]["rho"]
+```
+
+A thermostat's on-time is set by the appliance and its period by the room,
+so the two can move independently and a duty fraction — their ratio — hides
+both. `cycle_series` returns each as a series with its correlation against
+cycle number, the change per cycle and the spread. Read the trend against
+the spread: a period moving by a quarter of itself and an on-time moving by
+a minute can both correlate at 0.9. A refrigerator over one night: on-time
+7.6 to 8.5 minutes, period 30.5 to 38.0.
+
+A run still on when the series ends has an unknown length and is dropped
+from `on_s`, with `truncated_final_run` set; the period series is measured
+onset to onset and is unaffected.
+
+For the same question asked of a level series rather than of segments, see
+`analysis.cycle_drift`, which reports a median period and a drift percentage
+over overlapping windows.
+
 ## The crossing between states (`states.transition_profile`)
 
 Segmentation tells you the states a room passed through. It says nothing

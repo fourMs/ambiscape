@@ -47,3 +47,31 @@ pcp = tonality.pitch_class_profile(minspec, freqs)  # 12-vector, sums to 1
 Read `harmonicity_median` beside the carillon and rhythm analyses: a low
 median with strong tonal tracks is the signature of bell-like, inharmonic
 sources, and a high median points to voices, engines, or music.
+
+### On machinery, change all three defaults
+
+`harmonic_sieve` is tuned for voices and music, and its parameters choose
+between defensible answers rather than merely setting precision. A
+dishwasher's circulation pump, whose strong low peaks put its shaft near
+46 Hz, shows each:
+
+| parameter | default | what it gives on the pump |
+|---|---|---|
+| `f0_min` | 60 Hz | above the shaft, so the second harmonic, 91.9 Hz |
+| `tol_cents` | 35 | a different fundamental, 68.6 Hz at harmonicity 0.73 |
+| `max_harm` | 12 | short for a comb tracked to k = 26 |
+
+The tolerance is the one to watch, because a cents window is proportional:
+35 cents is ±5.6 Hz at 275 Hz but ±17 Hz at 825 Hz, wide enough to collect
+high harmonics by coincidence. The loose fit above *scores higher* than the
+tight one, 0.73 against 0.45, while explaining nine of twenty-seven peaks
+rather than fourteen, fitting the strongest peak less exactly and missing
+the second-strongest by two semitones.
+
+```python
+f0, harmonicity = tonality.harmonic_sieve(
+    fq, power, f0_min=40.0, tol_cents=8.0, max_harm=28)
+```
+
+Quote a harmonicity with the tolerance it was computed at. On its own it
+does not say which series was chosen.

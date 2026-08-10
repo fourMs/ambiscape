@@ -14,10 +14,18 @@ into those states from the cached features, no audio pass:
 - ``switch_points`` — the transitions between segments (the 07:53:55
   switch-off moments);
 - ``duty_cycle`` — cycle statistics of a cycling machine (a fridge's ~24 min
-  period at ~50 % duty): period, duty fraction, cycle count.
+  period at ~50 % duty): period, duty fraction, cycle count;
+- ``cycle_series`` — the same cycles as *series* rather than medians, because
+  a machine's on-time and its period have different causes and can move
+  independently;
+- ``bimodal_separation`` — whether the timeline has two modes at all, which
+  has to be asked before any of the above is believed.
 
 Typical use: ``segs = state_segments(band_level(F, (250, 1000)))`` and mask
 other analyses (fingerprints, masking, taxonomy states) by segment.
+
+Ask ``bimodal_separation`` first whenever the machine may be faint. The
+segmentation always returns something.
 """
 from __future__ import annotations
 
@@ -204,3 +212,109 @@ def duty_cycle(segments: list[dict]) -> dict:
     return {"period_s": round(period, 1),
             "duty": round(float(np.median(on_durs)) / period, 3),
             "n_cycles": int(len(on_starts))}
+
+
+def cycle_series(segments: list[dict]) -> dict:
+    """On-time and period per cycle, and whether either is trending.
+
+    The two halves of a thermostat cycle have different causes and can move
+    independently. A compressor runs until the cabinet reaches its set point,
+    which takes about as long each time and is a property of the appliance;
+    it then waits until the cabinet drifts back, which takes longer as the
+    room cools and is a property of the room. A duty fraction is their ratio
+    and hides both. ``duty_cycle`` returns that ratio and a median period,
+    ``cycle_drift`` a median and a percentage; neither shows one half holding
+    while the other moves.
+
+    A domestic refrigerator over one night: on-time 7.6 to 8.5 minutes,
+    period 30.5 to 38.0.
+
+    Returns ``on_s`` (one per on-segment) and ``period_s`` (one per
+    consecutive pair of on-starts, so one shorter), each with the Pearson
+    correlation against cycle number and the change per cycle from a linear
+    fit. A correlation near zero with a real spread is a machine whose
+    interval is set by something that is not changing; a high correlation on
+    the period with none on the on-time is the signature above.
+
+    Read the trend against the spread, not on its own: a period that moves by
+    a quarter of itself and an on-time that moves by a minute can both
+    correlate at 0.9, and only one of them matters.
+    """
+    on = [s for s in segments if s["state"] == "on"]
+    starts = [float(s["t0_s"]) for s in on]
+    period_s = [b - a for a, b in zip(starts[:-1], starts[1:])]
+
+    # A run still on when the series ends has an unknown length, and a short
+    # tail dragged into the on-time trend will invert it. The period series
+    # is unaffected: it is measured onset to onset, so the last onset still
+    # closes the previous interval.
+    truncated = bool(segments and segments[-1]["state"] == "on")
+    on_s = [float(s["dur_s"]) for s in (on[:-1] if truncated else on)]
+
+    def trend(v):
+        if len(v) < 3:
+            return {"rho": None, "per_cycle": None, "spread": None}
+        i = np.arange(len(v), dtype=float)
+        y = np.asarray(v, float)
+        if y.std() == 0:
+            return {"rho": 0.0, "per_cycle": 0.0, "spread": 0.0}
+        slope = float(np.polyfit(i, y, 1)[0])
+        return {"rho": round(float(np.corrcoef(i, y)[0, 1]), 3),
+                "per_cycle": round(slope, 2),
+                "spread": round(float(y.max() - y.min()), 2)}
+
+    return {"n_cycles": len(on),
+            "on_s": [round(v, 1) for v in on_s],
+            "period_s": [round(v, 1) for v in period_s],
+            "on_trend": trend(on_s),
+            "period_trend": trend(period_s),
+            "truncated_final_run": truncated}
+
+
+def bimodal_separation(level_db: np.ndarray,
+                       min_separation_db: float = 2.0,
+                       min_fraction: float = 0.02) -> dict:
+    """Does this timeline have two modes at all?
+
+    ``bimodal_threshold`` is Otsu's method and will always return a number.
+    Asked for a split of a level series with only one populated mode -- a
+    machine too faint to clear the room, a recorder in a room the machine is
+    not in -- it returns a value inside that single mode, ``state_segments``
+    then divides noise, and ``duty_cycle`` reports a period for a machine
+    that was never detected. Nothing in the chain says anything is wrong.
+
+    The failure is quiet and easy to reach. One refrigerator, two rooms of
+    the same house on comparable nights: in the kitchen it separates the
+    timeline by 8.4 dB and segments into twelve cycles; in the living room it
+    contributes 0.6 dB, and the same call returns a single segment spanning
+    the night from which ``duty_cycle`` reports one cycle.
+
+    Returns the two class means either side of the Otsu split, their
+    separation in dB, the fraction of the series in the upper class, and
+    ``bimodal``, which is False when the separation is under
+    ``min_separation_db`` or either class holds less than ``min_fraction`` of
+    the series. False does not prove the machine is absent -- only that a
+    two-state split of this timeline is not evidence that it is present.
+    """
+    x = np.asarray(level_db, float)
+    x = x[np.isfinite(x)]
+    if x.size < 2 or x.max() - x.min() < EPS:
+        return {"threshold_db": None, "separation_db": 0.0,
+                "upper_fraction": 0.0, "lower_mean_db": None,
+                "upper_mean_db": None, "bimodal": False}
+    th = bimodal_threshold(x)
+    upper, lower = x[x > th], x[x <= th]
+    if not len(upper) or not len(lower):
+        return {"threshold_db": round(float(th), 2), "separation_db": 0.0,
+                "upper_fraction": float(len(upper)) / len(x),
+                "lower_mean_db": None, "upper_mean_db": None,
+                "bimodal": False}
+    lo, hi = float(lower.mean()), float(upper.mean())
+    frac = len(upper) / len(x)
+    return {"threshold_db": round(float(th), 2),
+            "separation_db": round(hi - lo, 2),
+            "upper_fraction": round(frac, 4),
+            "lower_mean_db": round(lo, 2),
+            "upper_mean_db": round(hi, 2),
+            "bimodal": bool(hi - lo >= min_separation_db
+                            and min_fraction <= frac <= 1 - min_fraction)}

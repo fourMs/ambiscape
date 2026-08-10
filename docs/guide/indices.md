@@ -20,7 +20,7 @@ iso.room_criteria(spec)
 #  'RC_class': 'R'}
 ```
 
-**NR** (ISO/R 1996, analytic curves), NC (ANSI S12.2, tabulated), and
+*NR* (ISO/R 1996, analytic curves), NC (ANSI S12.2, tabulated), and
 a simplified RC (Blazier) with rumble/hiss classification, which together
 are the language HVAC noise is specified in worldwide. They mean something
 in absolute terms only with SPL calibration

@@ -65,8 +65,8 @@ each guarding against a failure mode common in field recordings:
     This matters well beyond one corpus. Cameras are often the recorder with
     full coverage, and consumer cameras do not document their processing, so
     treat any camera-derived clarity or early-decay figure as unusable and
-    any camera-derived T60 as sound. **Do not mix the two sources in one
-    distribution without checking**, and do not assume the result transfers
+    any camera-derived T60 as sound. *Do not mix the two sources in one
+    distribution without checking*, and do not assume the result transfers
     to another camera model: this was measured on one, and the processing is
     undocumented and may change with firmware.
 
@@ -189,7 +189,7 @@ Three parts, and the third is the one usually skipped:
     floor climb toward the machine. If the duty looks implausibly low for a
     machine you can hear, lengthen the window before believing the floor.
 
-**What coverage is for.** A level computed over 4 % of a session and one
+*What coverage is for.* A level computed over 4 % of a session and one
 computed over 96 % are different kinds of statement, and the level alone
 cannot tell them apart. In the corpus this came from, a node reading a
 plausible 6.6 dB below the living room cleared its own floor on 5 % of frames;
@@ -204,8 +204,8 @@ The deepest version of the floor question is not "how loud is the noise?" but
 "what here ever changes?" A recorder's own hiss is stationary. Everything else
 in a room turns over eventually: a fridge in tens of minutes, a ventilation
 plant in hours, a household in a day, a heating system across a season. So
-whether something is signal or noise is a question about **periodicity across
-timescales** — and the period that answers it also names the thing.
+whether something is signal or noise is a question about *periodicity across
+timescales* — and the period that answers it also names the thing.
 
 ```python
 analysis.dominant_cycles(level_db, dt=10.0, min_period_s=120, max_period_s=4*3600)
@@ -228,8 +228,8 @@ cycle from a season:
 On a domestic sensor network this separates the rooms from the instruments
 without any calibration: on a given day the living room and the kitchen
 independently show a 62-minute cycle, while the floor-dominated nodes are
-stationary at every scale. **A node with no rhythm has nothing in it but its
-own electronics.**
+stationary at every scale. *A node with no rhythm has nothing in it but its
+own electronics.*
 
 Check persistence before generalising, though. That 62-minute cycle held for
 the day it was measured on and not for the week: across six 24-hour windows
@@ -242,8 +242,8 @@ the period holds.
 !!! warning "Validated for machinery; provisional for anything daily"
 
     On real recordings `dominant_cycles` reliably finds machinery — two rooms
-    of a domestic network agreeing on a 62-minute cycle. **At `circadian` and
-    longer it is not yet trustworthy.** Over six days of real data it returned
+    of a domestic network agreeing on a 62-minute cycle. *At `circadian` and
+    longer it is not yet trustworthy.* Over six days of real data it returned
     a 48-hour harmonic instead of the 24-hour fundamental, and a spurious
     two-hour peak on a floor-dominated node; six days is only five repetitions of a
     daily cycle, and the estimate moves with how the series is smoothed.
@@ -303,19 +303,19 @@ r = analysis.onset_lead(motion_series, audio_energy, dt=1/25)
 # {'lead_s': 0.72, 'first_onset_s': 0.44, 'second_onset_s': 1.16, 'leads': 'first'}
 ```
 
-Measured on 180 clips of a corpus recorded with both modalities, **motion
-leads sound by a median 0.72 s, in 84 % of clips.** The remaining sixth is
+Measured on 180 clips of a corpus recorded with both modalities, *motion
+leads sound by a median 0.72 s, in 84 % of clips.* The remaining sixth is
 real rather than error: an object already moving when it is struck, or an
 action performed out of frame, has no visible beginning to find.
 
 Two design points worth stating, because both are easy to get wrong.
 
-**Same rule, both series.** Each onset is the first point passing a fixed
+*Same rule, both series.* Each onset is the first point passing a fixed
 fraction of that series' *own* floor-to-peak range. A rule with an absolute
 threshold would compare the units — pixels against acoustic energy — rather
 than the events.
 
-**It takes series, not files.** Motion is computed wherever motion is computed;
+*It takes series, not files.* Motion is computed wherever motion is computed;
 this is the seam between toolboxes rather than a video function hidden in an
 audio one. It is also what makes audio–video analysis more than two analyses
 side by side: the lead belongs to the *action*, and neither modality carries

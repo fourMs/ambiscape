@@ -50,7 +50,7 @@ music.pulse_clarity(y, sr)
 # {"R": 0.05, "period_s": 0.47, "period_bpm": 127.7, "rayleigh_p": ..., "n_onsets": 412}
 ```
 
-**`pulse_clarity`** measures *metric lock* rather than tempo: onsets are
+*`pulse_clarity`* measures *metric lock* rather than tempo: onsets are
 folded at the dominant period and the strength-weighted resultant length R
 taken as the score, where 0 is free rubato and 1 metronomic. The period is chosen
 among the envelope-ACF peak and its metrical octaves by maximising R itself
@@ -64,7 +64,7 @@ music.fifths_center(C.mean(1))          # one recording's tonal center + focus
 music.tonal_center_spread([c1, c2, c3]) # how tightly a corpus clusters in key space
 ```
 
-**`fifths_center`** places the 12 pitch classes a fifth apart around a
+*`fifths_center`* places the 12 pitch classes a fifth apart around a
 circle and takes the chroma-weighted resultant: the mean angle is the tonal
 centre, R the tonal focus (diatonic material concentrates, chromatic or
 inharmonic material smears). `tonal_center_spread` applies the same
@@ -80,7 +80,7 @@ music.tartyp_profile(y, sr)
 # {"dist": {"N": 0.62, "N'": 0.35, "N''": 0.02, "Y": 0.01}, "n_objects": 803}
 ```
 
-**`tartyp_profile`** segments a recording into onset-bounded sound objects
+*`tartyp_profile`* segments a recording into onset-bounded sound objects
 and classifies each on a simplified TARTYP grid—mass N (tonic) / Y
 (variable) / X (complex) from spectral flatness and centroid drift, facture
 held / impulse (`'`) / iteration (`''`) from duration and 4–20 Hz envelope

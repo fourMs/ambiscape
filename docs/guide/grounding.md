@@ -19,8 +19,8 @@ None was a coding error. Each was a *translation* nobody had written down.
 `ambiscape.grounding` writes it down. It is the companion to
 [`ambiscape.timescales`](timescales.md) and deliberately the same shape: a
 registry, a check, and a list of what is not yet covered. Where the timescale
-registry answers *over how long is this valid*, this one answers **what is it
-evidence about**.
+registry answers *over how long is this valid*, this one answers *what is it
+evidence about*.
 
 ## The four tiers
 
@@ -37,7 +37,7 @@ Current coverage is all *71* descriptors the toolbox emits:
 |---|---|---|---|
 | 40 | 19 | 7 | 5 |
 
-**The tier is not a quality ranking.** `S` is not worse than `PC`; a spectral
+*The tier is not a quality ranking.* `S` is not worse than `PC`; a spectral
 centroid is an excellent measurement of a spectral centroid. The tier says what
 may be concluded, and the only real error is concluding one tier's worth of
 thing from another tier's number.

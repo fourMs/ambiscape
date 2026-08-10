@@ -26,14 +26,14 @@ the per-second motion side; the join happens in your own analysis on a shared cl
 
 Two things that have cost real time on exactly this join:
 
-**Clocks are not shared just because the recordings are simultaneous.** Devices started separately
+*Clocks are not shared just because the recordings are simultaneous.* Devices started separately
 drift, and phone apps in particular can suspend and lose time from the timeline entirely rather than
 leaving a gap. See micromotion's [formats guide](https://fourms.github.io/micromotion/formats/) for
 what Physics Toolbox does to its own timestamps. Align on a physical event that appears in both
 signals, such as a tap that registers in the accelerometer *and* the microphone, rather than on file
 timestamps.
 
-**A cross-modal null needs a positive control.** If motion does not track sound, the honest question
+*A cross-modal null needs a positive control.* If motion does not track sound, the honest question
 is whether the pipeline could have detected it. Correlating two *environmental* channels, say
 ambiscape's loudness against a visual-change trace, gives that control cheaply: if they track each
 other and the body tracks neither, the null is about the body.

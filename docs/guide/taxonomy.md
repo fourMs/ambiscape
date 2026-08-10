@@ -41,8 +41,8 @@ objects, and reduced listening is something done to them one at a time.
 
 Placing a keynote regime on the typo-morphology plane therefore asks of an eight-hour ventilation bed
 the question Schaeffer asks of a single closing door. The two figures here keep the scales apart. The
-**Schaeffer map** is built from detected events, one point per sound object of 0.2–8 s. The **Schafer
-timeline** is built from regimes and spans, on the session clock. Neither borrows the other's unit,
+**Schaeffer map** is built from detected events, one point per sound object of 0.2–8 s. The *Schafer
+timeline* is built from regimes and spans, on the session clock. Neither borrows the other's unit,
 and the map shows no regimes at all.
 
 ## Morphology without the label (`objects.object_profile`)
@@ -168,7 +168,7 @@ window is a choice, so it is a flag: `ambiscape taxonomy <folder> --object-windo
 to Schaeffer's own figures, and the caption reports how many detected events fell outside whatever
 window you set.
 
-**Mass** comes from the object's *excess* spectrum, that is, what appeared over the running band
+*Mass* comes from the object's *excess* spectrum, that is, what appeared over the running band
 background, so a click over a ventilation drone is typed as a click and not as the drone. Two numbers
 are read off it, both deliberately blind to overall spectral tilt, since brightness is not mass:
 
@@ -184,7 +184,7 @@ are read off it, both deliberately blind to overall spectral tilt, since brightn
 | spread ≥ 1.2 octaves | `noise` — no pitch, energy spread wide enough to hear as a band of noise |
 | otherwise | `complex` — energy in one or a few narrow regions, none of them a pitch |
 
-**Facture** comes from the object's own amplitude envelope, the 20 ms broadband envelope of the
+*Facture* comes from the object's own amplitude envelope, the 20 ms broadband envelope of the
 feature cache. Two numbers again: the *attack time*, the conventional 10-to-90 per cent rise
 towards the peak, and the *iteration strength*, the normalised envelope autocorrelation at its best
 repetition lag between 3 and 20 Hz — a single attack and decay has a monotonically falling
@@ -221,7 +221,7 @@ The Schafer timeline shows the session clock, and it has two layouts; which one 
 whether human activity annotations are available (below). This is where the regimes live, and where
 they should be read: minutes and hours of ground, not objects.
 
-**The acoustic-first layout** — the default, and the only one, when no activities are given — gives
+*The acoustic-first layout* — the default, and the only one, when no activities are given — gives
 one lane per hand-authored object: keynote bars, signal and soundmark event markers, lo-fi states
 shaded, and gap-aware panels for multi-take sessions. This is where Schafer's question is answered,
 since a sound's function is a claim about how it sits in time and in a place. It makes statements

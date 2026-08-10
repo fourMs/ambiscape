@@ -844,6 +844,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#the-rhythm-is-the-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The rhythm is the signal
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The rhythm is the signal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#anomaly-is-the-complement-of-rhythm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anomaly is the complement of rhythm
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#calibration" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2070,6 +2098,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#the-rhythm-is-the-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The rhythm is the signal
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The rhythm is the signal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#anomaly-is-the-complement-of-rhythm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anomaly is the complement of rhythm
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#calibration" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2343,6 +2399,90 @@ the raw number invited a comparison the data could not support and said
 nothing about it. Per hour, coverage also answers <em>when</em> a node can be
 measured at all — a live living room runs 85–90 % through the evening, while a
 floor-dominated node never exceeds 18 % at any hour of the day.</p>
+<h2 id="the-rhythm-is-the-signal">The rhythm is the signal</h2>
+<p>The deepest version of the floor question is not "how loud is the noise?" but
+"what here ever changes?" A recorder's own hiss is stationary. Everything else
+in a room turns over eventually: a fridge in tens of minutes, a ventilation
+plant in hours, a household in a day, a heating system across a season. So
+whether something is signal or noise is a question about <strong>periodicity across
+timescales</strong> — and the period that answers it also names the thing.</p>
+<div class="highlight"><pre><span></span><code><span class="n">analysis</span><span class="o">.</span><span class="n">dominant_cycles</span><span class="p">(</span><span class="n">level_db</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">min_period_s</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">max_period_s</span><span class="o">=</span><span class="mi">4</span><span class="o">*</span><span class="mi">3600</span><span class="p">)</span>
+<span class="c1"># [{&#39;period_s&#39;: 3720.0, &#39;strength&#39;: 0.42, &#39;band&#39;: &#39;cyclic&#39;}]</span>
+</code></pre></div>
+<p>Periods are placed on a ladder that extends the descriptor registry upward,
+where its <code>macro</code> band runs from 5 s to infinity and so cannot tell a fridge
+cycle from a season:</p>
+<table>
+<thead>
+<tr>
+<th>band</th>
+<th>span</th>
+<th>what lives there</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>meso</code></td>
+<td>0.5–5 s</td>
+<td>the sound object</td>
+</tr>
+<tr>
+<td><code>macro</code></td>
+<td>5 s – 10 min</td>
+<td>an activity, a passage</td>
+</tr>
+<tr>
+<td><code>cyclic</code></td>
+<td>10 min – 6 h</td>
+<td>machinery, a meal, a rehearsal</td>
+</tr>
+<tr>
+<td><code>circadian</code></td>
+<td>6 h – 3 days</td>
+<td>the household's day</td>
+</tr>
+<tr>
+<td><code>seasonal</code></td>
+<td>3 days – 1 year</td>
+<td>heating, weather, term time</td>
+</tr>
+<tr>
+<td><code>archival</code></td>
+<td>&gt; 1 year</td>
+<td>the building's life</td>
+</tr>
+</tbody>
+</table>
+<p>On a domestic sensor network this separates the rooms from the instruments
+without any calibration: the living room and the kitchen both carry a
+62-minute cycle, and the noise-dominated nodes are stationary at every scale.
+<strong>A node with no rhythm has nothing in it but its own electronics.</strong></p>
+<div class="admonition warning">
+<p class="admonition-title">The instrument has a rhythm too</p>
+<p>Periodicity alone does not mean "this is the room". A converter warms and
+cools with the building, so a <em>dead channel</em> still shows a clean 24-hour
+cycle. What distinguishes a household is that it also leaves faster marks
+— a kettle, a shower, a fridge — which is what <code>cycle_profile</code> reports as
+<code>has_sub_daily_cycle</code>. A diurnal rhythm with nothing underneath it is an
+instrument breathing, not a home.</p>
+</div>
+<h3 id="anomaly-is-the-complement-of-rhythm">Anomaly is the complement of rhythm</h3>
+<p>An outlier detector run on a kitchen flags the fridge thirty times a day. It
+is a good detector answering the wrong question: what makes the fridge normal
+is precisely that it repeats.</p>
+<div class="highlight"><pre><span></span><code><span class="n">analysis</span><span class="o">.</span><span class="n">cycle_residual</span><span class="p">(</span><span class="n">level_db</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
+<span class="c1"># {&#39;period_s&#39;: 2700.0, &#39;residual_std_db&#39;: 0.41, &#39;anomalies&#39;: [...]}</span>
+</code></pre></div>
+<p>The cycle is found, the series folded onto its phase to get what the room
+usually does at that point in the cycle, and that subtracted. What survives is
+what the room did <em>not</em> repeat. A spike has no period and cannot be folded
+away; a machine can. So rhythm and anomaly are two readings of one series, and
+finding the first is what makes the second meaningful.</p>
+<p>Three limits worth knowing. It models one cycle, not several at once. A
+<em>change</em> in the cycle — a fridge whose period drifts as it fails — appears as
+residual rather than as the more interesting finding it usually is. And with
+no cycle found it falls back to the plain series, where slow drift reads as
+anomalous.</p>
 <h2 id="calibration">Calibration</h2>
 <p><code>calibration.json</code> in the session folder defines the offset <code>O</code> such that a
 signal at −X dBFS corresponds to (O − X) dB SPL:</p>
@@ -2454,7 +2594,7 @@ audio pass.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 10, 2026 04:17:48 UTC">August 10, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 10, 2026 04:41:31 UTC">August 10, 2026</span>
   </span>
 
     

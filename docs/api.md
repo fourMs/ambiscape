@@ -12,6 +12,10 @@
 
 ::: ambiscape.analysis
 
+## Evidence tiers (signal vs perception)
+
+::: ambiscape.grounding
+
 ## Impulse response & auralization
 
 ::: ambiscape.impulse

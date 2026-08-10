@@ -34,6 +34,7 @@ nav:
       - Sessions & conventions: guide/sessions.md
       - Features & descriptors: guide/descriptors.md
       - Timescales & validity windows: guide/timescales.md
+      - Grounding: signal vs perception: guide/grounding.md
       - Mono, stereo & binaural inputs: guide/stereo-mono.md
       - Machine states & fingerprints: guide/states.md
       - State-resolved descriptors: guide/resolve.md

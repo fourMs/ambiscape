@@ -13,6 +13,12 @@ Everything else reads from it: the guard inside `analyze`, the
 `ambiscape timescales` command and its figure, and the validity section of
 a deposit report. Writing the numbers twice is how they drift.
 
+It has a companion. Where this registry answers *over how long is a descriptor
+valid*, [`ambiscape.grounding`](grounding.md) answers *what is it evidence
+about* — signal, or something about a listener. The two failure modes are
+independent: a descriptor can be computed over a perfectly adequate window and
+still be the wrong kind of evidence for the claim being made of it.
+
 ## The guard
 
 Every descriptor that reaches `summary.json` passes through

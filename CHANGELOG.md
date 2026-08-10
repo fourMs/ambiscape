@@ -7,6 +7,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/); the
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) loosely, in that the minor number has
 been carrying feature work throughout a pre-1.0 life.
 
+## [Unreleased]
+
+### Added
+- **`ambiscape.grounding` — what kind of evidence a descriptor is.** Every number this toolbox
+  returns is a fact about a waveform; some are *also* meant as facts about hearing, and the
+  distance between those two is where this project has made its worst mistakes. Four claims were
+  withdrawn in a single month and every one was a perceptual quantity read off a signal statistic:
+  acoustic "zones" from a speech fraction, a "dead" channel from a level, a building's rhythm from
+  one day's periodicity, a reverberation time from material with no free decay in it. None was a
+  coding error. Each was a translation nobody had written down.
+
+  The registry writes it down, in the same shape as `ambiscape.timescales` — where that answers
+  *over how long is this valid*, this answers *what is it evidence about*. Four tiers: `S` signal
+  only, `PM` perceptually motivated but unvalidated, `PC` perceptually calibrated (the transform
+  embeds listening-test data), `PD` perceptually defined (the quantity is a fact about a listener
+  and the number is a proxy that can be wrong).
+
+  All **71** descriptors the toolbox emits are classified — 40 `S`, 19 `PM`, 7 `PC`, 5 `PD` — and
+  a test fails if a new descriptor arrives without a tier, so coverage cannot rot by default.
+  `check()` raises a caution for every `PD` quantity in a summary and counts the `PM` ones without
+  itemising them, on the principle that a warning which always fires is a warning nobody reads.
+
+  The tier is not a quality ranking. A spectral centroid is an excellent measurement of a spectral
+  centroid. The tier says what may be concluded, and the only real error is concluding one tier's
+  worth of thing from another tier's number.
+
 ## [0.34.1] — 2026-08-10
 
 ### Fixed

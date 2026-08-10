@@ -2285,6 +2285,50 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#ambiscape.analysis.track_noise_floor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        track_noise_floor
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.analysis.floor_corrected_level" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        floor_corrected_level
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.analysis.summarize_floor_corrected" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        summarize_floor_corrected
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.analysis.steady_sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        steady_sources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#ambiscape.analysis.floor_occupancy" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -5949,6 +5993,50 @@
     <span class="md-ellipsis">
       
         quietest_channel
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.analysis.track_noise_floor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        track_noise_floor
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.analysis.floor_corrected_level" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        floor_corrected_level
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.analysis.summarize_floor_corrected" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        summarize_floor_corrected
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.analysis.steady_sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        steady_sources
       
     </span>
   </a>
@@ -11638,6 +11726,435 @@ A mono signal returns <code>(0, [floor])</code>.</p>
 <div class="doc doc-object doc-function">
 
 
+<h2 id="ambiscape.analysis.track_noise_floor" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">track_noise_floor</span><span class="p">(</span><span class="n">level_db</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">win_s</span><span class="o">=</span><span class="mf">120.0</span><span class="p">,</span> <span class="n">bias_db</span><span class="o">=</span><span class="n">_MIN_STAT_BIAS_DB</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>The recorder's own floor, followed over time rather than fixed once.</p>
+<p>A single floor figure per session cannot be right when the floor moves:
+a dead channel in the SINS corpus swings 10.7 dB between night and
+midday as its electronics warm, which is larger than most of the
+differences such a figure would be used to interpret.</p>
+<p>Minimum statistics, after Martin (2001): the running minimum of power
+over a window long enough to contain a genuine gap in the source. The
+minimum of a fluctuating estimate sits below the mean of the noise it
+estimates, so it is lifted by <code>bias_db</code> rather than left to
+under-subtract.</p>
+<p><code>win_s</code> is the one judgement. Too short and speech or music is
+mistaken for floor; too long and real drift is smoothed away. Two
+minutes suits domestic recordings, where gaps are frequent.</p>
+<p><strong>A source that never stops is a floor.</strong> The method finds the quietest
+moment in each window, so anything continuous throughout — ventilation,
+a fridge, traffic hum — is absorbed into the estimate and subtracted
+away. That is the correct reading of "what is the recorder's own
+contribution" only when the steady sound <em>is</em> the recorder. Where a room
+has a genuine constant, this measures everything above it and reports
+the constant as floor. Say so when reporting, or widen <code>win_s</code> past
+the longest expected silence and accept the loss of drift tracking.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">track_noise_floor</span><span class="p">(</span><span class="n">level_db</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">win_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">120.0</span><span class="p">,</span>
+                      <span class="n">bias_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_MIN_STAT_BIAS_DB</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The recorder&#39;s own floor, followed over time rather than fixed once.</span>
+
+<span class="sd">    A single floor figure per session cannot be right when the floor moves:</span>
+<span class="sd">    a dead channel in the SINS corpus swings 10.7 dB between night and</span>
+<span class="sd">    midday as its electronics warm, which is larger than most of the</span>
+<span class="sd">    differences such a figure would be used to interpret.</span>
+
+<span class="sd">    Minimum statistics, after Martin (2001): the running minimum of power</span>
+<span class="sd">    over a window long enough to contain a genuine gap in the source. The</span>
+<span class="sd">    minimum of a fluctuating estimate sits below the mean of the noise it</span>
+<span class="sd">    estimates, so it is lifted by ``bias_db`` rather than left to</span>
+<span class="sd">    under-subtract.</span>
+
+<span class="sd">    ``win_s`` is the one judgement. Too short and speech or music is</span>
+<span class="sd">    mistaken for floor; too long and real drift is smoothed away. Two</span>
+<span class="sd">    minutes suits domestic recordings, where gaps are frequent.</span>
+
+<span class="sd">    **A source that never stops is a floor.** The method finds the quietest</span>
+<span class="sd">    moment in each window, so anything continuous throughout — ventilation,</span>
+<span class="sd">    a fridge, traffic hum — is absorbed into the estimate and subtracted</span>
+<span class="sd">    away. That is the correct reading of &quot;what is the recorder&#39;s own</span>
+<span class="sd">    contribution&quot; only when the steady sound *is* the recorder. Where a room</span>
+<span class="sd">    has a genuine constant, this measures everything above it and reports</span>
+<span class="sd">    the constant as floor. Say so when reporting, or widen ``win_s`` past</span>
+<span class="sd">    the longest expected silence and accept the loss of drift tracking.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">**</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">level_db</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="o">/</span> <span class="mf">10.0</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">win_s</span> <span class="o">/</span> <span class="n">dt</span><span class="p">)))</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">+</span> <span class="n">bias_db</span><span class="p">)</span>
+    <span class="n">pad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="p">(</span><span class="n">n</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">n</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;edge&quot;</span><span class="p">)</span>
+    <span class="n">win</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">lib</span><span class="o">.</span><span class="n">stride_tricks</span><span class="o">.</span><span class="n">sliding_window_view</span><span class="p">(</span><span class="n">pad</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">win</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)])</span> <span class="o">+</span> <span class="n">bias_db</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ambiscape.analysis.floor_corrected_level" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">floor_corrected_level</span><span class="p">(</span><span class="n">level_db</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">margin_db</span><span class="o">=</span><span class="n">FLOOR_MARGIN_DB</span><span class="p">,</span> <span class="n">win_s</span><span class="o">=</span><span class="mf">120.0</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Level of the source alone, and where there is no source to measure.</p>
+<p>Returns <code>(signal_db, floor_db, measurable)</code>. Noise adds as energy, so
+the floor is subtracted in power; subtracting decibels is a category
+error that happens to look plausible.</p>
+<p>Frames whose excess over the floor falls short of <code>margin_db</code> are
+returned as <code>nan</code> and marked unmeasurable. They are not zero and not
+the floor: they carry no information about the source, and giving them a
+value invents one. Clamping them instead is actively harmful — it turns
+a bias in level into a bias in <em>sampling</em>, because the frames that
+survive are the loud ones, and an average over survivors then reports a
+quiet span as loud. That error made a living room's midday read quieter
+than its night before this function existed.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">floor_corrected_level</span><span class="p">(</span><span class="n">level_db</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                          <span class="n">margin_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">FLOOR_MARGIN_DB</span><span class="p">,</span>
+                          <span class="n">win_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">120.0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Level of the source alone, and where there is no source to measure.</span>
+
+<span class="sd">    Returns ``(signal_db, floor_db, measurable)``. Noise adds as energy, so</span>
+<span class="sd">    the floor is subtracted in power; subtracting decibels is a category</span>
+<span class="sd">    error that happens to look plausible.</span>
+
+<span class="sd">    Frames whose excess over the floor falls short of ``margin_db`` are</span>
+<span class="sd">    returned as ``nan`` and marked unmeasurable. They are not zero and not</span>
+<span class="sd">    the floor: they carry no information about the source, and giving them a</span>
+<span class="sd">    value invents one. Clamping them instead is actively harmful — it turns</span>
+<span class="sd">    a bias in level into a bias in *sampling*, because the frames that</span>
+<span class="sd">    survive are the loud ones, and an average over survivors then reports a</span>
+<span class="sd">    quiet span as loud. That error made a living room&#39;s midday read quieter</span>
+<span class="sd">    than its night before this function existed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lvl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">level_db</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">**</span> <span class="p">(</span><span class="n">lvl</span> <span class="o">/</span> <span class="mf">10.0</span><span class="p">)</span>
+    <span class="n">floor_db</span> <span class="o">=</span> <span class="n">track_noise_floor</span><span class="p">(</span><span class="n">lvl</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">win_s</span><span class="o">=</span><span class="n">win_s</span><span class="p">)</span>
+    <span class="n">nfloor</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">**</span> <span class="p">(</span><span class="n">floor_db</span> <span class="o">/</span> <span class="mf">10.0</span><span class="p">)</span>
+    <span class="n">excess</span> <span class="o">=</span> <span class="n">p</span> <span class="o">-</span> <span class="n">nfloor</span>
+    <span class="n">measurable</span> <span class="o">=</span> <span class="n">excess</span> <span class="o">&gt;</span> <span class="n">nfloor</span> <span class="o">*</span> <span class="p">(</span><span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="n">margin_db</span> <span class="o">/</span> <span class="mf">10.0</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">sig</span><span class="p">[</span><span class="n">measurable</span><span class="p">]</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">excess</span><span class="p">[</span><span class="n">measurable</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">sig</span><span class="p">,</span> <span class="n">floor_db</span><span class="p">,</span> <span class="n">measurable</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ambiscape.analysis.summarize_floor_corrected" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">summarize_floor_corrected</span><span class="p">(</span><span class="n">signal_db</span><span class="p">,</span> <span class="n">measurable</span><span class="p">,</span> <span class="n">min_coverage</span><span class="o">=</span><span class="n">FLOOR_MIN_COVERAGE</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>An energy mean over the measurable frames, with its coverage attached.</p>
+<p><code>coverage</code> is not a footnote. A level computed over 4 % of a session
+and one computed over 96 % are different kinds of statement, and the
+level alone cannot tell them apart — in the SINS corpus a node reading a
+plausible 6.6 dB below the living room turned out to clear its own floor
+on 4 % of frames. Below <code>min_coverage</code> no level is returned at all,
+because there is nothing there to average.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">summarize_floor_corrected</span><span class="p">(</span><span class="n">signal_db</span><span class="p">,</span> <span class="n">measurable</span><span class="p">,</span>
+                              <span class="n">min_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">FLOOR_MIN_COVERAGE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An energy mean over the measurable frames, with its coverage attached.</span>
+
+<span class="sd">    ``coverage`` is not a footnote. A level computed over 4 % of a session</span>
+<span class="sd">    and one computed over 96 % are different kinds of statement, and the</span>
+<span class="sd">    level alone cannot tell them apart — in the SINS corpus a node reading a</span>
+<span class="sd">    plausible 6.6 dB below the living room turned out to clear its own floor</span>
+<span class="sd">    on 4 % of frames. Below ``min_coverage`` no level is returned at all,</span>
+<span class="sd">    because there is nothing there to average.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">measurable</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">measurable</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="n">cov</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">measurable</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="k">if</span> <span class="n">measurable</span><span class="o">.</span><span class="n">size</span> <span class="k">else</span> <span class="mf">0.0</span>
+    <span class="k">if</span> <span class="n">cov</span> <span class="o">&lt;</span> <span class="n">min_coverage</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;level_db&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;coverage&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">cov</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+                <span class="s2">&quot;n_measurable&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">measurable</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
+                <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="s2">&quot;below the noise floor too often to measure&quot;</span><span class="p">}</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">signal_db</span><span class="p">,</span> <span class="nb">float</span><span class="p">)[</span><span class="n">measurable</span><span class="p">]</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">v</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;level_db&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="n">v</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)))),</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="s2">&quot;coverage&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">cov</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="s2">&quot;n_measurable&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">size</span><span class="p">),</span>
+            <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ambiscape.analysis.steady_sources" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">steady_sources</span><span class="p">(</span><span class="n">level_db</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">short_s</span><span class="o">=</span><span class="mf">120.0</span><span class="p">,</span> <span class="n">long_s</span><span class="o">=</span><span class="mf">7200.0</span><span class="p">,</span> <span class="n">min_excess_db</span><span class="o">=</span><span class="n">MACHINE_MIN_EXCESS_DB</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Separate a machine that cycles from the recorder that never stops.</p>
+<p>:func:<code>track_noise_floor</code> over a short window calls anything steady a
+floor, which is wrong for the sources this toolbox is usually pointed at.
+A fridge, a ventilation plant, a circulation pump: steady for minutes,
+and the object of study rather than the noise.</p>
+<p>What distinguishes them from the recorder's own contribution is that
+<strong>they turn off</strong>. Self-noise does not. So the floor is estimated twice —
+over minutes, which absorbs a running machine, and over hours, which does
+not, because the machine's off-phase falls inside the window. Where the
+short floor sits materially above the long one, the difference is
+machinery, and <code>machine_duty</code> says how much of the time it runs.</p>
+<p>Returns <code>self_noise_db</code> (the long-window floor, what never stops),
+<code>steady_excess_db</code> (how far the steady sound rises above it while
+running), <code>machine_duty</code>, <code>machine_detected</code>, and
+<code>inseparable_steady_source</code>.</p>
+<p>That last flag is the honest case. A plant that runs continuously for
+longer than <code>long_s</code> cannot be told from self-noise by level alone — by
+this method or any other that only sees one number per frame — so it is
+flagged rather than quietly subtracted. Seeing it means either the source
+genuinely never stops, or <code>long_s</code> is shorter than its off-phase. A
+domestic fridge cycles over roughly three quarters of an hour, so two
+hours is a safe default; a building's ventilation may run all day, and no
+window will separate it.</p>
+<p><strong>How to tell that <code>long_s</code> is too short.</strong> It does not fail loudly.
+<code>machine_duty</code> is understated first — a fridge running 60 % of the time
+reported at 17 % — and only then does <code>self_noise_db</code> climb toward the
+machine's own level. If the duty looks implausibly low for a machine you
+can hear in the recording, lengthen the window before believing the
+floor.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span>
+<span class="normal">419</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">steady_sources</span><span class="p">(</span><span class="n">level_db</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">short_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">120.0</span><span class="p">,</span>
+                   <span class="n">long_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">7200.0</span><span class="p">,</span>
+                   <span class="n">min_excess_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">MACHINE_MIN_EXCESS_DB</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Separate a machine that cycles from the recorder that never stops.</span>
+
+<span class="sd">    :func:`track_noise_floor` over a short window calls anything steady a</span>
+<span class="sd">    floor, which is wrong for the sources this toolbox is usually pointed at.</span>
+<span class="sd">    A fridge, a ventilation plant, a circulation pump: steady for minutes,</span>
+<span class="sd">    and the object of study rather than the noise.</span>
+
+<span class="sd">    What distinguishes them from the recorder&#39;s own contribution is that</span>
+<span class="sd">    **they turn off**. Self-noise does not. So the floor is estimated twice —</span>
+<span class="sd">    over minutes, which absorbs a running machine, and over hours, which does</span>
+<span class="sd">    not, because the machine&#39;s off-phase falls inside the window. Where the</span>
+<span class="sd">    short floor sits materially above the long one, the difference is</span>
+<span class="sd">    machinery, and ``machine_duty`` says how much of the time it runs.</span>
+
+<span class="sd">    Returns ``self_noise_db`` (the long-window floor, what never stops),</span>
+<span class="sd">    ``steady_excess_db`` (how far the steady sound rises above it while</span>
+<span class="sd">    running), ``machine_duty``, ``machine_detected``, and</span>
+<span class="sd">    ``inseparable_steady_source``.</span>
+
+<span class="sd">    That last flag is the honest case. A plant that runs continuously for</span>
+<span class="sd">    longer than ``long_s`` cannot be told from self-noise by level alone — by</span>
+<span class="sd">    this method or any other that only sees one number per frame — so it is</span>
+<span class="sd">    flagged rather than quietly subtracted. Seeing it means either the source</span>
+<span class="sd">    genuinely never stops, or ``long_s`` is shorter than its off-phase. A</span>
+<span class="sd">    domestic fridge cycles over roughly three quarters of an hour, so two</span>
+<span class="sd">    hours is a safe default; a building&#39;s ventilation may run all day, and no</span>
+<span class="sd">    window will separate it.</span>
+
+<span class="sd">    **How to tell that ``long_s`` is too short.** It does not fail loudly.</span>
+<span class="sd">    ``machine_duty`` is understated first — a fridge running 60 % of the time</span>
+<span class="sd">    reported at 17 % — and only then does ``self_noise_db`` climb toward the</span>
+<span class="sd">    machine&#39;s own level. If the duty looks implausibly low for a machine you</span>
+<span class="sd">    can hear in the recording, lengthen the window before believing the</span>
+<span class="sd">    floor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lvl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">level_db</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+    <span class="n">short</span> <span class="o">=</span> <span class="n">track_noise_floor</span><span class="p">(</span><span class="n">lvl</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">win_s</span><span class="o">=</span><span class="n">short_s</span><span class="p">)</span>
+    <span class="n">long</span> <span class="o">=</span> <span class="n">track_noise_floor</span><span class="p">(</span><span class="n">lvl</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">win_s</span><span class="o">=</span><span class="n">long_s</span><span class="p">)</span>
+    <span class="n">excess</span> <span class="o">=</span> <span class="n">short</span> <span class="o">-</span> <span class="n">long</span>
+    <span class="n">running</span> <span class="o">=</span> <span class="n">excess</span> <span class="o">&gt;</span> <span class="n">min_excess_db</span>
+    <span class="n">duty</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">running</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+    <span class="n">detected</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="mf">0.02</span> <span class="o">&lt;</span> <span class="n">duty</span> <span class="o">&lt;</span> <span class="mf">0.98</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;self_noise_db&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">long</span><span class="p">)),</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="s2">&quot;steady_excess_db&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">excess</span><span class="p">[</span><span class="n">running</span><span class="p">]))</span>
+                                  <span class="k">if</span> <span class="n">running</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="s2">&quot;machine_duty&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">duty</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+        <span class="s2">&quot;machine_detected&quot;</span><span class="p">:</span> <span class="n">detected</span><span class="p">,</span>
+        <span class="c1"># Not &quot;there is one&quot; but &quot;one cannot be ruled out&quot;. With no cycling</span>
+        <span class="c1"># found, a perfectly constant source is indistinguishable from the</span>
+        <span class="c1"># recorder by level alone, and is therefore inside self_noise_db.</span>
+        <span class="s2">&quot;steady_source_unresolved&quot;</span><span class="p">:</span> <span class="ow">not</span> <span class="n">detected</span><span class="p">,</span>
+    <span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
 <h2 id="ambiscape.analysis.floor_occupancy" class="doc doc-heading">
             <code class="highlight language-python"><span class="n">floor_occupancy</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">within_db</span><span class="o">=</span><span class="n">AT_FLOOR_WITHIN_DB</span><span class="p">,</span> <span class="n">pct</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span></code>
 
@@ -11671,45 +12188,45 @@ a median of 0.4 dB above. One number, and it names the room.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">266</span>
-<span class="normal">267</span>
-<span class="normal">268</span>
-<span class="normal">269</span>
-<span class="normal">270</span>
-<span class="normal">271</span>
-<span class="normal">272</span>
-<span class="normal">273</span>
-<span class="normal">274</span>
-<span class="normal">275</span>
-<span class="normal">276</span>
-<span class="normal">277</span>
-<span class="normal">278</span>
-<span class="normal">279</span>
-<span class="normal">280</span>
-<span class="normal">281</span>
-<span class="normal">282</span>
-<span class="normal">283</span>
-<span class="normal">284</span>
-<span class="normal">285</span>
-<span class="normal">286</span>
-<span class="normal">287</span>
-<span class="normal">288</span>
-<span class="normal">289</span>
-<span class="normal">290</span>
-<span class="normal">291</span>
-<span class="normal">292</span>
-<span class="normal">293</span>
-<span class="normal">294</span>
-<span class="normal">295</span>
-<span class="normal">296</span>
-<span class="normal">297</span>
-<span class="normal">298</span>
-<span class="normal">299</span>
-<span class="normal">300</span>
-<span class="normal">301</span>
-<span class="normal">302</span>
-<span class="normal">303</span>
-<span class="normal">304</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">floor_occupancy</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">within_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">AT_FLOOR_WITHIN_DB</span><span class="p">,</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span>
+<span class="normal">428</span>
+<span class="normal">429</span>
+<span class="normal">430</span>
+<span class="normal">431</span>
+<span class="normal">432</span>
+<span class="normal">433</span>
+<span class="normal">434</span>
+<span class="normal">435</span>
+<span class="normal">436</span>
+<span class="normal">437</span>
+<span class="normal">438</span>
+<span class="normal">439</span>
+<span class="normal">440</span>
+<span class="normal">441</span>
+<span class="normal">442</span>
+<span class="normal">443</span>
+<span class="normal">444</span>
+<span class="normal">445</span>
+<span class="normal">446</span>
+<span class="normal">447</span>
+<span class="normal">448</span>
+<span class="normal">449</span>
+<span class="normal">450</span>
+<span class="normal">451</span>
+<span class="normal">452</span>
+<span class="normal">453</span>
+<span class="normal">454</span>
+<span class="normal">455</span>
+<span class="normal">456</span>
+<span class="normal">457</span>
+<span class="normal">458</span>
+<span class="normal">459</span>
+<span class="normal">460</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">floor_occupancy</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">within_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">AT_FLOOR_WITHIN_DB</span><span class="p">,</span>
                     <span class="n">pct</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;How much of a session sits at its own noise floor.</span>
 
@@ -11796,70 +12313,70 @@ the last three are None when nothing is flagged.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">307</span>
-<span class="normal">308</span>
-<span class="normal">309</span>
-<span class="normal">310</span>
-<span class="normal">311</span>
-<span class="normal">312</span>
-<span class="normal">313</span>
-<span class="normal">314</span>
-<span class="normal">315</span>
-<span class="normal">316</span>
-<span class="normal">317</span>
-<span class="normal">318</span>
-<span class="normal">319</span>
-<span class="normal">320</span>
-<span class="normal">321</span>
-<span class="normal">322</span>
-<span class="normal">323</span>
-<span class="normal">324</span>
-<span class="normal">325</span>
-<span class="normal">326</span>
-<span class="normal">327</span>
-<span class="normal">328</span>
-<span class="normal">329</span>
-<span class="normal">330</span>
-<span class="normal">331</span>
-<span class="normal">332</span>
-<span class="normal">333</span>
-<span class="normal">334</span>
-<span class="normal">335</span>
-<span class="normal">336</span>
-<span class="normal">337</span>
-<span class="normal">338</span>
-<span class="normal">339</span>
-<span class="normal">340</span>
-<span class="normal">341</span>
-<span class="normal">342</span>
-<span class="normal">343</span>
-<span class="normal">344</span>
-<span class="normal">345</span>
-<span class="normal">346</span>
-<span class="normal">347</span>
-<span class="normal">348</span>
-<span class="normal">349</span>
-<span class="normal">350</span>
-<span class="normal">351</span>
-<span class="normal">352</span>
-<span class="normal">353</span>
-<span class="normal">354</span>
-<span class="normal">355</span>
-<span class="normal">356</span>
-<span class="normal">357</span>
-<span class="normal">358</span>
-<span class="normal">359</span>
-<span class="normal">360</span>
-<span class="normal">361</span>
-<span class="normal">362</span>
-<span class="normal">363</span>
-<span class="normal">364</span>
-<span class="normal">365</span>
-<span class="normal">366</span>
-<span class="normal">367</span>
-<span class="normal">368</span>
-<span class="normal">369</span>
-<span class="normal">370</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">floor_suspicion</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">chunk_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">300.0</span><span class="p">,</span> <span class="n">pct</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">463</span>
+<span class="normal">464</span>
+<span class="normal">465</span>
+<span class="normal">466</span>
+<span class="normal">467</span>
+<span class="normal">468</span>
+<span class="normal">469</span>
+<span class="normal">470</span>
+<span class="normal">471</span>
+<span class="normal">472</span>
+<span class="normal">473</span>
+<span class="normal">474</span>
+<span class="normal">475</span>
+<span class="normal">476</span>
+<span class="normal">477</span>
+<span class="normal">478</span>
+<span class="normal">479</span>
+<span class="normal">480</span>
+<span class="normal">481</span>
+<span class="normal">482</span>
+<span class="normal">483</span>
+<span class="normal">484</span>
+<span class="normal">485</span>
+<span class="normal">486</span>
+<span class="normal">487</span>
+<span class="normal">488</span>
+<span class="normal">489</span>
+<span class="normal">490</span>
+<span class="normal">491</span>
+<span class="normal">492</span>
+<span class="normal">493</span>
+<span class="normal">494</span>
+<span class="normal">495</span>
+<span class="normal">496</span>
+<span class="normal">497</span>
+<span class="normal">498</span>
+<span class="normal">499</span>
+<span class="normal">500</span>
+<span class="normal">501</span>
+<span class="normal">502</span>
+<span class="normal">503</span>
+<span class="normal">504</span>
+<span class="normal">505</span>
+<span class="normal">506</span>
+<span class="normal">507</span>
+<span class="normal">508</span>
+<span class="normal">509</span>
+<span class="normal">510</span>
+<span class="normal">511</span>
+<span class="normal">512</span>
+<span class="normal">513</span>
+<span class="normal">514</span>
+<span class="normal">515</span>
+<span class="normal">516</span>
+<span class="normal">517</span>
+<span class="normal">518</span>
+<span class="normal">519</span>
+<span class="normal">520</span>
+<span class="normal">521</span>
+<span class="normal">522</span>
+<span class="normal">523</span>
+<span class="normal">524</span>
+<span class="normal">525</span>
+<span class="normal">526</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">floor_suspicion</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">chunk_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">300.0</span><span class="p">,</span> <span class="n">pct</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
                     <span class="n">spread_thresh_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">FLOOR_SPREAD_THRESH_DB</span><span class="p">,</span>
                     <span class="n">min_chunks</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">hf_min_hz</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2000.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Flag high-frequency band floors that look like recorder self-noise.</span>
@@ -11945,11 +12462,11 @@ the last three are None when nothing is flagged.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">373</span>
-<span class="normal">374</span>
-<span class="normal">375</span>
-<span class="normal">376</span>
-<span class="normal">377</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">circular_stats</span><span class="p">(</span><span class="n">az_deg</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">529</span>
+<span class="normal">530</span>
+<span class="normal">531</span>
+<span class="normal">532</span>
+<span class="normal">533</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">circular_stats</span><span class="p">(</span><span class="n">az_deg</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Energy-weighted circular mean (deg) and resultant length R.&quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.circstats</span><span class="w"> </span><span class="kn">import</span> <span class="n">mean_resultant</span>
     <span class="n">mu</span><span class="p">,</span> <span class="n">R</span> <span class="o">=</span> <span class="n">mean_resultant</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">az_deg</span><span class="p">,</span> <span class="nb">float</span><span class="p">)),</span> <span class="n">weights</span><span class="p">)</span>
@@ -11976,62 +12493,62 @@ the last three are None when nothing is flagged.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">380</span>
-<span class="normal">381</span>
-<span class="normal">382</span>
-<span class="normal">383</span>
-<span class="normal">384</span>
-<span class="normal">385</span>
-<span class="normal">386</span>
-<span class="normal">387</span>
-<span class="normal">388</span>
-<span class="normal">389</span>
-<span class="normal">390</span>
-<span class="normal">391</span>
-<span class="normal">392</span>
-<span class="normal">393</span>
-<span class="normal">394</span>
-<span class="normal">395</span>
-<span class="normal">396</span>
-<span class="normal">397</span>
-<span class="normal">398</span>
-<span class="normal">399</span>
-<span class="normal">400</span>
-<span class="normal">401</span>
-<span class="normal">402</span>
-<span class="normal">403</span>
-<span class="normal">404</span>
-<span class="normal">405</span>
-<span class="normal">406</span>
-<span class="normal">407</span>
-<span class="normal">408</span>
-<span class="normal">409</span>
-<span class="normal">410</span>
-<span class="normal">411</span>
-<span class="normal">412</span>
-<span class="normal">413</span>
-<span class="normal">414</span>
-<span class="normal">415</span>
-<span class="normal">416</span>
-<span class="normal">417</span>
-<span class="normal">418</span>
-<span class="normal">419</span>
-<span class="normal">420</span>
-<span class="normal">421</span>
-<span class="normal">422</span>
-<span class="normal">423</span>
-<span class="normal">424</span>
-<span class="normal">425</span>
-<span class="normal">426</span>
-<span class="normal">427</span>
-<span class="normal">428</span>
-<span class="normal">429</span>
-<span class="normal">430</span>
-<span class="normal">431</span>
-<span class="normal">432</span>
-<span class="normal">433</span>
-<span class="normal">434</span>
-<span class="normal">435</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">summarize</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">536</span>
+<span class="normal">537</span>
+<span class="normal">538</span>
+<span class="normal">539</span>
+<span class="normal">540</span>
+<span class="normal">541</span>
+<span class="normal">542</span>
+<span class="normal">543</span>
+<span class="normal">544</span>
+<span class="normal">545</span>
+<span class="normal">546</span>
+<span class="normal">547</span>
+<span class="normal">548</span>
+<span class="normal">549</span>
+<span class="normal">550</span>
+<span class="normal">551</span>
+<span class="normal">552</span>
+<span class="normal">553</span>
+<span class="normal">554</span>
+<span class="normal">555</span>
+<span class="normal">556</span>
+<span class="normal">557</span>
+<span class="normal">558</span>
+<span class="normal">559</span>
+<span class="normal">560</span>
+<span class="normal">561</span>
+<span class="normal">562</span>
+<span class="normal">563</span>
+<span class="normal">564</span>
+<span class="normal">565</span>
+<span class="normal">566</span>
+<span class="normal">567</span>
+<span class="normal">568</span>
+<span class="normal">569</span>
+<span class="normal">570</span>
+<span class="normal">571</span>
+<span class="normal">572</span>
+<span class="normal">573</span>
+<span class="normal">574</span>
+<span class="normal">575</span>
+<span class="normal">576</span>
+<span class="normal">577</span>
+<span class="normal">578</span>
+<span class="normal">579</span>
+<span class="normal">580</span>
+<span class="normal">581</span>
+<span class="normal">582</span>
+<span class="normal">583</span>
+<span class="normal">584</span>
+<span class="normal">585</span>
+<span class="normal">586</span>
+<span class="normal">587</span>
+<span class="normal">588</span>
+<span class="normal">589</span>
+<span class="normal">590</span>
+<span class="normal">591</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">summarize</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Session descriptor dict from concatenated features (see features.load_features).&quot;&quot;&quot;</span>
     <span class="n">fast</span><span class="p">,</span> <span class="n">fasta</span> <span class="o">=</span> <span class="n">F</span><span class="p">[</span><span class="s2">&quot;fast_db&quot;</span><span class="p">],</span> <span class="n">F</span><span class="p">[</span><span class="s2">&quot;fast_dba&quot;</span><span class="p">]</span>
     <span class="n">dt</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">F</span><span class="p">[</span><span class="s2">&quot;t_fast&quot;</span><span class="p">])))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">F</span><span class="p">[</span><span class="s2">&quot;t_fast&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mf">0.125</span>
@@ -12113,47 +12630,47 @@ Returns {band: (T60, dynamic_range_db)}.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">438</span>
-<span class="normal">439</span>
-<span class="normal">440</span>
-<span class="normal">441</span>
-<span class="normal">442</span>
-<span class="normal">443</span>
-<span class="normal">444</span>
-<span class="normal">445</span>
-<span class="normal">446</span>
-<span class="normal">447</span>
-<span class="normal">448</span>
-<span class="normal">449</span>
-<span class="normal">450</span>
-<span class="normal">451</span>
-<span class="normal">452</span>
-<span class="normal">453</span>
-<span class="normal">454</span>
-<span class="normal">455</span>
-<span class="normal">456</span>
-<span class="normal">457</span>
-<span class="normal">458</span>
-<span class="normal">459</span>
-<span class="normal">460</span>
-<span class="normal">461</span>
-<span class="normal">462</span>
-<span class="normal">463</span>
-<span class="normal">464</span>
-<span class="normal">465</span>
-<span class="normal">466</span>
-<span class="normal">467</span>
-<span class="normal">468</span>
-<span class="normal">469</span>
-<span class="normal">470</span>
-<span class="normal">471</span>
-<span class="normal">472</span>
-<span class="normal">473</span>
-<span class="normal">474</span>
-<span class="normal">475</span>
-<span class="normal">476</span>
-<span class="normal">477</span>
-<span class="normal">478</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">decay_time</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bands</span><span class="o">=</span><span class="p">((</span><span class="mi">250</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span> <span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">594</span>
+<span class="normal">595</span>
+<span class="normal">596</span>
+<span class="normal">597</span>
+<span class="normal">598</span>
+<span class="normal">599</span>
+<span class="normal">600</span>
+<span class="normal">601</span>
+<span class="normal">602</span>
+<span class="normal">603</span>
+<span class="normal">604</span>
+<span class="normal">605</span>
+<span class="normal">606</span>
+<span class="normal">607</span>
+<span class="normal">608</span>
+<span class="normal">609</span>
+<span class="normal">610</span>
+<span class="normal">611</span>
+<span class="normal">612</span>
+<span class="normal">613</span>
+<span class="normal">614</span>
+<span class="normal">615</span>
+<span class="normal">616</span>
+<span class="normal">617</span>
+<span class="normal">618</span>
+<span class="normal">619</span>
+<span class="normal">620</span>
+<span class="normal">621</span>
+<span class="normal">622</span>
+<span class="normal">623</span>
+<span class="normal">624</span>
+<span class="normal">625</span>
+<span class="normal">626</span>
+<span class="normal">627</span>
+<span class="normal">628</span>
+<span class="normal">629</span>
+<span class="normal">630</span>
+<span class="normal">631</span>
+<span class="normal">632</span>
+<span class="normal">633</span>
+<span class="normal">634</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">decay_time</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bands</span><span class="o">=</span><span class="p">((</span><span class="mi">250</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span> <span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>
                <span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">),</span> <span class="p">(</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">),</span> <span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="mi">8000</span><span class="p">)))</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;T60 estimates from an impulse via truncated Schroeder integration.</span>
 
@@ -12223,42 +12740,42 @@ several identical "representative" segments.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">481</span>
-<span class="normal">482</span>
-<span class="normal">483</span>
-<span class="normal">484</span>
-<span class="normal">485</span>
-<span class="normal">486</span>
-<span class="normal">487</span>
-<span class="normal">488</span>
-<span class="normal">489</span>
-<span class="normal">490</span>
-<span class="normal">491</span>
-<span class="normal">492</span>
-<span class="normal">493</span>
-<span class="normal">494</span>
-<span class="normal">495</span>
-<span class="normal">496</span>
-<span class="normal">497</span>
-<span class="normal">498</span>
-<span class="normal">499</span>
-<span class="normal">500</span>
-<span class="normal">501</span>
-<span class="normal">502</span>
-<span class="normal">503</span>
-<span class="normal">504</span>
-<span class="normal">505</span>
-<span class="normal">506</span>
-<span class="normal">507</span>
-<span class="normal">508</span>
-<span class="normal">509</span>
-<span class="normal">510</span>
-<span class="normal">511</span>
-<span class="normal">512</span>
-<span class="normal">513</span>
-<span class="normal">514</span>
-<span class="normal">515</span>
-<span class="normal">516</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pick_segments</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">seg_s</span><span class="o">=</span><span class="mf">600.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">637</span>
+<span class="normal">638</span>
+<span class="normal">639</span>
+<span class="normal">640</span>
+<span class="normal">641</span>
+<span class="normal">642</span>
+<span class="normal">643</span>
+<span class="normal">644</span>
+<span class="normal">645</span>
+<span class="normal">646</span>
+<span class="normal">647</span>
+<span class="normal">648</span>
+<span class="normal">649</span>
+<span class="normal">650</span>
+<span class="normal">651</span>
+<span class="normal">652</span>
+<span class="normal">653</span>
+<span class="normal">654</span>
+<span class="normal">655</span>
+<span class="normal">656</span>
+<span class="normal">657</span>
+<span class="normal">658</span>
+<span class="normal">659</span>
+<span class="normal">660</span>
+<span class="normal">661</span>
+<span class="normal">662</span>
+<span class="normal">663</span>
+<span class="normal">664</span>
+<span class="normal">665</span>
+<span class="normal">666</span>
+<span class="normal">667</span>
+<span class="normal">668</span>
+<span class="normal">669</span>
+<span class="normal">670</span>
+<span class="normal">671</span>
+<span class="normal">672</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pick_segments</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">seg_s</span><span class="o">=</span><span class="mf">600.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Suggest representative windows: quietest, most active, median-typical,</span>
 <span class="sd">    and (if present) the strongest state transition.</span>
 

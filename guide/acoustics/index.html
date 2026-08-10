@@ -833,6 +833,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#measuring-the-source-not-the-source-plus-the-recorder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Measuring the source, not the source plus the recorder
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#calibration" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2048,6 +2059,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#measuring-the-source-not-the-source-plus-the-recorder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Measuring the source, not the source plus the recorder
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#calibration" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2144,43 +2166,62 @@ each guarding against a failure mode common in field recordings:</p>
 </ol>
 <div class="admonition warning">
 <p class="admonition-title">Camera audio can replace a recorder for T60 — and not for the rest</p>
-<p>Measured on 7 days where a GoPro MAX and a Zoom H3-VR recorded the same
-room and the same clap, aligned by envelope cross-correlation and
-verified before comparison, reading the camera's <strong>4-channel PCM
-ambisonic</strong> track:</p>
+<p>Measured over a full year: a GoPro MAX and a Zoom H3-VR recording the
+same room and the same clap, 369 paired events, aligned by envelope
+cross-correlation and each window verified to contain a transient before
+it was measured. Reading the camera's <strong>4-channel PCM ambisonic</strong> track:</p>
 <table>
 <thead>
 <tr>
 <th></th>
-<th>camera − recorder (median)</th>
+<th>camera − recorder</th>
+<th>95 % limits of agreement</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><strong>T60</strong></td>
-<td><strong>−0.01 s</strong></td>
+<td><strong>+0.02 s</strong></td>
+<td>−1.04 to +1.00 s</td>
 </tr>
 <tr>
 <td>EDT</td>
-<td><strong>+0.18 s</strong></td>
+<td><strong>+0.24 s</strong></td>
+<td></td>
 </tr>
 <tr>
 <td>C50</td>
-<td><strong>−2.9 dB</strong></td>
+<td><strong>−3.6 dB</strong></td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<p>Reverberation time survives the substitution almost exactly. The early
-field does not: the camera reports a slower early decay and a room about
-3 dB less clear than it is.</p>
-<p><strong>Read the right track.</strong> A GoPro MAX <code>.360</code> carries both a processed
-stereo AAC mix and a 4-channel PCM ambisonic stream, and <code>ffmpeg</code> will
-hand you the stereo one by default. Measured on the stereo track the same
-comparison gives EDT +0.24 s and C50 −5.5 dB — so roughly half the
-apparent clarity deficit is the convenience track, not the camera. Find
-the stream with four channels and a PCM codec. Note also that the small
-<code>.LRV</code> proxy carries <strong>only</strong> the stereo mix, so it cannot be used as a
-cheap stand-in for ambisonic work.</p>
+<p>Reverberation time survives the substitution in the median almost
+exactly. The early field does not: the camera reports a slower early
+decay and a room about 3.6 dB less clear than it is.</p>
+<p><strong>Read the limits, not just the median.</strong> Those T60 limits span two
+seconds. The camera is <em>unbiased and imprecise</em>: a distribution of T60
+computed from camera audio lands where the recorder's would, and any
+single measurement may be far out. Per event the camera falls within the
+±20 % usually granted to a clap-derived estimate on 72 % of days. Use
+camera audio to populate a distribution; do not use it to certify a room.</p>
+<p><strong>Read the right track</strong> — but for precision, not accuracy. A GoPro MAX
+<code>.360</code> carries both a processed stereo AAC mix and a 4-channel PCM
+ambisonic stream, and <code>ffmpeg</code> will hand you the stereo one by default.
+On bias the two layers are near-identical (C50 −3.6 dB against −3.8 dB);
+where they differ is spread, the stereo mix giving T60 limits of −1.80
+to +1.67 s against the ambisonic stream's −1.04 to +1.00. Note also that
+the small <code>.LRV</code> proxy carries <strong>only</strong> the stereo mix, so it cannot be
+used as a cheap stand-in for ambisonic work.</p>
+<p><em>Corrected 2026-08-09.</em> This box previously said that "roughly half the
+apparent clarity deficit is the convenience track", from EDT +0.24 s and
+C50 −5.5 dB on the stereo track over 7 days. That was two artefacts, not
+a finding: the windows were cut from an alignment rather than from the
+transient, and the stereo layer was measured on its <strong>left channel</strong>
+while the ambisonic layers were measured on W. A directional channel
+collects a different share of the direct sound, which is exactly what
+C50 measures. Measured on the mid signal (L+R)/2, with windows centred
+on the clap, the difference between the layers' bias disappears.</p>
 <p>This matters well beyond one corpus. Cameras are often the recorder with
 full coverage, and consumer cameras do not document their processing, so
 treat any camera-derived clarity or early-decay figure as unusable and
@@ -2193,6 +2234,18 @@ measured offsets ran from −51 s to +14 s — so pairing by timestamp
 compares different events. Waveform correlation cannot verify a pair
 either, since the camera's coding changes the waveform of the same clap
 (peaks of 0.03–0.14 on every day tried). Align on the level envelope.</p>
+<p><strong>Verify the alignment on the signal, not on the correlation peak.</strong> The
+envelope correlation reports a peak height relative to its own median,
+and that number can be large and wrong: aligning the proxy <code>.LRV</code>
+instead of the <code>.360</code> agreed exactly with the full file on three days
+out of four and on the fourth returned an offset 60 s out — with a peak
+standing 50× above median, well past any plausible threshold. The cheap,
+decisive check is to cut the window at the predicted position and ask
+whether a transient is there at all: a real clap window shows 25–45 dB
+between the 20 ms after the onset and the 20 ms before it, and a
+mis-aligned one shows about zero. Gate on that, not on the correlation's
+self-report. (The proxy is also 60× faster to read, so it is tempting;
+treat it as a hint that must be confirmed against the full file.)</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Trimmed IRs: regenerate anything measured before 0.28.1</p>
@@ -2213,6 +2266,83 @@ around it approaches ISO 3382-2 survey grade.</p>
 <p>For a deliberate measurement, a swept sine buys far more dynamic range
 than any clap and adds STI, IACC and auralization — see
 <a href="../impulse/">Impulse response &amp; auralization</a>.</p>
+<h2 id="measuring-the-source-not-the-source-plus-the-recorder">Measuring the source, not the source plus the recorder</h2>
+<p>Every level a recorder reports is <code>P = S + N</code> — what the room did, plus what
+the machine contributed. Nothing in the number says which is which, and
+reading <code>P</code> as <code>S</code> is the single most productive source of error in this
+project's history: it produced a "loudest room" rule that ranked floor depth,
+a speech comparison that ranked microphone sensitivity, a dead-channel verdict
+on a quiet bedroom, and a daily rhythm that turned out to be a converter
+warming up.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape</span><span class="w"> </span><span class="kn">import</span> <span class="n">analysis</span>
+
+<span class="n">sig_db</span><span class="p">,</span> <span class="n">floor_db</span><span class="p">,</span> <span class="n">measurable</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">floor_corrected_level</span><span class="p">(</span><span class="n">fast_dba</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">0.125</span><span class="p">)</span>
+<span class="n">summary</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">summarize_floor_corrected</span><span class="p">(</span><span class="n">sig_db</span><span class="p">,</span> <span class="n">measurable</span><span class="p">)</span>
+<span class="c1"># {&#39;level_db&#39;: -37.8, &#39;coverage&#39;: 0.32, &#39;n_measurable&#39;: 137_216, &#39;reason&#39;: &#39;&#39;}</span>
+</code></pre></div>
+<p>Three parts, and the third is the one usually skipped:</p>
+<ol>
+<li><strong>Track the floor over time</strong> (<code>track_noise_floor</code>). One figure per session
+   cannot be right when the floor moves — a dead channel in the SINS corpus
+   swings 10.7 dB between night and midday as its electronics warm, which is
+   larger than most differences such a figure gets used to interpret. Minimum
+   statistics after Martin (2001): the running minimum of power over a window
+   long enough to contain a real gap, lifted by a bias compensation because
+   the minimum of a fluctuating estimate sits below the mean of what it
+   estimates.</li>
+<li><strong>Subtract in power.</strong> Noise adds as energy. Subtracting decibels is a
+   category error that happens to look plausible.</li>
+<li><strong>Censor and count; never clamp.</strong> A frame that does not clear the floor
+   carries no information about the source, so it comes back as <code>nan</code> and
+   <code>measurable=False</code>. <code>coverage</code> travels with every level, and no level is
+   returned below 10 %.</li>
+</ol>
+<div class="admonition danger">
+<p class="admonition-title">Clamping is worse than doing nothing</p>
+<p>Setting sub-floor frames to zero and averaging what is left does not
+merely lose precision — it converts a bias in level into a bias in
+<strong>sampling</strong>. The frames that survive censoring are the loud ones, so a
+quiet span reports as loud. Measured on a real living-room node, dropping
+sub-floor hours and averaging the survivors made its <em>midday quieter than
+its night</em>, which is impossible for an occupied room. The mistake is
+invisible in the output; only the coverage figure exposes it.</p>
+</div>
+<div class="admonition danger">
+<p class="admonition-title">A fridge is not noise — run <code>steady_sources</code> first</p>
+<p>Minimum statistics looks for the quietest moment in each window, so
+anything steady for longer than the window is absorbed into the floor and
+subtracted away. For a ventilation plant, a fridge or a circulation pump
+that is precisely wrong: they are steady for minutes at a time and they
+are usually the thing being studied.</p>
+<p>What separates them from the recorder is that <strong>they turn off</strong>. Self-noise
+does not. <code>steady_sources</code> uses that:</p>
+<div class="highlight"><pre><span></span><code><span class="n">analysis</span><span class="o">.</span><span class="n">steady_sources</span><span class="p">(</span><span class="n">fast_dba</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">0.125</span><span class="p">,</span> <span class="n">short_s</span><span class="o">=</span><span class="mf">120.0</span><span class="p">,</span> <span class="n">long_s</span><span class="o">=</span><span class="mf">7200.0</span><span class="p">)</span>
+<span class="c1"># {&#39;self_noise_db&#39;: -62.1, &#39;steady_excess_db&#39;: 6.3, &#39;machine_duty&#39;: 0.07,</span>
+<span class="c1">#  &#39;machine_detected&#39;: True, &#39;steady_source_unresolved&#39;: False}</span>
+</code></pre></div>
+<p>The floor is tracked twice — over minutes, which absorbs a running machine,
+and over hours, which does not, because the machine's off-phase falls
+inside the window. The difference is the machinery, and <code>machine_duty</code> says
+how much of the time it runs. Set <code>long_s</code> longer than the machine's full
+cycle: a domestic fridge turns over in roughly three quarters of an hour,
+so two hours is a safe default.</p>
+<p><strong>When it cannot help.</strong> A plant that runs continuously for longer than
+<code>long_s</code> is indistinguishable from self-noise by level alone, and
+<code>steady_source_unresolved</code> says so — not "there is a constant source" but
+"one cannot be ruled out, and it is inside <code>self_noise_db</code>". The failure of
+too short a <code>long_s</code> is quiet: <code>machine_duty</code> is understated first, a
+fridge running 60 % of the time reported at 17 %, and only then does the
+floor climb toward the machine. If the duty looks implausibly low for a
+machine you can hear, lengthen the window before believing the floor.</p>
+</div>
+<p><strong>What coverage is for.</strong> A level computed over 4 % of a session and one
+computed over 96 % are different kinds of statement, and the level alone
+cannot tell them apart. In the corpus this came from, a node reading a
+plausible 6.6 dB below the living room cleared its own floor on 5 % of frames;
+the raw number invited a comparison the data could not support and said
+nothing about it. Per hour, coverage also answers <em>when</em> a node can be
+measured at all — a live living room runs 85–90 % through the evening, while a
+floor-dominated node never exceeds 18 % at any hour of the day.</p>
 <h2 id="calibration">Calibration</h2>
 <p><code>calibration.json</code> in the session folder defines the offset <code>O</code> such that a
 signal at −X dBFS corresponds to (O − X) dB SPL:</p>
@@ -2324,7 +2454,7 @@ audio pass.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 9, 2026 13:59:09 UTC">August 9, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 10, 2026 04:17:48 UTC">August 10, 2026</span>
   </span>
 
     

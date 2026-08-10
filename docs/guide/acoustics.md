@@ -198,6 +198,70 @@ nothing about it. Per hour, coverage also answers *when* a node can be
 measured at all — a live living room runs 85–90 % through the evening, while a
 floor-dominated node never exceeds 18 % at any hour of the day.
 
+## The rhythm is the signal
+
+The deepest version of the floor question is not "how loud is the noise?" but
+"what here ever changes?" A recorder's own hiss is stationary. Everything else
+in a room turns over eventually: a fridge in tens of minutes, a ventilation
+plant in hours, a household in a day, a heating system across a season. So
+whether something is signal or noise is a question about **periodicity across
+timescales** — and the period that answers it also names the thing.
+
+```python
+analysis.dominant_cycles(level_db, dt=10.0, min_period_s=120, max_period_s=4*3600)
+# [{'period_s': 3720.0, 'strength': 0.42, 'band': 'cyclic'}]
+```
+
+Periods are placed on a ladder that extends the descriptor registry upward,
+where its `macro` band runs from 5 s to infinity and so cannot tell a fridge
+cycle from a season:
+
+| band | span | what lives there |
+|---|---|---|
+| `meso` | 0.5–5 s | the sound object |
+| `macro` | 5 s – 10 min | an activity, a passage |
+| `cyclic` | 10 min – 6 h | machinery, a meal, a rehearsal |
+| `circadian` | 6 h – 3 days | the household's day |
+| `seasonal` | 3 days – 1 year | heating, weather, term time |
+| `archival` | > 1 year | the building's life |
+
+On a domestic sensor network this separates the rooms from the instruments
+without any calibration: the living room and the kitchen both carry a
+62-minute cycle, and the noise-dominated nodes are stationary at every scale.
+**A node with no rhythm has nothing in it but its own electronics.**
+
+!!! warning "The instrument has a rhythm too"
+
+    Periodicity alone does not mean "this is the room". A converter warms and
+    cools with the building, so a *dead channel* still shows a clean 24-hour
+    cycle. What distinguishes a household is that it also leaves faster marks
+    — a kettle, a shower, a fridge — which is what `cycle_profile` reports as
+    `has_sub_daily_cycle`. A diurnal rhythm with nothing underneath it is an
+    instrument breathing, not a home.
+
+### Anomaly is the complement of rhythm
+
+An outlier detector run on a kitchen flags the fridge thirty times a day. It
+is a good detector answering the wrong question: what makes the fridge normal
+is precisely that it repeats.
+
+```python
+analysis.cycle_residual(level_db, dt=10.0)
+# {'period_s': 2700.0, 'residual_std_db': 0.41, 'anomalies': [...]}
+```
+
+The cycle is found, the series folded onto its phase to get what the room
+usually does at that point in the cycle, and that subtracted. What survives is
+what the room did *not* repeat. A spike has no period and cannot be folded
+away; a machine can. So rhythm and anomaly are two readings of one series, and
+finding the first is what makes the second meaningful.
+
+Three limits worth knowing. It models one cycle, not several at once. A
+*change* in the cycle — a fridge whose period drifts as it fails — appears as
+residual rather than as the more interesting finding it usually is. And with
+no cycle found it falls back to the plain series, where slow drift reads as
+anomalous.
+
 ## Calibration
 
 `calibration.json` in the session folder defines the offset `O` such that a

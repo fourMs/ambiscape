@@ -419,6 +419,247 @@ def steady_sources(level_db, dt: float, short_s: float = 120.0,
     }
 
 
+# Where a period places a thing. The bands above `macro` are the ones the
+# descriptor registry does not yet carry, and they are the ones that matter
+# for telling a machine from a household from a season.
+CYCLE_BANDS = (
+    ("meso", 0.5, 5.0),
+    ("macro", 5.0, 600.0),
+    ("cyclic", 600.0, 6 * 3600.0),          # machinery, a meal, a rehearsal
+    ("circadian", 6 * 3600.0, 3 * 86400.0),  # the household's day
+    ("seasonal", 3 * 86400.0, 365 * 86400.0),
+    ("archival", 365 * 86400.0, float("inf")),
+)
+CYCLE_MIN_STRENGTH = 0.25
+
+
+def cycle_band(period_s: float) -> str:
+    """Which rung of the ladder a period sits on."""
+    for name, lo, hi in CYCLE_BANDS:
+        if lo <= period_s < hi:
+            return name
+    return "micro" if period_s < 0.5 else "archival"
+
+
+def _full_acf(level_db):
+    """Normalised autocorrelation at every lag, by FFT.
+
+    Sampling a log grid of candidate periods does not work here, and the
+    reason is worth stating: an autocorrelation peak can be far narrower
+    than the grid. With a fridge cycling inside a day, a lag 1.4 % away
+    from 24 h is half a fridge cycle out, which decorrelates that component
+    completely — so the day's true peak of 0.83 reads as 0.25 a few hundred
+    seconds to either side, and a 3 % grid steps straight over it. Computing
+    every lag removes the problem and costs one FFT.
+    """
+    x = np.asarray(level_db, float)
+    ok = np.isfinite(x)
+    if ok.sum() < 8:
+        return np.array([])
+    x = np.where(ok, x, np.nanmean(x[ok]))
+    x = x - x.mean()
+    n = len(x)
+    fft = np.fft.rfft(x, 2 * n)
+    acf = np.fft.irfft(fft * np.conj(fft), 2 * n)[:n]
+    return acf / acf[0] if acf[0] > 0 else np.zeros(n)
+
+
+def cycle_spectrum(level_db, dt: float, min_period_s: float = 60.0,
+                   max_period_s: float = 6 * 3600.0, n_periods: int = 192):
+    """How strongly a level series repeats, across a ladder of periods.
+
+    The premise is that **what never changes cannot be used**. A recorder's
+    own hiss is stationary; a room is not. A fridge turns over in tens of
+    minutes, a ventilation plant in hours, a household in a day, a heating
+    system in a season. So "signal or noise?" is really a question about
+    periodicity, asked at every timescale at once, and the period that
+    answers it also names the thing.
+
+    Returns ``(periods_s, strength)`` with strength in 0–1, sampled onto a
+    log grid for reporting — each grid point carrying the *strongest* lag in
+    its bin, so a sharp peak survives being summarised. `nan` samples are
+    tolerated, since recordings have gaps.
+
+    Working on the level series rather than the waveform is deliberate. What
+    repeats at these scales is loudness, not pressure, and the level series
+    survives coding, resampling and even a change of recorder.
+    """
+    acf = _full_acf(level_db)
+    if not len(acf):
+        return np.array([]), np.array([])
+    lo = max(min_period_s, 2 * dt)
+    hi = min(max_period_s, len(acf) * dt / 2.5)
+    if hi <= lo:
+        return np.array([]), np.array([])
+    edges = np.geomspace(lo, hi, n_periods + 1)
+    periods, strength = [], []
+    for a, b in zip(edges[:-1], edges[1:]):
+        i0, i1 = int(a / dt), max(int(a / dt) + 1, int(b / dt))
+        seg = acf[i0:min(i1, len(acf))]
+        if not len(seg):
+            continue
+        k = int(np.argmax(seg))
+        periods.append((i0 + k) * dt)
+        strength.append(float(seg[k]))
+    return np.array(periods), np.clip(np.array(strength), 0.0, 1.0)
+
+
+def dominant_cycles(level_db, dt: float, min_period_s: float = 60.0,
+                    max_period_s: float = 6 * 3600.0, top: int = 3,
+                    min_strength: float = CYCLE_MIN_STRENGTH,
+                    min_prominence: float = 0.05) -> list[dict]:
+    """The periods a level series actually repeats at, strongest first.
+
+    Peaks of the autocorrelation, each reported with the band it belongs to.
+    An empty list means the series is stationary at every scale asked about —
+    which, for a recording of a room, is a statement about the recorder
+    rather than about the room.
+
+    Two things have to be got right or this measures the wrong quantity.
+
+    **Prominence, not height.** Autocorrelation is high at short lag for
+    anything that varies slowly, so a single 24-hour swing scores well at a
+    ten-minute lag purely by being smooth. That is not a ten-minute cycle. A
+    peak has to stand clear of the troughs around it, which is what
+    distinguishes repeating from merely drifting.
+
+    **Harmonics are not findings.** A cycle of period *T* also correlates at
+    2*T* and 3*T*, so a peak near a low integer multiple of an accepted
+    shorter period is dropped. The bound matters: a day is 32 fridge cycles
+    long and is emphatically its own thing.
+    """
+    acf = _full_acf(level_db)
+    if not len(acf):
+        return []
+    lo_lag = max(1, int(max(min_period_s, 2 * dt) / dt))
+    hi_lag = min(len(acf) - 1, int(min(max_period_s, len(acf) * dt / 2.5) / dt))
+    if hi_lag <= lo_lag + 2:
+        return []
+
+    peaks = []
+    for i in range(lo_lag + 1, hi_lag):
+        if not (acf[i] >= acf[i - 1] and acf[i] > acf[i + 1]):
+            continue
+        if acf[i] < min_strength:
+            continue
+        # prominence against the troughs on either side, out to one period
+        w = max(2, i // 2)
+        left = acf[max(lo_lag, i - w):i].min()
+        right = acf[i + 1:min(hi_lag, i + w) + 1].min()
+        if acf[i] - max(left, right) < min_prominence:
+            continue
+        peaks.append({"period_s": round(i * dt, 1),
+                      "strength": round(float(acf[i]), 3),
+                      "band": cycle_band(i * dt)})
+
+    peaks.sort(key=lambda c: c["period_s"])          # fundamentals first
+    kept: list[dict] = []
+    for c in peaks:
+        if any(1.85 <= (r := c["period_s"] / k["period_s"]) <= 8.0
+               and abs(r - round(r)) < 0.15 for k in kept):
+            continue
+        kept.append(c)
+
+    kept.sort(key=lambda c: -c["strength"])
+    seen, out = set(), []
+    for c in kept:
+        if c["band"] in seen:
+            continue
+        seen.add(c["band"])
+        out.append(c)
+    return out[:top]
+
+
+def cycle_residual(level_db, dt: float, min_period_s: float = 60.0,
+                   max_period_s: float = 6 * 3600.0,
+                   n_sigma: float = 5.0, min_gap_s: float = 60.0) -> dict:
+    """What the room did *not* repeat — anomaly as the complement of rhythm.
+
+    A rhythm and an anomaly are opposite readings of one series, and the
+    difference matters practically. An outlier detector run on a kitchen
+    flags the fridge thirty times a day, because every start is a step
+    change; it is a perfectly good detector answering the wrong question.
+    The fridge is not an anomaly, it is the room's normal behaviour, and what
+    makes it normal is precisely that it repeats.
+
+    So: find the strongest cycle, fold the series onto its phase to get what
+    the room usually does at that point in the cycle, subtract it, and look
+    at what survives. A spike has no period and cannot be folded away, so it
+    stands out in the residual. A machine can, and does not.
+
+    Returns the period used, the residual's spread, and any excursions past
+    ``n_sigma`` robust deviations, each with its time and how far past the
+    threshold it went.
+
+    Three things this does not do, worth knowing before trusting it. It
+    models one cycle, not several at once. It treats a *change* in the cycle
+    — a fridge whose period drifts as it fails — as residual rather than as
+    the more interesting finding it usually is. And with no cycle found it
+    falls back to the plain series, where any slow drift will read as
+    anomalous.
+    """
+    x = np.asarray(level_db, float)
+    ok = np.isfinite(x)
+    if ok.sum() < 8:
+        return {"period_s": None, "residual_std_db": 0.0, "anomalies": []}
+    x = np.where(ok, x, np.nanmean(x[ok]))
+
+    cycles = dominant_cycles(x, dt, min_period_s, max_period_s, top=1)
+    if cycles:
+        period_s = cycles[0]["period_s"]
+        lag = max(2, int(round(period_s / dt)))
+        phase = np.arange(len(x)) % lag
+        # the room's usual behaviour at each point of the cycle
+        expected = np.zeros(lag)
+        for k in range(lag):
+            expected[k] = np.median(x[phase == k])
+        resid = x - expected[phase]
+    else:
+        period_s = None
+        resid = x - np.median(x)
+
+    # robust spread: a spike must not inflate the threshold that finds it
+    mad = float(np.median(np.abs(resid - np.median(resid))))
+    sigma = 1.4826 * mad if mad > 0 else float(resid.std())
+    thresh = n_sigma * sigma
+
+    anomalies, last_t = [], -np.inf
+    for i in np.flatnonzero(np.abs(resid) > thresh):
+        t_s = float(i * dt)
+        if t_s - last_t < min_gap_s:
+            continue
+        last_t = t_s
+        anomalies.append({"t_s": round(t_s, 1),
+                          "excess_db": round(float(abs(resid[i]) - thresh), 2),
+                          "direction": "up" if resid[i] > 0 else "down"})
+    return {"period_s": period_s,
+            "residual_std_db": round(float(sigma), 3),
+            "anomalies": anomalies}
+
+
+def cycle_profile(level_db, dt: float, min_period_s: float = 60.0,
+                  max_period_s: float = 3 * 86400.0) -> dict:
+    """What kind of thing is cycling here — a room, or the recorder?
+
+    Periodicity alone does not separate them, and this is the correction the
+    SINS corpus forced: a converter warms and cools with the building, so a
+    dead channel still shows a clean 24-hour cycle. A diurnal rhythm with
+    *nothing faster underneath it* is the signature of an instrument
+    breathing with the room temperature. A household leaves faster marks as
+    well — a fridge, a kettle, a shower — and those are what
+    ``has_sub_daily_cycle`` reports.
+    """
+    cycles = dominant_cycles(level_db, dt, min_period_s, max_period_s, top=6)
+    sub = [c for c in cycles if c["band"] in ("meso", "macro", "cyclic")]
+    diurnal = [c for c in cycles if c["band"] == "circadian"]
+    return {
+        "cycles": cycles,
+        "has_sub_daily_cycle": bool(sub),
+        "diurnal_only": bool(diurnal and not sub),
+        "stationary": not cycles,
+    }
+
+
 def floor_occupancy(F: dict, within_db: float = AT_FLOOR_WITHIN_DB,
                     pct: float = 5.0) -> dict:
     """How much of a session sits at its own noise floor.

@@ -7,6 +7,37 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/); the
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) loosely, in that the minor number has
 been carrying feature work throughout a pre-1.0 life.
 
+## [0.32.0] — 2026-08-10
+
+### Added
+- **`analysis.cycle_spectrum`, `dominant_cycles`, `cycle_profile`, `cycle_residual`** — the rhythm
+  is the signal. What separates a source from a recorder's own hiss is that the source *changes*:
+  a fridge turns over in tens of minutes, a ventilation plant in hours, a household in a day, a
+  heating system in a season. Self-noise is stationary. So "signal or noise?" becomes a question
+  about periodicity asked at every timescale at once, and the period that answers it also names the
+  thing found.
+
+  `dominant_cycles` returns the periods a level series repeats at, each placed on a band —
+  `meso`, `macro`, `cyclic`, `circadian`, `seasonal`, `archival`. The last four extend the ladder
+  above the descriptor registry's `macro`, which runs 5 s to infinity and so cannot tell a fridge
+  cycle from a season.
+
+  On the SINS network this separates the rooms cleanly: the living room and the kitchen both carry
+  a 62-minute cycle, and the four noise-dominated nodes are stationary at every scale — no cycle at
+  all. A node with no rhythm has nothing in it but its own electronics.
+
+- **`analysis.cycle_residual`** — anomaly as the complement of rhythm. An outlier detector run on a
+  kitchen flags the fridge thirty times a day: a good detector answering the wrong question, since
+  what makes the fridge normal is precisely that it repeats. The cycle is found, the series folded
+  onto its phase and subtracted, and what survives is what the room did *not* repeat. A spike has
+  no period and cannot be folded away; a machine can.
+
+### Fixed
+- Peak finding in the cycle spectrum uses the full FFT autocorrelation rather than sampling a log
+  grid. A grid cannot see a peak narrower than its spacing, and these peaks are narrow: with a
+  fridge cycling inside a day, a lag 1.4 % from 24 h is half a fridge cycle out, so the day's true
+  peak of 0.83 reads as 0.25 a few hundred seconds either side and a 3 % grid steps over it.
+
 ## [0.31.0] — 2026-08-10
 
 ### Added

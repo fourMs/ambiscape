@@ -71,6 +71,34 @@ sustained on a continuous axis rather than in categories: an impulse lands
 near 0.04 and a held sound near 0.49, so two objects of the same facture
 can still be told apart.
 
+### The spectral half (`objects.object_spectrum`)
+
+`object_profile` measures an envelope and says nothing about frequency. Pass
+it the object's own rows of the log-frequency spectrogram and it merges in
+three more, or call `object_spectrum` directly:
+
+```python
+p = object_profile(env, dt, logspec=F["logspec"][i0:i1], logf=F["logf"])
+```
+
+| field | what it says |
+|---|---|
+| `brightness_hz` | energy-weighted spectral centroid over the object |
+| `brightness_drift_oct` | the last third's centroid against the first third's, in octaves — negative for an object growing duller as it decays, positive for one growing brighter |
+| `flux_per_s` | frame-to-frame change of the normalised spectrum, per second, so it does not depend on the hop |
+| `n_frames` | below about five, read the other three as indicative |
+
+The drift is the duration-aware one: it is a shape rather than a level, so
+objects of different lengths compare directly.
+
+What they are not is a typology. Measured against listener typing on 334
+labelled clips of everyday sound actions, drift runs in the predicted
+direction and weakly — impulsive objects at −0.25 octaves against −0.01 for
+iterative, p = 0.03, rank-biserial −0.16. Flux does not separate the two at
+all (39.5 per second against 39.7, p = 0.56) and nor does brightness. Use
+them to describe an object and to compare objects; use `object_facture` to
+type one.
+
 These are *meso-band* descriptors in the sense of the
 [timescales guide](timescales.md): each is defined on a single object of
 roughly 0.2–8 s and none needs a minute of audio. That matters for clip

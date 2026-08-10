@@ -7,6 +7,8 @@ Works entirely from the cached per-minute mean PSD (``minspec``):
 - ``tonal_tracks`` — peaks linked across minutes into tracks (a hum, a bell
   partial, a beep), each with duration, median frequency, and cents drift:
   the tonalness timeline;
+- ``group_tracks`` — those segments regrouped into lines, for a source that
+  pauses or changes speed and so appears as several tracks;
 - ``harmonic_sieve`` — best f0 explaining a minute's peak set as a harmonic
   series; the unexplained remainder is the inharmonic tonal content.
   Voices, engines, and music score high harmonicity; bells score low
@@ -82,6 +84,53 @@ def tonal_tracks(minspec: np.ndarray, freqs: np.ndarray, tol_cents=40.0,
             "prominence_db": round(float(np.mean(tr["prom"])), 1),
             "drift_cents": round(float(1200 * np.log2(
                 (f[-1] + EPS) / (f[0] + EPS))), 1),
+        })
+    return sorted(out, key=lambda t: -t["minutes"])
+
+
+def group_tracks(tracks: list[dict], tol_cents: float = 60.0) -> list[dict]:
+    """Group track segments that are the same line, interrupted.
+
+    :func:`tonal_tracks` answers "how long was a line continuously present at
+    this frequency". A source that pauses, or shifts frequency and comes back,
+    is therefore several tracks --- correct as tracking and misleading as a
+    description of the source. A dishwasher's circulation pump, which changes
+    speed between programme phases, appears as five separate tracks.
+
+    This regroups them: segments whose median frequencies lie within
+    ``tol_cents`` become one line, regardless of the gaps between them.
+    Returns one entry per line with ``f_median_hz``, ``minutes`` (the total
+    across its segments), ``n_segments``, ``t0_min`` and ``t1_min`` spanning
+    the first to the last, and ``prominence_db`` averaged over segments
+    weighted by their length.
+
+    Grouping by frequency alone is the assumption to be aware of: two
+    unrelated sources that happen to share a frequency are merged, and one
+    source that moves further than ``tol_cents`` between segments is not. Use
+    it to count lines, not to attribute them.
+    """
+    if not tracks:
+        return []
+    order = sorted(tracks, key=lambda t: t["f_median_hz"])
+    groups: list[list[dict]] = [[order[0]]]
+    for t in order[1:]:
+        ref = float(np.median([x["f_median_hz"] for x in groups[-1]]))
+        if abs(1200 * np.log2(t["f_median_hz"] / ref)) <= tol_cents:
+            groups[-1].append(t)
+        else:
+            groups.append([t])
+    out = []
+    for g in groups:
+        mins = sum(x["minutes"] for x in g)
+        out.append({
+            "f_median_hz": round(float(np.median(
+                [x["f_median_hz"] for x in g])), 1),
+            "minutes": int(mins),
+            "n_segments": len(g),
+            "t0_min": min(x["t0_min"] for x in g),
+            "t1_min": max(x["t1_min"] for x in g),
+            "prominence_db": round(float(sum(
+                x["prominence_db"] * x["minutes"] for x in g) / max(mins, 1)), 1),
         })
     return sorted(out, key=lambda t: -t["minutes"])
 

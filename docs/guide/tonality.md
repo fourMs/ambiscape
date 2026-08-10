@@ -48,6 +48,24 @@ Read `harmonicity_median` beside the carillon and rhythm analyses: a low
 median with strong tonal tracks is the signature of bell-like, inharmonic
 sources, and a high median points to voices, engines, or music.
 
+### One source, interrupted, is several tracks
+
+```python
+lines = tonality.group_tracks(tracks)      # tol_cents=60 by default
+```
+
+`tonal_tracks` answers how long a line was *continuously* present. A machine
+that pauses, or changes speed and comes back, is correct as several tracks and
+misleading as a description of the source: a dishwasher's circulation pump
+appears as five. `group_tracks` merges segments within `tol_cents` of each
+other into one line, with the total minutes, the number of segments, and the
+span from first to last. On that kitchen night it takes the pump's five
+segments to one line of 114 minutes, and the session's 70 tracks to 14 lines.
+
+Grouping by frequency alone is the assumption: two unrelated sources sharing a
+frequency merge, and a source that moves further than the tolerance between
+segments does not. Use it to count lines, not to attribute them.
+
 ### On machinery, change all three defaults
 
 `harmonic_sieve` is tuned for voices and music, and its parameters choose

@@ -226,9 +226,18 @@ cycle from a season:
 | `archival` | > 1 year | the building's life |
 
 On a domestic sensor network this separates the rooms from the instruments
-without any calibration: the living room and the kitchen both carry a
-62-minute cycle, and the noise-dominated nodes are stationary at every scale.
-**A node with no rhythm has nothing in it but its own electronics.**
+without any calibration: on a given day the living room and the kitchen
+independently show a 62-minute cycle, while the floor-dominated nodes are
+stationary at every scale. **A node with no rhythm has nothing in it but its
+own electronics.**
+
+Check persistence before generalising, though. That 62-minute cycle held for
+the day it was measured on and not for the week: across six 24-hour windows
+only one carried it, and six-hour windows returned periods scattered from 30
+to 60 minutes. Two nodes agreeing is strong evidence for *that day*. A machine
+rhythm that is stable enough to characterise a building has to be shown to be
+stable, and the way to show it is to look in several windows and see whether
+the period holds.
 
 !!! warning "Validated for machinery; provisional for anything daily"
 

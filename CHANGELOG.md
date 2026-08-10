@@ -22,9 +22,12 @@ been carrying feature work throughout a pre-1.0 life.
   above the descriptor registry's `macro`, which runs 5 s to infinity and so cannot tell a fridge
   cycle from a season.
 
-  On the SINS network this separates the rooms cleanly: the living room and the kitchen both carry
-  a 62-minute cycle, and the four noise-dominated nodes are stationary at every scale — no cycle at
-  all. A node with no rhythm has nothing in it but its own electronics.
+  On the SINS network, on one recording day, the living room and the kitchen independently show a
+  62-minute cycle (r ≈ 0.5) while the floor-dominated nodes show none at all. **That cycle is not
+  stable across the week**: of six 24-hour windows only one carries it, and six-hour windows give
+  periods scattered between 30 and 60 minutes. Two nodes agreeing on a period is good evidence for
+  that day; generalising it to the deployment is the same scale confusion this release exists to
+  prevent.
 
 - **`analysis.cycle_residual`** — anomaly as the complement of rhythm. An outlier detector run on a
   kitchen flags the fridge thirty times a day: a good detector answering the wrong question, since
@@ -71,7 +74,7 @@ been carrying feature work throughout a pre-1.0 life.
   duty cycle.
 
   On the SINS corpus this separates the network cleanly: the living-room and kitchen nodes carry a
-  cycling source 6.3 and 7.7 dB over their floor, and the floor-dominated nodes carry none at all.
+  cycling source 6.3 and 7.7 dB over their floor on the day measured, and the floor-dominated nodes carry none at all.
 
 ### Known limitation
 - **A source that never stops cannot be separated from self-noise by level alone** — not by this

@@ -678,6 +678,71 @@ def cycle_residual(level_db, dt: float, min_period_s: float = 60.0,
             "anomalies": anomalies}
 
 
+def cycle_drift(level_db, dt: float, min_period_s: float = 600.0,
+                max_period_s: float = 6 * 3600.0, n_windows: int = 6,
+                min_drift_pct: float = 8.0) -> dict:
+    """Is the rhythm itself changing? The case between a spike and a cycle.
+
+    Three detectors already exist for a room and none of them sees this. An
+    event detector sees a fridge start. An outlier detector sees the same
+    start and calls it anomalous thirty times a day. A cycle finder sees the
+    period and calls it normal. But a compressor that is beginning to fail
+    does not produce anomalies and does not stop cycling — its **period
+    drifts**, and that is what whoever owns the building would want to know.
+
+    It is not an anomaly, because nothing is out of the ordinary from one
+    moment to the next, and it is not the rhythm, because the rhythm is no
+    longer what it was.
+
+    The series is split into overlapping windows, the dominant period found
+    in each, and a trend fitted across them. Returns the median period,
+    whether it is drifting, the direction, and the drift as a percentage of
+    the median.
+
+    Needs a long recording: several windows, each holding several cycles, so
+    perhaps twenty periods end to end. For a domestic fridge that is most of
+    a day; for a ventilation plant, a week.
+    """
+    x = _prepare(level_db)
+    if x is None:
+        return {"period_s": None, "drifting": False, "direction": "",
+                "drift_pct": 0.0, "periods_s": []}
+
+    seg = len(x) // max(2, (n_windows + 1) // 2)
+    if seg < int(4 * min_period_s / dt):
+        seg = len(x)
+    step = max(1, (len(x) - seg) // max(1, n_windows - 1)) if len(x) > seg else 1
+
+    found = []
+    for k in range(n_windows):
+        i0 = k * step
+        chunk = x[i0:i0 + seg]
+        if len(chunk) < int(4 * min_period_s / dt):
+            break
+        c = dominant_cycles(chunk, dt, min_period_s, max_period_s, top=1)
+        if c:
+            found.append((i0 * dt + seg * dt / 2, c[0]["period_s"]))
+
+    if len(found) < 3:
+        return {"period_s": None if not found else round(
+            float(np.median([p for _, p in found])), 1),
+            "drifting": False, "direction": "", "drift_pct": 0.0,
+            "periods_s": [round(p, 1) for _, p in found]}
+
+    ts = np.array([t for t, _ in found], float)
+    ps = np.array([p for _, p in found], float)
+    med = float(np.median(ps))
+    slope = float(np.polyfit(ts, ps, 1)[0])           # seconds of period per second
+    change = slope * (ts[-1] - ts[0])
+    pct = 100.0 * change / med if med > 0 else 0.0
+    drifting = abs(pct) >= min_drift_pct
+    return {"period_s": round(med, 1),
+            "drifting": bool(drifting),
+            "direction": ("lengthening" if pct > 0 else "shortening") if drifting else "",
+            "drift_pct": round(float(pct), 1),
+            "periods_s": [round(p, 1) for _, p in found]}
+
+
 def cycle_profile(level_db, dt: float, min_period_s: float = 60.0,
                   max_period_s: float = 3 * 86400.0) -> dict:
     """What kind of thing is cycling here — a room, or the recorder?

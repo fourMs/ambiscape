@@ -217,15 +217,17 @@ def duty_cycle(segments: list[dict]) -> dict:
 def cycle_series(segments: list[dict]) -> dict:
     """On-time and period per cycle, and whether either is trending.
 
-    A duty fraction hides the finding this exists for. Measured over one
-    night, a domestic refrigerator held its on-time between 7.6 and 8.5
-    minutes while its period lengthened from 30.5 to 38.0, because the two
-    halves of a thermostat cycle have different causes: the compressor runs
-    until the cabinet reaches its set point, which takes about as long each
-    time and is a property of the appliance, and then waits until the cabinet
-    drifts back, which takes longer as the room cools and is a property of the
-    room. ``duty_cycle`` returns the ratio of the two and ``cycle_drift`` a
-    median and a percentage; neither shows one holding while the other moves.
+    The two halves of a thermostat cycle have different causes and can move
+    independently. A compressor runs until the cabinet reaches its set point,
+    which takes about as long each time and is a property of the appliance;
+    it then waits until the cabinet drifts back, which takes longer as the
+    room cools and is a property of the room. A duty fraction is their ratio
+    and hides both. ``duty_cycle`` returns that ratio and a median period,
+    ``cycle_drift`` a median and a percentage; neither shows one half holding
+    while the other moves.
+
+    A domestic refrigerator over one night: on-time 7.6 to 8.5 minutes,
+    period 30.5 to 38.0.
 
     Returns ``on_s`` (one per on-segment) and ``period_s`` (one per
     consecutive pair of on-starts, so one shorter), each with the Pearson
@@ -281,10 +283,11 @@ def bimodal_separation(level_db: np.ndarray,
     then divides noise, and ``duty_cycle`` reports a period for a machine
     that was never detected. Nothing in the chain says anything is wrong.
 
-    That is not hypothetical. A refrigerator plainly cycling in a kitchen at
-    a spread of 8.6 dB was sought in a second room of the same house, where
-    it contributes 0.6 dB; the segmentation returned one segment covering the
-    whole night and the duty calculation dutifully reported a cycle.
+    The failure is quiet and easy to reach. One refrigerator, two rooms of
+    the same house on comparable nights: in the kitchen it separates the
+    timeline by 8.4 dB and segments into twelve cycles; in the living room it
+    contributes 0.6 dB, and the same call returns a single segment spanning
+    the night from which ``duty_cycle`` reports one cycle.
 
     Returns the two class means either side of the Otsu split, their
     separation in dB, the fraction of the series in the upper class, and

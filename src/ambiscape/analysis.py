@@ -829,13 +829,12 @@ def series_onset(series, rise: float = ONSET_RISE):
     The default finds the first thing audible above the floor; a higher rise
     finds the event the clip was cut for.
 
-    :func:`onset_lead` is validated on the *lead*, and giving both series the
-    same rule is what keeps that comparison honest. Whether the bias cancels
-    in the subtraction depends on the two series having similar shapes, which
-    is not guaranteed and is not tested here. What is established is narrower:
-    the returned index is not a reliable onset *time* at the default. Pass a
-    higher ``rise`` — 0.75 on this kind of material — whenever the answer is
-    an onset, and check it against a case whose answer is known.
+    :func:`onset_lead` applies the same rule to both series, which is what
+    keeps a lead comparable across modalities. How much of the bias survives
+    the subtraction depends on the two series having similar shapes, and is
+    not guaranteed. Pass a higher ``rise`` — 0.75 on this kind of material —
+    whenever the answer wanted is an onset rather than a lead, and check it
+    against a case whose answer is known.
     """
     s = np.asarray(series, float)
     s = s[np.isfinite(s)]

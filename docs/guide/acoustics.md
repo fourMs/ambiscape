@@ -303,6 +303,10 @@ r = analysis.onset_lead(motion_series, audio_energy, dt=1/25)
 # {'lead_s': 0.72, 'first_onset_s': 0.44, 'second_onset_s': 1.16, 'leads': 'first'}
 ```
 
+`lead_s` is the quantity this is for. The two onset times are returned for
+inspection and are not reliable *times* at the default `rise` — see the third
+design point below.
+
 Measured on 180 clips of a corpus recorded with both modalities, *motion
 leads sound by a median 0.72 s, in 84 % of clips.* The remaining sixth is
 real rather than error: an object already moving when it is struck, or an
@@ -314,6 +318,16 @@ Two design points worth stating, because both are easy to get wrong.
 fraction of that series' *own* floor-to-peak range. A rule with an absolute
 threshold would compare the units — pixels against acoustic energy — rather
 than the events.
+
+*The default rise finds a different onset than you may want.* Each onset is
+the first point passing a quarter of that series' floor-to-peak range, and on
+a recording of a person that is reached by the action's own handling noises —
+an object picked up, a step — well before the sound the clip is of. On the
+Sound Actions clips the default lands a median 1.78 s earlier than
+hand-checked onsets and agrees within a quarter second on 17 % of them, where
+`rise=0.75` lands +0.01 s and agrees on 77 %. It is not noise against signal
+but which sound counts as the onset. Raise `rise` whenever the answer wanted
+is a time rather than a lead.
 
 *It takes series, not files.* Motion is computed wherever motion is computed;
 this is the seam between toolboxes rather than a video function hidden in an

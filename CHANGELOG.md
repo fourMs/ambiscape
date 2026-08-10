@@ -9,7 +9,26 @@ been carrying feature work throughout a pre-1.0 life.
 
 ## [Unreleased]
 
+## [0.35.0] — 2026-08-10
+
 ### Added
+- **`states.cycle_series` — a cycle is two quantities, not one.** A thermostat's on-time is set by
+  the appliance and its period by the room, so the two move independently; a duty fraction is their
+  ratio and hides both. Returns `on_s` and `period_s` per cycle with the correlation against cycle
+  number, the change per cycle and the spread, so a fixed stroke under a lengthening interval is
+  visible rather than averaged away. A domestic refrigerator over one night: on-time 7.6 to 8.5
+  minutes while the period went 30.5 to 38.0. A run still on when the series ends has an unknown
+  length and is excluded from `on_s`, flagged by `truncated_final_run`; left in, a truncated stub
+  inverts the on-time trend.
+
+- **`states.bimodal_separation` — whether a two-state split means anything.** Otsu's method returns
+  a threshold for any series, including one with a single populated mode; the split then divides
+  noise and `duty_cycle` reports a period for a machine nothing detected, with nothing in the chain
+  signalling a problem. Returns the two class means, their separation, the upper-class fraction and
+  a `bimodal` flag. One refrigerator in two rooms of one house: 8.4 dB of separation and twelve
+  cycles in the kitchen, 0.6 dB and a single night-long segment in the living room. A False flag
+  says the split is not evidence the machine is present, not that it is absent.
+
 - **`ambiscape.grounding` — what kind of evidence a descriptor is.** Every number this toolbox
   returns is a fact about a waveform; some are *also* meant as facts about hearing, and the
   distance between those two is where this project has made its worst mistakes. Four claims were
@@ -32,6 +51,23 @@ been carrying feature work throughout a pre-1.0 life.
   The tier is not a quality ranking. A spectral centroid is an excellent measurement of a spectral
   centroid. The tier says what may be concluded, and the only real error is concluding one tier's
   worth of thing from another tier's number.
+
+### Changed
+- **`tonality.harmonic_sieve` documents which answer its defaults choose.** All three mislead on
+  machinery, shown against a pump whose shaft sits near 46 Hz: `f0_min` at 60 Hz returns the second
+  harmonic instead, `max_harm` at 12 is short for a comb running to k = 26, and `tol_cents` at 35
+  selects a *different fundamental* — 68.6 Hz at harmonicity 0.73 against 46.0 at 0.45, the higher
+  score explaining nine of twenty-seven peaks rather than fourteen and missing the second-strongest
+  by two semitones. A cents window is proportional, so 35 cents is ±5.6 Hz at 275 Hz and ±17 Hz at
+  825 Hz. Quote a harmonicity with the tolerance it was computed at.
+
+- **`analysis.series_onset` and `onset_lead` say what the default rise is for.** A quarter of a
+  40 dB range is 30 dB below the peak, which on a recording of a person is reached by the action's
+  own handling noises before the sound arrives. Measured against hand-checked onsets, the default
+  lands a median 1.78 s early and agrees within a quarter second on 17 % of clips; `rise=0.75`
+  lands +0.01 s and agrees on 77 %. `lead_s` remains the quantity `onset_lead` is for; the absolute
+  onset times it returns beside it are not reliable times at the default.
+
 
 ## [0.34.1] — 2026-08-10
 

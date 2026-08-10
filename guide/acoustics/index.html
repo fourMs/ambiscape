@@ -2339,7 +2339,7 @@ warming up.</p>
 <p>Three parts, and the third is the one usually skipped:</p>
 <ol>
 <li><strong>Track the floor over time</strong> (<code>track_noise_floor</code>). One figure per session
-   cannot be right when the floor moves — a dead channel in the SINS corpus
+   cannot be right when the floor moves — a floor-dominated node in the SINS corpus
    swings 10.7 dB between night and midday as its electronics warm, which is
    larger than most differences such a figure gets used to interpret. Minimum
    statistics after Martin (2001): the running minimum of power over a window
@@ -2458,10 +2458,28 @@ without any calibration: the living room and the kitchen both carry a
 62-minute cycle, and the noise-dominated nodes are stationary at every scale.
 <strong>A node with no rhythm has nothing in it but its own electronics.</strong></p>
 <div class="admonition warning">
+<p class="admonition-title">Validated for machinery; provisional for anything daily</p>
+<p>On real recordings <code>dominant_cycles</code> reliably finds machinery — two rooms
+of a domestic network agreeing on a 62-minute cycle. <strong>At <code>circadian</code> and
+longer it is not yet trustworthy.</strong> Over six days of real data it returned
+a 48-hour harmonic instead of the 24-hour fundamental, and a spurious
+two-hour peak on a floor-dominated node; six days is only five repetitions of a
+daily cycle, and the estimate moves with how the series is smoothed.</p>
+<p>For anything circadian, prefer a direct test — how the quantity varies by
+hour of day — and treat a long period from this function as a hypothesis
+rather than a finding.</p>
+</div>
+<div class="admonition warning">
 <p class="admonition-title">The instrument has a rhythm too</p>
 <p>Periodicity alone does not mean "this is the room". A converter warms and
-cools with the building, so a <em>dead channel</em> still shows a clean 24-hour
-cycle. What distinguishes a household is that it also leaves faster marks
+cools with the building, so a node that spends most of its week at its own
+floor still varies across the day — and the variation is the electronics,
+not the room. In the corpus behind this, such a node cleared its own floor
+in 8 % of night hours, 83 % of midday hours and 17 % of evening hours: the
+opposite phase to a household, which peaks in the evening. Five of the
+twelve nodes there behave this way, and all five are working microphones
+in quiet or isolated rooms. (That comes
+from the by-hour test, not from <code>dominant_cycles</code>; see the caution above.) What distinguishes a household is that it also leaves faster marks
 — a kettle, a shower, a fridge — which is what <code>cycle_profile</code> reports as
 <code>has_sub_daily_cycle</code>. A diurnal rhythm with nothing underneath it is an
 instrument breathing, not a home.</p>
@@ -2594,7 +2612,7 @@ audio pass.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 10, 2026 04:41:31 UTC">August 10, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 10, 2026 05:30:33 UTC">August 10, 2026</span>
   </span>
 
     

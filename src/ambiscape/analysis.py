@@ -126,6 +126,9 @@ def intermittency_ratio(level_db: np.ndarray, dt: float,
     return float(100.0 * p[mask].sum() / (p.sum() + EPS))
 
 
+KNEE_MARGIN_DB = 3.0   # integrate until the decay is this close to the floor
+
+
 def decay_metrics(x: np.ndarray, fs: int, bands=((250, 500), (500, 1000),
                   (1000, 2000), (2000, 4000), (4000, 8000)),
                   pre_roll: bool = True) -> dict:
@@ -178,7 +181,21 @@ def decay_metrics(x: np.ndarray, fs: int, bands=((250, 500), (500, 1000),
         dr = 10 * np.log10(env[pk] / (noise + EPS))
         if dr < 20:
             continue
-        seg = np.maximum(y[pk:pk + cut] ** 2 - noise, 0)
+        # Stop integrating where the decay meets the noise. Backward
+        # integration sums everything after a point, so an integral that runs
+        # to the end of the file folds the whole tail's noise into every
+        # earlier value and flattens the curve. Subtracting the noise first is
+        # not enough: `maximum(..., 0)` rectifies the residual, so what is
+        # left is positive-biased and still accumulates. Measured on a
+        # synthetic 0.6 s decay with a 45 dB floor, integrating two seconds
+        # gave T60 = 4.67 s; stopping at the knee gives 0.62. ISO 3382 asks
+        # for this truncation (Lundeby); the fit-range guard below is a
+        # different thing and cannot repair a curve that is already wrong.
+        be = env[pk:pk + cut]
+        below = np.flatnonzero(be <= noise * 10 ** (KNEE_MARGIN_DB / 10))
+        knee = int(below[0]) if len(below) else len(be)
+        knee = max(knee, int(0.05 * fs))          # never fit on a stub
+        seg = np.maximum(y[pk:pk + knee] ** 2 - noise, 0)
         sch = np.cumsum(seg[::-1])[::-1]
         sch_db = 10 * np.log10(sch / (sch[0] + EPS) + 1e-15)
         tax = np.arange(len(sch_db)) / fs
@@ -188,7 +205,7 @@ def decay_metrics(x: np.ndarray, fs: int, bands=((250, 500), (500, 1000),
         # because the truncated file has no noise floor to measure. Level
         # of the last 20 ms re the peak says how far the decay was actually
         # observed; below that, T20/T30 would extrapolate off the end.
-        tail = env[pk:pk + cut][-max(1, int(0.02 * fs)):]
+        tail = env[pk:pk + knee][-max(1, int(0.02 * fs)):]
         obs_db = 10 * np.log10(float(tail.mean()) / (env[pk] + EPS) + EPS)
         res = {"dr_db": round(float(dr), 0)}
         for key, hi_db, lo_db, need_dr in (

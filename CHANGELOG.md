@@ -7,6 +7,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/); the
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) loosely, in that the minor number has
 been carrying feature work throughout a pre-1.0 life.
 
+## [0.33.0] — 2026-08-10
+
+### Fixed
+- **Schroeder integration now stops where the decay meets the noise.** Backward integration sums
+  everything after a point, so an integral running to the end of the file folded the whole tail's
+  noise into every earlier value and flattened the decay curve. Subtracting the noise first did not
+  help: `maximum(..., 0)` rectifies the residual, so what remains is positive-biased and still
+  accumulates. On a synthetic 0.6 s decay with a 45 dB floor, T60 came out at **4.67 s**; with the
+  integration truncated at the knee it is 0.63 s, and the estimate now holds from a 40 dB floor to
+  none at all.
+
+  Truncating the *fit range* — which the guide described and the code did — is a different thing
+  and cannot repair a curve that is already wrong. ISO 3382 asks for the integration truncation
+  (Lundeby); this implements it.
+
+  **Regenerate any T60 measured before this.** The effect is largest exactly where a decay is long
+  relative to its headroom, so trimmed archive impulse responses and quiet rooms move most. On 326
+  deposited clap-derived rooms, 92 move by more than 0.05 s, twenty by more than half a second, and
+  nineteen had values more than double the corrected ones; the median of that distribution falls
+  from 0.540 s to 0.500 s and its 90th percentile from 1.57 s to 1.23 s. EDT was never affected —
+  it is fitted over the first 10 dB, well clear of any floor.
+
 ## [0.32.0] — 2026-08-10
 
 ### Added

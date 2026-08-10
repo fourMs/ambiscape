@@ -156,16 +156,38 @@ Three parts, and the third is the one usually skipped:
     its night*, which is impossible for an occupied room. The mistake is
     invisible in the output; only the coverage figure exposes it.
 
-!!! warning "A source that never stops is measured as floor"
+!!! danger "A fridge is not noise — run `steady_sources` first"
 
-    Minimum statistics looks for the quietest moment in each window. Anything
-    continuous throughout — ventilation, a fridge, traffic hum — has no
-    quietest moment to find, so it is absorbed into the floor estimate and
-    subtracted away. That is the right reading of "what did the recorder
-    contribute" only when the steady sound *is* the recorder. Where a room has
-    a genuine constant, this measures everything above it and reports the
-    constant as floor. Say so when reporting, or widen `win_s` past the
-    longest expected silence and accept the loss of drift tracking.
+    Minimum statistics looks for the quietest moment in each window, so
+    anything steady for longer than the window is absorbed into the floor and
+    subtracted away. For a ventilation plant, a fridge or a circulation pump
+    that is precisely wrong: they are steady for minutes at a time and they
+    are usually the thing being studied.
+
+    What separates them from the recorder is that **they turn off**. Self-noise
+    does not. `steady_sources` uses that:
+
+    ```python
+    analysis.steady_sources(fast_dba, dt=0.125, short_s=120.0, long_s=7200.0)
+    # {'self_noise_db': -62.1, 'steady_excess_db': 6.3, 'machine_duty': 0.07,
+    #  'machine_detected': True, 'steady_source_unresolved': False}
+    ```
+
+    The floor is tracked twice — over minutes, which absorbs a running machine,
+    and over hours, which does not, because the machine's off-phase falls
+    inside the window. The difference is the machinery, and `machine_duty` says
+    how much of the time it runs. Set `long_s` longer than the machine's full
+    cycle: a domestic fridge turns over in roughly three quarters of an hour,
+    so two hours is a safe default.
+
+    **When it cannot help.** A plant that runs continuously for longer than
+    `long_s` is indistinguishable from self-noise by level alone, and
+    `steady_source_unresolved` says so — not "there is a constant source" but
+    "one cannot be ruled out, and it is inside `self_noise_db`". The failure of
+    too short a `long_s` is quiet: `machine_duty` is understated first, a
+    fridge running 60 % of the time reported at 17 %, and only then does the
+    floor climb toward the machine. If the duty looks implausibly low for a
+    machine you can hear, lengthen the window before believing the floor.
 
 **What coverage is for.** A level computed over 4 % of a session and one
 computed over 96 % are different kinds of statement, and the level alone

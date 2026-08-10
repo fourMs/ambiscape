@@ -358,6 +358,67 @@ def summarize_floor_corrected(signal_db, measurable,
             "reason": ""}
 
 
+MACHINE_MIN_EXCESS_DB = 3.0    # steady sound this far over self-noise counts
+
+
+def steady_sources(level_db, dt: float, short_s: float = 120.0,
+                   long_s: float = 7200.0,
+                   min_excess_db: float = MACHINE_MIN_EXCESS_DB) -> dict:
+    """Separate a machine that cycles from the recorder that never stops.
+
+    :func:`track_noise_floor` over a short window calls anything steady a
+    floor, which is wrong for the sources this toolbox is usually pointed at.
+    A fridge, a ventilation plant, a circulation pump: steady for minutes,
+    and the object of study rather than the noise.
+
+    What distinguishes them from the recorder's own contribution is that
+    **they turn off**. Self-noise does not. So the floor is estimated twice —
+    over minutes, which absorbs a running machine, and over hours, which does
+    not, because the machine's off-phase falls inside the window. Where the
+    short floor sits materially above the long one, the difference is
+    machinery, and ``machine_duty`` says how much of the time it runs.
+
+    Returns ``self_noise_db`` (the long-window floor, what never stops),
+    ``steady_excess_db`` (how far the steady sound rises above it while
+    running), ``machine_duty``, ``machine_detected``, and
+    ``inseparable_steady_source``.
+
+    That last flag is the honest case. A plant that runs continuously for
+    longer than ``long_s`` cannot be told from self-noise by level alone — by
+    this method or any other that only sees one number per frame — so it is
+    flagged rather than quietly subtracted. Seeing it means either the source
+    genuinely never stops, or ``long_s`` is shorter than its off-phase. A
+    domestic fridge cycles over roughly three quarters of an hour, so two
+    hours is a safe default; a building's ventilation may run all day, and no
+    window will separate it.
+
+    **How to tell that ``long_s`` is too short.** It does not fail loudly.
+    ``machine_duty`` is understated first — a fridge running 60 % of the time
+    reported at 17 % — and only then does ``self_noise_db`` climb toward the
+    machine's own level. If the duty looks implausibly low for a machine you
+    can hear in the recording, lengthen the window before believing the
+    floor.
+    """
+    lvl = np.asarray(level_db, float)
+    short = track_noise_floor(lvl, dt, win_s=short_s)
+    long = track_noise_floor(lvl, dt, win_s=long_s)
+    excess = short - long
+    running = excess > min_excess_db
+    duty = float(running.mean())
+    detected = bool(0.02 < duty < 0.98)
+    return {
+        "self_noise_db": round(float(np.median(long)), 2),
+        "steady_excess_db": round(float(np.median(excess[running]))
+                                  if running.any() else 0.0, 2),
+        "machine_duty": round(duty, 3),
+        "machine_detected": detected,
+        # Not "there is one" but "one cannot be ruled out". With no cycling
+        # found, a perfectly constant source is indistinguishable from the
+        # recorder by level alone, and is therefore inside self_noise_db.
+        "steady_source_unresolved": not detected,
+    }
+
+
 def floor_occupancy(F: dict, within_db: float = AT_FLOOR_WITHIN_DB,
                     pct: float = 5.0) -> dict:
     """How much of a session sits at its own noise floor.

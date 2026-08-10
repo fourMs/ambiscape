@@ -31,13 +31,29 @@ been carrying feature work throughout a pre-1.0 life.
   On real data: a node whose raw Leq of −49.2 dB sits a plausible 6.6 dB below the living room
   clears its own floor on 5 % of frames, and now reports no level rather than that comparison.
 
+- **`analysis.steady_sources`** — telling a fridge from the recorder. A short-window floor treats
+  anything steady as noise, which is wrong for the sources this toolbox is usually pointed at: a
+  fridge, a ventilation plant and a circulation pump are steady for minutes at a time and are the
+  object of study. What separates them from the recorder is that **they turn off**, so the floor is
+  tracked at two timescales — over minutes, which absorbs a running machine, and over hours, which
+  does not, because the off-phase falls inside the window. The difference is the machinery, with a
+  duty cycle.
+
+  On the SINS corpus this separates the network cleanly: the living-room and kitchen nodes carry a
+  cycling source 6.3 and 7.7 dB over their floor, and the dead channel carries none at all.
+
 ### Known limitation
-- **A source that never stops is measured as floor.** Minimum statistics looks for the quietest
-  moment in each window, so ventilation, a fridge or traffic hum — present in every frame — is
-  absorbed into the estimate and subtracted away. Correct when the constant *is* the recorder,
-  wrong when it is the room, and nothing inside the function can tell them apart. Pinned by a test
-  so it cannot surprise anyone; say so when reporting, or widen `win_s` past the longest expected
-  silence and accept the loss of drift tracking.
+- **A source that never stops cannot be separated from self-noise by level alone** — not by this
+  method or any other that sees one number per frame. `steady_sources` therefore reports
+  `steady_source_unresolved` whenever it finds no cycling: not a claim that a constant source
+  exists, but a statement that one cannot be ruled out and would be inside `self_noise_db`.
+  `floor_corrected_level` on its own will subtract such a source away, so run `steady_sources`
+  first when a room has machinery in it.
+
+  The failure of a too-short `long_s` is quiet: `machine_duty` is understated first — a fridge
+  running 60 % of the time reported at 17 % — and only then does the floor climb toward the
+  machine. If the duty looks implausibly low for a machine you can hear, lengthen the window before
+  believing the floor.
 
 ## [0.30.1] — 2026-08-09
 

@@ -127,6 +127,7 @@ def intermittency_ratio(level_db: np.ndarray, dt: float,
 
 
 KNEE_MARGIN_DB = 3.0   # integrate until the decay is this close to the floor
+MIN_FIT_SPAN_DB = 15.0  # narrowest decay T60 may be extrapolated from
 
 
 def decay_metrics(x: np.ndarray, fs: int, bands=((250, 500), (500, 1000),
@@ -152,8 +153,13 @@ def decay_metrics(x: np.ndarray, fs: int, bands=((250, 500), (500, 1000),
     (−5…−35 dB) are reported alongside the adaptive-range T60. The second
     condition matters for trimmed impulse responses, whose absent noise
     floor leaves the range guard unable to fire.
+    T60 is additionally refused when the fitted range collapses: its lower
+    limit is adaptive, so near the dynamic-range guard the fit can span only
+    a few dB and still be extrapolated to 60. ``fit_db`` reports how wide the
+    range actually was, and ``MIN_FIT_SPAN_DB`` is the narrowest accepted.
     Returns ``{band: {"T60", "T20", "T30", "EDT", "C50", "C80", "D50",
-    "dr_db"}}`` (T20/T30 present only when supported by the range).
+    "dr_db", "fit_db"}}`` (T20/T30 present only when supported by the
+    range; T60 absent when ``fit_db`` is below the minimum).
     """
     from scipy import signal as sg
     pk_i = int(np.abs(x).argmax())
@@ -215,6 +221,20 @@ def decay_metrics(x: np.ndarray, fs: int, bands=((250, 500), (500, 1000),
                 ("EDT", 0.0, -10.0, 0.0)):
             if dr < need_dr:
                 continue
+            if key == "T60":
+                # T60's lower limit is adaptive, so as the dynamic range
+                # approaches the 20 dB guard above the fitted range collapses:
+                # at dr = 20 it is 7 dB wide and is extrapolated 8.5x to reach
+                # 60. That lever turns ordinary curvature into a large error
+                # in the reported time, and it under-reports -- a 0.6 s decay
+                # cut to 0.20 s measured 0.34 s. T20 and T30 are immune
+                # because ISO 3382 fixes their ranges at 20 and 30 dB; the
+                # adaptive estimate needs the same kind of floor. Refusing is
+                # right: a T60 is a claim about 60 dB of decay, and 7 dB of
+                # evidence does not support one.
+                res["fit_db"] = round(float(hi_db - lo_db), 0)
+                if hi_db - lo_db < MIN_FIT_SPAN_DB:
+                    continue
             if key in ("T20", "T30") and obs_db > lo_db:
                 continue                    # range not present in the file
             m = (sch_db <= hi_db) & (sch_db >= lo_db)

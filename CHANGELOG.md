@@ -7,6 +7,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/); the
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) loosely, in that the minor number has
 been carrying feature work throughout a pre-1.0 life.
 
+## [0.34.1] — 2026-08-10
+
+### Fixed
+- **`analysis.decay_metrics` refuses a T60 extrapolated from a collapsed fit range.** The `dr < 20`
+  guard bounded the dynamic range but nothing bounded the *fitted* range. T60's lower limit is
+  adaptive — `max(-35, -dr + 8)` — so as the dynamic range approached the guard the fit narrowed to
+  a few dB and was still extrapolated to 60. At `dr = 20` that is 7 dB of evidence and an 8.5x
+  lever.
+
+  Measured on a synthetic 0.6 s decay cut to 0.20 s: **T60 reported 0.34 s, 43 % low**, with no
+  warning. Note the direction — the truncation fault fixed in 0.33.0 *over*-estimated; this one
+  *under*-estimates, so it could not have been caught by the same tests. T20 and T30 were never
+  affected, because ISO 3382 fixes their ranges at 20 and 30 dB for precisely this reason; the
+  adaptive estimate needed the same kind of floor.
+
+  T60 is now reported only when the fit spans at least `MIN_FIT_SPAN_DB` (15 dB), and the width is
+  returned as `fit_db` so the estimate can be judged rather than trusted. A T60 is a claim about
+  60 dB of decay, and 7 dB of evidence does not support one.
+
+  **No published number changes.** Across the 329 deposited StillStanding365 rooms carrying a T60
+  at 1 kHz, the minimum dynamic range is 32 dB (a 19 dB fit span); the guard trips below 28 dB, so
+  nothing in the deposit is affected. Real claps carry ample range — the case this protects is the
+  short archive IR.
+
 ## [0.34.0] — 2026-08-10
 
 ### Added

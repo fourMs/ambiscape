@@ -58,3 +58,40 @@ def test_a_floor_too_high_to_measure_returns_nothing():
     # declining to answer
     got = None if band is None else band.get("T60")
     assert got is None or got < 3.0
+
+
+# ------------------------------------------------------------------ fit span
+#
+# The `dr < 20` guard bounds the dynamic range but nothing bounds the *fit
+# span*. T60's lower limit is adaptive, max(-35, -dr + 8), so the fitted
+# range is (dr - 13) dB wide: at dr = 20 that is 7 dB, extrapolated 8.5x to
+# reach 60. Measured on a 0.6 s decay cut to 0.20 s, that lever reported
+# 0.34 s -- 43% low, with no warning. ISO 3382 fixes T20 and T30 at 20 and
+# 30 dB of observed decay for exactly this reason.
+#
+# Under-estimation, note, where the truncation fault above over-estimated.
+
+
+def test_a_collapsed_fit_span_is_refused_rather_than_extrapolated():
+    """An IR cut to a third of its own decay must not report a confident T60.
+
+    0.20 s of a 0.6 s decay leaves ~7 dB to fit and an 8x extrapolation.
+    Reporting nothing is correct; reporting 0.34 s is not.
+    """
+    band = ir_metrics(_ir(dur=0.20, floor_db=-45), FS).get("1000")
+    got = None if band is None else band.get("T60")
+    assert got is None or abs(got - 0.6) < 0.15, (
+        f"T60 extrapolated from a collapsed fit range: {got}")
+
+
+@pytest.mark.parametrize("dur", [0.20, 0.22, 0.25])
+def test_short_archive_irs_never_report_a_wildly_low_t60(dur):
+    """The whole marginal band, not just the one duration that was noticed."""
+    band = ir_metrics(_ir(dur=dur, floor_db=-45), FS).get("1000")
+    got = None if band is None else band.get("T60")
+    assert got is None or got > 0.4, (dur, got)
+
+
+def test_a_healthy_ir_still_reports_t60():
+    """The guard must not cost the cases that were always fine."""
+    assert ir_metrics(_ir(dur=2.0, floor_db=-45), FS)["1000"]["T60"] is not None

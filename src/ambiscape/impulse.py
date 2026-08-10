@@ -184,9 +184,11 @@ def ir_metrics(ir: np.ndarray, fs: int, centers=OCTAVE_CENTERS) -> dict:
     bands are relabelled by octave centre. Multichannel IRs are analysed on
     channel 0 (the omni/W channel of a B-format IR).
     Returns ``{centre_hz: {"T60", "T20", "T30", "EDT", "C50", "C80",
-    "D50", "dr_db"}}`` (T20/T30 only when the dynamic range supports them
-    and the decay was observed that far before the file ends — a
-    pre-trimmed archive IR commonly yields T60 and EDT but neither).
+    "D50", "dr_db", "fit_db"}}`` (T20/T30 only when the dynamic range
+    supports them and the decay was observed that far before the file ends —
+    a pre-trimmed archive IR commonly yields T60 and EDT but neither). An IR
+    cut so short that even the adaptive T60 range collapses yields no T60
+    either; ``fit_db`` says how much decay the estimate rested on.
     """
     from .analysis import decay_metrics
     x = np.asarray(ir, np.float64)

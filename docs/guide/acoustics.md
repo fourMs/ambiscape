@@ -111,6 +111,71 @@ For a deliberate measurement, a swept sine buys far more dynamic range
 than any clap and adds STI, IACC and auralization — see
 [Impulse response & auralization](impulse.md).
 
+## Measuring the source, not the source plus the recorder
+
+Every level a recorder reports is `P = S + N` — what the room did, plus what
+the machine contributed. Nothing in the number says which is which, and
+reading `P` as `S` is the single most productive source of error in this
+project's history: it produced a "loudest room" rule that ranked floor depth,
+a speech comparison that ranked microphone sensitivity, a dead-channel verdict
+on a quiet bedroom, and a daily rhythm that turned out to be a converter
+warming up.
+
+```python
+from ambiscape import analysis
+
+sig_db, floor_db, measurable = analysis.floor_corrected_level(fast_dba, dt=0.125)
+summary = analysis.summarize_floor_corrected(sig_db, measurable)
+# {'level_db': -37.8, 'coverage': 0.32, 'n_measurable': 137_216, 'reason': ''}
+```
+
+Three parts, and the third is the one usually skipped:
+
+1. **Track the floor over time** (`track_noise_floor`). One figure per session
+   cannot be right when the floor moves — a dead channel in the SINS corpus
+   swings 10.7 dB between night and midday as its electronics warm, which is
+   larger than most differences such a figure gets used to interpret. Minimum
+   statistics after Martin (2001): the running minimum of power over a window
+   long enough to contain a real gap, lifted by a bias compensation because
+   the minimum of a fluctuating estimate sits below the mean of what it
+   estimates.
+2. **Subtract in power.** Noise adds as energy. Subtracting decibels is a
+   category error that happens to look plausible.
+3. **Censor and count; never clamp.** A frame that does not clear the floor
+   carries no information about the source, so it comes back as `nan` and
+   `measurable=False`. `coverage` travels with every level, and no level is
+   returned below 10 %.
+
+!!! danger "Clamping is worse than doing nothing"
+
+    Setting sub-floor frames to zero and averaging what is left does not
+    merely lose precision — it converts a bias in level into a bias in
+    **sampling**. The frames that survive censoring are the loud ones, so a
+    quiet span reports as loud. Measured on a real living-room node, dropping
+    sub-floor hours and averaging the survivors made its *midday quieter than
+    its night*, which is impossible for an occupied room. The mistake is
+    invisible in the output; only the coverage figure exposes it.
+
+!!! warning "A source that never stops is measured as floor"
+
+    Minimum statistics looks for the quietest moment in each window. Anything
+    continuous throughout — ventilation, a fridge, traffic hum — has no
+    quietest moment to find, so it is absorbed into the floor estimate and
+    subtracted away. That is the right reading of "what did the recorder
+    contribute" only when the steady sound *is* the recorder. Where a room has
+    a genuine constant, this measures everything above it and reports the
+    constant as floor. Say so when reporting, or widen `win_s` past the
+    longest expected silence and accept the loss of drift tracking.
+
+**What coverage is for.** A level computed over 4 % of a session and one
+computed over 96 % are different kinds of statement, and the level alone
+cannot tell them apart. In the corpus this came from, a node reading a
+plausible 6.6 dB below the living room cleared its own floor on 5 % of frames;
+the raw number invited a comparison the data could not support and said
+nothing about it. Per hour, coverage also answers *when* a node can be
+measured at all — a live living room runs 85–90 % through the evening, while a
+floor-dominated node never exceeds 18 % at any hour of the day.
+
 ## Calibration
 
 `calibration.json` in the session folder defines the offset `O` such that a

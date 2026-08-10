@@ -7,6 +7,38 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/); the
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) loosely, in that the minor number has
 been carrying feature work throughout a pre-1.0 life.
 
+## [0.31.0] — 2026-08-10
+
+### Added
+- **`analysis.track_noise_floor`, `analysis.floor_corrected_level`,
+  `analysis.summarize_floor_corrected`** — measuring the source rather than the source plus the
+  recorder. Every level a recorder reports is `P = S + N`; reading it as `S` produced four wrong
+  findings in one sensor-network corpus (a loudest-room rule that ranked floor depth, a speech
+  comparison that ranked sensitivity, a "dead channel" verdict on a quiet bedroom, and a diurnal
+  rhythm that was a converter warming up).
+
+  Three parts, and the third is the one usually missing. The floor is **tracked over time** by
+  minimum statistics rather than fixed per session, because a floor can swing 10.7 dB between night
+  and midday as electronics warm. The subtraction happens **in power**, since noise adds as energy
+  and subtracting decibels is a category error that looks plausible. And frames with nothing above
+  the floor are **censored and counted**, not clamped to zero: `summarize_floor_corrected` returns a
+  `coverage` alongside every level and returns no level at all below 10 %.
+
+  Clamping is not merely less precise, it is actively misleading — it converts a bias in level into
+  a bias in *sampling*, because the frames that survive are the loud ones. Averaging survivors made
+  a living room's midday read quieter than its night before this existed.
+
+  On real data: a node whose raw Leq of −49.2 dB sits a plausible 6.6 dB below the living room
+  clears its own floor on 5 % of frames, and now reports no level rather than that comparison.
+
+### Known limitation
+- **A source that never stops is measured as floor.** Minimum statistics looks for the quietest
+  moment in each window, so ventilation, a fridge or traffic hum — present in every frame — is
+  absorbed into the estimate and subtracted away. Correct when the constant *is* the recorder,
+  wrong when it is the room, and nothing inside the function can tell them apart. Pinned by a test
+  so it cannot surprise anyone; say so when reporting, or widen `win_s` past the longest expected
+  silence and accept the loss of drift tracking.
+
 ## [0.30.1] — 2026-08-09
 
 ### Documentation

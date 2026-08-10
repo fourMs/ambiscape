@@ -263,6 +263,101 @@ FLOOR_SPREAD_THRESH_DB = 1.5
 AT_FLOOR_WITHIN_DB = 3.0
 
 
+FLOOR_MARGIN_DB = 6.0        # excess over the floor before a frame counts
+FLOOR_MIN_COVERAGE = 0.10    # below this, report no level rather than a bad one
+_MIN_STAT_BIAS_DB = 1.5      # the minimum of a noisy estimate sits below its mean
+
+
+def track_noise_floor(level_db, dt: float, win_s: float = 120.0,
+                      bias_db: float = _MIN_STAT_BIAS_DB) -> np.ndarray:
+    """The recorder's own floor, followed over time rather than fixed once.
+
+    A single floor figure per session cannot be right when the floor moves:
+    a dead channel in the SINS corpus swings 10.7 dB between night and
+    midday as its electronics warm, which is larger than most of the
+    differences such a figure would be used to interpret.
+
+    Minimum statistics, after Martin (2001): the running minimum of power
+    over a window long enough to contain a genuine gap in the source. The
+    minimum of a fluctuating estimate sits below the mean of the noise it
+    estimates, so it is lifted by ``bias_db`` rather than left to
+    under-subtract.
+
+    ``win_s`` is the one judgement. Too short and speech or music is
+    mistaken for floor; too long and real drift is smoothed away. Two
+    minutes suits domestic recordings, where gaps are frequent.
+
+    **A source that never stops is a floor.** The method finds the quietest
+    moment in each window, so anything continuous throughout — ventilation,
+    a fridge, traffic hum — is absorbed into the estimate and subtracted
+    away. That is the correct reading of "what is the recorder's own
+    contribution" only when the steady sound *is* the recorder. Where a room
+    has a genuine constant, this measures everything above it and reports
+    the constant as floor. Say so when reporting, or widen ``win_s`` past
+    the longest expected silence and accept the loss of drift tracking.
+    """
+    p = 10.0 ** (np.asarray(level_db, float) / 10.0)
+    n = max(1, int(round(win_s / dt)))
+    if n >= len(p):
+        return np.full(len(p), 10 * np.log10(p.min()) + bias_db)
+    pad = np.pad(p, (n // 2, n - 1 - n // 2), mode="edge")
+    win = np.lib.stride_tricks.sliding_window_view(pad, n)
+    return 10 * np.log10(win.min(axis=1)[:len(p)]) + bias_db
+
+
+def floor_corrected_level(level_db, dt: float,
+                          margin_db: float = FLOOR_MARGIN_DB,
+                          win_s: float = 120.0):
+    """Level of the source alone, and where there is no source to measure.
+
+    Returns ``(signal_db, floor_db, measurable)``. Noise adds as energy, so
+    the floor is subtracted in power; subtracting decibels is a category
+    error that happens to look plausible.
+
+    Frames whose excess over the floor falls short of ``margin_db`` are
+    returned as ``nan`` and marked unmeasurable. They are not zero and not
+    the floor: they carry no information about the source, and giving them a
+    value invents one. Clamping them instead is actively harmful — it turns
+    a bias in level into a bias in *sampling*, because the frames that
+    survive are the loud ones, and an average over survivors then reports a
+    quiet span as loud. That error made a living room's midday read quieter
+    than its night before this function existed.
+    """
+    lvl = np.asarray(level_db, float)
+    p = 10.0 ** (lvl / 10.0)
+    floor_db = track_noise_floor(lvl, dt, win_s=win_s)
+    nfloor = 10.0 ** (floor_db / 10.0)
+    excess = p - nfloor
+    measurable = excess > nfloor * (10 ** (margin_db / 10.0) - 1.0)
+    sig = np.full(len(p), np.nan)
+    sig[measurable] = 10.0 * np.log10(excess[measurable])
+    return sig, floor_db, measurable
+
+
+def summarize_floor_corrected(signal_db, measurable,
+                              min_coverage: float = FLOOR_MIN_COVERAGE) -> dict:
+    """An energy mean over the measurable frames, with its coverage attached.
+
+    ``coverage`` is not a footnote. A level computed over 4 % of a session
+    and one computed over 96 % are different kinds of statement, and the
+    level alone cannot tell them apart — in the SINS corpus a node reading a
+    plausible 6.6 dB below the living room turned out to clear its own floor
+    on 4 % of frames. Below ``min_coverage`` no level is returned at all,
+    because there is nothing there to average.
+    """
+    measurable = np.asarray(measurable, bool)
+    cov = float(measurable.mean()) if measurable.size else 0.0
+    if cov < min_coverage:
+        return {"level_db": None, "coverage": round(cov, 4),
+                "n_measurable": int(measurable.sum()),
+                "reason": "below the noise floor too often to measure"}
+    v = np.asarray(signal_db, float)[measurable]
+    v = v[np.isfinite(v)]
+    return {"level_db": round(float(10 * np.log10(np.mean(10 ** (v / 10)))), 2),
+            "coverage": round(cov, 4), "n_measurable": int(v.size),
+            "reason": ""}
+
+
 def floor_occupancy(F: dict, within_db: float = AT_FLOOR_WITHIN_DB,
                     pct: float = 5.0) -> dict:
     """How much of a session sits at its own noise floor.

@@ -813,6 +813,29 @@ def series_onset(series, rise: float = ONSET_RISE):
     Deliberately scale-free. It is used to compare series in different units —
     a motion measure in pixels against an acoustic energy — and any rule with
     an absolute threshold would compare the units instead.
+
+    **The default is tuned for a difference, not for an absolute onset.**
+    A quarter of a 40 dB floor-to-peak range is 30 dB below the peak, which on
+    a recording of a sound-producing action is reached by the action's own
+    small noises — an object picked up, a step, a hand on a surface — well
+    before the sound the clip is *of*. Measured on the Sound Actions clips,
+    where the lead-in sits a median 40 dB below the event peak but 5.5 dB
+    above the clip floor and carries such transients, the default returns a
+    median 1.78 s early against hand-checked onsets and agrees within a
+    quarter second on 17 % of them; ``rise=0.75`` lands +0.01 s and agrees on
+    77 %.
+
+    So the choice is not noise versus signal but *which* sound is the onset.
+    The default finds the first thing audible above the floor; a higher rise
+    finds the event the clip was cut for.
+
+    :func:`onset_lead` is validated on the *lead*, and giving both series the
+    same rule is what keeps that comparison honest. Whether the bias cancels
+    in the subtraction depends on the two series having similar shapes, which
+    is not guaranteed and is not tested here. What is established is narrower:
+    the returned index is not a reliable onset *time* at the default. Pass a
+    higher ``rise`` — 0.75 on this kind of material — whenever the answer is
+    an onset, and check it against a case whose answer is known.
     """
     s = np.asarray(series, float)
     s = s[np.isfinite(s)]
@@ -850,6 +873,13 @@ def onset_lead(first, second, dt: float, rise: float = ONSET_RISE) -> dict:
     a motion series computed wherever motion is computed. It is what makes
     audio–video analysis more than two analyses side by side — the lead is a
     property of the *action*, and neither modality carries it alone.
+
+``lead_s`` is the output this was validated on. ``first_onset_s`` and
+    ``second_onset_s`` are returned for inspection and are *not* reliable
+    onset times at the default ``rise``: on the Sound Actions clips they sit a
+    median 1.78 s early, firing on the action's own handling noises rather
+    than on the sound the clip is of. Raise ``rise`` before reading them as
+    times — see :func:`series_onset`.
     """
     i, j = series_onset(first, rise), series_onset(second, rise)
     if i is None or j is None:

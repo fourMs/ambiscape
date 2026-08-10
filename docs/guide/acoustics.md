@@ -132,7 +132,7 @@ summary = analysis.summarize_floor_corrected(sig_db, measurable)
 Three parts, and the third is the one usually skipped:
 
 1. **Track the floor over time** (`track_noise_floor`). One figure per session
-   cannot be right when the floor moves — a dead channel in the SINS corpus
+   cannot be right when the floor moves — a floor-dominated node in the SINS corpus
    swings 10.7 dB between night and midday as its electronics warm, which is
    larger than most differences such a figure gets used to interpret. Minimum
    statistics after Martin (2001): the running minimum of power over a window
@@ -236,7 +236,7 @@ without any calibration: the living room and the kitchen both carry a
     of a domestic network agreeing on a 62-minute cycle. **At `circadian` and
     longer it is not yet trustworthy.** Over six days of real data it returned
     a 48-hour harmonic instead of the 24-hour fundamental, and a spurious
-    two-hour peak on a dead channel; six days is only five repetitions of a
+    two-hour peak on a floor-dominated node; six days is only five repetitions of a
     daily cycle, and the estimate moves with how the series is smoothed.
 
     For anything circadian, prefer a direct test — how the quantity varies by
@@ -246,10 +246,13 @@ without any calibration: the living room and the kitchen both carry a
 !!! warning "The instrument has a rhythm too"
 
     Periodicity alone does not mean "this is the room". A converter warms and
-    cools with the building, so a *dead channel* still varies across the day:
-    in the corpus behind this, the dead node cleared its own floor in 8 % of
-    night hours, 83 % of midday hours and 17 % of evening hours — the
-    opposite phase to a household, which peaks in the evening. (That comes
+    cools with the building, so a node that spends most of its week at its own
+    floor still varies across the day — and the variation is the electronics,
+    not the room. In the corpus behind this, such a node cleared its own floor
+    in 8 % of night hours, 83 % of midday hours and 17 % of evening hours: the
+    opposite phase to a household, which peaks in the evening. Five of the
+    twelve nodes there behave this way, and all five are working microphones
+    in quiet or isolated rooms. (That comes
     from the by-hour test, not from `dominant_cycles`; see the caution above.) What distinguishes a household is that it also leaves faster marks
     — a kettle, a shower, a fridge — which is what `cycle_profile` reports as
     `has_sub_daily_cycle`. A diurnal rhythm with nothing underneath it is an

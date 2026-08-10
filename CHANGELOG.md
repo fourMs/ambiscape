@@ -45,7 +45,7 @@ been carrying feature work throughout a pre-1.0 life.
   `analysis.summarize_floor_corrected`** — measuring the source rather than the source plus the
   recorder. Every level a recorder reports is `P = S + N`; reading it as `S` produced four wrong
   findings in one sensor-network corpus (a loudest-room rule that ranked floor depth, a speech
-  comparison that ranked sensitivity, a "dead channel" verdict on a quiet bedroom, and a diurnal
+  comparison that ranked sensitivity, a "dead channel" verdict on a quiet bedroom that was in fact working, and a diurnal
   rhythm that was a converter warming up).
 
   Three parts, and the third is the one usually missing. The floor is **tracked over time** by
@@ -71,7 +71,7 @@ been carrying feature work throughout a pre-1.0 life.
   duty cycle.
 
   On the SINS corpus this separates the network cleanly: the living-room and kitchen nodes carry a
-  cycling source 6.3 and 7.7 dB over their floor, and the dead channel carries none at all.
+  cycling source 6.3 and 7.7 dB over their floor, and the floor-dominated nodes carry none at all.
 
 ### Known limitation
 - **A source that never stops cannot be separated from self-noise by level alone** — not by this

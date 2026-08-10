@@ -273,7 +273,7 @@ def track_noise_floor(level_db, dt: float, win_s: float = 120.0,
     """The recorder's own floor, followed over time rather than fixed once.
 
     A single floor figure per session cannot be right when the floor moves:
-    a dead channel in the SINS corpus swings 10.7 dB between night and
+    a floor-dominated node in the SINS corpus swings 10.7 dB between night and
     midday as its electronics warm, which is larger than most of the
     differences such a figure would be used to interpret.
 
@@ -513,7 +513,7 @@ def cycle_spectrum(level_db, dt: float, min_period_s: float = 60.0,
        network agreeing on a 62-minute cycle. At ``circadian`` and longer it
        is not yet trustworthy: over six days of real data it returned a
        48-hour harmonic rather than the 24-hour fundamental, and a spurious
-       two-hour peak on a dead channel. Six days is five repetitions of a
+       two-hour peak on a floor-dominated node. Six days is five repetitions of a
        daily cycle, which is thin, and the estimate is sensitive to how the
        series is smoothed. Treat any period beyond a few hours as a
        hypothesis to check by other means, and prefer a direct test — how a
@@ -684,7 +684,8 @@ def cycle_profile(level_db, dt: float, min_period_s: float = 60.0,
 
     Periodicity alone does not separate them, and this is the correction the
     SINS corpus forced: a converter warms and cools with the building, so a
-    dead channel still shows a clean 24-hour cycle. A diurnal rhythm with
+    node sitting at its own floor still shows a 24-hour cycle. A diurnal
+    rhythm with
     *nothing faster underneath it* is the signature of an instrument
     breathing with the room temperature. A household leaves faster marks as
     well — a fridge, a kettle, a shower — and those are what

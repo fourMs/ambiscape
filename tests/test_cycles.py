@@ -78,8 +78,8 @@ def test_each_cycle_is_named_by_the_band_it_falls_in():
 def test_the_instruments_own_diurnal_cycle_is_not_mistaken_for_a_room():
     """The trap the SINS corpus set.
 
-    A dead channel whose only variation is thermal still shows a 24-hour
-    cycle. Periodicity therefore cannot mean "this is the room" on its own —
+    A node that sits at its own noise floor for most of a week, whose only
+    real variation is thermal, still shows a 24-hour cycle. Periodicity therefore cannot mean "this is the room" on its own —
     a diurnal cycle with nothing faster beneath it is the signature of an
     instrument warming and cooling, not of a household.
     """

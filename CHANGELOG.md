@@ -9,6 +9,16 @@ been carrying feature work throughout a pre-1.0 life.
 
 ## [Unreleased]
 
+### Changed
+- **`mechanical.envelope_periodicity` documents the range it cannot reach.** Its 0.3--12 Hz band is a
+  fast-modulation range --- a rattle, a blade pass, a stirred machine --- and a domestic duty cycle
+  runs three to four orders of magnitude slower: a compressor at 150 s on and 150 s off is 0.0033 Hz,
+  ninety times below the floor. Out of range the function does not decline; `hz` comes back as a
+  frequency inside the band, which on a clean synthetic duty cycle is the band edge itself. `strength`
+  is the gate and collapses towards zero, but a caller reading `hz` alone gets a plausible number for
+  a machine the function never saw. The docstring now says so and points at `states.cycle_series` and
+  `analysis.dominant_cycles` for duty-cycle timescales.
+
 ## [0.37.0] — 2026-08-11
 
 ### Added

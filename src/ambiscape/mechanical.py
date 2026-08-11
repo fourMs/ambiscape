@@ -47,7 +47,27 @@ def rumble_level_db(F: dict) -> float:
 
 
 def envelope_periodicity(F: dict, band=(0.3, 12.0)) -> dict:
-    """Peak frequency and prominence of the broadband envelope modulation."""
+    """Peak frequency and prominence of the broadband envelope modulation.
+
+    ``band`` is a *fast* modulation range --- periods of 0.08 s to 3.3 s --- and
+    it is the range of a rattle, a blade pass or a stirred machine, not of a
+    machine switching on and off. A domestic duty cycle runs three to four
+    orders of magnitude slower: a refrigerator at a half-hour period is
+    0.0006 Hz and a compressor at 150 s on, 150 s off is 0.0033 Hz, both far
+    below the 0.3 Hz floor.
+
+    **Read ``strength`` before ``hz``.** Out of range the function does not
+    decline: ``hz`` comes back as a frequency inside the search band, which on
+    a clean synthetic duty cycle is the band edge itself, and on a real
+    recording is whichever fast modulation happened to be loudest. ``strength``
+    is the gate that says so --- it collapses towards zero when nothing in the
+    band is periodic --- but a caller reading ``hz`` alone gets a plausible
+    number for a machine the function never saw.
+
+    For duty-cycle timescales use :func:`ambiscape.states.cycle_series`, which
+    reports on-time and period per cycle, or
+    :func:`ambiscape.analysis.dominant_cycles`, which searches the slow bands.
+    """
     env = np.asarray(F.get("env_hi"), float)
     dt = float(F.get("hi_dt", 0.02))
     if env.size < 16:

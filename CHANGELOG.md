@@ -9,6 +9,52 @@ been carrying feature work throughout a pre-1.0 life.
 
 ## [Unreleased]
 
+## [0.36.0] — 2026-08-11
+
+### Added
+- **`objects.object_spectrum` — the spectral half of a sound object.** `object_profile` measured an
+  object's envelope and said nothing about its spectrum, so two objects of identical shape and
+  wholly different colour came back the same. Both are meso-band descriptors in the sense of
+  `ambiscape.timescales`: defined on a single object of roughly 0.2 to 8 s, needing no minute of
+  audio, which is what the session-scale centroid and flux both require. Returns `brightness_hz`,
+  `brightness_drift_oct`, `flux_per_s` and `n_frames`, and merges into `object_profile` when that is
+  passed the object's own rows of the cached log-frequency spectrogram.
+
+  `brightness_drift_oct` is the quantity worth having: the centroid of the last third against the
+  first, in octaves, so it is a shape rather than a level and compares objects of different lengths
+  without either being normalised away. Negative is an object growing duller as it decays, which is
+  what a struck resonant body does; positive is one growing brighter, which a kettle approaching the
+  boil does.
+
+  Measured against listener typing on 334 labelled clips of everyday sound actions, the honest
+  result is a weak one and is documented as such: impulsive objects drift −0.25 octaves against
+  −0.01 for iterative, in the predicted direction but at p = 0.03 with a rank-biserial effect of
+  −0.16. `flux_per_s` and `brightness_hz` do not separate facture at all — 39.5 per second against
+  39.7, p = 0.56. These describe what an object sounds like; they do not type one, and the
+  docstrings say so rather than leaving a reader to discover it.
+
+- **`objects.profile_clips` and `ambiscape objects <folder>`.** A corpus of short clips is the case
+  the session descriptors cannot serve: almost everything in a session summary needs a minute of
+  audio and returns `None` for a six-second recording. This takes each clip whole as one object and
+  gives it both meso-band sets, writing a row per clip. Taking the clip whole is the assumption to
+  be aware of — right for a corpus of single deliberate actions, wrong for a clip containing three
+  events, for which `extract_objects` over a session is the tool. The CLI reports how many clips
+  gave under five spectrogram rows, since below that the spectral fields are indicative only.
+
+- **`tonality.group_tracks` — count lines, not segments.** `tonal_tracks` answers how long a line
+  was *continuously* present at one frequency, so a source that pauses or changes speed is several
+  tracks: correct as tracking, misleading as a description of the source. A dishwasher's circulation
+  pump, which changes speed between programme phases, appears as five. This regroups segments whose
+  median frequencies lie within `tol_cents` into one line, with the total minutes across its
+  segments and a length-weighted prominence. Grouping by frequency alone is the assumption: two
+  unrelated sources sharing a frequency are merged, and one moving further than the tolerance
+  between segments is not. Use it to count lines, not to attribute them.
+
+### Changed
+- **`io.open_clips` skips an unreadable member rather than failing the folder.** A corpus folder is
+  a batch, and one bad file should not cost the other 364. Skipped files are named on stdout rather
+  than swallowed, and a folder with nothing readable still raises.
+
 ## [0.35.0] — 2026-08-10
 
 ### Added

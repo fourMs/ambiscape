@@ -9,6 +9,28 @@ been carrying feature work throughout a pre-1.0 life.
 
 ## [Unreleased]
 
+### Added
+- **`network.follow_source` — follow a moving source from room to room.** A person carrying a vacuum
+  cleaner, a radio or a conversation walks through a dwelling, and which node hears them best changes
+  as they go. Returns the itinerary: the loudest node per slice, run-length encoded into rooms
+  visited. The comparison is each node against its own past, never against another node --- every
+  node's rise is its level minus its own median over the ten minutes before the interval, which
+  carries no gain, where `compare.xnode_loudest` ranks excess over a node's own *floor* and therefore
+  rewards a deep floor rather than a loud room. A slice whose best rise falls below the threshold is
+  left out rather than assigned to whichever node happened to be highest, because the source is not
+  audible anywhere and guessing would invent a location.
+
+  Validated against hand annotations on the SINS deployment: for a vacuuming session the recovered
+  sequence reproduces the annotated walk through hall, bathroom, WC and bedroom in the right order,
+  and adds the hall transits between rooms that the annotator did not record separately because they
+  labelled the room being cleaned rather than every doorway crossed. A test drives the same walk
+  through a 20 dB spread of per-node gain and gets the same answer, which is the property the method
+  exists for.
+
+  It reports the loudest node and not a position: two rooms either side of one wall may swap for
+  reasons of coupling rather than movement, and a stationary source that merely gets louder is not
+  distinguished from one that approaches. An itinerary over rooms, not a trajectory in metres.
+
 ## [0.36.0] — 2026-08-11
 
 ### Added

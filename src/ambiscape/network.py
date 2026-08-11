@@ -163,6 +163,95 @@ def pairwise_coupling(t: np.ndarray, X: np.ndarray, win_s: float = 120.0,
     return {"win_t": win_t, "coupling": coupling, "lag_s": lag}
 
 
+# ---------------------------------------------------------------- following
+
+
+def follow_source(t: np.ndarray, X: np.ndarray, t0: float, t1: float,
+                  names: list[str] | None = None,
+                  baseline_s: float = 600.0, slice_s: float = 10.0,
+                  min_rise_db: float = 6.0) -> dict:
+    """Follow a moving source from room to room across the network.
+
+    A person carrying a vacuum cleaner, a radio, or a conversation walks
+    through a dwelling, and which node hears it best changes as they go. This
+    returns that itinerary: for each ``slice_s`` of the interval
+    ``[t0, t1]``, the node with the largest rise, and the run-length-encoded
+    sequence of rooms visited.
+
+    **The comparison is each node against its own past, never against another
+    node.** Every node's rise is its level in the slice minus its own median
+    over ``baseline_s`` immediately before ``t0``. That is not fastidiousness:
+    :func:`ambiscape.compare.xnode_loudest` ranks each node's excess over its
+    own *floor* and therefore rewards a deep floor rather than a loud room,
+    and every figure built on it has been withdrawn. A rise against a node's
+    own recent baseline carries no gain, so rises are comparable across nodes
+    where levels are not — which is what makes this usable on a network that
+    was never calibrated.
+
+    A slice whose best rise falls below ``min_rise_db`` is left out of the
+    itinerary rather than assigned to whichever node happened to be highest;
+    the source is not audible anywhere, and guessing would invent a location.
+
+    Returns ``{"slice_t", "best", "rise_db", "itinerary", "n_changes",
+    "n_visited"}``, where ``best`` holds an index into ``X`` (or the matching
+    entry of ``names``) per slice and ``itinerary`` is a list of
+    ``{"name", "t0", "t1"}`` runs.
+
+    Validated against hand annotations on the SINS deployment: for a
+    vacuuming session the recovered sequence reproduces the annotated walk
+    through hall, bathroom, WC and bedroom in the right order, and adds the
+    hall transits between rooms that the annotator did not record separately
+    because they labelled the room being cleaned rather than every doorway
+    crossed.
+
+    **What it cannot do.** It reports the loudest node, not a position: two
+    rooms either side of one wall may swap for reasons of coupling rather
+    than movement, and a stationary source that merely gets louder will not
+    be distinguished from one that approaches. Read it as an itinerary over
+    rooms, not as a trajectory in metres.
+    """
+    t = np.asarray(t, float)
+    X = np.asarray(X, float)
+    if X.ndim != 2 or X.shape[1] != len(t):
+        raise ValueError("X must be (n_nodes, len(t)), as node_grid returns")
+    if names is not None and len(names) != X.shape[0]:
+        raise ValueError("names must have one entry per row of X")
+
+    base_m = (t >= t0 - baseline_s) & (t < t0)
+    with np.errstate(invalid="ignore"):
+        ref = np.nanmedian(X[:, base_m], axis=1) if base_m.any() else np.full(
+            X.shape[0], np.nan)
+
+    slice_t, best, rise = [], [], []
+    edges = np.arange(t0, t1, slice_s)
+    for w0 in edges:
+        m = (t >= w0) & (t < min(w0 + slice_s, t1))
+        if m.sum() < 2:
+            continue
+        with np.errstate(invalid="ignore"):
+            v = np.nanmedian(X[:, m], axis=1) - ref
+        if not np.isfinite(v).any():
+            continue
+        i = int(np.nanargmax(v))
+        slice_t.append(float(w0))
+        best.append(i if np.isfinite(v[i]) and v[i] >= min_rise_db else -1)
+        rise.append(float(v[i]) if np.isfinite(v[i]) else float("nan"))
+
+    label = (lambda i: names[i]) if names is not None else (lambda i: i)
+    itinerary: list[dict] = []
+    for w0, i in zip(slice_t, best):
+        if i < 0:
+            continue
+        if itinerary and itinerary[-1]["name"] == label(i):
+            itinerary[-1]["t1"] = w0 + slice_s
+        else:
+            itinerary.append({"name": label(i), "t0": w0, "t1": w0 + slice_s})
+    return {"slice_t": np.array(slice_t), "best": np.array(best, int),
+            "rise_db": np.array(rise), "itinerary": itinerary,
+            "n_changes": max(0, len(itinerary) - 1),
+            "n_visited": len({s["name"] for s in itinerary})}
+
+
 # ---------------------------------------------------------------- graphs
 
 

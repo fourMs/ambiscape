@@ -210,3 +210,73 @@ def test_load_network_needs_two_nodes(tmp_path):
     (tmp_path / "only" / "analysis" / "features").mkdir(parents=True)
     with pytest.raises(FileNotFoundError):
         N.load_network(tmp_path)
+
+
+# ------------------------------------------------------- following a source
+
+
+def _walk_grid(rooms=4, dwell_s=30.0, rate=RATE, gains=None, baseline_s=60.0):
+    """A source that visits each room in turn, on a known schedule.
+
+    Every node sits at its own floor, then a source moves through the rooms
+    dwelling ``dwell_s`` in each. ``gains`` gives each node a different
+    sensitivity, so a method that compares raw levels between nodes gets the
+    wrong answer and one that compares each node with its own past does not.
+    """
+    dt = 1.0 / rate
+    n_base = int(baseline_s * rate)
+    n_dwell = int(dwell_s * rate)
+    n = n_base + rooms * n_dwell
+    t = dt * np.arange(n)
+    gains = gains if gains is not None else np.zeros(rooms)
+    floors = -60.0 + np.asarray(gains, float)
+    X = np.repeat(floors[:, None], n, axis=1)
+    for r in range(rooms):
+        a = n_base + r * n_dwell
+        X[r, a:a + n_dwell] += 30.0            # the source is here
+        for other in range(rooms):             # leaks a little everywhere
+            if other != r:
+                X[other, a:a + n_dwell] += 5.0
+    return t, X, float(t[n_base]), float(t[-1])
+
+
+def test_follow_source_recovers_a_known_walk():
+    t, X, t0, t1 = _walk_grid()
+    names = ["living", "hall", "bath", "bed"]
+    r = N.follow_source(t, X, t0, t1, names=names, baseline_s=60.0,
+                        slice_s=10.0)
+    assert [s["name"] for s in r["itinerary"]] == names
+    assert r["n_visited"] == 4
+    assert r["n_changes"] == 3
+    for s, want in zip(r["itinerary"], names):
+        assert s["t1"] - s["t0"] == pytest.approx(30.0, abs=10.0)
+
+
+def test_follow_source_is_immune_to_per_node_gain():
+    """The point of the rise: a 20 dB gain spread must not change the answer."""
+    names = ["living", "hall", "bath", "bed"]
+    flat = N.follow_source(*_walk_grid()[:2], 60.0, 179.0, names=names,
+                           baseline_s=60.0)
+    skew = _walk_grid(gains=[+12.0, -8.0, +3.0, -5.0])
+    tilted = N.follow_source(skew[0], skew[1], skew[2], skew[3], names=names,
+                             baseline_s=60.0)
+    assert ([s["name"] for s in tilted["itinerary"]]
+            == [s["name"] for s in flat["itinerary"]] == names)
+
+
+def test_follow_source_reports_nothing_when_nothing_is_audible():
+    """A silent interval must give an empty itinerary, not a guessed room."""
+    t, X, t0, t1 = _walk_grid()
+    X = np.repeat(X[:, :1], X.shape[1], axis=1)      # flat: no source at all
+    r = N.follow_source(t, X, t0, t1, names=["a", "b", "c", "d"],
+                        baseline_s=60.0)
+    assert r["itinerary"] == []
+    assert r["n_visited"] == 0 and r["n_changes"] == 0
+
+
+def test_follow_source_validates_its_inputs():
+    t, X, t0, t1 = _walk_grid()
+    with pytest.raises(ValueError):
+        N.follow_source(t, X[:, :-3], t0, t1)
+    with pytest.raises(ValueError):
+        N.follow_source(t, X, t0, t1, names=["only", "two"])

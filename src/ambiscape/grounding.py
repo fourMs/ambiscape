@@ -91,10 +91,19 @@ GROUNDINGS: dict[str, Grounding] = {g.key: g for g in [
               "percentile of the A-weighted level. Widely *read* as 'the "
               "background', which is a PD claim this number cannot carry"),
     Grounding("dynamics_L10_L90", "PC",
-              "spread of the A-weighted level. The figure/ground reading of "
-              "it — that people widen a room's range rather than raise its "
-              "floor — is measured and solid; calling the result "
-              "figure and ground is the PD step"),
+              "spread of the A-weighted level. It measures INTERMITTENCY, and "
+              "the reading of it as a marker of human presence does not "
+              "survive measurement: on 12 SINS nodes over 84 sessions, in "
+              "fixed 2-minute windows, a person on the telephone and a person "
+              "washing up are indistinguishable (22.4 dB each, p = 0.74), "
+              "while a person vacuuming reads 7.0 dB — nearer an empty room "
+              "(1.2) than a conversation (23.1), because the machine in their "
+              "hands removes the intermittency the number actually detects. "
+              "It separates occupancy from absence overwhelmingly and bursty "
+              "sources from steady ones; it does not separate people from "
+              "machines, and it misses a person holding a steady machine. "
+              "Calling the result figure and ground is the PD step",
+              "notes/sins-analysis.md 2026-08-11, 12 nodes"),
     Grounding("floor_spread_db", "S", "dispersion of the level floor"),
     Grounding("floor_suspect", "S", "instrument-facing: is this the recorder"),
     Grounding("floor_suspect_lo_hz", "S", "instrument-facing"),

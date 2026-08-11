@@ -108,6 +108,24 @@ def group_tracks(tracks: list[dict], tol_cents: float = 60.0) -> list[dict]:
     unrelated sources that happen to share a frequency are merged, and one
     source that moves further than ``tol_cents`` between segments is not. Use
     it to count lines, not to attribute them.
+
+    **Across a sensor network it separates a building from a room**, which is
+    the second use it has earned. A machine bolted to a structure radiates a
+    stable line and reaches rooms through the fabric, so matching the grouped
+    lines between nodes says which steady sources belong to the building and
+    which to one room. On the twelve SINS nodes, nine line groups below 1 kHz
+    reach two or more rooms that are behind doors from one another --- 53, 98,
+    107, 121, 342, 391, 473, 504 and 652 Hz --- and cannot have travelled
+    between them through the air; the bedroom separately carries five lines
+    between 45 and 84 Hz that nobody else hears, which are its own.
+
+    **A line shared by every node may be the recorders rather than the
+    building.** Identical hardware shares its artefacts. The most widely shared
+    line in that corpus sits at 7,937 Hz in all five rooms across eleven nodes,
+    and it is sensor self-noise: it falls in the band where every node of that
+    deployment is already flagged floor-suspect. Split the candidates by band
+    before reading a shared line as a shared source, and treat anything inside
+    the known self-noise region as the instrument until shown otherwise.
     """
     if not tracks:
         return []

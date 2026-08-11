@@ -23,7 +23,25 @@ def running_background(fast_db: np.ndarray, fast_dt: float, win_s=60.0, pct=10):
 
 
 def detect_events(fast_db, fast_dt, thresh_db=8.0, min_dur=0.25):
-    """Return list of dicts (onset index, length, peak index, exceedance)."""
+    """Return list of dicts (onset index, length, peak index, exceedance).
+
+    The threshold is against the *running background*, not an absolute level,
+    which is what makes the count comparable across recorders that are not
+    calibrated against one another.
+
+    **A steady source produces almost no events, however loud it is.** The
+    background tracker absorbs anything continuous, so the rate counts how
+    often a room changes rather than how much is in it. Measured across twelve
+    SINS nodes against hand annotations: watching television gives 33.2 events
+    a minute and a vacuum cleaner 5.2, while the vacuum cleaner is by some way
+    the louder of the two. Sleeping gives 0.06 and an empty room 0.24, so the
+    floor of the scale behaves; it is the top that inverts. Read a low rate as
+    "little changes here", never as "little happens here".
+
+    The rate is not independent of level either --- Spearman +0.53 against
+    median exceedance on that corpus --- so it is a partly separate axis rather
+    than an orthogonal one.
+    """
     bg = running_background(fast_db, fast_dt)
     above = fast_db > bg + thresh_db
     events = []

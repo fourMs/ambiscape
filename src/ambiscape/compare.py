@@ -39,6 +39,26 @@ first calendar day (so hour 28.5 is 04:30 on day 2). The motivating corpus
 is the Haarlem loft: the same room four days apart swapped a loud
 ventilation drone for rain, a Saturday-night party, and its quietest
 recorded floor.
+
+**What an uncalibrated network can be asked.** ``xnode_loudest`` is the
+cautionary case and its own docstring carries the detail: it ranks each node's
+excess over its *own* floor, so a deeper floor wins regardless of what the node
+heard, and every figure built on it is withdrawn. The general lesson from that
+deployment, where twelve nodes differed in speech-band sensitivity by a factor
+of 2.4, is that such a network answers questions whose answers are *shapes* and
+not questions whose answers are *magnitudes*:
+
+- Differences taken within one node travel between nodes. The dynamic range
+  ``L10 - L90`` and the phase of a daily cycle both cancel the node's gain, and
+  both work here: seven nodes in one room agree on peak hour to within half an
+  hour while disagreeing 2.4-fold on sensitivity.
+- Absolute levels do not travel, and nothing built from them across nodes does.
+- To follow a source between rooms, compare each node's *rise against its own
+  earlier baseline*, never one node's level against another's. Validated
+  against hand annotations on that corpus: the loudest-room sequence during a
+  vacuuming session recovers the annotated walk through hall, bathroom, WC and
+  bedroom in the right order, and adds the hall transits between rooms that the
+  ground truth does not separately record.
 """
 from __future__ import annotations
 

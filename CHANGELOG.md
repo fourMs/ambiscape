@@ -9,6 +9,8 @@ been carrying feature work throughout a pre-1.0 life.
 
 ## [Unreleased]
 
+## [0.38.0] — 2026-08-11
+
 ### Added
 - **`tonality.family_prominence`, `tonality.family_percentile` and
   `tonality.narrow_line_prominence` — testing a *hypothesised* harmonic family, and letting it

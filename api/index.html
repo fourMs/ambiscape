@@ -4475,6 +4475,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#ambiscape.tonality.group_tracks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group_tracks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#ambiscape.tonality.harmonic_sieve" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -5212,6 +5223,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#ambiscape.objects.object_spectrum" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        object_spectrum
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#ambiscape.objects.extract_objects" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -5227,6 +5249,17 @@
     <span class="md-ellipsis">
       
         cell_counts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.objects.profile_clips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        profile_clips
       
     </span>
   </a>
@@ -8405,6 +8438,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#ambiscape.tonality.group_tracks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group_tracks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#ambiscape.tonality.harmonic_sieve" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -9142,6 +9186,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#ambiscape.objects.object_spectrum" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        object_spectrum
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#ambiscape.objects.extract_objects" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -9157,6 +9212,17 @@
     <span class="md-ellipsis">
       
         cell_counts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.objects.profile_clips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        profile_clips
       
     </span>
   </a>
@@ -10549,7 +10615,23 @@ consulted (there is no real clock to correct).</p>
 <span class="normal">388</span>
 <span class="normal">389</span>
 <span class="normal">390</span>
-<span class="normal">391</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">open_clips</span><span class="p">(</span><span class="n">folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Session</span><span class="p">:</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">open_clips</span><span class="p">(</span><span class="n">folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Session</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Open a folder of dataset clips as takes on a synthetic clock.</span>
 
 <span class="sd">    Corpus clips — a DCASE STARSS fold, a folder of contributed excerpts —</span>
@@ -10570,8 +10652,15 @@ consulted (there is no real clock to correct).</p>
         <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;no audio files in </span><span class="si">{</span><span class="n">folder</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">sess</span> <span class="o">=</span> <span class="n">Session</span><span class="p">(</span><span class="n">folder</span><span class="o">=</span><span class="n">folder</span><span class="p">,</span> <span class="n">day0</span><span class="o">=</span><span class="n">_dt</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="mi">1970</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
     <span class="n">cursor</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">skipped</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
-        <span class="n">m</span> <span class="o">=</span> <span class="n">_probe_recording</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">_probe_recording</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>                                   <span class="c1"># noqa: BLE001</span>
+            <span class="c1"># a corpus folder is a batch, and one unreadable member should</span>
+            <span class="c1"># not cost the other 364. Named, not swallowed.</span>
+            <span class="n">skipped</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
+            <span class="k">continue</span>
         <span class="n">info</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;info&quot;</span><span class="p">]</span>
         <span class="n">c</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cursor</span><span class="p">)</span>
         <span class="n">sess</span><span class="o">.</span><span class="n">takes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Take</span><span class="p">(</span>
@@ -10582,6 +10671,15 @@ consulted (there is no real clock to correct).</p>
             <span class="n">clock</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">c</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="mi">3600</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">c</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">3600</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="mi">60</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">c</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">60</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="n">order</span><span class="o">=</span><span class="n">m</span><span class="p">[</span><span class="s2">&quot;order&quot;</span><span class="p">],</span> <span class="n">mode</span><span class="o">=</span><span class="n">channel_mode</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">channels</span><span class="p">)))</span>
         <span class="n">cursor</span> <span class="o">=</span> <span class="n">sess</span><span class="o">.</span><span class="n">takes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">end</span>
+    <span class="k">if</span> <span class="n">skipped</span><span class="p">:</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">skipped</span><span class="p">[:</span><span class="mi">5</span><span class="p">])</span>
+        <span class="n">more</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot; and </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">skipped</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">5</span><span class="si">}</span><span class="s2"> more&quot;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">skipped</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">5</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;open_clips: skipped </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">skipped</span><span class="p">)</span><span class="si">}</span><span class="s2"> unreadable file(s): &quot;</span>
+              <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">names</span><span class="si">}{</span><span class="n">more</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">sess</span><span class="o">.</span><span class="n">takes</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;no readable audio in </span><span class="si">{</span><span class="n">folder</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">skipped</span><span class="p">)</span><span class="si">}</span><span class="s2"> file(s) could not be opened)&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">sess</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -10617,23 +10715,7 @@ the file stem.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/io.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">394</span>
-<span class="normal">395</span>
-<span class="normal">396</span>
-<span class="normal">397</span>
-<span class="normal">398</span>
-<span class="normal">399</span>
-<span class="normal">400</span>
-<span class="normal">401</span>
-<span class="normal">402</span>
-<span class="normal">403</span>
-<span class="normal">404</span>
-<span class="normal">405</span>
-<span class="normal">406</span>
-<span class="normal">407</span>
-<span class="normal">408</span>
-<span class="normal">409</span>
-<span class="normal">410</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">410</span>
 <span class="normal">411</span>
 <span class="normal">412</span>
 <span class="normal">413</span>
@@ -10641,7 +10723,23 @@ the file stem.</p>
 <span class="normal">415</span>
 <span class="normal">416</span>
 <span class="normal">417</span>
-<span class="normal">418</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">open_recording</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Session</span><span class="p">:</span>
+<span class="normal">418</span>
+<span class="normal">419</span>
+<span class="normal">420</span>
+<span class="normal">421</span>
+<span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span>
+<span class="normal">428</span>
+<span class="normal">429</span>
+<span class="normal">430</span>
+<span class="normal">431</span>
+<span class="normal">432</span>
+<span class="normal">433</span>
+<span class="normal">434</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">open_recording</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Session</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Open a single recording as a one-take session (&quot;scene&quot;).</span>
 
 <span class="sd">    ``mode`` forces the processing mode when the channel count is ambiguous --</span>
@@ -10688,17 +10786,17 @@ the file stem.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/io.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">421</span>
-<span class="normal">422</span>
-<span class="normal">423</span>
-<span class="normal">424</span>
-<span class="normal">425</span>
-<span class="normal">426</span>
-<span class="normal">427</span>
-<span class="normal">428</span>
-<span class="normal">429</span>
-<span class="normal">430</span>
-<span class="normal">431</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">read_span</span><span class="p">(</span><span class="n">sess</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span> <span class="n">t0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">dur</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">):</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">437</span>
+<span class="normal">438</span>
+<span class="normal">439</span>
+<span class="normal">440</span>
+<span class="normal">441</span>
+<span class="normal">442</span>
+<span class="normal">443</span>
+<span class="normal">444</span>
+<span class="normal">445</span>
+<span class="normal">446</span>
+<span class="normal">447</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">read_span</span><span class="p">(</span><span class="n">sess</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span> <span class="n">t0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">dur</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Read [t0, t0+dur) seconds (session time) from whichever take covers it.&quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">tk</span> <span class="ow">in</span> <span class="n">sess</span><span class="o">.</span><span class="n">takes</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">tk</span><span class="o">.</span><span class="n">start</span> <span class="o">&lt;=</span> <span class="n">t0</span> <span class="o">&lt;</span> <span class="n">tk</span><span class="o">.</span><span class="n">end</span><span class="p">:</span>
@@ -10737,23 +10835,7 @@ Returns the output path.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/io.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">434</span>
-<span class="normal">435</span>
-<span class="normal">436</span>
-<span class="normal">437</span>
-<span class="normal">438</span>
-<span class="normal">439</span>
-<span class="normal">440</span>
-<span class="normal">441</span>
-<span class="normal">442</span>
-<span class="normal">443</span>
-<span class="normal">444</span>
-<span class="normal">445</span>
-<span class="normal">446</span>
-<span class="normal">447</span>
-<span class="normal">448</span>
-<span class="normal">449</span>
-<span class="normal">450</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">450</span>
 <span class="normal">451</span>
 <span class="normal">452</span>
 <span class="normal">453</span>
@@ -10761,7 +10843,23 @@ Returns the output path.</p>
 <span class="normal">455</span>
 <span class="normal">456</span>
 <span class="normal">457</span>
-<span class="normal">458</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">export_segment</span><span class="p">(</span><span class="n">sess</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span> <span class="n">t0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">dur</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="normal">458</span>
+<span class="normal">459</span>
+<span class="normal">460</span>
+<span class="normal">461</span>
+<span class="normal">462</span>
+<span class="normal">463</span>
+<span class="normal">464</span>
+<span class="normal">465</span>
+<span class="normal">466</span>
+<span class="normal">467</span>
+<span class="normal">468</span>
+<span class="normal">469</span>
+<span class="normal">470</span>
+<span class="normal">471</span>
+<span class="normal">472</span>
+<span class="normal">473</span>
+<span class="normal">474</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">export_segment</span><span class="p">(</span><span class="n">sess</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span> <span class="n">t0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">dur</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
                    <span class="n">out_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Bit-exact excerpt [t0, t0+dur) to a WAV, in the take&#39;s channel count.</span>
 
@@ -10812,22 +10910,22 @@ Returns an (n, 2) float array — write it with <code>soundfile</code>.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/io.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">461</span>
-<span class="normal">462</span>
-<span class="normal">463</span>
-<span class="normal">464</span>
-<span class="normal">465</span>
-<span class="normal">466</span>
-<span class="normal">467</span>
-<span class="normal">468</span>
-<span class="normal">469</span>
-<span class="normal">470</span>
-<span class="normal">471</span>
-<span class="normal">472</span>
-<span class="normal">473</span>
-<span class="normal">474</span>
-<span class="normal">475</span>
-<span class="normal">476</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">stereo_preview</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">wyzx</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">az_deg</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">90.0</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;ambix&quot;</span><span class="p">):</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">477</span>
+<span class="normal">478</span>
+<span class="normal">479</span>
+<span class="normal">480</span>
+<span class="normal">481</span>
+<span class="normal">482</span>
+<span class="normal">483</span>
+<span class="normal">484</span>
+<span class="normal">485</span>
+<span class="normal">486</span>
+<span class="normal">487</span>
+<span class="normal">488</span>
+<span class="normal">489</span>
+<span class="normal">490</span>
+<span class="normal">491</span>
+<span class="normal">492</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">stereo_preview</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">wyzx</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">az_deg</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">90.0</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;ambix&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Two-channel decode of a block for listenable previews.</span>
 
 <span class="sd">    ``ambix``: side-facing cardioids at ±``az_deg`` in the horizontal plane,</span>
@@ -26549,6 +26647,8 @@ median (so rhythmic structure reads as ridges regardless of level).</p>
 <li><code>tonal_tracks</code> — peaks linked across minutes into tracks (a hum, a bell
   partial, a beep), each with duration, median frequency, and cents drift:
   the tonalness timeline;</li>
+<li><code>group_tracks</code> — those segments regrouped into lines, for a source that
+  pauses or changes speed and so appears as several tracks;</li>
 <li><code>harmonic_sieve</code> — best f0 explaining a minute's peak set as a harmonic
   series; the unexplained remainder is the inharmonic tonal content.
   Voices, engines, and music score high harmonicity; bells score low
@@ -26596,9 +26696,7 @@ median (so rhythmic structure reads as ridges regardless of level).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/tonality.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">33</span>
 <span class="normal">34</span>
 <span class="normal">35</span>
 <span class="normal">36</span>
@@ -26610,7 +26708,9 @@ median (so rhythmic structure reads as ridges regardless of level).</p>
 <span class="normal">42</span>
 <span class="normal">43</span>
 <span class="normal">44</span>
-<span class="normal">45</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">tonal_peaks</span><span class="p">(</span><span class="n">spec_row</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">freqs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fmin</span><span class="o">=</span><span class="mf">40.0</span><span class="p">,</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">tonal_peaks</span><span class="p">(</span><span class="n">spec_row</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">freqs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fmin</span><span class="o">=</span><span class="mf">40.0</span><span class="p">,</span>
                 <span class="n">fmax</span><span class="o">=</span><span class="mf">8000.0</span><span class="p">,</span> <span class="n">min_prom_db</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span> <span class="n">max_n</span><span class="o">=</span><span class="mi">40</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Prominent narrowband peaks in one mean spectrum.</span>
 
@@ -26649,9 +26749,7 @@ and total drift in cents.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/tonality.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">50</span>
 <span class="normal">51</span>
 <span class="normal">52</span>
 <span class="normal">53</span>
@@ -26687,7 +26785,9 @@ and total drift in cents.</p>
 <span class="normal">83</span>
 <span class="normal">84</span>
 <span class="normal">85</span>
-<span class="normal">86</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">tonal_tracks</span><span class="p">(</span><span class="n">minspec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">freqs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">tol_cents</span><span class="o">=</span><span class="mf">40.0</span><span class="p">,</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">tonal_tracks</span><span class="p">(</span><span class="n">minspec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">freqs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">tol_cents</span><span class="o">=</span><span class="mf">40.0</span><span class="p">,</span>
                  <span class="n">min_minutes</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="o">**</span><span class="n">peak_kw</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Link per-minute peaks into tracks. Returns a list of dicts sorted by</span>
 <span class="sd">    duration (longest first): median freq, span of minutes, mean prominence,</span>
@@ -26735,43 +26835,35 @@ and total drift in cents.</p>
 <div class="doc doc-object doc-function">
 
 
-<h2 id="ambiscape.tonality.harmonic_sieve" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">harmonic_sieve</span><span class="p">(</span><span class="n">fq</span><span class="p">,</span> <span class="n">power</span><span class="p">,</span> <span class="n">f0_min</span><span class="o">=</span><span class="mf">60.0</span><span class="p">,</span> <span class="n">f0_max</span><span class="o">=</span><span class="mf">1200.0</span><span class="p">,</span> <span class="n">tol_cents</span><span class="o">=</span><span class="mf">35.0</span><span class="p">,</span> <span class="n">max_harm</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span></code>
+<h2 id="ambiscape.tonality.group_tracks" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">group_tracks</span><span class="p">(</span><span class="n">tracks</span><span class="p">,</span> <span class="n">tol_cents</span><span class="o">=</span><span class="mf">60.0</span><span class="p">)</span></code>
 
 </h2>
 
 
     <div class="doc doc-contents ">
 
-        <p>Best f0 explaining the peak set as harmonics k*f0.</p>
-<p>Candidate f0s are every peak divided by k = 1..6; the score is the
-power-weighted fraction of peaks within <code>tol_cents</code> of a harmonic.
-Returns (f0, harmonicity in [0,1]) — harmonicity is the explained power
-fraction; 1 − harmonicity is the inharmonicity index.</p>
-<p><strong>The defaults are tuned for voices and music, and mislead on
-machinery.</strong> Three of them, each demonstrated on a dishwasher's
-circulation pump whose peak structure puts its shaft near 46 Hz:</p>
-<p><code>f0_min</code> at 60 Hz sits above many machine shaft rates. On that pump it
-excludes the fundamental and returns its second harmonic, 91.9 Hz. Lower
-it for anything mechanical.</p>
-<p><code>tol_cents</code> is proportional, so 35 cents is ±5.6 Hz at 275 Hz and
-±17 Hz at 825 Hz — wide enough that a candidate can collect high
-harmonics by coincidence. The default returns 68.6 Hz at harmonicity
-0.73; tightening to 8 cents returns 46.0 Hz at 0.45. The looser fit
-<em>scores higher while explaining fewer of the strong low peaks</em>, so a
-harmonicity figure means little without the tolerance beside it.</p>
-<p><code>max_harm</code> at 12 is short for a machine comb; the same pump is
-tracked to k = 26.</p>
-<p>None of this is a defect in the sieve. It is that "which harmonic
-series is this" has more than one defensible answer, and the parameters
-choose between them rather than merely tuning precision. Report them.</p>
+        <p>Group track segments that are the same line, interrupted.</p>
+<p>:func:<code>tonal_tracks</code> answers "how long was a line continuously present at
+this frequency". A source that pauses, or shifts frequency and comes back,
+is therefore several tracks --- correct as tracking and misleading as a
+description of the source. A dishwasher's circulation pump, which changes
+speed between programme phases, appears as five separate tracks.</p>
+<p>This regroups them: segments whose median frequencies lie within
+<code>tol_cents</code> become one line, regardless of the gaps between them.
+Returns one entry per line with <code>f_median_hz</code>, <code>minutes</code> (the total
+across its segments), <code>n_segments</code>, <code>t0_min</code> and <code>t1_min</code> spanning
+the first to the last, and <code>prominence_db</code> averaged over segments
+weighted by their length.</p>
+<p>Grouping by frequency alone is the assumption to be aware of: two
+unrelated sources that happen to share a frequency are merged, and one
+source that moves further than <code>tol_cents</code> between segments is not. Use
+it to count lines, not to attribute them.</p>
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/tonality.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 89</span>
-<span class="normal"> 90</span>
-<span class="normal"> 91</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 91</span>
 <span class="normal"> 92</span>
 <span class="normal"> 93</span>
 <span class="normal"> 94</span>
@@ -26812,7 +26904,141 @@ choose between them rather than merely tuning precision. Report them.</p>
 <span class="normal">129</span>
 <span class="normal">130</span>
 <span class="normal">131</span>
-<span class="normal">132</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">harmonic_sieve</span><span class="p">(</span><span class="n">fq</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">power</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">f0_min</span><span class="o">=</span><span class="mf">60.0</span><span class="p">,</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">group_tracks</span><span class="p">(</span><span class="n">tracks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">tol_cents</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Group track segments that are the same line, interrupted.</span>
+
+<span class="sd">    :func:`tonal_tracks` answers &quot;how long was a line continuously present at</span>
+<span class="sd">    this frequency&quot;. A source that pauses, or shifts frequency and comes back,</span>
+<span class="sd">    is therefore several tracks --- correct as tracking and misleading as a</span>
+<span class="sd">    description of the source. A dishwasher&#39;s circulation pump, which changes</span>
+<span class="sd">    speed between programme phases, appears as five separate tracks.</span>
+
+<span class="sd">    This regroups them: segments whose median frequencies lie within</span>
+<span class="sd">    ``tol_cents`` become one line, regardless of the gaps between them.</span>
+<span class="sd">    Returns one entry per line with ``f_median_hz``, ``minutes`` (the total</span>
+<span class="sd">    across its segments), ``n_segments``, ``t0_min`` and ``t1_min`` spanning</span>
+<span class="sd">    the first to the last, and ``prominence_db`` averaged over segments</span>
+<span class="sd">    weighted by their length.</span>
+
+<span class="sd">    Grouping by frequency alone is the assumption to be aware of: two</span>
+<span class="sd">    unrelated sources that happen to share a frequency are merged, and one</span>
+<span class="sd">    source that moves further than ``tol_cents`` between segments is not. Use</span>
+<span class="sd">    it to count lines, not to attribute them.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">tracks</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">order</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">tracks</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;f_median_hz&quot;</span><span class="p">])</span>
+    <span class="n">groups</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[[</span><span class="n">order</span><span class="p">[</span><span class="mi">0</span><span class="p">]]]</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">order</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="n">ref</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;f_median_hz&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]))</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="mi">1200</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;f_median_hz&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">ref</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="n">tol_cents</span><span class="p">:</span>
+            <span class="n">groups</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">groups</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">t</span><span class="p">])</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+        <span class="n">mins</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;minutes&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">g</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s2">&quot;f_median_hz&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;f_median_hz&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">g</span><span class="p">])),</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="s2">&quot;minutes&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">mins</span><span class="p">),</span>
+            <span class="s2">&quot;n_segments&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">g</span><span class="p">),</span>
+            <span class="s2">&quot;t0_min&quot;</span><span class="p">:</span> <span class="nb">min</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;t0_min&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">g</span><span class="p">),</span>
+            <span class="s2">&quot;t1_min&quot;</span><span class="p">:</span> <span class="nb">max</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;t1_min&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">g</span><span class="p">),</span>
+            <span class="s2">&quot;prominence_db&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span>
+                <span class="n">x</span><span class="p">[</span><span class="s2">&quot;prominence_db&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;minutes&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">g</span><span class="p">)</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">mins</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="p">})</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="o">-</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;minutes&quot;</span><span class="p">])</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ambiscape.tonality.harmonic_sieve" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">harmonic_sieve</span><span class="p">(</span><span class="n">fq</span><span class="p">,</span> <span class="n">power</span><span class="p">,</span> <span class="n">f0_min</span><span class="o">=</span><span class="mf">60.0</span><span class="p">,</span> <span class="n">f0_max</span><span class="o">=</span><span class="mf">1200.0</span><span class="p">,</span> <span class="n">tol_cents</span><span class="o">=</span><span class="mf">35.0</span><span class="p">,</span> <span class="n">max_harm</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Best f0 explaining the peak set as harmonics k*f0.</p>
+<p>Candidate f0s are every peak divided by k = 1..6; the score is the
+power-weighted fraction of peaks within <code>tol_cents</code> of a harmonic.
+Returns (f0, harmonicity in [0,1]) — harmonicity is the explained power
+fraction; 1 − harmonicity is the inharmonicity index.</p>
+<p><strong>The defaults are tuned for voices and music, and mislead on
+machinery.</strong> Three of them, each demonstrated on a dishwasher's
+circulation pump whose peak structure puts its shaft near 46 Hz:</p>
+<p><code>f0_min</code> at 60 Hz sits above many machine shaft rates. On that pump it
+excludes the fundamental and returns its second harmonic, 91.9 Hz. Lower
+it for anything mechanical.</p>
+<p><code>tol_cents</code> is proportional, so 35 cents is ±5.6 Hz at 275 Hz and
+±17 Hz at 825 Hz — wide enough that a candidate can collect high
+harmonics by coincidence. The default returns 68.6 Hz at harmonicity
+0.73; tightening to 8 cents returns 46.0 Hz at 0.45. The looser fit
+<em>scores higher while explaining fewer of the strong low peaks</em>, so a
+harmonicity figure means little without the tolerance beside it.</p>
+<p><code>max_harm</code> at 12 is short for a machine comb; the same pump is
+tracked to k = 26.</p>
+<p>None of this is a defect in the sieve. It is that "which harmonic
+series is this" has more than one defensible answer, and the parameters
+choose between them rather than merely tuning precision. Report them.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ambiscape/tonality.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">harmonic_sieve</span><span class="p">(</span><span class="n">fq</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">power</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">f0_min</span><span class="o">=</span><span class="mf">60.0</span><span class="p">,</span>
                    <span class="n">f0_max</span><span class="o">=</span><span class="mf">1200.0</span><span class="p">,</span> <span class="n">tol_cents</span><span class="o">=</span><span class="mf">35.0</span><span class="p">,</span> <span class="n">max_harm</span><span class="o">=</span><span class="mi">12</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Best f0 explaining the peak set as harmonics k*f0.</span>
 
@@ -26878,17 +27104,17 @@ choose between them rather than merely tuning precision. Report them.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/tonality.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span>
-<span class="normal">145</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pitch_class_profile</span><span class="p">(</span><span class="n">minspec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">freqs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pitch_class_profile</span><span class="p">(</span><span class="n">minspec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">freqs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                         <span class="n">minutes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">peak_kw</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Tonal peak power folded onto 12 pitch classes (A4 = 440 Hz).&quot;&quot;&quot;</span>
     <span class="n">pcp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
@@ -26921,58 +27147,58 @@ choose between them rather than merely tuning precision. Report them.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/tonality.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
-<span class="normal">154</span>
-<span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span>
-<span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
-<span class="normal">182</span>
-<span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span>
-<span class="normal">197</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">197</span>
 <span class="normal">198</span>
-<span class="normal">199</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_session</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_session</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Tonality timeline + per-minute tonalness/harmonicity + PCP + figure.&quot;&quot;&quot;</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span>
@@ -31835,7 +32061,7 @@ normalised envelope autocorrelation at its best repetition lag between
 
 
 <h2 id="ambiscape.objects.object_profile" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">object_profile</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">object_profile</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span> <span class="n">logspec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logf</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h2>
 
@@ -31874,6 +32100,9 @@ returns almost nothing from <code>analyze</code>.</p>
 <code>iteration_hz</code> / <code>iteration_strength</code>
     best repetition rate in the envelope and how strongly it repeats,
     from the same measurement that types iterative objects.</p>
+<p>Pass <code>logspec</code> and <code>logf</code> --- the object's own rows of the cached
+log-frequency spectrogram and its band edges --- to include the spectral
+morphology from :func:<code>object_spectrum</code> in the same dict.</p>
 
 
             <details class="mkdocstrings-source">
@@ -31952,8 +32181,17 @@ returns almost nothing from <code>analyze</code>.</p>
 <span class="normal">297</span>
 <span class="normal">298</span>
 <span class="normal">299</span>
-<span class="normal">300</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">object_profile</span><span class="p">(</span><span class="n">env</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">dur</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                   <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-12</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">object_profile</span><span class="p">(</span><span class="n">env</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">dur</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                   <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-12</span><span class="p">,</span> <span class="n">logspec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                   <span class="n">logf</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Morphology of one sound object, as numbers rather than as a type.</span>
 
 <span class="sd">    :func:`object_facture` already measures an attack time and an iteration</span>
@@ -31990,6 +32228,10 @@ returns almost nothing from <code>analyze</code>.</p>
 <span class="sd">    ``iteration_hz`` / ``iteration_strength``</span>
 <span class="sd">        best repetition rate in the envelope and how strongly it repeats,</span>
 <span class="sd">        from the same measurement that types iterative objects.</span>
+
+<span class="sd">    Pass ``logspec`` and ``logf`` --- the object&#39;s own rows of the cached</span>
+<span class="sd">    log-frequency spectrogram and its band edges --- to include the spectral</span>
+<span class="sd">    morphology from :func:`object_spectrum` in the same dict.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
     <span class="n">e</span> <span class="o">=</span> <span class="n">e</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">e</span><span class="p">)]</span>
@@ -32019,7 +32261,10 @@ returns almost nothing from <code>analyze</code>.</p>
     <span class="n">crest</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="mi">20</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">peak</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">rms</span><span class="p">,</span> <span class="n">eps</span><span class="p">)))</span>
     <span class="n">it_strength</span><span class="p">,</span> <span class="n">it_hz</span> <span class="o">=</span> <span class="n">_iteration_strength</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>   <span class="c1"># (strength, rate)</span>
 
+    <span class="n">spectral</span> <span class="o">=</span> <span class="p">({}</span> <span class="k">if</span> <span class="n">logspec</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">logf</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="n">object_spectrum</span><span class="p">(</span><span class="n">logspec</span><span class="p">,</span> <span class="n">logf</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">eps</span><span class="p">))</span>
     <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;duration_s&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">dur</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+            <span class="o">**</span><span class="n">spectral</span><span class="p">,</span>
             <span class="s2">&quot;attack_s&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">attack</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
             <span class="s2">&quot;decay_s&quot;</span><span class="p">:</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">decay</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">round</span><span class="p">(</span><span class="n">decay</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
             <span class="s2">&quot;temporal_centroid&quot;</span><span class="p">:</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">tc</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">round</span><span class="p">(</span><span class="n">tc</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
@@ -32036,32 +32281,74 @@ returns almost nothing from <code>analyze</code>.</p>
 <div class="doc doc-object doc-function">
 
 
-<h2 id="ambiscape.objects.extract_objects" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">extract_objects</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">min_dur</span><span class="o">=</span><span class="n">OBJECT_MIN_S</span><span class="p">,</span> <span class="n">max_dur</span><span class="o">=</span><span class="n">OBJECT_MAX_S</span><span class="p">,</span> <span class="n">thresh_db</span><span class="o">=</span><span class="mf">8.0</span><span class="p">)</span></code>
+<h2 id="ambiscape.objects.object_spectrum" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">object_spectrum</span><span class="p">(</span><span class="n">logspec</span><span class="p">,</span> <span class="n">logf</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">)</span></code>
 
 </h2>
 
 
     <div class="doc doc-contents ">
 
-        <p>Sound objects of a session, typed on Schaeffer's two axes.</p>
-<p>Runs :func:<code>ambiscape.analysis.detect_events</code> on the cached fast level,
-keeps the events whose duration lies in <code>[min_dur, max_dur]</code> — the
-perceptual window in which something can be held whole in attention — and
-types each survivor with :func:<code>object_mass</code> and :func:<code>object_facture</code>.</p>
-<p>Returns <code>{"objects": [...], "n_detected", "n_short", "n_long",
-"min_dur_s", "max_dur_s"}</code>, so the events that were <em>not</em> objects stay
-visible and countable. Each object is an annotation-shaped dict —
-<code>mass</code>, <code>facture</code>, <code>kind</code> (always <code>"figure"</code>: what a sound object
-does in the place is a separate, human judgement), a one-element <code>spans</code>
-on the session clock, its level and exceedance, <code>_auto</code> set, and the
-numbers behind both typings under <code>_schaeffer</code> — so it drops straight
-into the taxonomy figures.</p>
+        <p>Spectral morphology of one object: where it sits, where it goes.</p>
+<p>The companion to :func:<code>object_profile</code>, which measures an object's
+envelope and says nothing about its spectrum. Both are meso-band
+descriptors in the sense of :mod:<code>ambiscape.timescales</code> --- defined on a
+single object of roughly 0.2 to 8 s, needing no minute of audio, which is
+what the session-scale centroid and flux both require.</p>
+<p><code>logspec</code> is the object's own rows of the cached log-frequency
+spectrogram and <code>logf</code> its band edges. Returns:</p>
+<p><code>brightness_hz</code>
+    energy-weighted spectral centroid over the whole object.
+<code>brightness_drift_oct</code>
+    the centroid of the last third against the first third, in octaves.
+    Negative is an object growing duller as it decays, which is what a
+    struck resonant body does; positive is one growing brighter, which a
+    kettle approaching the boil does. This is the duration-aware
+    quantity: it is a shape rather than a level, so it compares objects
+    of different lengths without either being normalised away.</p>
+<div class="highlight"><pre><span></span><code>Measured against listener typing on 334 labelled clips of everyday
+sound actions, impulsive objects drift −0.25 octaves and iterative
+ones −0.01, in the predicted direction but weakly: p = 0.03 with a
+rank-biserial effect of −0.16. It describes an object; it does not
+type one.
+</code></pre></div>
+<p><code>flux_per_s</code>
+    mean absolute frame-to-frame change of the power-normalised
+    spectrum, per second. Near zero for a held tone; large for a
+    clattering or scraping object whose spectrum churns. Reported per
+    second rather than per frame so it does not depend on the hop.</p>
+<div class="highlight"><pre><span></span><code>On the same 334 clips it does not separate facture at all --- 39.5
+per second for impulsive objects against 39.7 for iterative, p = 0.56
+--- and neither does ``brightness_hz``. Both describe what an object
+sounds like rather than which of Schaeffer&#39;s classes it falls in, and
+should not be used for typing.
+</code></pre></div>
+<p><code>n_frames</code>
+    how many spectrogram rows the object had. Below about five the other
+    three are indicative only, and a caller reporting them should say so.</p>
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/objects.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">329</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
 <span class="normal">330</span>
 <span class="normal">331</span>
 <span class="normal">332</span>
@@ -32113,31 +32400,188 @@ into the taxonomy figures.</p>
 <span class="normal">378</span>
 <span class="normal">379</span>
 <span class="normal">380</span>
-<span class="normal">381</span>
-<span class="normal">382</span>
-<span class="normal">383</span>
-<span class="normal">384</span>
-<span class="normal">385</span>
-<span class="normal">386</span>
-<span class="normal">387</span>
-<span class="normal">388</span>
-<span class="normal">389</span>
-<span class="normal">390</span>
-<span class="normal">391</span>
-<span class="normal">392</span>
-<span class="normal">393</span>
-<span class="normal">394</span>
-<span class="normal">395</span>
-<span class="normal">396</span>
-<span class="normal">397</span>
-<span class="normal">398</span>
-<span class="normal">399</span>
-<span class="normal">400</span>
-<span class="normal">401</span>
-<span class="normal">402</span>
-<span class="normal">403</span>
-<span class="normal">404</span>
-<span class="normal">405</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_objects</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">min_dur</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">OBJECT_MIN_S</span><span class="p">,</span>
+<span class="normal">381</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">object_spectrum</span><span class="p">(</span><span class="n">logspec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">logf</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                    <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-12</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Spectral morphology of one object: where it sits, where it goes.</span>
+
+<span class="sd">    The companion to :func:`object_profile`, which measures an object&#39;s</span>
+<span class="sd">    envelope and says nothing about its spectrum. Both are meso-band</span>
+<span class="sd">    descriptors in the sense of :mod:`ambiscape.timescales` --- defined on a</span>
+<span class="sd">    single object of roughly 0.2 to 8 s, needing no minute of audio, which is</span>
+<span class="sd">    what the session-scale centroid and flux both require.</span>
+
+<span class="sd">    ``logspec`` is the object&#39;s own rows of the cached log-frequency</span>
+<span class="sd">    spectrogram and ``logf`` its band edges. Returns:</span>
+
+<span class="sd">    ``brightness_hz``</span>
+<span class="sd">        energy-weighted spectral centroid over the whole object.</span>
+<span class="sd">    ``brightness_drift_oct``</span>
+<span class="sd">        the centroid of the last third against the first third, in octaves.</span>
+<span class="sd">        Negative is an object growing duller as it decays, which is what a</span>
+<span class="sd">        struck resonant body does; positive is one growing brighter, which a</span>
+<span class="sd">        kettle approaching the boil does. This is the duration-aware</span>
+<span class="sd">        quantity: it is a shape rather than a level, so it compares objects</span>
+<span class="sd">        of different lengths without either being normalised away.</span>
+
+<span class="sd">        Measured against listener typing on 334 labelled clips of everyday</span>
+<span class="sd">        sound actions, impulsive objects drift −0.25 octaves and iterative</span>
+<span class="sd">        ones −0.01, in the predicted direction but weakly: p = 0.03 with a</span>
+<span class="sd">        rank-biserial effect of −0.16. It describes an object; it does not</span>
+<span class="sd">        type one.</span>
+<span class="sd">    ``flux_per_s``</span>
+<span class="sd">        mean absolute frame-to-frame change of the power-normalised</span>
+<span class="sd">        spectrum, per second. Near zero for a held tone; large for a</span>
+<span class="sd">        clattering or scraping object whose spectrum churns. Reported per</span>
+<span class="sd">        second rather than per frame so it does not depend on the hop.</span>
+
+<span class="sd">        On the same 334 clips it does not separate facture at all --- 39.5</span>
+<span class="sd">        per second for impulsive objects against 39.7 for iterative, p = 0.56</span>
+<span class="sd">        --- and neither does ``brightness_hz``. Both describe what an object</span>
+<span class="sd">        sounds like rather than which of Schaeffer&#39;s classes it falls in, and</span>
+<span class="sd">        should not be used for typing.</span>
+<span class="sd">    ``n_frames``</span>
+<span class="sd">        how many spectrogram rows the object had. Below about five the other</span>
+<span class="sd">        three are indicative only, and a caller reporting them should say so.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">logspec</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">logf</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+    <span class="n">centres</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">f</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">:])[:</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="n">x</span><span class="p">[:,</span> <span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">centres</span><span class="p">)]</span> <span class="o">/</span> <span class="mf">10.0</span><span class="p">)</span>
+    <span class="n">tot</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">live</span> <span class="o">=</span> <span class="n">tot</span> <span class="o">&gt;</span> <span class="n">eps</span>
+    <span class="k">if</span> <span class="n">live</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span>
+    <span class="n">p</span><span class="p">,</span> <span class="n">tot</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="n">live</span><span class="p">],</span> <span class="n">tot</span><span class="p">[</span><span class="n">live</span><span class="p">]</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">cen</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span> <span class="o">*</span> <span class="n">centres</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">tot</span>
+    <span class="n">brightness</span> <span class="o">=</span> <span class="nb">float</span><span class="p">((</span><span class="n">cen</span> <span class="o">*</span> <span class="n">tot</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">tot</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+
+    <span class="n">third</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span> <span class="o">//</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="nb">float</span><span class="p">((</span><span class="n">cen</span><span class="p">[:</span><span class="n">third</span><span class="p">]</span> <span class="o">*</span> <span class="n">tot</span><span class="p">[:</span><span class="n">third</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">tot</span><span class="p">[:</span><span class="n">third</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">eps</span><span class="p">))</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="nb">float</span><span class="p">((</span><span class="n">cen</span><span class="p">[</span><span class="o">-</span><span class="n">third</span><span class="p">:]</span> <span class="o">*</span> <span class="n">tot</span><span class="p">[</span><span class="o">-</span><span class="n">third</span><span class="p">:])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">tot</span><span class="p">[</span><span class="o">-</span><span class="n">third</span><span class="p">:]</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">eps</span><span class="p">))</span>
+    <span class="n">drift</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">b</span> <span class="o">/</span> <span class="n">a</span><span class="p">))</span> <span class="k">if</span> <span class="n">a</span> <span class="o">&gt;</span> <span class="n">eps</span> <span class="ow">and</span> <span class="n">b</span> <span class="o">&gt;</span> <span class="n">eps</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">norm</span> <span class="o">=</span> <span class="n">p</span> <span class="o">/</span> <span class="n">tot</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="n">flux</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">norm</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">eps</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;brightness_hz&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">brightness</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="s2">&quot;brightness_drift_oct&quot;</span><span class="p">:</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">drift</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">round</span><span class="p">(</span><span class="n">drift</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+            <span class="s2">&quot;flux_per_s&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">flux</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+            <span class="s2">&quot;n_frames&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="p">)}</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ambiscape.objects.extract_objects" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">extract_objects</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">min_dur</span><span class="o">=</span><span class="n">OBJECT_MIN_S</span><span class="p">,</span> <span class="n">max_dur</span><span class="o">=</span><span class="n">OBJECT_MAX_S</span><span class="p">,</span> <span class="n">thresh_db</span><span class="o">=</span><span class="mf">8.0</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Sound objects of a session, typed on Schaeffer's two axes.</p>
+<p>Runs :func:<code>ambiscape.analysis.detect_events</code> on the cached fast level,
+keeps the events whose duration lies in <code>[min_dur, max_dur]</code> — the
+perceptual window in which something can be held whole in attention — and
+types each survivor with :func:<code>object_mass</code> and :func:<code>object_facture</code>.</p>
+<p>Returns <code>{"objects": [...], "n_detected", "n_short", "n_long",
+"min_dur_s", "max_dur_s"}</code>, so the events that were <em>not</em> objects stay
+visible and countable. Each object is an annotation-shaped dict —
+<code>mass</code>, <code>facture</code>, <code>kind</code> (always <code>"figure"</code>: what a sound object
+does in the place is a separate, human judgement), a one-element <code>spans</code>
+on the session clock, its level and exceedance, <code>_auto</code> set, and the
+numbers behind both typings under <code>_schaeffer</code> — so it drops straight
+into the taxonomy figures.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ambiscape/objects.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span>
+<span class="normal">419</span>
+<span class="normal">420</span>
+<span class="normal">421</span>
+<span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span>
+<span class="normal">428</span>
+<span class="normal">429</span>
+<span class="normal">430</span>
+<span class="normal">431</span>
+<span class="normal">432</span>
+<span class="normal">433</span>
+<span class="normal">434</span>
+<span class="normal">435</span>
+<span class="normal">436</span>
+<span class="normal">437</span>
+<span class="normal">438</span>
+<span class="normal">439</span>
+<span class="normal">440</span>
+<span class="normal">441</span>
+<span class="normal">442</span>
+<span class="normal">443</span>
+<span class="normal">444</span>
+<span class="normal">445</span>
+<span class="normal">446</span>
+<span class="normal">447</span>
+<span class="normal">448</span>
+<span class="normal">449</span>
+<span class="normal">450</span>
+<span class="normal">451</span>
+<span class="normal">452</span>
+<span class="normal">453</span>
+<span class="normal">454</span>
+<span class="normal">455</span>
+<span class="normal">456</span>
+<span class="normal">457</span>
+<span class="normal">458</span>
+<span class="normal">459</span>
+<span class="normal">460</span>
+<span class="normal">461</span>
+<span class="normal">462</span>
+<span class="normal">463</span>
+<span class="normal">464</span>
+<span class="normal">465</span>
+<span class="normal">466</span>
+<span class="normal">467</span>
+<span class="normal">468</span>
+<span class="normal">469</span>
+<span class="normal">470</span>
+<span class="normal">471</span>
+<span class="normal">472</span>
+<span class="normal">473</span>
+<span class="normal">474</span>
+<span class="normal">475</span>
+<span class="normal">476</span>
+<span class="normal">477</span>
+<span class="normal">478</span>
+<span class="normal">479</span>
+<span class="normal">480</span>
+<span class="normal">481</span>
+<span class="normal">482</span>
+<span class="normal">483</span>
+<span class="normal">484</span>
+<span class="normal">485</span>
+<span class="normal">486</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_objects</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">min_dur</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">OBJECT_MIN_S</span><span class="p">,</span>
                     <span class="n">max_dur</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">OBJECT_MAX_S</span><span class="p">,</span>
                     <span class="n">thresh_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">8.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Sound objects of a session, typed on Schaeffer&#39;s two axes.</span>
@@ -32236,15 +32680,15 @@ into the taxonomy figures.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/objects.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">414</span>
-<span class="normal">415</span>
-<span class="normal">416</span>
-<span class="normal">417</span>
-<span class="normal">418</span>
-<span class="normal">419</span>
-<span class="normal">420</span>
-<span class="normal">421</span>
-<span class="normal">422</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">cell_counts</span><span class="p">(</span><span class="n">objects</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">495</span>
+<span class="normal">496</span>
+<span class="normal">497</span>
+<span class="normal">498</span>
+<span class="normal">499</span>
+<span class="normal">500</span>
+<span class="normal">501</span>
+<span class="normal">502</span>
+<span class="normal">503</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">cell_counts</span><span class="p">(</span><span class="n">objects</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;``{(facture, mass): n}`` over typed objects — the map&#39;s full census.&quot;&quot;&quot;</span>
     <span class="n">out</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">:</span>
@@ -32252,6 +32696,127 @@ into the taxonomy figures.</p>
         <span class="k">if</span> <span class="kc">None</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
             <span class="k">continue</span>
         <span class="n">out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">out</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ambiscape.objects.profile_clips" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">profile_clips</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Profile every clip in a folder as one sound object each.</p>
+<p>A corpus of short clips is the case the session-scale descriptors cannot
+serve: almost everything in a session summary needs a minute of audio and
+returns <code>None</code> for a six-second recording. Here each clip is taken whole
+as one object and given the meso-band descriptors --- the envelope set
+from :func:<code>object_profile</code> and the spectral set from
+:func:<code>object_spectrum</code>.</p>
+<p>Taking the clip whole is the assumption to be aware of. It is right for a
+corpus of single actions, each recorded deliberately, and wrong for a clip
+that happens to contain three events; for those, run
+:func:<code>extract_objects</code> over a session instead and let the detector find
+the boundaries.</p>
+<p>Returns one dict per clip, in sorted filename order, each carrying
+<code>clip</code> and the two descriptor sets. <code>n_frames</code> will be small --- the
+cached log spectrogram has one row per second, so a six-second clip gives
+six --- and the spectral fields should be read as indicative below about
+five.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ambiscape/objects.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">505</span>
+<span class="normal">506</span>
+<span class="normal">507</span>
+<span class="normal">508</span>
+<span class="normal">509</span>
+<span class="normal">510</span>
+<span class="normal">511</span>
+<span class="normal">512</span>
+<span class="normal">513</span>
+<span class="normal">514</span>
+<span class="normal">515</span>
+<span class="normal">516</span>
+<span class="normal">517</span>
+<span class="normal">518</span>
+<span class="normal">519</span>
+<span class="normal">520</span>
+<span class="normal">521</span>
+<span class="normal">522</span>
+<span class="normal">523</span>
+<span class="normal">524</span>
+<span class="normal">525</span>
+<span class="normal">526</span>
+<span class="normal">527</span>
+<span class="normal">528</span>
+<span class="normal">529</span>
+<span class="normal">530</span>
+<span class="normal">531</span>
+<span class="normal">532</span>
+<span class="normal">533</span>
+<span class="normal">534</span>
+<span class="normal">535</span>
+<span class="normal">536</span>
+<span class="normal">537</span>
+<span class="normal">538</span>
+<span class="normal">539</span>
+<span class="normal">540</span>
+<span class="normal">541</span>
+<span class="normal">542</span>
+<span class="normal">543</span>
+<span class="normal">544</span>
+<span class="normal">545</span>
+<span class="normal">546</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">profile_clips</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Profile every clip in a folder as one sound object each.</span>
+
+<span class="sd">    A corpus of short clips is the case the session-scale descriptors cannot</span>
+<span class="sd">    serve: almost everything in a session summary needs a minute of audio and</span>
+<span class="sd">    returns ``None`` for a six-second recording. Here each clip is taken whole</span>
+<span class="sd">    as one object and given the meso-band descriptors --- the envelope set</span>
+<span class="sd">    from :func:`object_profile` and the spectral set from</span>
+<span class="sd">    :func:`object_spectrum`.</span>
+
+<span class="sd">    Taking the clip whole is the assumption to be aware of. It is right for a</span>
+<span class="sd">    corpus of single actions, each recorded deliberately, and wrong for a clip</span>
+<span class="sd">    that happens to contain three events; for those, run</span>
+<span class="sd">    :func:`extract_objects` over a session instead and let the detector find</span>
+<span class="sd">    the boundaries.</span>
+
+<span class="sd">    Returns one dict per clip, in sorted filename order, each carrying</span>
+<span class="sd">    ``clip`` and the two descriptor sets. ``n_frames`` will be small --- the</span>
+<span class="sd">    cached log spectrogram has one row per second, so a six-second clip gives</span>
+<span class="sd">    six --- and the spectral fields should be read as indicative below about</span>
+<span class="sd">    five.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_take</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">open_clips</span>
+    <span class="n">sess</span> <span class="o">=</span> <span class="n">open_clips</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">tk</span> <span class="ow">in</span> <span class="n">sess</span><span class="o">.</span><span class="n">takes</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">extract_take</span><span class="p">(</span><span class="n">tk</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>                                   <span class="c1"># noqa: BLE001</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">tk</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: unreadable (</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">F</span><span class="p">[</span><span class="s2">&quot;env_hi&quot;</span><span class="p">],</span> <span class="nb">float</span><span class="p">))</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;clip&quot;</span><span class="p">:</span> <span class="n">tk</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="p">}</span>
+        <span class="n">row</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">object_profile</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">F</span><span class="p">[</span><span class="s2">&quot;hi_dt&quot;</span><span class="p">]),</span>
+                                  <span class="n">logspec</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;logspec&quot;</span><span class="p">),</span>
+                                  <span class="n">logf</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;logf&quot;</span><span class="p">)))</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">tk</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;duration_s&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> s&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">out</span>
 </code></pre></div></td></tr></table></div>
             </details>

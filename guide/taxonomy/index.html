@@ -1648,6 +1648,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Morphology without the label (objects.object_profile)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-spectral-half-objectsobject_spectrum" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The spectral half (objects.object_spectrum)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-whole-corpus-of-clips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A whole corpus of clips
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2183,6 +2211,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Morphology without the label (objects.object_profile)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-spectral-half-objectsobject_spectrum" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The spectral half (objects.object_spectrum)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-whole-corpus-of-clips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A whole corpus of clips
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2405,6 +2461,57 @@ rather than the label.</p>
 sustained on a continuous axis rather than in categories: an impulse lands
 near 0.04 and a held sound near 0.49, so two objects of the same facture
 can still be told apart.</p>
+<h3 id="the-spectral-half-objectsobject_spectrum">The spectral half (<code>objects.object_spectrum</code>)</h3>
+<p><code>object_profile</code> measures an envelope and says nothing about frequency. Pass
+it the object's own rows of the log-frequency spectrogram and it merges in
+three more, or call <code>object_spectrum</code> directly:</p>
+<div class="highlight"><pre><span></span><code><span class="n">p</span> <span class="o">=</span> <span class="n">object_profile</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">logspec</span><span class="o">=</span><span class="n">F</span><span class="p">[</span><span class="s2">&quot;logspec&quot;</span><span class="p">][</span><span class="n">i0</span><span class="p">:</span><span class="n">i1</span><span class="p">],</span> <span class="n">logf</span><span class="o">=</span><span class="n">F</span><span class="p">[</span><span class="s2">&quot;logf&quot;</span><span class="p">])</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>field</th>
+<th>what it says</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>brightness_hz</code></td>
+<td>energy-weighted spectral centroid over the object</td>
+</tr>
+<tr>
+<td><code>brightness_drift_oct</code></td>
+<td>the last third's centroid against the first third's, in octaves — negative for an object growing duller as it decays, positive for one growing brighter</td>
+</tr>
+<tr>
+<td><code>flux_per_s</code></td>
+<td>frame-to-frame change of the normalised spectrum, per second, so it does not depend on the hop</td>
+</tr>
+<tr>
+<td><code>n_frames</code></td>
+<td>below about five, read the other three as indicative</td>
+</tr>
+</tbody>
+</table>
+<p>The drift is the duration-aware one: it is a shape rather than a level, so
+objects of different lengths compare directly.</p>
+<p>What they are not is a typology. Measured against listener typing on 334
+labelled clips of everyday sound actions, drift runs in the predicted
+direction and weakly — impulsive objects at −0.25 octaves against −0.01 for
+iterative, p = 0.03, rank-biserial −0.16. Flux does not separate the two at
+all (39.5 per second against 39.7, p = 0.56) and nor does brightness. Use
+them to describe an object and to compare objects; use <code>object_facture</code> to
+type one.</p>
+<h3 id="a-whole-corpus-of-clips">A whole corpus of clips</h3>
+<div class="highlight"><pre><span></span><code>ambiscape objects &lt;folder&gt;          # -&gt; &lt;folder&gt;/objects.csv, a row per clip
+</code></pre></div>
+<p>Each clip is taken whole as one object and given both descriptor sets. That
+assumption is right for a corpus of single deliberate actions and wrong for a
+clip holding three events; for those, run <code>extract_objects</code> over a session and
+let the detector find the boundaries.</p>
+<p>The cached log spectrogram has one row per second, so a six-second clip gives
+six and the command says how many clips fell under five rows. <code>open_clips</code>
+skips and names a file it cannot read rather than failing the batch.</p>
 <p>These are <em>meso-band</em> descriptors in the sense of the
 <a href="../timescales/">timescales guide</a>: each is defined on a single object of
 roughly 0.2–8 s and none needs a minute of audio. That matters for clip
@@ -2705,7 +2812,7 @@ existing annotations keep working; everything it writes uses <code>anthrophony</
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 10, 2026 13:03:20 UTC">August 10, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 10, 2026 19:55:28 UTC">August 10, 2026</span>
   </span>
 
     

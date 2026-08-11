@@ -865,6 +865,46 @@ def series_onset(series, rise: float = ONSET_RISE):
     return int(idx[0]) if len(idx) else None
 
 
+def series_span(series, rise: float = ONSET_RISE):
+    """First and last index above ``rise`` of a series' floor-to-peak range.
+
+    :func:`series_onset` answers where something begins. This answers where it
+    begins *and stops*, by the same scale-free rule and against the same
+    floor-to-peak range, so the two ends are measured on one convention.
+
+    The second index is what a *suffix* needs. In Godøy's decomposition of a
+    sound-producing action the excitation has a prefix before the attack and a
+    suffix after it, and a measurement of the suffix is a measurement of when
+    the action stopped, not of when its sound decayed below a threshold in
+    absolute terms. Applied to a motion series it gives the moment the body
+    came to rest.
+
+    Every caveat on :func:`series_onset` applies to the first index unchanged,
+    and the mirror of it applies to the second: at a low ``rise`` the last
+    crossing is the last small noise rather than the end of the event.
+
+    **Censoring is the caller's problem and is not optional.** A series whose
+    first index is 0, or whose last is ``len(series) - 1``, was cut before the
+    event began or after it ended, and the corresponding duration is a lower
+    bound rather than a measurement. On hand-trimmed material this is common:
+    of 365 Sound Actions clips, 11 begin already in motion and 22 are still in
+    motion at the last frame. Averaging those in biases a prefix-against-suffix
+    comparison in exactly the direction such a comparison is about.
+
+    Returns ``(first, last)``, or ``(None, None)`` when the series is too short
+    or flat for the range to be defined.
+    """
+    s = np.asarray(series, float)
+    s = s[np.isfinite(s)]
+    if len(s) < 5:
+        return None, None
+    lo, hi = float(np.percentile(s, 5)), float(s.max())
+    if hi <= lo:
+        return None, None
+    idx = np.flatnonzero(np.asarray(series, float) >= lo + rise * (hi - lo))
+    return (int(idx[0]), int(idx[-1])) if len(idx) else (None, None)
+
+
 def onset_lead(first, second, dt: float, rise: float = ONSET_RISE) -> dict:
     """How far one series begins before another — an action before its sound.
 

@@ -9,6 +9,17 @@ been carrying feature work throughout a pre-1.0 life.
 
 ## [Unreleased]
 
+### Added
+- **`analysis.series_span` — where something begins *and stops*.** `series_onset` answers the first
+  question; this answers both, by the same scale-free rule and against the same floor-to-peak range,
+  so the two ends sit on one convention. The second index is what a *suffix* needs: in Godøy's
+  decomposition of a sound-producing action the excitation has a prefix before the attack and a
+  suffix after it, and on a motion series the closing index is the moment the body came to rest.
+  Prototyped in `notes/scripts/prefix_suffix.py`, where the toolbox offered only the onset; the two
+  agree on the first index over 900 random cases. Censoring is the caller's problem and the docstring
+  says so: a first index of 0 or a last of `len - 1` means the series was cut before the event began
+  or after it ended, which on hand-trimmed material is 11 and 22 of 365 Sound Actions clips.
+
 ### Changed
 - **`mechanical.envelope_periodicity` documents the range it cannot reach.** Its 0.3--12 Hz band is a
   fast-modulation range --- a rattle, a blade pass, a stirred machine --- and a domestic duty cycle

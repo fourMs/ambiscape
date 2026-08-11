@@ -57,6 +57,47 @@ def tag_window(x: np.ndarray, fs: int, top_k: int = 3,
             for i in order if probs[i] >= min_prob]
 
 
+def tag_probabilities(x: np.ndarray, fs: int,
+                      wanted: list[str] | tuple[str, ...] | None = None
+                      ) -> dict[str, float]:
+    """Probability of each named AudioSet class for one mono window.
+
+    :func:`tag_window` returns the few labels that came top and cleared a
+    threshold, which is what naming an object wants. Asking a *specific*
+    question needs the opposite: the probability of a class you name, whether
+    or not it reached the top three. "How much speech and how much music is in
+    this window" is that kind of question, and a window can be plainly musical
+    while ``Music`` sits fourth behind three instrument labels.
+
+    ``wanted`` is a list of AudioSet label strings; omit it for all 527.
+    Unknown labels raise rather than returning silently empty, because a typo
+    in a class name is otherwise indistinguishable from a class that never
+    fires.
+
+    The caveat on the module applies with force here. These are AudioSet
+    posteriors from a model trained on internet video, read off a domestic
+    recording at some distance from the source; they order windows usefully
+    and they are not calibrated probabilities of anything. Compare them
+    against each other, not against 0.5.
+    """
+    from panns_inference import labels as _labels
+    global _panns_model
+    from panns_inference import AudioTagging
+    if _panns_model is None:
+        _panns_model = AudioTagging(checkpoint_path=None, device="cpu")
+    if wanted is not None:
+        unknown = [w for w in wanted if w not in _labels]
+        if unknown:
+            raise ValueError(f"not AudioSet labels: {unknown}")
+    y = _resample(x.astype(np.float32), fs, 32000)
+    clip = np.clip(y, -1, 1)[None, :]
+    clipwise, _emb = _panns_model.inference(clip)
+    probs = np.asarray(clipwise)[0]
+    names = wanted if wanted is not None else _labels
+    idx = {lab: i for i, lab in enumerate(_labels)}
+    return {lab: float(probs[idx[lab]]) for lab in names}
+
+
 def birdnet_available() -> bool:
     try:
         import birdnetlib  # noqa: F401

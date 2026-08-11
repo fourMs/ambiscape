@@ -10,6 +10,16 @@ been carrying feature work throughout a pre-1.0 life.
 ## [Unreleased]
 
 ### Added
+- **`ml.tag_probabilities` — ask AudioSet a question instead of reading its answer.** `tag_window`
+  returns the few labels that came top and cleared a threshold, which is what naming an object wants.
+  Asking a specific question needs the opposite: the probability of a class you name, whether or not
+  it reached the top three. "How much speech and how much music is in this window" is that kind of
+  question, and a window can be plainly musical while `Music` sits fourth behind three instrument
+  labels. Unknown label strings raise rather than returning silently empty, since a typo is otherwise
+  indistinguishable from a class that never fires. The returned dict follows the caller's order so it
+  can be zipped straight to columns. These are posteriors from a model trained on internet video,
+  read off a domestic recording at a distance: compare them with each other, not with 0.5.
+
 - **`network.follow_source` — follow a moving source from room to room.** A person carrying a vacuum
   cleaner, a radio or a conversation walks through a dwelling, and which node hears them best changes
   as they go. Returns the itinerary: the loudest node per slice, run-length encoded into rooms

@@ -2434,6 +2434,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#ambiscape.analysis.series_span" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        series_span
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#ambiscape.analysis.onset_lead" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4501,6 +4512,39 @@
     <span class="md-ellipsis">
       
         harmonic_sieve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.tonality.narrow_line_prominence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        narrow_line_prominence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.tonality.family_prominence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        family_prominence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.tonality.family_percentile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        family_percentile
       
     </span>
   </a>
@@ -6419,6 +6463,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#ambiscape.analysis.series_span" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        series_span
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#ambiscape.analysis.onset_lead" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -8486,6 +8541,39 @@
     <span class="md-ellipsis">
       
         harmonic_sieve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.tonality.narrow_line_prominence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        narrow_line_prominence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.tonality.family_prominence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        family_prominence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.tonality.family_percentile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        family_percentile
       
     </span>
   </a>
@@ -13752,6 +13840,124 @@ against a case whose answer is known.</p>
 <div class="doc doc-object doc-function">
 
 
+<h2 id="ambiscape.analysis.series_span" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">series_span</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">rise</span><span class="o">=</span><span class="n">ONSET_RISE</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>First and last index above <code>rise</code> of a series' floor-to-peak range.</p>
+<p>:func:<code>series_onset</code> answers where something begins. This answers where it
+begins <em>and stops</em>, by the same scale-free rule and against the same
+floor-to-peak range, so the two ends are measured on one convention.</p>
+<p>The second index is what a <em>suffix</em> needs. In Godøy's decomposition of a
+sound-producing action the excitation has a prefix before the attack and a
+suffix after it, and a measurement of the suffix is a measurement of when
+the action stopped, not of when its sound decayed below a threshold in
+absolute terms. Applied to a motion series it gives the moment the body
+came to rest.</p>
+<p>Every caveat on :func:<code>series_onset</code> applies to the first index unchanged,
+and the mirror of it applies to the second: at a low <code>rise</code> the last
+crossing is the last small noise rather than the end of the event.</p>
+<p><strong>Censoring is the caller's problem and is not optional.</strong> A series whose
+first index is 0, or whose last is <code>len(series) - 1</code>, was cut before the
+event began or after it ended, and the corresponding duration is a lower
+bound rather than a measurement. On hand-trimmed material this is common:
+of 365 Sound Actions clips, 11 begin already in motion and 22 are still in
+motion at the last frame. Averaging those in biases a prefix-against-suffix
+comparison in exactly the direction such a comparison is about.</p>
+<p>Returns <code>(first, last)</code>, or <code>(None, None)</code> when the series is too short
+or flat for the range to be defined.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">868</span>
+<span class="normal">869</span>
+<span class="normal">870</span>
+<span class="normal">871</span>
+<span class="normal">872</span>
+<span class="normal">873</span>
+<span class="normal">874</span>
+<span class="normal">875</span>
+<span class="normal">876</span>
+<span class="normal">877</span>
+<span class="normal">878</span>
+<span class="normal">879</span>
+<span class="normal">880</span>
+<span class="normal">881</span>
+<span class="normal">882</span>
+<span class="normal">883</span>
+<span class="normal">884</span>
+<span class="normal">885</span>
+<span class="normal">886</span>
+<span class="normal">887</span>
+<span class="normal">888</span>
+<span class="normal">889</span>
+<span class="normal">890</span>
+<span class="normal">891</span>
+<span class="normal">892</span>
+<span class="normal">893</span>
+<span class="normal">894</span>
+<span class="normal">895</span>
+<span class="normal">896</span>
+<span class="normal">897</span>
+<span class="normal">898</span>
+<span class="normal">899</span>
+<span class="normal">900</span>
+<span class="normal">901</span>
+<span class="normal">902</span>
+<span class="normal">903</span>
+<span class="normal">904</span>
+<span class="normal">905</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">series_span</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">rise</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">ONSET_RISE</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;First and last index above ``rise`` of a series&#39; floor-to-peak range.</span>
+
+<span class="sd">    :func:`series_onset` answers where something begins. This answers where it</span>
+<span class="sd">    begins *and stops*, by the same scale-free rule and against the same</span>
+<span class="sd">    floor-to-peak range, so the two ends are measured on one convention.</span>
+
+<span class="sd">    The second index is what a *suffix* needs. In Godøy&#39;s decomposition of a</span>
+<span class="sd">    sound-producing action the excitation has a prefix before the attack and a</span>
+<span class="sd">    suffix after it, and a measurement of the suffix is a measurement of when</span>
+<span class="sd">    the action stopped, not of when its sound decayed below a threshold in</span>
+<span class="sd">    absolute terms. Applied to a motion series it gives the moment the body</span>
+<span class="sd">    came to rest.</span>
+
+<span class="sd">    Every caveat on :func:`series_onset` applies to the first index unchanged,</span>
+<span class="sd">    and the mirror of it applies to the second: at a low ``rise`` the last</span>
+<span class="sd">    crossing is the last small noise rather than the end of the event.</span>
+
+<span class="sd">    **Censoring is the caller&#39;s problem and is not optional.** A series whose</span>
+<span class="sd">    first index is 0, or whose last is ``len(series) - 1``, was cut before the</span>
+<span class="sd">    event began or after it ended, and the corresponding duration is a lower</span>
+<span class="sd">    bound rather than a measurement. On hand-trimmed material this is common:</span>
+<span class="sd">    of 365 Sound Actions clips, 11 begin already in motion and 22 are still in</span>
+<span class="sd">    motion at the last frame. Averaging those in biases a prefix-against-suffix</span>
+<span class="sd">    comparison in exactly the direction such a comparison is about.</span>
+
+<span class="sd">    Returns ``(first, last)``, or ``(None, None)`` when the series is too short</span>
+<span class="sd">    or flat for the range to be defined.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">s</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">5</span><span class="p">)),</span> <span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">hi</span> <span class="o">&lt;=</span> <span class="n">lo</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">lo</span> <span class="o">+</span> <span class="n">rise</span> <span class="o">*</span> <span class="p">(</span><span class="n">hi</span> <span class="o">-</span> <span class="n">lo</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">idx</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">else</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
 <h2 id="ambiscape.analysis.onset_lead" class="doc doc-heading">
             <code class="highlight language-python"><span class="n">onset_lead</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">rise</span><span class="o">=</span><span class="n">ONSET_RISE</span><span class="p">)</span></code>
 
@@ -13794,49 +14000,49 @@ property of the *action*, and neither modality carries it alone.
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">868</span>
-<span class="normal">869</span>
-<span class="normal">870</span>
-<span class="normal">871</span>
-<span class="normal">872</span>
-<span class="normal">873</span>
-<span class="normal">874</span>
-<span class="normal">875</span>
-<span class="normal">876</span>
-<span class="normal">877</span>
-<span class="normal">878</span>
-<span class="normal">879</span>
-<span class="normal">880</span>
-<span class="normal">881</span>
-<span class="normal">882</span>
-<span class="normal">883</span>
-<span class="normal">884</span>
-<span class="normal">885</span>
-<span class="normal">886</span>
-<span class="normal">887</span>
-<span class="normal">888</span>
-<span class="normal">889</span>
-<span class="normal">890</span>
-<span class="normal">891</span>
-<span class="normal">892</span>
-<span class="normal">893</span>
-<span class="normal">894</span>
-<span class="normal">895</span>
-<span class="normal">896</span>
-<span class="normal">897</span>
-<span class="normal">898</span>
-<span class="normal">899</span>
-<span class="normal">900</span>
-<span class="normal">901</span>
-<span class="normal">902</span>
-<span class="normal">903</span>
-<span class="normal">904</span>
-<span class="normal">905</span>
-<span class="normal">906</span>
-<span class="normal">907</span>
-<span class="normal">908</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">908</span>
 <span class="normal">909</span>
-<span class="normal">910</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">onset_lead</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rise</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">ONSET_RISE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="normal">910</span>
+<span class="normal">911</span>
+<span class="normal">912</span>
+<span class="normal">913</span>
+<span class="normal">914</span>
+<span class="normal">915</span>
+<span class="normal">916</span>
+<span class="normal">917</span>
+<span class="normal">918</span>
+<span class="normal">919</span>
+<span class="normal">920</span>
+<span class="normal">921</span>
+<span class="normal">922</span>
+<span class="normal">923</span>
+<span class="normal">924</span>
+<span class="normal">925</span>
+<span class="normal">926</span>
+<span class="normal">927</span>
+<span class="normal">928</span>
+<span class="normal">929</span>
+<span class="normal">930</span>
+<span class="normal">931</span>
+<span class="normal">932</span>
+<span class="normal">933</span>
+<span class="normal">934</span>
+<span class="normal">935</span>
+<span class="normal">936</span>
+<span class="normal">937</span>
+<span class="normal">938</span>
+<span class="normal">939</span>
+<span class="normal">940</span>
+<span class="normal">941</span>
+<span class="normal">942</span>
+<span class="normal">943</span>
+<span class="normal">944</span>
+<span class="normal">945</span>
+<span class="normal">946</span>
+<span class="normal">947</span>
+<span class="normal">948</span>
+<span class="normal">949</span>
+<span class="normal">950</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">onset_lead</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rise</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">ONSET_RISE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;How far one series begins before another — an action before its sound.</span>
 
 <span class="sd">    A sound-producing action starts well before the sound it produces: an</span>
@@ -13921,45 +14127,45 @@ a median of 0.4 dB above. One number, and it names the room.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">913</span>
-<span class="normal">914</span>
-<span class="normal">915</span>
-<span class="normal">916</span>
-<span class="normal">917</span>
-<span class="normal">918</span>
-<span class="normal">919</span>
-<span class="normal">920</span>
-<span class="normal">921</span>
-<span class="normal">922</span>
-<span class="normal">923</span>
-<span class="normal">924</span>
-<span class="normal">925</span>
-<span class="normal">926</span>
-<span class="normal">927</span>
-<span class="normal">928</span>
-<span class="normal">929</span>
-<span class="normal">930</span>
-<span class="normal">931</span>
-<span class="normal">932</span>
-<span class="normal">933</span>
-<span class="normal">934</span>
-<span class="normal">935</span>
-<span class="normal">936</span>
-<span class="normal">937</span>
-<span class="normal">938</span>
-<span class="normal">939</span>
-<span class="normal">940</span>
-<span class="normal">941</span>
-<span class="normal">942</span>
-<span class="normal">943</span>
-<span class="normal">944</span>
-<span class="normal">945</span>
-<span class="normal">946</span>
-<span class="normal">947</span>
-<span class="normal">948</span>
-<span class="normal">949</span>
-<span class="normal">950</span>
-<span class="normal">951</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">floor_occupancy</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">within_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">AT_FLOOR_WITHIN_DB</span><span class="p">,</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">953</span>
+<span class="normal">954</span>
+<span class="normal">955</span>
+<span class="normal">956</span>
+<span class="normal">957</span>
+<span class="normal">958</span>
+<span class="normal">959</span>
+<span class="normal">960</span>
+<span class="normal">961</span>
+<span class="normal">962</span>
+<span class="normal">963</span>
+<span class="normal">964</span>
+<span class="normal">965</span>
+<span class="normal">966</span>
+<span class="normal">967</span>
+<span class="normal">968</span>
+<span class="normal">969</span>
+<span class="normal">970</span>
+<span class="normal">971</span>
+<span class="normal">972</span>
+<span class="normal">973</span>
+<span class="normal">974</span>
+<span class="normal">975</span>
+<span class="normal">976</span>
+<span class="normal">977</span>
+<span class="normal">978</span>
+<span class="normal">979</span>
+<span class="normal">980</span>
+<span class="normal">981</span>
+<span class="normal">982</span>
+<span class="normal">983</span>
+<span class="normal">984</span>
+<span class="normal">985</span>
+<span class="normal">986</span>
+<span class="normal">987</span>
+<span class="normal">988</span>
+<span class="normal">989</span>
+<span class="normal">990</span>
+<span class="normal">991</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">floor_occupancy</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">within_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">AT_FLOOR_WITHIN_DB</span><span class="p">,</span>
                     <span class="n">pct</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;How much of a session sits at its own noise floor.</span>
 
@@ -14046,47 +14252,7 @@ the last three are None when nothing is flagged.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 954</span>
-<span class="normal"> 955</span>
-<span class="normal"> 956</span>
-<span class="normal"> 957</span>
-<span class="normal"> 958</span>
-<span class="normal"> 959</span>
-<span class="normal"> 960</span>
-<span class="normal"> 961</span>
-<span class="normal"> 962</span>
-<span class="normal"> 963</span>
-<span class="normal"> 964</span>
-<span class="normal"> 965</span>
-<span class="normal"> 966</span>
-<span class="normal"> 967</span>
-<span class="normal"> 968</span>
-<span class="normal"> 969</span>
-<span class="normal"> 970</span>
-<span class="normal"> 971</span>
-<span class="normal"> 972</span>
-<span class="normal"> 973</span>
-<span class="normal"> 974</span>
-<span class="normal"> 975</span>
-<span class="normal"> 976</span>
-<span class="normal"> 977</span>
-<span class="normal"> 978</span>
-<span class="normal"> 979</span>
-<span class="normal"> 980</span>
-<span class="normal"> 981</span>
-<span class="normal"> 982</span>
-<span class="normal"> 983</span>
-<span class="normal"> 984</span>
-<span class="normal"> 985</span>
-<span class="normal"> 986</span>
-<span class="normal"> 987</span>
-<span class="normal"> 988</span>
-<span class="normal"> 989</span>
-<span class="normal"> 990</span>
-<span class="normal"> 991</span>
-<span class="normal"> 992</span>
-<span class="normal"> 993</span>
-<span class="normal"> 994</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 994</span>
 <span class="normal"> 995</span>
 <span class="normal"> 996</span>
 <span class="normal"> 997</span>
@@ -14109,7 +14275,47 @@ the last three are None when nothing is flagged.</p>
 <span class="normal">1014</span>
 <span class="normal">1015</span>
 <span class="normal">1016</span>
-<span class="normal">1017</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">floor_suspicion</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">chunk_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">300.0</span><span class="p">,</span> <span class="n">pct</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+<span class="normal">1017</span>
+<span class="normal">1018</span>
+<span class="normal">1019</span>
+<span class="normal">1020</span>
+<span class="normal">1021</span>
+<span class="normal">1022</span>
+<span class="normal">1023</span>
+<span class="normal">1024</span>
+<span class="normal">1025</span>
+<span class="normal">1026</span>
+<span class="normal">1027</span>
+<span class="normal">1028</span>
+<span class="normal">1029</span>
+<span class="normal">1030</span>
+<span class="normal">1031</span>
+<span class="normal">1032</span>
+<span class="normal">1033</span>
+<span class="normal">1034</span>
+<span class="normal">1035</span>
+<span class="normal">1036</span>
+<span class="normal">1037</span>
+<span class="normal">1038</span>
+<span class="normal">1039</span>
+<span class="normal">1040</span>
+<span class="normal">1041</span>
+<span class="normal">1042</span>
+<span class="normal">1043</span>
+<span class="normal">1044</span>
+<span class="normal">1045</span>
+<span class="normal">1046</span>
+<span class="normal">1047</span>
+<span class="normal">1048</span>
+<span class="normal">1049</span>
+<span class="normal">1050</span>
+<span class="normal">1051</span>
+<span class="normal">1052</span>
+<span class="normal">1053</span>
+<span class="normal">1054</span>
+<span class="normal">1055</span>
+<span class="normal">1056</span>
+<span class="normal">1057</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">floor_suspicion</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">chunk_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">300.0</span><span class="p">,</span> <span class="n">pct</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
                     <span class="n">spread_thresh_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">FLOOR_SPREAD_THRESH_DB</span><span class="p">,</span>
                     <span class="n">min_chunks</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">hf_min_hz</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2000.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Flag high-frequency band floors that look like recorder self-noise.</span>
@@ -14195,11 +14401,11 @@ the last three are None when nothing is flagged.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1020</span>
-<span class="normal">1021</span>
-<span class="normal">1022</span>
-<span class="normal">1023</span>
-<span class="normal">1024</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">circular_stats</span><span class="p">(</span><span class="n">az_deg</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1060</span>
+<span class="normal">1061</span>
+<span class="normal">1062</span>
+<span class="normal">1063</span>
+<span class="normal">1064</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">circular_stats</span><span class="p">(</span><span class="n">az_deg</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Energy-weighted circular mean (deg) and resultant length R.&quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.circstats</span><span class="w"> </span><span class="kn">import</span> <span class="n">mean_resultant</span>
     <span class="n">mu</span><span class="p">,</span> <span class="n">R</span> <span class="o">=</span> <span class="n">mean_resultant</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">az_deg</span><span class="p">,</span> <span class="nb">float</span><span class="p">)),</span> <span class="n">weights</span><span class="p">)</span>
@@ -14226,47 +14432,7 @@ the last three are None when nothing is flagged.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1027</span>
-<span class="normal">1028</span>
-<span class="normal">1029</span>
-<span class="normal">1030</span>
-<span class="normal">1031</span>
-<span class="normal">1032</span>
-<span class="normal">1033</span>
-<span class="normal">1034</span>
-<span class="normal">1035</span>
-<span class="normal">1036</span>
-<span class="normal">1037</span>
-<span class="normal">1038</span>
-<span class="normal">1039</span>
-<span class="normal">1040</span>
-<span class="normal">1041</span>
-<span class="normal">1042</span>
-<span class="normal">1043</span>
-<span class="normal">1044</span>
-<span class="normal">1045</span>
-<span class="normal">1046</span>
-<span class="normal">1047</span>
-<span class="normal">1048</span>
-<span class="normal">1049</span>
-<span class="normal">1050</span>
-<span class="normal">1051</span>
-<span class="normal">1052</span>
-<span class="normal">1053</span>
-<span class="normal">1054</span>
-<span class="normal">1055</span>
-<span class="normal">1056</span>
-<span class="normal">1057</span>
-<span class="normal">1058</span>
-<span class="normal">1059</span>
-<span class="normal">1060</span>
-<span class="normal">1061</span>
-<span class="normal">1062</span>
-<span class="normal">1063</span>
-<span class="normal">1064</span>
-<span class="normal">1065</span>
-<span class="normal">1066</span>
-<span class="normal">1067</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1067</span>
 <span class="normal">1068</span>
 <span class="normal">1069</span>
 <span class="normal">1070</span>
@@ -14281,7 +14447,47 @@ the last three are None when nothing is flagged.</p>
 <span class="normal">1079</span>
 <span class="normal">1080</span>
 <span class="normal">1081</span>
-<span class="normal">1082</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">summarize</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="normal">1082</span>
+<span class="normal">1083</span>
+<span class="normal">1084</span>
+<span class="normal">1085</span>
+<span class="normal">1086</span>
+<span class="normal">1087</span>
+<span class="normal">1088</span>
+<span class="normal">1089</span>
+<span class="normal">1090</span>
+<span class="normal">1091</span>
+<span class="normal">1092</span>
+<span class="normal">1093</span>
+<span class="normal">1094</span>
+<span class="normal">1095</span>
+<span class="normal">1096</span>
+<span class="normal">1097</span>
+<span class="normal">1098</span>
+<span class="normal">1099</span>
+<span class="normal">1100</span>
+<span class="normal">1101</span>
+<span class="normal">1102</span>
+<span class="normal">1103</span>
+<span class="normal">1104</span>
+<span class="normal">1105</span>
+<span class="normal">1106</span>
+<span class="normal">1107</span>
+<span class="normal">1108</span>
+<span class="normal">1109</span>
+<span class="normal">1110</span>
+<span class="normal">1111</span>
+<span class="normal">1112</span>
+<span class="normal">1113</span>
+<span class="normal">1114</span>
+<span class="normal">1115</span>
+<span class="normal">1116</span>
+<span class="normal">1117</span>
+<span class="normal">1118</span>
+<span class="normal">1119</span>
+<span class="normal">1120</span>
+<span class="normal">1121</span>
+<span class="normal">1122</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">summarize</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Session descriptor dict from concatenated features (see features.load_features).&quot;&quot;&quot;</span>
     <span class="n">fast</span><span class="p">,</span> <span class="n">fasta</span> <span class="o">=</span> <span class="n">F</span><span class="p">[</span><span class="s2">&quot;fast_db&quot;</span><span class="p">],</span> <span class="n">F</span><span class="p">[</span><span class="s2">&quot;fast_dba&quot;</span><span class="p">]</span>
     <span class="n">dt</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">F</span><span class="p">[</span><span class="s2">&quot;t_fast&quot;</span><span class="p">])))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">F</span><span class="p">[</span><span class="s2">&quot;t_fast&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mf">0.125</span>
@@ -14363,47 +14569,47 @@ Returns {band: (T60, dynamic_range_db)}.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1085</span>
-<span class="normal">1086</span>
-<span class="normal">1087</span>
-<span class="normal">1088</span>
-<span class="normal">1089</span>
-<span class="normal">1090</span>
-<span class="normal">1091</span>
-<span class="normal">1092</span>
-<span class="normal">1093</span>
-<span class="normal">1094</span>
-<span class="normal">1095</span>
-<span class="normal">1096</span>
-<span class="normal">1097</span>
-<span class="normal">1098</span>
-<span class="normal">1099</span>
-<span class="normal">1100</span>
-<span class="normal">1101</span>
-<span class="normal">1102</span>
-<span class="normal">1103</span>
-<span class="normal">1104</span>
-<span class="normal">1105</span>
-<span class="normal">1106</span>
-<span class="normal">1107</span>
-<span class="normal">1108</span>
-<span class="normal">1109</span>
-<span class="normal">1110</span>
-<span class="normal">1111</span>
-<span class="normal">1112</span>
-<span class="normal">1113</span>
-<span class="normal">1114</span>
-<span class="normal">1115</span>
-<span class="normal">1116</span>
-<span class="normal">1117</span>
-<span class="normal">1118</span>
-<span class="normal">1119</span>
-<span class="normal">1120</span>
-<span class="normal">1121</span>
-<span class="normal">1122</span>
-<span class="normal">1123</span>
-<span class="normal">1124</span>
-<span class="normal">1125</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">decay_time</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bands</span><span class="o">=</span><span class="p">((</span><span class="mi">250</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span> <span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1125</span>
+<span class="normal">1126</span>
+<span class="normal">1127</span>
+<span class="normal">1128</span>
+<span class="normal">1129</span>
+<span class="normal">1130</span>
+<span class="normal">1131</span>
+<span class="normal">1132</span>
+<span class="normal">1133</span>
+<span class="normal">1134</span>
+<span class="normal">1135</span>
+<span class="normal">1136</span>
+<span class="normal">1137</span>
+<span class="normal">1138</span>
+<span class="normal">1139</span>
+<span class="normal">1140</span>
+<span class="normal">1141</span>
+<span class="normal">1142</span>
+<span class="normal">1143</span>
+<span class="normal">1144</span>
+<span class="normal">1145</span>
+<span class="normal">1146</span>
+<span class="normal">1147</span>
+<span class="normal">1148</span>
+<span class="normal">1149</span>
+<span class="normal">1150</span>
+<span class="normal">1151</span>
+<span class="normal">1152</span>
+<span class="normal">1153</span>
+<span class="normal">1154</span>
+<span class="normal">1155</span>
+<span class="normal">1156</span>
+<span class="normal">1157</span>
+<span class="normal">1158</span>
+<span class="normal">1159</span>
+<span class="normal">1160</span>
+<span class="normal">1161</span>
+<span class="normal">1162</span>
+<span class="normal">1163</span>
+<span class="normal">1164</span>
+<span class="normal">1165</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">decay_time</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bands</span><span class="o">=</span><span class="p">((</span><span class="mi">250</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span> <span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>
                <span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">),</span> <span class="p">(</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">),</span> <span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="mi">8000</span><span class="p">)))</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;T60 estimates from an impulse via truncated Schroeder integration.</span>
 
@@ -14473,42 +14679,42 @@ several identical "representative" segments.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1128</span>
-<span class="normal">1129</span>
-<span class="normal">1130</span>
-<span class="normal">1131</span>
-<span class="normal">1132</span>
-<span class="normal">1133</span>
-<span class="normal">1134</span>
-<span class="normal">1135</span>
-<span class="normal">1136</span>
-<span class="normal">1137</span>
-<span class="normal">1138</span>
-<span class="normal">1139</span>
-<span class="normal">1140</span>
-<span class="normal">1141</span>
-<span class="normal">1142</span>
-<span class="normal">1143</span>
-<span class="normal">1144</span>
-<span class="normal">1145</span>
-<span class="normal">1146</span>
-<span class="normal">1147</span>
-<span class="normal">1148</span>
-<span class="normal">1149</span>
-<span class="normal">1150</span>
-<span class="normal">1151</span>
-<span class="normal">1152</span>
-<span class="normal">1153</span>
-<span class="normal">1154</span>
-<span class="normal">1155</span>
-<span class="normal">1156</span>
-<span class="normal">1157</span>
-<span class="normal">1158</span>
-<span class="normal">1159</span>
-<span class="normal">1160</span>
-<span class="normal">1161</span>
-<span class="normal">1162</span>
-<span class="normal">1163</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pick_segments</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">seg_s</span><span class="o">=</span><span class="mf">600.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1168</span>
+<span class="normal">1169</span>
+<span class="normal">1170</span>
+<span class="normal">1171</span>
+<span class="normal">1172</span>
+<span class="normal">1173</span>
+<span class="normal">1174</span>
+<span class="normal">1175</span>
+<span class="normal">1176</span>
+<span class="normal">1177</span>
+<span class="normal">1178</span>
+<span class="normal">1179</span>
+<span class="normal">1180</span>
+<span class="normal">1181</span>
+<span class="normal">1182</span>
+<span class="normal">1183</span>
+<span class="normal">1184</span>
+<span class="normal">1185</span>
+<span class="normal">1186</span>
+<span class="normal">1187</span>
+<span class="normal">1188</span>
+<span class="normal">1189</span>
+<span class="normal">1190</span>
+<span class="normal">1191</span>
+<span class="normal">1192</span>
+<span class="normal">1193</span>
+<span class="normal">1194</span>
+<span class="normal">1195</span>
+<span class="normal">1196</span>
+<span class="normal">1197</span>
+<span class="normal">1198</span>
+<span class="normal">1199</span>
+<span class="normal">1200</span>
+<span class="normal">1201</span>
+<span class="normal">1202</span>
+<span class="normal">1203</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pick_segments</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">seg_s</span><span class="o">=</span><span class="mf">600.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Suggest representative windows: quietest, most active, median-typical,</span>
 <span class="sd">    and (if present) the strongest state transition.</span>
 
@@ -17761,6 +17967,29 @@ of the recorder clock.</p>
 </ul>
 <p>Needs raw audio (one streaming pass over the W channel); the cached
 per-minute spectra are far too coarse (5.9 Hz bins) for millihertz work.</p>
+<p>CHANGING <code>nominal</code> IS NOT A NEUTRAL ACT, and the trap it opens cost a
+published claim. Railway supplies invite it: the Nordic countries, Germany,
+Austria and Switzerland electrify at 16⅔ Hz, so <code>nominal=16.667</code> looks like
+the obvious way to ask whether a recording was made on such a train. It is
+not, because <strong>16⅔ has 50 Hz as its third harmonic and 100 Hz as its sixth</strong>.
+A family built on 16⅔ therefore contains the European mains family inside it,
+and any recording with mains in it will score well on "the Nordic railway
+supply" — including a hotel foyer with no train within a kilometre, which is
+the control that settled it on 2026-08-11. The Stavanger train's own 16.7 Hz
+fundamental sat 3 dB <em>below</em> the noise around it, as did its second, third and
+fourth harmonics; the score was carried entirely by 100 Hz, which is mains.</p>
+<p>Two rules follow, and they generalise past railways to any hypothesised
+family (a shaft rate, a chopper frequency, a fan's blade-pass):</p>
+<ol>
+<li><strong>Check the rungs, not the mean.</strong> A family whose fundamental and low
+   harmonics are absent while one high harmonic is strong is not a family.
+   :func:<code>ambiscape.tonality.family_prominence</code> returns the per-harmonic list
+   for exactly this reason.</li>
+<li><strong>Rank the hypothesis against the alternatives</strong>, with
+   :func:<code>ambiscape.tonality.family_percentile</code>, and run a control recording
+   that cannot contain the source. Presence is not evidence; being
+   <em>exceptional</em> is.</li>
+</ol>
 
 
 
@@ -17803,29 +18032,29 @@ high even on a rumble shoulder.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/enf.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">hum_peak</span><span class="p">(</span><span class="n">w</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nominal</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">50.0</span><span class="p">,</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">hum_peak</span><span class="p">(</span><span class="n">w</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nominal</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">50.0</span><span class="p">,</span>
              <span class="n">search_hz</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">nfft_mult</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Frequency and floor-rise of the strongest line near ``nominal``.</span>
 
@@ -17878,38 +18107,38 @@ scaled to the fundamental.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/enf.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span>
-<span class="normal">89</span>
-<span class="normal">90</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">enf_track</span><span class="p">(</span><span class="n">sess</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span> <span class="n">step_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">300.0</span><span class="p">,</span> <span class="n">win_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">,</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">enf_track</span><span class="p">(</span><span class="n">sess</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span> <span class="n">step_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">300.0</span><span class="p">,</span> <span class="n">win_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">,</span>
               <span class="n">nominal</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">50.0</span><span class="p">,</span> <span class="n">search_hz</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
               <span class="n">harmonics</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">channel</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Track the mains hum across a whole session.</span>
@@ -17969,31 +18198,7 @@ line as electrical.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/enf.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span>
-<span class="normal">107</span>
-<span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">117</span>
 <span class="normal">118</span>
 <span class="normal">119</span>
 <span class="normal">120</span>
@@ -18001,7 +18206,31 @@ line as electrical.</p>
 <span class="normal">122</span>
 <span class="normal">123</span>
 <span class="normal">124</span>
-<span class="normal">125</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">enf_summary</span><span class="p">(</span><span class="n">track</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">nominal</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">50.0</span><span class="p">,</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">enf_summary</span><span class="p">(</span><span class="n">track</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">nominal</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">50.0</span><span class="p">,</span>
                 <span class="n">min_rise_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">6.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Descriptors of an ENF trace.</span>
 
@@ -18076,11 +18305,39 @@ cached 1 Hz features — no audio pass:</p>
 <li><strong>acoustic entropy H</strong> (Sueur et al. 2008): spectral entropy × temporal
   (envelope) entropy, in [0, 1].</li>
 </ul>
-<p>Caveats for an ambisonic <em>indoor</em> corpus: these indices were designed for
-outdoor terrestrial monitoring; report them for comparability, but read
-NDSI/BI as "energy in the bird band", not as proof of birds — a 4 kHz
-ventilation hiss scores as "biophony". Combine with the taxonomy layer
-before interpreting.</p>
+<p>INDOORS, SOME OF THESE FAIL AND SOME DO NOT, and which is which was measured
+rather than reasoned. Three dawn and dusk choruses against synthetic
+ventilation noise (Jensenius 2026, <em>When ventilation outperforms the dawn
+chorus</em>):</p>
+<p>===================  ================  =============
+index                ventilation       choruses
+===================  ================  =============
+ADI                  0.977             0.927–0.968
+bird-band Ht         0.998             0.701–0.913
+NDSI                 −0.139            0.707–0.997
+acoustic entropy H   0.387             0.492–0.610
+===================  ================  =============</p>
+<p>ADI and bird-band temporal entropy rate a duct <em>above every chorus</em>, and Ht
+gives the fan the highest value in the whole comparison, because a stationary
+signal is perfectly uniform in time. NDSI, H, AEI and BI are not fooled by
+this material.</p>
+<p>The division is not about which band an index looks at. The indices that fail
+read <strong>occupancy and time</strong> — how many cells are busy, how evenly spread
+across the hours — and a stationary broadband source saturates both whatever
+its spectral tilt. The ones that resist read <strong>spectral shape</strong>, and duct
+noise falling steadily with frequency is neither bright nor flat. Expect the
+same split for any steady mechanical source; expect NDSI to fail as well
+wherever the machine's own energy sits inside the bio band, which is the 4 kHz
+hiss case an earlier version of this note wrongly generalised from.</p>
+<p>Scale is the other warning. Over 14 node-days of an inhabited home, ADI moves
+less across an entire week — 0.031 on one node — than it does between two
+microphones standing metres apart in the same room, 0.036. A descriptor whose
+weekly variation is smaller than its disagreement between two positions in one
+room is not measuring the week.</p>
+<p>Report them for comparability with outdoor corpora, read the occupancy-and-
+time pair as "is anything steady here", and go to :mod:<code>ambiscape.biophony</code>,
+which measures structure rather than energy, before reading any of them as
+life.</p>
 
 
 
@@ -18124,26 +18381,26 @@ measured minimum (clip corpora of 5–30 s are the common case).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/ecology.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">aci</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">chunk_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">300.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">aci</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">chunk_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">300.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Acoustic complexity index, mean over ``chunk_s`` chunks.</span>
 
 <span class="sd">    ACI accumulates |ΔP| over a whole chunk, so its magnitude is a</span>
@@ -18185,16 +18442,16 @@ measured minimum (clip corpora of 5–30 s are the common case).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/ecology.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">adi_aei</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">adi_aei</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Acoustic diversity (Shannon, normalised) and evenness (Gini).&quot;&quot;&quot;</span>
     <span class="n">occ</span> <span class="o">=</span> <span class="n">_occupancy</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
     <span class="n">p</span> <span class="o">=</span> <span class="n">occ</span> <span class="o">/</span> <span class="p">(</span><span class="n">occ</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">+</span> <span class="n">EPS</span><span class="p">)</span>
@@ -18226,13 +18483,13 @@ measured minimum (clip corpora of 5–30 s are the common case).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/ecology.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">91</span>
-<span class="normal">92</span>
-<span class="normal">93</span>
-<span class="normal">94</span>
-<span class="normal">95</span>
-<span class="normal">96</span>
-<span class="normal">97</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">ndsi</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">anthro</span><span class="o">=</span><span class="p">(</span><span class="mf">1000.0</span><span class="p">,</span> <span class="mf">2000.0</span><span class="p">),</span> <span class="n">bio</span><span class="o">=</span><span class="p">(</span><span class="mf">2000.0</span><span class="p">,</span> <span class="mf">8000.0</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">ndsi</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">anthro</span><span class="o">=</span><span class="p">(</span><span class="mf">1000.0</span><span class="p">,</span> <span class="mf">2000.0</span><span class="p">),</span> <span class="n">bio</span><span class="o">=</span><span class="p">(</span><span class="mf">2000.0</span><span class="p">,</span> <span class="mf">8000.0</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalized difference soundscape index in [−1, 1].&quot;&quot;&quot;</span>
     <span class="n">fc</span> <span class="o">=</span> <span class="n">_band_centers</span><span class="p">(</span><span class="n">F</span><span class="p">[</span><span class="s2">&quot;logf&quot;</span><span class="p">])</span>
     <span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">F</span><span class="p">[</span><span class="s2">&quot;logspec&quot;</span><span class="p">],</span> <span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -18261,12 +18518,12 @@ measured minimum (clip corpora of 5–30 s are the common case).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/ecology.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">bioacoustic_index</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">band</span><span class="o">=</span><span class="p">(</span><span class="mf">2000.0</span><span class="p">,</span> <span class="mf">8000.0</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">bioacoustic_index</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">band</span><span class="o">=</span><span class="p">(</span><span class="mf">2000.0</span><span class="p">,</span> <span class="mf">8000.0</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Boelman BI: area of the mean band dB spectrum above its minimum.&quot;&quot;&quot;</span>
     <span class="n">fc</span> <span class="o">=</span> <span class="n">_band_centers</span><span class="p">(</span><span class="n">F</span><span class="p">[</span><span class="s2">&quot;logf&quot;</span><span class="p">])</span>
     <span class="n">m</span> <span class="o">=</span> <span class="p">(</span><span class="n">fc</span> <span class="o">&gt;=</span> <span class="n">band</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">fc</span> <span class="o">&lt;=</span> <span class="n">band</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
@@ -18294,16 +18551,16 @@ measured minimum (clip corpora of 5–30 s are the common case).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/ecology.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">acoustic_entropy</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">acoustic_entropy</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Sueur H = spectral entropy × temporal entropy, in [0, 1].&quot;&quot;&quot;</span>
     <span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">F</span><span class="p">[</span><span class="s2">&quot;logspec&quot;</span><span class="p">],</span> <span class="nb">float</span><span class="p">)</span>
     <span class="n">ps</span> <span class="o">=</span> <span class="n">S</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -18335,18 +18592,18 @@ measured minimum (clip corpora of 5–30 s are the common case).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/ecology.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
-<span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">indices</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">indices</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The full battery as one dict.&quot;&quot;&quot;</span>
     <span class="n">adi_</span><span class="p">,</span> <span class="n">aei_</span> <span class="o">=</span> <span class="n">adi_aei</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
     <span class="n">aci_</span> <span class="o">=</span> <span class="n">aci</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>                     <span class="c1"># None below one full chunk (5 min)</span>
@@ -18380,9 +18637,9 @@ measured minimum (clip corpora of 5–30 s are the common case).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/ecology.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">summarize_ecology</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">summarize_ecology</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Alias of :func:`indices` for the analyze-summary pipeline.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">indices</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -18432,10 +18689,25 @@ features, no audio pass:</p>
 <p><code>summarize_biophony</code> returns the descriptor set for the analyze summary.</p>
 <p>Caveats: these are acoustic-structure proxies, not detections. A tonal
 alarm, a whistling kettle, or a squealing fan belt can mimic biophonic
-structure; confirm species with the BirdNET hook
-(:func:<code>ambiscape.ml.birdnet_session</code>, <code>[ml]</code> extra) on the hi-fi
-windows. The default band (2–11 kHz) targets temperate birdsong; widen it
+structure. The default band (2–11 kHz) targets temperate birdsong; widen it
 (insects reach 8–16 kHz, many mammals sit below 2 kHz) per habitat.</p>
+<p>AND DO NOT TREAT BIRDNET AS THE CONFIRMATION, which is what this note used to
+say. :func:<code>ambiscape.ml.birdnet_session</code> (<code>[ml]</code> extra) is a useful second
+opinion with an indoor failure mode of its own, measured on 2026-08-11: run
+over a university corridor in January it returned eight Great Bittern
+detections, the best at 0.87 confidence. A bittern booms at roughly
+150–200 Hz, which is where a ventilation plant lives. Gray Heron, Tawny Owl
+and Red-throated Loon came back from other empty interiors the same day. The
+classifier does not merely miss faint birds indoors; it <em>manufactures</em>
+low-frequency species out of machinery, confidently, so a detection count is
+not evidence that anything was alive.</p>
+<p>The fix is a control, not a threshold. Run the same settings over recordings
+from comparable rooms and the same recorder that certainly contain no birds —
+a plant room, a corridor at night, a toilet — and treat every species that
+comes back as confusable with that building's machinery. Say what the control
+removed rather than quietly reporting the remainder. It is the
+:mod:<code>ambiscape.enf</code> lesson in another key: a test that any drone can pass is
+not a test.</p>
 
 
 
@@ -18487,39 +18759,39 @@ narrowband but steady, low, and directional.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/biophony.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">narrowband_activity</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">band</span><span class="o">=</span><span class="n">BIRD_BAND</span><span class="p">,</span> <span class="n">min_prom_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">6.0</span><span class="p">,</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">narrowband_activity</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">band</span><span class="o">=</span><span class="n">BIRD_BAND</span><span class="p">,</span> <span class="n">min_prom_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">6.0</span><span class="p">,</span>
                         <span class="n">min_peaks</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Per-minute count of narrowband tonal peaks in ``band``.</span>
 
@@ -18576,16 +18848,16 @@ even over time (steady band, no biophonic events).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/biophony.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 91</span>
-<span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">band_temporal_entropy</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">band</span><span class="o">=</span><span class="n">BIRD_BAND</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">band_temporal_entropy</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">band</span><span class="o">=</span><span class="n">BIRD_BAND</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Sueur temporal entropy Ht of the bird-band envelope, in [0, 1].</span>
 
 <span class="sd">    Low = energy concentrated in time (structured vocalisation); near 1 =</span>
@@ -18621,28 +18893,28 @@ active. Returns the active-second fraction, event rate per minute
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/biophony.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span>
-<span class="normal">107</span>
-<span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
-<span class="normal">120</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">120</span>
 <span class="normal">121</span>
 <span class="normal">122</span>
 <span class="normal">123</span>
-<span class="normal">124</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">band_activity</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">band</span><span class="o">=</span><span class="n">BIRD_BAND</span><span class="p">,</span> <span class="n">k_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">,</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">band_activity</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">band</span><span class="o">=</span><span class="n">BIRD_BAND</span><span class="p">,</span> <span class="n">k_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">,</span>
                   <span class="n">bg_win_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">300.0</span><span class="p">,</span> <span class="n">min_dur_s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Acoustic activity of the bird band above its running background.</span>
 
@@ -18692,28 +18964,28 @@ of that foreground energy arriving from above <code>limit_deg</code> elevation
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/biophony.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span>
-<span class="normal">145</span>
-<span class="normal">146</span>
-<span class="normal">147</span>
-<span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">153</span>
 <span class="normal">154</span>
 <span class="normal">155</span>
 <span class="normal">156</span>
-<span class="normal">157</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">spatial_dispersion</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">band</span><span class="o">=</span><span class="n">BIRD_BAND</span><span class="p">,</span> <span class="n">nbins</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">36</span><span class="p">,</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">spatial_dispersion</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">band</span><span class="o">=</span><span class="n">BIRD_BAND</span><span class="p">,</span> <span class="n">nbins</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">36</span><span class="p">,</span>
                        <span class="n">limit_deg</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Directional spread and elevation of the bird-band foreground.</span>
 
@@ -18764,31 +19036,31 @@ rather than as spurious numbers.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/biophony.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">160</span>
-<span class="normal">161</span>
-<span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">177</span>
 <span class="normal">178</span>
 <span class="normal">179</span>
 <span class="normal">180</span>
 <span class="normal">181</span>
 <span class="normal">182</span>
 <span class="normal">183</span>
-<span class="normal">184</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">summarize_biophony</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">band</span><span class="o">=</span><span class="n">BIRD_BAND</span><span class="p">,</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">summarize_biophony</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">band</span><span class="o">=</span><span class="n">BIRD_BAND</span><span class="p">,</span>
                        <span class="n">min_active_fraction</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.02</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Biophony descriptors for the analyze summary.</span>
 
@@ -27478,15 +27750,41 @@ choose between them rather than merely tuning precision. Report them.</p>
 <div class="doc doc-object doc-function">
 
 
-<h2 id="ambiscape.tonality.pitch_class_profile" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">pitch_class_profile</span><span class="p">(</span><span class="n">minspec</span><span class="p">,</span> <span class="n">freqs</span><span class="p">,</span> <span class="n">minutes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">peak_kw</span><span class="p">)</span></code>
+<h2 id="ambiscape.tonality.narrow_line_prominence" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">narrow_line_prominence</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">spec_db</span><span class="p">,</span> <span class="n">f0</span><span class="p">,</span> <span class="n">half_hz</span><span class="o">=</span><span class="mf">0.35</span><span class="p">,</span> <span class="n">ring</span><span class="o">=</span><span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">))</span></code>
 
 </h2>
 
 
     <div class="doc doc-contents ">
 
-        <p>Tonal peak power folded onto 12 pitch classes (A4 = 440 Hz).</p>
+        <p>How far the peak within <code>±half_hz</code> of <code>f0</code> stands over its ring.</p>
+<p>The surround is the median of <code>ring</code> Hz either side, excluding the line
+itself. Keeping the ring narrow is the point: a broad rumble lifts the
+surround as much as the peak and so scores near zero, and only a genuine
+narrowband line scores high. <code>None</code> when the spectrum does not reach.</p>
+<p>:func:<code>ambiscape.compare.line_prominence</code> is the same rule at session
+scale, on the per-minute minimum spectrum with ±15/40 Hz windows. That
+resolution cannot separate 50 Hz from 60 Hz, let alone track a supply
+line; this one is for a fine spectrum computed for the purpose.</p>
+<p><strong>Zero is not the no-source value, and how far above zero it sits depends
+on how much you averaged.</strong> Comparing a <em>maximum</em> over the peak window
+against a <em>median</em> over the ring is biased upward on any noisy spectrum,
+so pure white noise scores well above nothing. Measured, as the mean over
+six trials of a three-rung family on white noise:</p>
+<p>========  ==========================
+windows   family prominence, no source
+========  ==========================
+1         5.1 dB
+4         2.6 dB
+16        1.5 dB
+64        0.9 dB
+256       0.4 dB
+========  ==========================</p>
+<p>Establish this floor for your own window count before calling anything
+present. A family scoring 1.7 dB off roughly forty averaged windows —
+which is what the 16⅔ Hz railway claim in :mod:<code>ambiscape.enf</code> came to —
+is sitting on the floor, not above it.</p>
 
 
             <details class="mkdocstrings-source">
@@ -27501,7 +27799,295 @@ choose between them rather than merely tuning precision. Report them.</p>
 <span class="normal">209</span>
 <span class="normal">210</span>
 <span class="normal">211</span>
-<span class="normal">212</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pitch_class_profile</span><span class="p">(</span><span class="n">minspec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">freqs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">narrow_line_prominence</span><span class="p">(</span><span class="n">freqs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">spec_db</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">f0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                           <span class="n">half_hz</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.35</span><span class="p">,</span>
+                           <span class="n">ring</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;How far the peak within ``±half_hz`` of ``f0`` stands over its ring.</span>
+
+<span class="sd">    The surround is the median of ``ring`` Hz either side, excluding the line</span>
+<span class="sd">    itself. Keeping the ring narrow is the point: a broad rumble lifts the</span>
+<span class="sd">    surround as much as the peak and so scores near zero, and only a genuine</span>
+<span class="sd">    narrowband line scores high. ``None`` when the spectrum does not reach.</span>
+
+<span class="sd">    :func:`ambiscape.compare.line_prominence` is the same rule at session</span>
+<span class="sd">    scale, on the per-minute minimum spectrum with ±15/40 Hz windows. That</span>
+<span class="sd">    resolution cannot separate 50 Hz from 60 Hz, let alone track a supply</span>
+<span class="sd">    line; this one is for a fine spectrum computed for the purpose.</span>
+
+<span class="sd">    **Zero is not the no-source value, and how far above zero it sits depends</span>
+<span class="sd">    on how much you averaged.** Comparing a *maximum* over the peak window</span>
+<span class="sd">    against a *median* over the ring is biased upward on any noisy spectrum,</span>
+<span class="sd">    so pure white noise scores well above nothing. Measured, as the mean over</span>
+<span class="sd">    six trials of a three-rung family on white noise:</span>
+
+<span class="sd">    ========  ==========================</span>
+<span class="sd">    windows   family prominence, no source</span>
+<span class="sd">    ========  ==========================</span>
+<span class="sd">    1         5.1 dB</span>
+<span class="sd">    4         2.6 dB</span>
+<span class="sd">    16        1.5 dB</span>
+<span class="sd">    64        0.9 dB</span>
+<span class="sd">    256       0.4 dB</span>
+<span class="sd">    ========  ==========================</span>
+
+<span class="sd">    Establish this floor for your own window count before calling anything</span>
+<span class="sd">    present. A family scoring 1.7 dB off roughly forty averaged windows —</span>
+<span class="sd">    which is what the 16⅔ Hz railway claim in :mod:`ambiscape.enf` came to —</span>
+<span class="sd">    is sitting on the floor, not above it.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">freqs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+    <span class="n">spec_db</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">spec_db</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+    <span class="n">peak</span> <span class="o">=</span> <span class="p">(</span><span class="n">freqs</span> <span class="o">&gt;=</span> <span class="n">f0</span> <span class="o">-</span> <span class="n">half_hz</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">freqs</span> <span class="o">&lt;=</span> <span class="n">f0</span> <span class="o">+</span> <span class="n">half_hz</span><span class="p">)</span>
+    <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="n">ring</span>
+    <span class="n">surround</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">freqs</span> <span class="o">-</span> <span class="n">f0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">lo</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">freqs</span> <span class="o">-</span> <span class="n">f0</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">hi</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">peak</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="ow">or</span> <span class="n">surround</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">spec_db</span><span class="p">[</span><span class="n">peak</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">spec_db</span><span class="p">[</span><span class="n">surround</span><span class="p">]))</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ambiscape.tonality.family_prominence" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">family_prominence</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">spec_db</span><span class="p">,</span> <span class="n">f0</span><span class="p">,</span> <span class="n">band</span><span class="o">=</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">350.0</span><span class="p">),</span> <span class="n">min_harmonics</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="o">**</span><span class="n">line_kw</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>(mean prominence of <code>f0</code>'s harmonics in <code>band</code>, the per-rung list).</p>
+<p>The mean rather than the sum, so a low fundamental is not rewarded merely
+for fitting more harmonics into the band; and <code>(None, rungs)</code> below
+<code>min_harmonics</code>, so a lone peak never reports as a family.</p>
+<p><strong>Read the list, not the mean.</strong> The mean is what makes this method
+dangerous on its own: a single strong high harmonic will carry a family
+whose fundamental and low rungs are missing, and the summary will look
+respectable. That is not a hypothetical — see :mod:<code>ambiscape.enf</code> for the
+16⅔ Hz railway-supply case, where rungs 1 to 4 sat <em>below</em> their
+surrounding noise and the score came entirely from 100 Hz, which is mains.
+A family missing its bottom is not a family.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ambiscape/tonality.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">family_prominence</span><span class="p">(</span><span class="n">freqs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">spec_db</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">f0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                      <span class="n">band</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">350.0</span><span class="p">),</span> <span class="n">min_harmonics</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+                      <span class="o">**</span><span class="n">line_kw</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(mean prominence of ``f0``&#39;s harmonics in ``band``, the per-rung list).</span>
+
+<span class="sd">    The mean rather than the sum, so a low fundamental is not rewarded merely</span>
+<span class="sd">    for fitting more harmonics into the band; and ``(None, rungs)`` below</span>
+<span class="sd">    ``min_harmonics``, so a lone peak never reports as a family.</span>
+
+<span class="sd">    **Read the list, not the mean.** The mean is what makes this method</span>
+<span class="sd">    dangerous on its own: a single strong high harmonic will carry a family</span>
+<span class="sd">    whose fundamental and low rungs are missing, and the summary will look</span>
+<span class="sd">    respectable. That is not a hypothetical — see :mod:`ambiscape.enf` for the</span>
+<span class="sd">    16⅔ Hz railway-supply case, where rungs 1 to 4 sat *below* their</span>
+<span class="sd">    surrounding noise and the score came entirely from 100 Hz, which is mains.</span>
+<span class="sd">    A family missing its bottom is not a family.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rungs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">while</span> <span class="n">n</span> <span class="o">*</span> <span class="n">f0</span> <span class="o">&lt;=</span> <span class="n">band</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="o">*</span> <span class="n">f0</span> <span class="o">&gt;=</span> <span class="n">band</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">rungs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span> <span class="o">*</span> <span class="n">f0</span><span class="p">,</span>
+                          <span class="n">narrow_line_prominence</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">spec_db</span><span class="p">,</span> <span class="n">n</span> <span class="o">*</span> <span class="n">f0</span><span class="p">,</span>
+                                                 <span class="o">**</span><span class="n">line_kw</span><span class="p">)))</span>
+        <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">_n</span><span class="p">,</span> <span class="n">_f</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">rungs</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">min_harmonics</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">rungs</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">vals</span><span class="p">)),</span> <span class="n">rungs</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ambiscape.tonality.family_percentile" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">family_percentile</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">spec_db</span><span class="p">,</span> <span class="n">f0</span><span class="p">,</span> <span class="n">sweep</span><span class="o">=</span><span class="p">(</span><span class="mf">12.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span> <span class="o">**</span><span class="n">family_kw</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Where <code>f0</code>'s family score ranks among every fundamental in <code>sweep</code>.</p>
+<p>Returns <code>(percentile, score, grid, scores)</code>. This is the gate that lets
+a hypothesised family fail: asking whether a family is <em>present</em> is a
+question every recording answers yes to, because every spectrum has energy
+at every frequency and a broad hump has to peak somewhere. Asking whether
+it is <em>exceptional</em> among the alternatives is answerable. A family that is
+merely present ranks mid-sweep; one that characterises the recording ranks
+at the top.</p>
+<p>Two things it cannot do. It cannot separate a fundamental from its own
+multiples and divisors — if 16⅔ scores well then 33⅓ and 8⅓ will too, so
+inspect <code>grid</code>/<code>scores</code> rather than quoting one percentile. And it
+cannot tell a real source from a confound that shares its harmonics: a
+percentile is a statement about this recording, and only a control
+recording that cannot contain the source turns it into evidence.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ambiscape/tonality.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">family_percentile</span><span class="p">(</span><span class="n">freqs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">spec_db</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">f0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                      <span class="n">sweep</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="mf">12.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span> <span class="o">**</span><span class="n">family_kw</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Where ``f0``&#39;s family score ranks among every fundamental in ``sweep``.</span>
+
+<span class="sd">    Returns ``(percentile, score, grid, scores)``. This is the gate that lets</span>
+<span class="sd">    a hypothesised family fail: asking whether a family is *present* is a</span>
+<span class="sd">    question every recording answers yes to, because every spectrum has energy</span>
+<span class="sd">    at every frequency and a broad hump has to peak somewhere. Asking whether</span>
+<span class="sd">    it is *exceptional* among the alternatives is answerable. A family that is</span>
+<span class="sd">    merely present ranks mid-sweep; one that characterises the recording ranks</span>
+<span class="sd">    at the top.</span>
+
+<span class="sd">    Two things it cannot do. It cannot separate a fundamental from its own</span>
+<span class="sd">    multiples and divisors — if 16⅔ scores well then 33⅓ and 8⅓ will too, so</span>
+<span class="sd">    inspect ``grid``/``scores`` rather than quoting one percentile. And it</span>
+<span class="sd">    cannot tell a real source from a confound that shares its harmonics: a</span>
+<span class="sd">    percentile is a statement about this recording, and only a control</span>
+<span class="sd">    recording that cannot contain the source turns it into evidence.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">*</span><span class="n">sweep</span><span class="p">)</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+        <span class="n">s</span> <span class="k">if</span> <span class="p">(</span><span class="n">s</span> <span class="o">:=</span> <span class="n">family_prominence</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">spec_db</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="o">**</span><span class="n">family_kw</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">grid</span><span class="p">])</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="n">family_prominence</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">spec_db</span><span class="p">,</span> <span class="n">f0</span><span class="p">,</span> <span class="o">**</span><span class="n">family_kw</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">finite</span> <span class="o">=</span> <span class="n">scores</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">scores</span><span class="p">)]</span>
+    <span class="n">pct</span> <span class="o">=</span> <span class="p">(</span><span class="mf">100.0</span> <span class="o">*</span> <span class="nb">float</span><span class="p">((</span><span class="n">finite</span> <span class="o">&lt;</span> <span class="n">score</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+           <span class="k">if</span> <span class="n">score</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">finite</span><span class="o">.</span><span class="n">size</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pct</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">scores</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ambiscape.tonality.pitch_class_profile" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">pitch_class_profile</span><span class="p">(</span><span class="n">minspec</span><span class="p">,</span> <span class="n">freqs</span><span class="p">,</span> <span class="n">minutes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">peak_kw</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Tonal peak power folded onto 12 pitch classes (A4 = 440 Hz).</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ambiscape/tonality.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pitch_class_profile</span><span class="p">(</span><span class="n">minspec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">freqs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                         <span class="n">minutes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">peak_kw</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Tonal peak power folded onto 12 pitch classes (A4 = 440 Hz).&quot;&quot;&quot;</span>
     <span class="n">pcp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
@@ -27534,58 +28120,58 @@ choose between them rather than merely tuning precision. Report them.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/tonality.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">215</span>
-<span class="normal">216</span>
-<span class="normal">217</span>
-<span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
-<span class="normal">225</span>
-<span class="normal">226</span>
-<span class="normal">227</span>
-<span class="normal">228</span>
-<span class="normal">229</span>
-<span class="normal">230</span>
-<span class="normal">231</span>
-<span class="normal">232</span>
-<span class="normal">233</span>
-<span class="normal">234</span>
-<span class="normal">235</span>
-<span class="normal">236</span>
-<span class="normal">237</span>
-<span class="normal">238</span>
-<span class="normal">239</span>
-<span class="normal">240</span>
-<span class="normal">241</span>
-<span class="normal">242</span>
-<span class="normal">243</span>
-<span class="normal">244</span>
-<span class="normal">245</span>
-<span class="normal">246</span>
-<span class="normal">247</span>
-<span class="normal">248</span>
-<span class="normal">249</span>
-<span class="normal">250</span>
-<span class="normal">251</span>
-<span class="normal">252</span>
-<span class="normal">253</span>
-<span class="normal">254</span>
-<span class="normal">255</span>
-<span class="normal">256</span>
-<span class="normal">257</span>
-<span class="normal">258</span>
-<span class="normal">259</span>
-<span class="normal">260</span>
-<span class="normal">261</span>
-<span class="normal">262</span>
-<span class="normal">263</span>
-<span class="normal">264</span>
-<span class="normal">265</span>
-<span class="normal">266</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_session</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_session</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Tonality timeline + per-minute tonalness/harmonicity + PCP + figure.&quot;&quot;&quot;</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span>

@@ -9,6 +9,8 @@ been carrying feature work throughout a pre-1.0 life.
 
 ## [Unreleased]
 
+## [0.37.0] — 2026-08-11
+
 ### Added
 - **`ml.tag_probabilities` — ask AudioSet a question instead of reading its answer.** `tag_window`
   returns the few labels that came top and cleared a threshold, which is what naming an object wants.
@@ -40,6 +42,20 @@ been carrying feature work throughout a pre-1.0 life.
   It reports the loudest node and not a position: two rooms either side of one wall may swap for
   reasons of coupling rather than movement, and a stationary source that merely gets louder is not
   distinguished from one that approaches. An itinerary over rooms, not a trajectory in metres.
+
+### Changed
+- **Four docstrings corrected by measurement, not by review.** `grounding` recorded that the
+  figure/ground reading of `dynamics_L10_L90` was "measured and solid"; it is not. Across twelve
+  nodes and 84 sessions in fixed 2-minute windows, a person on the telephone and a person washing up
+  are indistinguishable at 22.4 dB each (p = 0.74), and a person vacuuming reads 7.0 dB — nearer an
+  empty room than a conversation, because the machine in their hands removes the intermittency the
+  number detects. It measures intermittency and misses a person holding a steady machine.
+  `detect_events` now records that a steady source produces almost no events however loud it is, so a
+  low rate means "little changes here" and never "little happens here". `group_tracks` gains its
+  second earned use, separating a building from a room across a network, and the caveat that a line
+  shared by every node may be the recorders rather than the building — identical hardware shares its
+  artefacts. `compare` states what an uncalibrated network can be asked at all: differences within a
+  node travel between nodes, absolute levels do not.
 
 ## [0.36.0] — 2026-08-11
 

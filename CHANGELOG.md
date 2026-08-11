@@ -10,6 +10,24 @@ been carrying feature work throughout a pre-1.0 life.
 ## [Unreleased]
 
 ### Added
+- **`tonality.family_prominence`, `tonality.family_percentile` and
+  `tonality.narrow_line_prominence` — testing a *hypothesised* harmonic family, and letting it
+  fail.** `harmonic_sieve` searches for the f0 that best explains a peak set; these answer the
+  different question of whether a family you already have in mind is present, which is what a claim
+  about a supply frequency, a shaft rate or a blade-pass tone actually needs. Three properties carry
+  the design. The per-rung list is returned beside the mean, because a single strong high harmonic
+  will carry a family whose fundamental is missing and the mean alone hides it. The percentile ranks
+  the hypothesis against every other fundamental in a sweep, because *presence* is a question every
+  recording answers yes to and *exceptional* is one it can answer no to. And the docstring carries a
+  measured no-source floor — a family on white noise scores 5.1 dB off one window and 0.4 dB off 256
+  — since comparing a max over the peak against a median over the ring is biased upward, so zero is
+  not the null.
+
+  Prototyped in the Sound Spaces `notes/scripts/train_electrification_lines.py` after the method it
+  replaces produced a false published claim. `tests/test_harmonic_family.py` pins that failure and
+  not only the code: 16⅔ × 3 = 50, so a Nordic-railway-supply family *contains* the European mains
+  family, and any mains-bearing recording passes a test for a train.
+
 - **`analysis.series_span` — where something begins *and stops*.** `series_onset` answers the first
   question; this answers both, by the same scale-free rule and against the same floor-to-peak range,
   so the two ends sit on one convention. The second index is what a *suffix* needs: in Godøy's
@@ -21,6 +39,30 @@ been carrying feature work throughout a pre-1.0 life.
   or after it ended, which on hand-trimmed material is 11 and 22 of 365 Sound Actions clips.
 
 ### Changed
+- **`ecology`'s indoor caveat named the wrong indices, and now carries the measured ones.** It warned
+  that NDSI and BI would read a ventilation hiss as biophony. Against three dawn and dusk choruses,
+  the indices that actually fail are ADI (duct 0.977 against 0.927--0.968) and bird-band temporal
+  entropy (0.998 against 0.701--0.913, the highest value in the comparison), while NDSI, H, AEI and
+  BI hold. The division is not which band an index looks at: the ones that fail read *occupancy and
+  time*, which any stationary broadband source saturates whatever its tilt, and the ones that resist
+  read *spectral shape*. The old note was reasoned rather than measured, and a reader following it
+  would have guarded the wrong half of the battery. The 4 kHz-hiss case it generalised from is kept,
+  as the condition under which NDSI does fail.
+
+- **`biophony` no longer offers BirdNET as the confirmation.** It told the reader to settle a
+  suspicious structure measure with `ml.birdnet_session`. Run over a university corridor in January
+  that classifier returns eight Great Bittern detections, the best at 0.87 --- a bittern booms at
+  roughly 150--200 Hz, which is where a ventilation plant lives --- and Gray Heron, Tawny Owl and
+  Red-throated Loon from other empty interiors. It does not merely miss faint birds indoors, it
+  manufactures low-frequency species out of machinery. The docstring now asks for a bird-free control
+  from comparable rooms and the same recorder, and for reporting what the control removed.
+
+- **`enf` documents why changing `nominal` is not a neutral act.** Setting it to 16.667 to look for a
+  Nordic railway supply looks obvious and is a trap: 16⅔ has 50 Hz as its third harmonic and 100 Hz
+  as its sixth, so the family contains the mains family and any electrified room passes. A foyer with
+  no train within a kilometre scored higher on it than the train did. Points at the two new
+  `tonality` functions for the per-rung check and the null sweep.
+
 - **`mechanical.envelope_periodicity` documents the range it cannot reach.** Its 0.3--12 Hz band is a
   fast-modulation range --- a rattle, a blade pass, a stirred machine --- and a domestic duty cycle
   runs three to four orders of magnitude slower: a compressor at 150 s on and 150 s off is 0.0033 Hz,

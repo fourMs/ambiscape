@@ -19,11 +19,44 @@ cached 1 Hz features — no audio pass:
 - **acoustic entropy H** (Sueur et al. 2008): spectral entropy × temporal
   (envelope) entropy, in [0, 1].
 
-Caveats for an ambisonic *indoor* corpus: these indices were designed for
-outdoor terrestrial monitoring; report them for comparability, but read
-NDSI/BI as "energy in the bird band", not as proof of birds — a 4 kHz
-ventilation hiss scores as "biophony". Combine with the taxonomy layer
-before interpreting.
+INDOORS, SOME OF THESE FAIL AND SOME DO NOT, and which is which was measured
+rather than reasoned. Three dawn and dusk choruses against synthetic
+ventilation noise (Jensenius 2026, *When ventilation outperforms the dawn
+chorus*):
+
+===================  ================  =============
+index                ventilation       choruses
+===================  ================  =============
+ADI                  0.977             0.927–0.968
+bird-band Ht         0.998             0.701–0.913
+NDSI                 −0.139            0.707–0.997
+acoustic entropy H   0.387             0.492–0.610
+===================  ================  =============
+
+ADI and bird-band temporal entropy rate a duct *above every chorus*, and Ht
+gives the fan the highest value in the whole comparison, because a stationary
+signal is perfectly uniform in time. NDSI, H, AEI and BI are not fooled by
+this material.
+
+The division is not about which band an index looks at. The indices that fail
+read **occupancy and time** — how many cells are busy, how evenly spread
+across the hours — and a stationary broadband source saturates both whatever
+its spectral tilt. The ones that resist read **spectral shape**, and duct
+noise falling steadily with frequency is neither bright nor flat. Expect the
+same split for any steady mechanical source; expect NDSI to fail as well
+wherever the machine's own energy sits inside the bio band, which is the 4 kHz
+hiss case an earlier version of this note wrongly generalised from.
+
+Scale is the other warning. Over 14 node-days of an inhabited home, ADI moves
+less across an entire week — 0.031 on one node — than it does between two
+microphones standing metres apart in the same room, 0.036. A descriptor whose
+weekly variation is smaller than its disagreement between two positions in one
+room is not measuring the week.
+
+Report them for comparability with outdoor corpora, read the occupancy-and-
+time pair as "is anything steady here", and go to :mod:`ambiscape.biophony`,
+which measures structure rather than energy, before reading any of them as
+life.
 """
 from __future__ import annotations
 

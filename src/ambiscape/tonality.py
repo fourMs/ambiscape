@@ -199,6 +199,113 @@ def harmonic_sieve(fq: np.ndarray, power: np.ndarray, f0_min=60.0,
     return best_f0, round(best, 3)
 
 
+def narrow_line_prominence(freqs: np.ndarray, spec_db: np.ndarray, f0: float,
+                           half_hz: float = 0.35,
+                           ring: tuple = (1.5, 6.0)) -> float | None:
+    """How far the peak within ``±half_hz`` of ``f0`` stands over its ring.
+
+    The surround is the median of ``ring`` Hz either side, excluding the line
+    itself. Keeping the ring narrow is the point: a broad rumble lifts the
+    surround as much as the peak and so scores near zero, and only a genuine
+    narrowband line scores high. ``None`` when the spectrum does not reach.
+
+    :func:`ambiscape.compare.line_prominence` is the same rule at session
+    scale, on the per-minute minimum spectrum with ±15/40 Hz windows. That
+    resolution cannot separate 50 Hz from 60 Hz, let alone track a supply
+    line; this one is for a fine spectrum computed for the purpose.
+
+    **Zero is not the no-source value, and how far above zero it sits depends
+    on how much you averaged.** Comparing a *maximum* over the peak window
+    against a *median* over the ring is biased upward on any noisy spectrum,
+    so pure white noise scores well above nothing. Measured, as the mean over
+    six trials of a three-rung family on white noise:
+
+    ========  ==========================
+    windows   family prominence, no source
+    ========  ==========================
+    1         5.1 dB
+    4         2.6 dB
+    16        1.5 dB
+    64        0.9 dB
+    256       0.4 dB
+    ========  ==========================
+
+    Establish this floor for your own window count before calling anything
+    present. A family scoring 1.7 dB off roughly forty averaged windows —
+    which is what the 16⅔ Hz railway claim in :mod:`ambiscape.enf` came to —
+    is sitting on the floor, not above it.
+    """
+    freqs = np.asarray(freqs, float)
+    spec_db = np.asarray(spec_db, float)
+    peak = (freqs >= f0 - half_hz) & (freqs <= f0 + half_hz)
+    lo, hi = ring
+    surround = (np.abs(freqs - f0) > lo) & (np.abs(freqs - f0) <= hi)
+    if not peak.any() or surround.sum() < 8:
+        return None
+    return float(spec_db[peak].max() - np.median(spec_db[surround]))
+
+
+def family_prominence(freqs: np.ndarray, spec_db: np.ndarray, f0: float,
+                      band: tuple = (10.0, 350.0), min_harmonics: int = 3,
+                      **line_kw):
+    """(mean prominence of ``f0``'s harmonics in ``band``, the per-rung list).
+
+    The mean rather than the sum, so a low fundamental is not rewarded merely
+    for fitting more harmonics into the band; and ``(None, rungs)`` below
+    ``min_harmonics``, so a lone peak never reports as a family.
+
+    **Read the list, not the mean.** The mean is what makes this method
+    dangerous on its own: a single strong high harmonic will carry a family
+    whose fundamental and low rungs are missing, and the summary will look
+    respectable. That is not a hypothetical — see :mod:`ambiscape.enf` for the
+    16⅔ Hz railway-supply case, where rungs 1 to 4 sat *below* their
+    surrounding noise and the score came entirely from 100 Hz, which is mains.
+    A family missing its bottom is not a family.
+    """
+    rungs = []
+    n = 1
+    while n * f0 <= band[1]:
+        if n * f0 >= band[0]:
+            rungs.append((n, n * f0,
+                          narrow_line_prominence(freqs, spec_db, n * f0,
+                                                 **line_kw)))
+        n += 1
+    vals = [v for _n, _f, v in rungs if v is not None]
+    if len(vals) < min_harmonics:
+        return None, rungs
+    return float(np.mean(vals)), rungs
+
+
+def family_percentile(freqs: np.ndarray, spec_db: np.ndarray, f0: float,
+                      sweep: tuple = (12.0, 60.0, 0.05), **family_kw):
+    """Where ``f0``'s family score ranks among every fundamental in ``sweep``.
+
+    Returns ``(percentile, score, grid, scores)``. This is the gate that lets
+    a hypothesised family fail: asking whether a family is *present* is a
+    question every recording answers yes to, because every spectrum has energy
+    at every frequency and a broad hump has to peak somewhere. Asking whether
+    it is *exceptional* among the alternatives is answerable. A family that is
+    merely present ranks mid-sweep; one that characterises the recording ranks
+    at the top.
+
+    Two things it cannot do. It cannot separate a fundamental from its own
+    multiples and divisors — if 16⅔ scores well then 33⅓ and 8⅓ will too, so
+    inspect ``grid``/``scores`` rather than quoting one percentile. And it
+    cannot tell a real source from a confound that shares its harmonics: a
+    percentile is a statement about this recording, and only a control
+    recording that cannot contain the source turns it into evidence.
+    """
+    grid = np.arange(*sweep)
+    scores = np.array([
+        s if (s := family_prominence(freqs, spec_db, f, **family_kw)[0])
+        is not None else np.nan for f in grid])
+    score = family_prominence(freqs, spec_db, f0, **family_kw)[0]
+    finite = scores[np.isfinite(scores)]
+    pct = (100.0 * float((finite < score).mean())
+           if score is not None and finite.size else None)
+    return pct, score, grid, scores
+
+
 def pitch_class_profile(minspec: np.ndarray, freqs: np.ndarray,
                         minutes=None, **peak_kw):
     """Tonal peak power folded onto 12 pitch classes (A4 = 440 Hz)."""

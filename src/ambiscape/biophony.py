@@ -25,10 +25,27 @@ features, no audio pass:
 
 Caveats: these are acoustic-structure proxies, not detections. A tonal
 alarm, a whistling kettle, or a squealing fan belt can mimic biophonic
-structure; confirm species with the BirdNET hook
-(:func:`ambiscape.ml.birdnet_session`, ``[ml]`` extra) on the hi-fi
-windows. The default band (2–11 kHz) targets temperate birdsong; widen it
+structure. The default band (2–11 kHz) targets temperate birdsong; widen it
 (insects reach 8–16 kHz, many mammals sit below 2 kHz) per habitat.
+
+AND DO NOT TREAT BIRDNET AS THE CONFIRMATION, which is what this note used to
+say. :func:`ambiscape.ml.birdnet_session` (``[ml]`` extra) is a useful second
+opinion with an indoor failure mode of its own, measured on 2026-08-11: run
+over a university corridor in January it returned eight Great Bittern
+detections, the best at 0.87 confidence. A bittern booms at roughly
+150–200 Hz, which is where a ventilation plant lives. Gray Heron, Tawny Owl
+and Red-throated Loon came back from other empty interiors the same day. The
+classifier does not merely miss faint birds indoors; it *manufactures*
+low-frequency species out of machinery, confidently, so a detection count is
+not evidence that anything was alive.
+
+The fix is a control, not a threshold. Run the same settings over recordings
+from comparable rooms and the same recorder that certainly contain no birds —
+a plant room, a corridor at night, a toilet — and treat every species that
+comes back as confusable with that building's machinery. Say what the control
+removed rather than quietly reporting the remainder. It is the
+:mod:`ambiscape.enf` lesson in another key: a test that any drone can pass is
+not a test.
 """
 from __future__ import annotations
 

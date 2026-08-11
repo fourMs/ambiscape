@@ -21,6 +21,30 @@ of the recorder clock.
 
 Needs raw audio (one streaming pass over the W channel); the cached
 per-minute spectra are far too coarse (5.9 Hz bins) for millihertz work.
+
+CHANGING ``nominal`` IS NOT A NEUTRAL ACT, and the trap it opens cost a
+published claim. Railway supplies invite it: the Nordic countries, Germany,
+Austria and Switzerland electrify at 16⅔ Hz, so ``nominal=16.667`` looks like
+the obvious way to ask whether a recording was made on such a train. It is
+not, because **16⅔ has 50 Hz as its third harmonic and 100 Hz as its sixth**.
+A family built on 16⅔ therefore contains the European mains family inside it,
+and any recording with mains in it will score well on "the Nordic railway
+supply" — including a hotel foyer with no train within a kilometre, which is
+the control that settled it on 2026-08-11. The Stavanger train's own 16.7 Hz
+fundamental sat 3 dB *below* the noise around it, as did its second, third and
+fourth harmonics; the score was carried entirely by 100 Hz, which is mains.
+
+Two rules follow, and they generalise past railways to any hypothesised
+family (a shaft rate, a chopper frequency, a fan's blade-pass):
+
+1. **Check the rungs, not the mean.** A family whose fundamental and low
+   harmonics are absent while one high harmonic is strong is not a family.
+   :func:`ambiscape.tonality.family_prominence` returns the per-harmonic list
+   for exactly this reason.
+2. **Rank the hypothesis against the alternatives**, with
+   :func:`ambiscape.tonality.family_percentile`, and run a control recording
+   that cannot contain the source. Presence is not evidence; being
+   *exceptional* is.
 """
 from __future__ import annotations
 

@@ -9,6 +9,24 @@ been carrying feature work throughout a pre-1.0 life.
 
 ## [Unreleased]
 
+### Changed
+- **`ambiscape.music` is now a bridge; the analysis moved to musiscape.** It had lived here while
+  musiscape --- the music toolbox --- imported six of its symbols across three modules, and no
+  library code in this package ever used it: one CLI subcommand did. `tempogram`, `chromagram`,
+  `dominant_period`, `pulse_clarity`, `fifths_center`, `tonal_center_spread` and `tartyp_profile`
+  are `musiscape.music` now.
+
+  Nothing was duplicated, so this was a relocation rather than a merge --- unlike the circular
+  statistics below, where two implementations had already drifted. **musiscape no longer depends on
+  ambiscape at all**, which also removes the packaging hazard that a `pip install musiscape` would
+  resolve ambiscape from PyPI and silently replace an editable checkout with a wheel of the same
+  version.
+
+  What stayed is what could not travel: `load_w` and `run_session`, the two functions that know what
+  a `Session` is. They are an adapter in the same sense as `musicalgestures._soundscape` is one the
+  other way. musiscape is an **optional** dependency and the module says where the analysis went if
+  it is absent.
+
 ### Fixed
 - **`circstats.rayleigh_p` disagreed with micromotion on about a fifth of cases.** It used Zar's
   earlier series expansion, `exp(-z)(1 + (2z - z²)/4n)`; `micromotion.circular.rayleigh` uses

@@ -20,6 +20,17 @@ one.
 
 ## Crossing to micromotion
 
+**One function does not merely cross, it defers.** Since 0.40.0
+`ambiscape.circstats.circ_corr` is a re-export of
+`micromotion.circular.circ_corr`, because micromotion owns circular statistics
+in this family. It returns that package's dict, so callers want
+`circ_corr(a, b)["r"]` and gain a `p` the old local copy never offered. The
+import is lazy and the dependency is the `circular` extra
+(`pip install ambiscape[circular]`), so ambiscape still installs on its own ---
+only `entrain.directional_correlation` needs micromotion present. The two had
+carried the same Jammalamadaka--SenGupta formula under one name and returned
+different types, which is the failure a shared name is supposed to prevent.
+
 The common case is a recording where a body and its surroundings were captured together, and the
 question is whether they relate. ambiscape produces the per-second sound side; micromotion produces
 the per-second motion side; the join happens in your own analysis on a shared clock.

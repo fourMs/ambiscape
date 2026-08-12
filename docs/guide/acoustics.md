@@ -326,8 +326,17 @@ an object picked up, a step — well before the sound the clip is of. On the
 Sound Actions clips the default lands a median 1.78 s earlier than
 hand-checked onsets and agrees within a quarter second on 17 % of them, where
 `rise=0.75` lands +0.01 s and agrees on 77 %. It is not noise against signal
-but which sound counts as the onset. Raise `rise` whenever the answer wanted
-is a time rather than a lead.
+but which sound counts as the onset.
+
+*That evidence is about audio, and motion wants the opposite.* The same rule
+goes to the motion series in `onset_lead`, and there a high fraction is late:
+checked against onsets marked by eye from video frames, `0.10` and `0.25` land
+within a median 0.06 s of what a viewer calls the beginning, while `0.50` and
+`0.75` are late on every clip checked, by a median 0.46 s and 0.66 s. Audio
+carries a noise floor a low fraction fires on; motion has a still lead-in a
+high fraction sits through. So raise `rise` for an audio onset time, leave it
+low for a motion one, and where a lead uses both, say that it is a difference
+between two differently-defined onsets rather than assuming the bias cancels.
 
 *It takes series, not files.* Motion is computed wherever motion is computed;
 this is the seam between toolboxes rather than a video function hidden in an

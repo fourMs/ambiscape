@@ -43,6 +43,27 @@ been carrying feature work throughout a pre-1.0 life.
   agreement for this function: same keys, same values, so a second copy
   cannot quietly reappear.
 
+### Documentation
+- **`series_onset` no longer advises 0.75 across the board.** Its evidence for
+  that fraction --- landing within 0.01 s of hand-checked onsets, where 0.25
+  lands 1.78 s early --- was gathered on *audio*, and the same docstring then
+  recommended it for the motion series `onset_lead` applies the identical rule
+  to. Checked against motion onsets marked by eye from video frames, blind to
+  every computed value, the recommendation is wrong in the other direction:
+  0.10 and 0.25 land within a median 0.06 s of what a viewer calls the
+  beginning, while 0.50 and 0.75 are late on every clip checked, by a median
+  0.46 s and 0.66 s. Audio carries a noise floor a low fraction triggers on;
+  motion has a still lead-in a high fraction sits through. One fraction applied
+  to both is therefore wrong for at least one of them, and the bias
+  cancellation `onset_lead` rests on is an accident of how far two errors
+  match rather than a property of the rule.
+- **`series_onset`'s high end is one frame, and that is now stated.** `hi` is
+  `s.max()`, which sets the crossing level for the whole series: varying only
+  `rise` between 0.20 and 0.30 across 365 clips moves the onset more than half
+  a second on 31 of them and more than a second on 9, worst case 5.08 s. The
+  90th percentile roughly halves that for a median shift of 0.08 s and does not
+  fix it.
+
 ## [0.39.0] — 2026-08-12
 
 ### Changed

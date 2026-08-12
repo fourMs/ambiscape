@@ -862,12 +862,39 @@ def series_onset(series, rise: float = ONSET_RISE):
     The default finds the first thing audible above the floor; a higher rise
     finds the event the clip was cut for.
 
+    **The two modalities want opposite fractions, and that is newer evidence
+    than the paragraph above.** The 0.75 figure was measured on *audio*. On the
+    motion series of the same corpus it is wrong in the other direction:
+    marked by eye from video frames, blind to every computed value, 0.10 and
+    0.25 land within a median 0.06 s of what a viewer calls the beginning,
+    while 0.50 and 0.75 are late on every clip checked, by a median 0.46 s and
+    0.66 s. Seven clips with a markable onset, one observer, marks good to
+    about 0.1 s — enough for the direction, not for the decimals. The
+    asymmetry has a cause: audio carries a noise floor a low fraction triggers
+    on, and motion has a genuinely still lead-in a high fraction sits through
+    until the movement is already large.
+
     :func:`onset_lead` applies the same rule to both series, which is what
-    keeps a lead comparable across modalities. How much of the bias survives
-    the subtraction depends on the two series having similar shapes, and is
-    not guaranteed. Pass a higher ``rise`` — 0.75 on this kind of material —
-    whenever the answer wanted is an onset rather than a lead, and check it
-    against a case whose answer is known.
+    keeps a lead comparable across modalities — and therefore leaves it wrong
+    for at least one of them, whichever fraction is chosen. How much of the
+    bias survives the subtraction depends on the two series having similar
+    shapes; on this material they do not, so the cancellation is an accident
+    of how far two errors match rather than a property of the rule. Prefer a
+    fraction validated against the modality it is applied to, and where two
+    are used, say that the lead is a difference between two
+    differently-defined onsets.
+
+    **The high end is a single frame, which is the rule's other weakness.**
+    ``hi`` is ``s.max()``, the most outlier-prone statistic available, and it
+    sets the crossing level for the whole series. Varying only ``rise``
+    between 0.20 and 0.30 across 365 clips moves the onset by more than half a
+    second on 31 of them and by more than a second on 9, worst case 5.08 s.
+    The clips that move are those whose activity builds rather than starts,
+    where the crossing level falls in a region the series passes through
+    slowly. Substituting the 90th percentile for the maximum roughly halves
+    that — 31 clips to 19 over half a second — for a median shift of 0.08 s,
+    and does not fix it, because on those clips there is no single moment to
+    find.
     """
     s = np.asarray(series, float)
     s = s[np.isfinite(s)]

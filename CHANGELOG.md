@@ -7,6 +7,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/); the
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) loosely, in that the minor number has
 been carrying feature work throughout a pre-1.0 life.
 
+> **Release order, from 2026-08-12.** Moving music analysis out of ambiscape
+> coupled these three releases, and shipping them out of order breaks things:
+>
+> 1. **micromotion** must go first. musiscape now needs `circular_sd` and
+>    `rayleigh_from_R`, which exist only in the unreleased tree; PyPI has
+>    1.2.1.
+> 2. **musiscape** second. Until it ships, the published 0.4.0 still does
+>    `from ambiscape import music`.
+> 3. **ambiscape** last. Releasing it before musiscape breaks the published
+>    musiscape 0.4.0, whose feature extraction imports the functions that
+>    moved.
+>
+> micromotion is deliberately unreleased --- a GitHub release publishes to
+> PyPI and cannot be undone --- so the chain is held at step 1 pending ARJ's
+> decision. Nothing here is broken for anyone working from the checkouts.
+
+
 ## [Unreleased]
 
 ### Changed

@@ -10,6 +10,24 @@ been carrying feature work throughout a pre-1.0 life.
 ## [Unreleased]
 
 ### Fixed
+- **`circstats.rayleigh_p` disagreed with micromotion on about a fifth of cases.** It used Zar's
+  earlier series expansion, `exp(-z)(1 + (2z - z²)/4n)`; `micromotion.circular.rayleigh` uses
+  Wilkie's approximation, which is what CircStat and the later Zar editions report. Both are
+  published approximations of the same test and neither was wrong --- but a p-value that depends on
+  which toolbox computed it is not a p-value. This module now matches micromotion exactly, checked
+  over 3000 random draws.
+
+  **micromotion owns circular statistics across the four toolboxes**, carrying the axial tests, the
+  circular-linear correlation and the V-test; what stays here is the time-series end, `phase_stats`
+  and `relative_phase`, and the primitives those need. `tests/test_circstats_agreement.py` asserts
+  the overlap still agrees whenever micromotion is installed, and skips when it is not, so ambiscape
+  stays installable alone. The division decayed silently once because nothing anywhere said the two
+  were meant to match.
+
+  No published figure moves: on report 18's 504 civic-grid rows the largest change in p is 2.6e-07
+  and no p<0.01 verdict flips. `circ_corr` still returns a float here and a dict there, which is an
+  API break to reconcile and is pinned by the test instead.
+
 - **`analysis.cycle_drift` reported about a third less drift than had happened.** The trend was
   extrapolated between the first and last analysis *window centres*, and the windows are wide and
   overlapping, so their centres span roughly two thirds of the recording. A machine whose period

@@ -27,10 +27,28 @@ def circular_sd(R: float) -> float:
 
 
 def rayleigh_p(R: float, n: int) -> float:
-    """Rayleigh-test p-value (uniformity null), small-p approximation."""
-    z = n * R * R
-    return float(np.clip(np.exp(-z) * (1 + (2 * z - z * z) / (4 * n)),
-                         0.0, 1.0))
+    """Rayleigh-test p-value for the uniformity null.
+
+    Wilkie's (1983) approximation, which is what `micromotion.circular` uses
+    and what CircStat and the later editions of Zar report. This module used
+    Zar's earlier series expansion, ``exp(-z) (1 + (2z - z^2)/4n)``, until
+    2026-08-12; the two are both published approximations of the same test and
+    they disagreed on about a fifth of random cases.
+
+    **micromotion owns circular statistics in this family of toolboxes.** It
+    carries the fuller theory --- axial tests, circular-linear correlation,
+    the V-test --- and what remains here is the time-series end,
+    :func:`phase_stats` and :func:`relative_phase`, plus the primitives those
+    need. The primitives are kept rather than imported so that ambiscape does
+    not take a dependency for six short functions, and
+    ``tests/test_circstats_agreement.py`` asserts they still agree with
+    micromotion whenever it is installed. Agreement that is asserted is
+    agreement that survives; agreement that is merely intended is what
+    produced the disagreement above.
+    """
+    nR = n * R
+    return float(min(1.0, np.exp(
+        np.sqrt(1 + 4 * n + 4 * (n * n - nR * nR)) - (1 + 2 * n))))
 
 
 def circ_corr(a: np.ndarray, b: np.ndarray) -> float:

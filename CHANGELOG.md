@@ -26,6 +26,8 @@ been carrying feature work throughout a pre-1.0 life.
 
 ## [Unreleased]
 
+## [0.39.0] — 2026-08-12
+
 ### Changed
 - **`ambiscape.music` is now a bridge; the analysis moved to musiscape.** It had lived here while
   musiscape --- the music toolbox --- imported six of its symbols across three modules, and no

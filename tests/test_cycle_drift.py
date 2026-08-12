@@ -60,3 +60,27 @@ def test_it_declines_when_there_is_no_cycle_to_track():
     r = analysis.cycle_drift(db, 10.0, min_period_s=600, max_period_s=2 * 3600)
     assert r["period_s"] is None
     assert r["drifting"] is False
+
+
+def test_the_reported_drift_is_the_drift_that_happened():
+    """`drift_pct` must be the change over the *recording*, not between windows.
+
+    The tests above assert a direction and a lower bound, and a lower bound is
+    what let this be wrong: the trend was extrapolated between the first and
+    last window *centres*, which span about two thirds of the series because
+    the windows are wide and overlapping. A machine whose period truly grew by
+    a third was reported as growing by a fifth, and every assertion here still
+    passed.
+
+    Anyone reading `drift_pct` is asking how much this machine's period has
+    changed over the recording, so that is what it has to be, and the check
+    has to be against the true value rather than against zero.
+    """
+    for start, end in ((2400.0, 3400.0), (3400.0, 2400.0), (2700.0, 2700.0)):
+        db, dt = _machine(60, p_start=start, p_end=end)
+        r = analysis.cycle_drift(db, dt, min_period_s=600,
+                                 max_period_s=2 * 3600)
+        true_pct = 100.0 * (end - start) / r["period_s"]
+        assert abs(r["drift_pct"] - true_pct) < 3.0, (
+            f"{start}->{end}: true {true_pct:+.1f} %, "
+            f"reported {r['drift_pct']:+.1f} %")

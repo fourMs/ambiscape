@@ -9,6 +9,18 @@ been carrying feature work throughout a pre-1.0 life.
 
 ## [Unreleased]
 
+### Fixed
+- **`analysis.cycle_drift` reported about a third less drift than had happened.** The trend was
+  extrapolated between the first and last analysis *window centres*, and the windows are wide and
+  overlapping, so their centres span roughly two thirds of the recording. A machine whose period
+  truly grew by 25 % came back as 15 %. `drift_pct` is meant to answer "how much has this machine's
+  period changed over the recording", so it now extrapolates across the full series: the same
+  synthetic cases return +35.2, -34.7 and -0.3 per cent against true values of +34.5, -34.5 and 0.
+
+  The existing tests asserted a direction and `drift_pct > 15.0`, and a lower bound is what let this
+  survive --- every one of them passed on the wrong number. There is now a test against the *true*
+  drift, which is the assertion that was missing.
+
 ## [0.38.0] — 2026-08-11
 
 ### Added

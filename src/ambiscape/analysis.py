@@ -757,6 +757,14 @@ def cycle_drift(level_db, dt: float, min_period_s: float = 600.0,
     Needs a long recording: several windows, each holding several cycles, so
     perhaps twenty periods end to end. For a domestic fridge that is most of
     a day; for a ventilation plant, a week.
+
+    ``drift_pct`` is the change across the whole recording, and is accurate to
+    about a percentage point: on synthetic machines whose period truly moves
+    by +34.5, -34.5 and 0 per cent it returns +35.2, -34.7 and -0.3. Until
+    2026-08-12 it was measured between the first and last window *centres*,
+    which span roughly two thirds of the series, so it under-read by about a
+    third and the tests --- which asserted a direction and a lower bound ---
+    all passed anyway.
     """
     x = _prepare(level_db)
     if x is None:
@@ -788,7 +796,14 @@ def cycle_drift(level_db, dt: float, min_period_s: float = 600.0,
     ps = np.array([p for _, p in found], float)
     med = float(np.median(ps))
     slope = float(np.polyfit(ts, ps, 1)[0])           # seconds of period per second
-    change = slope * (ts[-1] - ts[0])
+    #: Extrapolate across the whole series, not between the first and last
+    #: window *centres*. The windows are wide and overlapping, so their
+    #: centres span only about two thirds of the recording, and measuring the
+    #: change between them under-reports what the period actually did: on a
+    #: synthetic cycle lengthening by a true 25 %, the centre-to-centre figure
+    #: is 15 %. `drift_pct` is meant to answer "how much has this machine's
+    #: period changed over the recording", and that is the full span.
+    change = slope * (len(x) - 1) * dt
     pct = 100.0 * change / med if med > 0 else 0.0
     drifting = abs(pct) >= min_drift_pct
     return {"period_s": round(med, 1),

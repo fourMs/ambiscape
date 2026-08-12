@@ -7,24 +7,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/); the
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) loosely, in that the minor number has
 been carrying feature work throughout a pre-1.0 life.
 
-> **Release order, from 2026-08-12.** Moving music analysis out of ambiscape
-> coupled these three releases, and shipping them out of order breaks things:
->
-> 1. **micromotion** must go first. musiscape now needs `circular_sd` and
->    `rayleigh_from_R`, which exist only in the unreleased tree; PyPI has
->    1.2.1.
-> 2. **musiscape** second. Until it ships, the published 0.4.0 still does
->    `from ambiscape import music`.
-> 3. **ambiscape** last. Releasing it before musiscape breaks the published
->    musiscape 0.4.0, whose feature extraction imports the functions that
->    moved.
->
-> micromotion is deliberately unreleased --- a GitHub release publishes to
-> PyPI and cannot be undone --- so the chain is held at step 1 pending ARJ's
-> decision. Nothing here is broken for anyone working from the checkouts.
+> **Release order.** Music analysis moved out of ambiscape on 2026-08-12,
+> coupling three of these packages. Shipping them out of order breaks things:
+> micromotion first, then musiscape, then ambiscape --- releasing ambiscape
+> before musiscape breaks a published musiscape whose feature extraction
+> imports the functions that moved.
 
 
-## [Unreleased]
+## [0.40.0] — 2026-08-12
 
 ### Changed
 - **`circstats.circ_corr` returns a dict, not a float, and re-exports
@@ -39,6 +29,10 @@ been carrying feature work throughout a pre-1.0 life.
   it reports is still the shift-surrogate one, not the parametric `p` the dict
   now carries. micromotion is imported lazily, as `ambiscape.music` reaches
   musiscape, so ambiscape stays importable without it.
+- **`micromotion` is declared, as the `circular` extra.** `circ_corr` needs it and nothing said so;
+  `pip install ambiscape[circular]`. `entrain.directional_correlation` goes through it and now says
+  so in its own docstring. The three tests that reach it skip where micromotion is absent, so
+  ambiscape's suite still passes installed alone — 451 passed, 7 skipped, against 463 with it.
 - `tests/test_circstats_agreement.py` now checks identity rather than
   agreement for this function: same keys, same values, so a second copy
   cannot quietly reappear.

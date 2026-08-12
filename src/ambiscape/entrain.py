@@ -254,6 +254,12 @@ def directional_correlation(az_deg, sway_deg, mask=None, dt=0.125,
     coupling by |rho| and p). ``mask`` selects the frames that enter the
     statistic (e.g. frames where both streams carry energy); surrogates
     roll the full sway series before masking, preserving its rhythm.
+
+    **Needs micromotion**, since ambiscape 0.40.0: the coefficient comes from
+    :func:`ambiscape.circstats.circ_corr`, which re-exports
+    :mod:`micromotion.circular` rather than keeping a second copy of the same
+    formula. ``pip install ambiscape[circular]``. Everything else in this
+    module runs without it.
     """
     a = np.radians(np.asarray(az_deg, float))
     b = np.radians(2.0 * np.asarray(sway_deg, float))

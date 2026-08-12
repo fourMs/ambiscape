@@ -42,7 +42,8 @@ music = ["librosa>=0.10"]     # MIR tempogram + chromagram (ambiscape music)
 capture = ["sounddevice>=0.4"]  # always-on live capture daemon (ambiscape capture)
 ml = ["panns-inference>=0.1", "silero-vad>=5.0", "torch>=2.0",
       "birdnetlib>=0.17"]  # tags + speech gate + bird species
-dev = ["pytest>=7.0"]
+circular = ["micromotion>=1.8.0"]  # circstats.circ_corr re-exports micromotion, which owns circular statistics
+dev = ["pytest>=7.0", "micromotion>=1.8.0"]
 
 [project.scripts]
 ambiscape = "ambiscape.cli:main"

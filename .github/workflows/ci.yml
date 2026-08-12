@@ -18,6 +18,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
       - name: Install
-        run: pip install -e ".[dev,music]"
+        run: pip install -e ".[dev,music,circular]"
       - name: Test
         run: pytest tests/ -q

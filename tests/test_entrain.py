@@ -1,6 +1,9 @@
 """Sound–motion entrainment on synthetic entrained and independent pairs."""
 import datetime as dt
+import importlib.util
 import json
+
+import pytest
 
 import numpy as np
 
@@ -57,6 +60,13 @@ def _analyzed_session(folder, data):
     return sess, out
 
 
+needs_mm = pytest.mark.skipif(
+    importlib.util.find_spec("micromotion") is None,
+    reason="directional_correlation goes through circ_corr, which "
+           "re-exports micromotion since ambiscape 0.40.0")
+
+
+@needs_mm
 def test_entrained_pair_locks(tmp_path):
     dur = 160.0
     sess, out = _analyzed_session(tmp_path, _entrained_audio(dur))
@@ -85,6 +95,7 @@ def test_entrained_pair_locks(tmp_path):
     assert s["ent_plv_max"] is not None
 
 
+@needs_mm
 def test_independent_pair_is_not_significant(tmp_path):
     dur = 120.0
     sess, out = _analyzed_session(tmp_path,
@@ -134,8 +145,13 @@ def test_load_motion_iso_timestamps(tmp_path):
     assert abs(t[0] - 20 * 3600) < 1e-6           # seconds since midnight
 
 
+@needs_mm
 def test_circ_corr_rotation_invariance():
-    """`["r"]` since 0.40.0, when circ_corr became a re-export of micromotion."""
+    """`["r"]` since 0.40.0, when circ_corr became a re-export of micromotion.
+
+    Skipped where micromotion is absent, so ambiscape's own suite still passes
+    when it is installed alone --- which is the point of the lazy import.
+    """
     rng = np.random.default_rng(5)
     a = rng.uniform(-np.pi, np.pi, 500)
     wob = a + rng.normal(0, 0.2, 500)

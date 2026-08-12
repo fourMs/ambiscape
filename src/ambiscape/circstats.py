@@ -51,20 +51,41 @@ def rayleigh_p(R: float, n: int) -> float:
         np.sqrt(1 + 4 * n + 4 * (n * n - nR * nR)) - (1 + 2 * n))))
 
 
-def circ_corr(a: np.ndarray, b: np.ndarray) -> float:
-    """Jammalamadaka–SenGupta circular–circular correlation coefficient.
+def circ_corr(a: np.ndarray, b: np.ndarray) -> dict:
+    """Jammalamadaka–SenGupta circular–circular correlation, from micromotion.
 
     ``sum sin(a - ā) sin(b - b̄) / sqrt(sum sin²(a - ā) sum sin²(b - b̄))``
     with ā, b̄ the circular means. In [-1, 1]; invariant under rotations of
     either variable, so two angle series may live in different reference
     frames (a mic's azimuth and a body-worn sensor's sway direction).
+
+    **Returns a dict, not a float, since 0.40.0.** This function used to carry
+    its own copy of the arithmetic and return the coefficient alone, while
+    :func:`micromotion.circular.circ_corr` returned ``{"r", "p", "n"}`` from
+    the same formula. The values agreed to 1e-12 and the signatures did not,
+    so a caller who swapped the import got an object where a number was
+    expected — the failure mode that a shared name is supposed to prevent.
+    micromotion owns circular statistics in this family, so this is now a
+    re-export and the dict is the shape.
+
+    Callers wanting the coefficient want ``circ_corr(a, b)["r"]``. The ``p``
+    that comes with it is worth having: the local version offered no
+    significance at all, and a correlation without one invites being read as
+    though it had one.
+
+    micromotion is imported lazily, in the same way :mod:`ambiscape.music`
+    reaches musiscape, so that ambiscape stays importable without it and the
+    failure names its own remedy.
     """
-    a = np.asarray(a, float)
-    b = np.asarray(b, float)
-    sa = np.sin(a - mean_resultant(a)[0])
-    sb = np.sin(b - mean_resultant(b)[0])
-    return float((sa * sb).sum()
-                 / (np.sqrt((sa ** 2).sum() * (sb ** 2).sum()) + EPS))
+    try:
+        from micromotion.circular import circ_corr as _cc
+    except ImportError as e:                                  # pragma: no cover
+        raise ImportError(
+            "ambiscape.circstats.circ_corr re-exports micromotion since "
+            "0.40.0, which owns circular statistics in this family. Install "
+            "it with `pip install micromotion`."
+        ) from e
+    return _cc(a, b)
 
 
 def phase_stats(times: np.ndarray, period: float) -> dict:

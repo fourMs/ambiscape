@@ -26,6 +26,23 @@ been carrying feature work throughout a pre-1.0 life.
 
 ## [Unreleased]
 
+### Changed
+- **`circstats.circ_corr` returns a dict, not a float, and re-exports
+  `micromotion.circular.circ_corr`.** The two toolboxes carried separate
+  copies of the Jammalamadaka–SenGupta formula under the same name with
+  different return types, so a caller who swapped the import got an object
+  where a number belonged. The values had agreed to 1e-12 and a test pinned
+  them, which caught drift in the arithmetic and could never catch the shape.
+  micromotion owns circular statistics in this family, so ambiscape now
+  defers. **Breaking:** callers wanting the coefficient want
+  `circ_corr(a, b)["r"]`. `entrain.circular_correlation` is updated; the `p`
+  it reports is still the shift-surrogate one, not the parametric `p` the dict
+  now carries. micromotion is imported lazily, as `ambiscape.music` reaches
+  musiscape, so ambiscape stays importable without it.
+- `tests/test_circstats_agreement.py` now checks identity rather than
+  agreement for this function: same keys, same values, so a second copy
+  cannot quietly reappear.
+
 ## [0.39.0] — 2026-08-12
 
 ### Changed

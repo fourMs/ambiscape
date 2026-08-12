@@ -135,11 +135,12 @@ def test_load_motion_iso_timestamps(tmp_path):
 
 
 def test_circ_corr_rotation_invariance():
+    """`["r"]` since 0.40.0, when circ_corr became a re-export of micromotion."""
     rng = np.random.default_rng(5)
     a = rng.uniform(-np.pi, np.pi, 500)
     wob = a + rng.normal(0, 0.2, 500)
-    assert circ_corr(a, wob + 1.0) > 0.8          # rotated frame, still locked
-    assert abs(circ_corr(a, rng.uniform(-np.pi, np.pi, 500))) < 0.15
+    assert circ_corr(a, wob + 1.0)["r"] > 0.8     # rotated frame, still locked
+    assert abs(circ_corr(a, rng.uniform(-np.pi, np.pi, 500))["r"]) < 0.15
 
 
 def test_plv_units():

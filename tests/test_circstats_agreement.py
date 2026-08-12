@@ -56,21 +56,25 @@ def test_rayleigh_p_agrees():
             mm.rayleigh(a)["p"], rel=1e-9, abs=1e-300)
 
 
-def test_circular_correlation_agrees():
-    """Same name in both, and different return types --- float against dict.
+def test_circular_correlation_is_the_same_object():
+    """Not agreement any more --- identity. ambiscape 0.40.0 re-exports it.
 
-    The values agree; the signatures do not, and a caller who swaps the import
-    gets an object rather than a number. Left as it is because changing either
-    is an API break, and pinned here so at least the arithmetic cannot drift
-    on top of the shape difference.
+    The two used to carry separate copies of the same formula and return
+    different types, a float against a dict, so a caller who swapped the
+    import got an object where a number belonged. ARJ's call was to make
+    ambiscape defer, since micromotion owns circular statistics here. What is
+    left to check is that it really defers rather than having quietly grown a
+    second copy again.
     """
     rng = np.random.default_rng(2)
     for _ in range(200):
         n = int(rng.integers(20, 300))
         a = _angles(rng, n, rng.uniform(0.5, 4))
         b = _angles(rng, n, rng.uniform(0.5, 4))
-        assert circstats.circ_corr(a, b) == pytest.approx(
-            mm.circ_corr(a, b)["r"], abs=1e-12)
+        got, want = circstats.circ_corr(a, b), mm.circ_corr(a, b)
+        assert got.keys() == want.keys()
+        for k in want:
+            assert got[k] == pytest.approx(want[k], abs=1e-12, nan_ok=True)
 
 
 def test_micromotion_carries_what_ambiscape_does_not():

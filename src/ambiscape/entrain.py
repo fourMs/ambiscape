@@ -262,9 +262,13 @@ def directional_correlation(az_deg, sway_deg, mask=None, dt=0.125,
     mask = mask & np.isfinite(a) & np.isfinite(b)
     if mask.sum() < 16:
         return {"rho": None, "p": None, "n": int(mask.sum())}
-    rho = circ_corr(a[mask], b[mask])
+    # `["r"]` since ambiscape 0.40.0: circ_corr re-exports micromotion and
+    # returns {"r", "p", "n"}. The p it carries is parametric; the one this
+    # function reports comes from the shift surrogates below, which is the
+    # stricter test on serially correlated series and stays the one reported.
+    rho = circ_corr(a[mask], b[mask])["r"]
     p, null95 = _shift_p(
-        rho, lambda k: circ_corr(a[mask], np.roll(b, k)[mask]),
+        rho, lambda k: circ_corr(a[mask], np.roll(b, k)[mask])["r"],
         len(a), n_surrogates, int(min_shift_s / dt),
         np.random.default_rng(seed))
     return {"rho": round(rho, 4), "p": round(p, 4),

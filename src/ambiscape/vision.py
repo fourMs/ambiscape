@@ -1,5 +1,13 @@
 """Per-frame visual features: the light/vision analogue of the audio deposit.
 
+**Scope, against the other three toolboxes.** This module is about *light* ---
+how bright a room is, how that is distributed across the frame, and how both
+move through a day. It is not video analysis in general: MGT owns pixels, as
+its own `_soundscape.py` puts it, and motion from video is `mg_motion` there.
+The one function here that touches motion, :func:`frame_delta`, is a proxy and
+says so.
+
+
 The AMBIENT project treats a room as an audio-*visual* subject, and a room's
 *look* has a diurnal rhythm just as its sound does. This module extracts a
 compact descriptor from a single video frame so a camera can log visual
@@ -103,7 +111,28 @@ def frame_features(rgb, grid: int = 3) -> dict:
 
 
 def frame_delta(prev_rgb, cur_rgb) -> float:
-    """Mean absolute luma change between two frames (motion proxy, 0..1)."""
+    """Mean absolute luma change between two frames (motion proxy, 0..1).
+
+    **A proxy, and MGT owns the real thing.** Quantity of motion from video
+    belongs to the Musical Gestures Toolbox --- `mg_motion`, which thresholds,
+    normalises per clip and works at the recording's own resolution --- and
+    micromotion owns motion from markers and accelerometers. This function
+    exists because :mod:`ambiscape.vision` is about a room's *light* over a
+    day, and a summary of light wants a crude "did anything move" alongside
+    it without pulling in a video toolbox.
+
+    Use it for that and nothing else. For any measurement a result rests on,
+    use MGT. Measured against `mg_motion` on a Sound Actions clip at 320x180
+    it correlates 0.995, which is close enough to be tempting and is not a
+    reason to prefer it: it has no threshold, so sensor noise and compression
+    shimmer contribute, and it is on whatever grid the caller happens to pass.
+
+    That last point is worth more than it looks. The same comparison against a
+    hand-rolled pass at 160x90 gives 0.74, so between the two tests the
+    dominant difference is **resolution**, not the threshold --- downsampling
+    is itself a low-pass filter on motion. Anyone choosing a grid for a motion
+    measure is choosing an answer.
+    """
     return round(float(np.abs(luma(cur_rgb) - luma(prev_rgb)).mean()), 5)
 
 

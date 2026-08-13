@@ -10,6 +10,12 @@ DOA, diffuseness) — no audio pass:
 - ``azimuth_organization`` — windowed, energy-weighted circular
   concentration R(t): how directionally organised the scene is over time.
 
+Every azimuth here is in the recorder's own frame, and
+``frame_reference_test`` is the check that says whether that matters: a
+recorder that travels with its subject reports its own geometry in every
+room it visits, and no amount of correct decoding turns that into a
+property of the places.
+
 ``run_session`` writes ``spatial.json`` + ``spatial.png``.
 """
 from __future__ import annotations
@@ -78,6 +84,13 @@ def azimuth_organization(F: dict, win_s=60.0, step_s=20.0):
 
     Returns (t_centers, R): R near 1 = one dominant direction, near 0 =
     directionally disorganised. Window in seconds (per-second features).
+
+    R is computed in the recorder's frame, which is the only frame the audio
+    knows about. On a fixed recorder that is also the room's frame and R
+    describes the scene; on a recorder that moves with a person or a vehicle
+    it describes the rig, and a high R then says the recorder holds its
+    pose, not that the place has a direction. :func:`frame_reference_test`
+    separates the two where a heading series exists.
     """
     p = F["rms_w"].astype(np.float64) ** 2
     az = np.radians(F["az"])
@@ -90,6 +103,92 @@ def azimuth_organization(F: dict, win_s=60.0, step_s=20.0):
         ts.append(float(F["t"][i0] + w / 2 - F["t"][0]))
         Rs.append(R)
     return np.array(ts), np.array(Rs)
+
+
+def frame_reference_test(bearing_deg, heading_deg, weights=None,
+                         control_deg=None) -> dict:
+    """Is a bearing series fixed to the recorder, or to the world?
+
+    ``bearing_deg`` is a direction of arrival as the recorder reports it,
+    one value per session or per window; ``heading_deg`` is where the
+    recorder's nose pointed in world coordinates at the same moments, from
+    a compass, a magnetometer, or a written-down orientation. The world
+    bearing is ``bearing + heading``, and the test is simply the circular
+    concentration R of each series:
+
+    - concentrated in the recorder's frame and dispersed in the world's —
+      the quantity is a property of the rig, and every place it visited
+      returns the same answer;
+    - concentrated in the world's frame — a real direction out there, a
+      motorway or a prevailing wind, and the recorder happened to move;
+    - concentrated in neither — no stable bearing at either scale.
+
+    Returns ``R_rig``, ``R_world``, their ratio, ``R_chance``, ``n`` and a
+    ``frame`` label of ``"rig"``, ``"world"`` or ``"neither"``. ``R_chance``
+    is ``1 / sqrt(n)``, the root-mean-square resultant of ``n`` uniformly
+    random angles, which is what an R has to beat before it means anything
+    at all; with weights, ``n`` is the effective count
+    ``(sum w)^2 / sum w^2``.
+
+    **Pass a positive control.** ``control_deg`` is a second bearing series,
+    in the same rig frame, that is known or expected to behave differently —
+    the direction of the operator's own sway, a source that was carried
+    along, a bearing to something fixed. Its two R values come back under
+    ``control``. Without one, a test that answers "rig" cannot be told from
+    a method that always answers "rig", and the difference is the whole
+    result.
+
+    WHY THIS EXISTS. A first-order recorder worn on a body was carried
+    through 300 recording days and seven kinds of place — corridors, living
+    rooms, an auditorium, a train — and its loudest bearing sat at R = 0.813
+    in the rig's frame against 0.268 in compass coordinates, chance being
+    0.058. The location groups' mean bearings spanned 18 degrees between
+    them: a corridor, a lecture hall and a moving train were returning the
+    same direction, because the direction was the recorder's. The positive
+    control, the wearer's own sway axis, gave 0.490 against 0.194 and so
+    ruled out a method that answers "rig" whatever it is fed.
+
+    Re-decoding the same audio with the correct channel convention softened
+    the numbers to 0.393 against 0.144 and widened the group spread to 45
+    degrees, in a physically sensible order — so a wrong decode makes this
+    worse but is not the cause of it, and a correct decode does not clear
+    the rig from the measurement. Ask the frame question before interpreting
+    any bearing; no decode answers it.
+
+    >>> rng = np.random.default_rng(0)
+    >>> heading = rng.uniform(-180, 180, 500)
+    >>> frame_reference_test(np.zeros(500), heading)["frame"]
+    'rig'
+    """
+    b = np.radians(np.asarray(bearing_deg, float))
+    h = np.radians(np.asarray(heading_deg, float))
+    if b.shape != h.shape:
+        raise ValueError(f"bearing and heading differ in shape: "
+                         f"{b.shape} vs {h.shape}")
+    w = np.ones_like(b) if weights is None else np.asarray(weights, float)
+    ok = np.isfinite(b) & np.isfinite(h) & np.isfinite(w)
+    b, h, w = b[ok], h[ok], w[ok]
+    if b.size < 2:
+        raise ValueError("need at least two finite bearing/heading pairs")
+    n_eff = float(w.sum() ** 2 / ((w ** 2).sum() + EPS))
+    r_chance = float(1.0 / np.sqrt(n_eff))
+    _mu_r, r_rig = mean_resultant(b, weights=w)
+    _mu_w, r_world = mean_resultant(b + h, weights=w)
+    if max(r_rig, r_world) <= r_chance:
+        frame = "neither"
+    else:
+        frame = "rig" if r_rig >= r_world else "world"
+    out = {"R_rig": round(r_rig, 4), "R_world": round(r_world, 4),
+           "ratio": round(float(r_rig / (r_world + EPS)), 2),
+           "R_chance": round(r_chance, 4), "n": int(b.size),
+           "n_effective": round(n_eff, 1), "frame": frame}
+    if control_deg is not None:
+        c = np.radians(np.asarray(control_deg, float))[ok]
+        _mu_c, cr = mean_resultant(c, weights=w)
+        _mu_cw, cw = mean_resultant(c + h, weights=w)
+        out["control"] = {"R_rig": round(cr, 4), "R_world": round(cw, 4),
+                          "ratio": round(float(cr / (cw + EPS)), 2)}
+    return out
 
 
 def _az_span(F: dict) -> tuple[float, float]:
@@ -119,6 +218,11 @@ def directional_entropy(F: dict, nbins: int = 36) -> float:
     one bearing, 1 = energy spread evenly around the horizon — the spatial
     analogue of an acoustic diversity index, and something only an
     ambisonic corpus can report.
+
+    "This place" is the claim to be careful with: the histogram is built in
+    the recorder's frame, so on a rig that moves with its subject the answer
+    describes the rig's habitual pose and is the same in every room.
+    :func:`frame_reference_test` is the check.
     """
     p = np.asarray(F["rms_w"], np.float64) ** 2
     h, _ = np.histogram(F["az"], bins=nbins, range=_az_span(F), weights=p)

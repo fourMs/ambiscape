@@ -838,6 +838,15 @@ def cycle_profile(level_db, dt: float, min_period_s: float = 60.0,
 
 
 ONSET_RISE = 0.25     # fraction of a series' own floor-to-peak range
+#: Validated per modality on the Sound Actions corpus, 2026-08-12. Motion
+#: matches onsets marked by eye from video frames at 0.10--0.25 (median error
+#: 0.06 s), and is late by 0.46--0.66 s at 0.50--0.75. Audio needs the high
+#: value: at 0.25 it fires on the action's handling noises a median 1.78 s
+#: early, and at 0.75 it lands within 0.01 s of hand-checked acoustic onsets.
+#: The asymmetry is structural --- audio carries a noise floor a low fraction
+#: triggers on, motion has a still lead-in a high fraction sits through.
+MOTION_RISE = 0.25
+AUDIO_RISE = 0.75
 
 
 def series_onset(series, rise: float = ONSET_RISE):
@@ -947,7 +956,9 @@ def series_span(series, rise: float = ONSET_RISE):
     return (int(idx[0]), int(idx[-1])) if len(idx) else (None, None)
 
 
-def onset_lead(first, second, dt: float, rise: float = ONSET_RISE) -> dict:
+def onset_lead(first, second, dt: float, rise: float | None = None,
+               first_rise: float = MOTION_RISE,
+               second_rise: float = AUDIO_RISE) -> dict:
     """How far one series begins before another — an action before its sound.
 
     A sound-producing action starts well before the sound it produces: an
@@ -963,10 +974,21 @@ def onset_lead(first, second, dt: float, rise: float = ONSET_RISE) -> dict:
     than treating as error — an object already moving when it is struck, or an
     action that happens out of frame, genuinely has no visible lead.
 
-    Both series are given the same onset rule, applied to each one's own
-    range, so the result does not depend on either modality's units. Returns
-    ``lead_s`` (positive when `first` begins earlier), the two onset times,
-    and which one led.
+    **Each series gets the fraction validated for its own modality**, since
+    2026-08-12: `first_rise` defaults to :data:`MOTION_RISE` and `second_rise`
+    to :data:`AUDIO_RISE`. Giving both the same fraction, which this function
+    used to do, keeps the units out of the comparison but guarantees the
+    fraction is wrong for one of the two --- audio fires early on its noise
+    floor at a low fraction, motion fires late at a high one. Pass the legacy
+    ``rise=`` to force one fraction on both and reproduce older figures.
+
+    The consequence has to be stated wherever the result is: a lead measured
+    this way is a difference between two *differently-defined* onsets. That is
+    the honest version of a comparison across modalities, not a flaw in it ---
+    the alternative is a single definition that is right for neither.
+
+    Returns ``lead_s`` (positive when `first` begins earlier), the two onset
+    times, the fraction used for each, and which one led.
 
     This is the seam between the toolboxes rather than a video function: pass
     a motion series computed wherever motion is computed. It is what makes
@@ -980,7 +1002,10 @@ def onset_lead(first, second, dt: float, rise: float = ONSET_RISE) -> dict:
     than on the sound the clip is of. Raise ``rise`` before reading them as
     times — see :func:`series_onset`.
     """
-    i, j = series_onset(first, rise), series_onset(second, rise)
+    if rise is not None:
+        first_rise = second_rise = rise
+    i = series_onset(first, first_rise)
+    j = series_onset(second, second_rise)
     if i is None or j is None:
         return {"lead_s": None, "first_onset_s": None, "second_onset_s": None,
                 "leads": "", "reason": "one series has no onset to find"}
@@ -988,6 +1013,8 @@ def onset_lead(first, second, dt: float, rise: float = ONSET_RISE) -> dict:
     return {"lead_s": round(float(lead), 4),
             "first_onset_s": round(i * dt, 4),
             "second_onset_s": round(j * dt, 4),
+            "first_rise": first_rise,
+            "second_rise": second_rise,
             "leads": "first" if lead > 0 else ("second" if lead < 0 else "neither"),
             "reason": ""}
 

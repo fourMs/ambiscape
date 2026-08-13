@@ -9,9 +9,20 @@ Measured on 180 clips of the Sound Actions corpus, motion leads sound by a
 median of 0.72 s and does so in 84 % of them. That is the quantity this
 function returns.
 
-The one thing it must not do is compare two differently-defined onsets: the
-lead would then partly measure the definitions. Both series get the same rule,
-applied to their own floor-to-peak range, so neither modality's units enter.
+Neither modality's units may enter the comparison: the rule is applied to each
+series' own floor-to-peak range, so scaling either one cannot move the lead.
+
+**What changed on 2026-08-12.** This file used to assert that both series get
+the *same* crossing fraction, on the reasoning that different fractions would
+make the lead partly measure the definitions. Checking the fractions against
+onsets marked by eye showed the cost of that symmetry: audio fires on its own
+noise floor at a low fraction, a median 1.78 s early, while motion fires late
+at a high one, 0.46--0.66 s on every clip checked. One fraction is therefore
+wrong for one of the two modalities whichever is chosen. The defaults are now
+per modality, and the lead is openly a difference between two
+differently-defined onsets --- which is the honest version of the comparison
+rather than a flaw in it. Passing ``rise=`` still forces one fraction on both
+and reproduces the older figures.
 """
 import numpy as np
 import pytest
@@ -29,12 +40,32 @@ def _ramp(n, start, rise=10, level=1.0, floor=0.01, seed=0):
 
 
 def test_it_finds_a_known_lead():
-    """Motion at frame 20, sound at frame 40, 25 fps: 0.8 s of lead."""
+    """Motion at frame 20, sound at frame 40, 25 fps: 0.8 s of lead.
+
+    Forced to one fraction, because on identical synthetic ramps the
+    per-modality defaults deliberately move the two onsets by different
+    amounts; the geometric truth is what a single fraction recovers.
+    """
     motion = _ramp(200, 20)
     audio = _ramp(200, 40, seed=1)
-    r = analysis.onset_lead(motion, audio, dt=1 / 25)
+    r = analysis.onset_lead(motion, audio, dt=1 / 25, rise=0.25)
     assert abs(r["lead_s"] - 0.8) < 0.1
     assert r["leads"] == "first"
+
+
+def test_the_defaults_are_per_modality():
+    """The change of 2026-08-12, asserted rather than assumed."""
+    r = analysis.onset_lead(_ramp(200, 20), _ramp(200, 40, seed=1), dt=1 / 25)
+    assert r["first_rise"] == analysis.MOTION_RISE
+    assert r["second_rise"] == analysis.AUDIO_RISE
+    assert r["first_rise"] < r["second_rise"]
+
+
+def test_forcing_one_fraction_reproduces_the_old_behaviour():
+    """Older figures must remain reproducible from the same function."""
+    m, a = _ramp(200, 20), _ramp(200, 40, seed=1)
+    forced = analysis.onset_lead(m, a, dt=1 / 25, rise=0.25)
+    assert forced["first_rise"] == forced["second_rise"] == 0.25
 
 
 def test_it_reports_the_other_direction_too():
@@ -98,15 +129,17 @@ def test_the_default_rise_fires_on_the_action_not_the_sound():
     assert abs(strict - event_s) < 0.15       # rise 0.75 finds the event
 
 
-def test_the_absolute_onsets_onset_lead_returns_are_early():
-    """`lead_s` is the validated output; the two onset times are not.
+def test_the_audio_onset_is_now_accurate_by_default():
+    """The bias this file used to document is what the defaults now remove.
 
-    They are returned for inspection and carry the bias, which is the whole
-    reason the docstring tells you not to read them as times.
+    At the old symmetric 0.25 the audio onset landed well over a second early,
+    firing on the action's handling noises rather than on the sound the clip is
+    of. `AUDIO_RISE` is the fraction that was measured against hand-checked
+    acoustic onsets, so by default the returned time is usable.
     """
     x, dt, event_s = _action_then_sound(seed=1)
     motion = np.concatenate([x[40:], np.full(40, x[-1])])
     r = analysis.onset_lead(motion, x, dt)
-    assert r["second_onset_s"] < event_s - 1.5
-    strict = analysis.onset_lead(motion, x, dt, rise=0.75)
-    assert abs(strict["second_onset_s"] - event_s) < 0.15
+    assert abs(r["second_onset_s"] - event_s) < 0.15
+    legacy = analysis.onset_lead(motion, x, dt, rise=0.25)
+    assert legacy["second_onset_s"] < event_s - 1.5

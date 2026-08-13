@@ -21,6 +21,18 @@ agreement where they meet is visible rather than assumed.
 ``profile`` returns, per scale, a log-frequency modulation spectrum with the
 dominant modulation frequency, its prominence, and the band modulation depth
 (all three statistics taken within the nominal band, not the overlap).
+
+**The macro scale needs a record longer than the period you are asking
+about, and says nothing when it does not have one.** Each scale's band starts
+at four cycles over the record, so a session of one day cannot resolve the
+day: its macro band begins at a period of 21600 s and the diurnal peak is
+simply outside it. Nothing errors and no warning is issued --- the returned
+peak is just the strongest thing in a band that excludes what you were looking
+for. To measure a daily or weekly rhythm, concatenate the sessions onto one
+absolute clock first and call ``modulation_spectrum`` on that; the Sound Spaces
+series does this in ``notes/scripts/sins_macro_modulation.py``, which also
+shows the two controls such a stitched record needs (the spectrum of the
+coverage mask alone, and a permutation null).
 ``modulation_spectrogram`` computes the windowed version — the "rhythm
 spectrogram of the day" — and ``render`` writes the combined figure.
 """

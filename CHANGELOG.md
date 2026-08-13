@@ -14,6 +14,30 @@ been carrying feature work throughout a pre-1.0 life.
 > imports the functions that moved.
 
 
+## [Unreleased]
+
+### Documentation
+- **`floor_suspicion`'s justification was written from one room and stated as a
+  property of a corpus.** Re-measured across all 84 SINS node-sessions: median
+  spread per octave band runs 5.17, 4.54, 2.76, 2.96, 1.85, 1.54, 0.51, 0.34,
+  0.29 dB from 32 Hz to 8 kHz. The old claim that "every band below 1 kHz
+  varies by 2.4--5.3 dB" is true of that room and false of the corpus, where
+  500 Hz and 1 kHz sit at 1.85 and 1.54. The separation the check actually
+  relies on --- above `hf_min_hz`, 0.29--0.51 dB against a 1.5 dB threshold ---
+  is intact, so no default changed and no behaviour changed. The docstring now
+  carries the corpus figures and notes that the check is conservative at 2 kHz,
+  whose 95th percentile of 1.67 dB escapes flagging in a minority of sessions.
+- **`floor_suspicion` cannot be cited as evidence about SINS**, because its
+  threshold was chosen from SINS. Recorded in the docstring and in the wiki's
+  Design Decisions, because the flag reads like independent confirmation and is
+  not.
+- **`modulation.profile` cannot resolve a period longer than a quarter of the
+  record, and does not say so.** Each scale's band starts at four cycles, so a
+  one-day session's macro band begins at 21600 s and a diurnal peak falls
+  outside it; the function returns the strongest thing in the remaining band
+  without warning. The module docstring now says this and points at the
+  stitch-the-week-first approach, with the two controls such a record needs.
+
 ## [0.40.0] — 2026-08-12
 
 ### Changed

@@ -1085,12 +1085,31 @@ def floor_suspicion(F: dict, chunk_s: float = 300.0, pct: float = 10.0,
     A genuine room background breathes: its low-percentile level moves with
     the day, the weather and the building. A microphone's self-noise floor
     does not — it is abnormally flat over time (and typically spectrally
-    smooth). In the SINS sensor-network corpus the 4–8 kHz floor of a
-    living room is flat to 0.8 dB across a full week (0.56 dB between six
-    separate nights), while every band below 1 kHz varies by 2.4–5.3 dB
-    over the same nights: the top of the spectrum is the instrument, and
-    any L90-derived descriptor weighted towards it (LA90 in particular)
-    measures the recorder rather than the room.
+    smooth). The consequence is that any L90-derived descriptor weighted
+    towards the top of the spectrum (LA90 in particular) can be measuring
+    the recorder rather than the room.
+
+    The figures this default was originally justified by came from a single
+    living room. Re-measured across all 84 node-sessions of the SINS corpus
+    (2026-08-13), the median spread of this statistic per octave band is:
+
+        32 Hz 5.17 | 63 4.54 | 125 2.76 | 250 2.96 | 500 1.85
+        1 kHz 1.54 | 2 kHz 0.51 | 4 kHz 0.34 | 8 kHz 0.29
+
+    which supports the check but not the margin the docstring used to claim.
+    "Every band below 1 kHz varies by 2.4–5.3 dB" was true of that one room
+    and is not true of the corpus: 500 Hz and 1 kHz sit at 1.85 and 1.54.
+    What the corpus does support is the separation above ``hf_min_hz``,
+    where the flaggable bands sit at 0.29–0.51 against a 1.5 dB threshold.
+    The check is correspondingly conservative at 2 kHz, whose 95th
+    percentile reaches 1.67 and so escapes flagging in a minority of
+    sessions.
+
+    A caution for anyone using this on SINS itself: the threshold was chosen
+    from that corpus, so a flag here is not independent evidence about it.
+    Report 20 of the Sound Spaces series establishes the same conclusion from
+    measurements that do not pass through this function, and cites those
+    rather than this flag, for exactly that reason.
 
     The check works on the cached 1 s octave-band powers: the session is
     cut into ``chunk_s`` chunks, each chunk's ``pct``-percentile band level

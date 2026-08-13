@@ -13623,15 +13623,18 @@ small noises — an object picked up, a step, a hand on a surface — well
 before the sound the clip is <em>of</em>. Measured on the Sound Actions clips,
 where the lead-in sits a median 40 dB below the event peak but 5.5 dB
 above the clip floor and carries such transients, the default returns a
-median 1.78 s early against hand-checked onsets and agrees within a
-quarter second on 17 % of them; <code>rise=0.75</code> lands +0.01 s and agrees on
-77 %.</p>
+median 1.78 s early <em>against another algorithmic onset</em> --- this same
+function at 0.25 on a linear energy series --- and agrees within a quarter
+second on 17 % of those; <code>rise=0.75</code> lands +0.01 s and agrees on 77 %.
+That comparison is between two algorithms and not against a person, and
+the two passes used different representations (dB against linear energy),
+on which the same fraction lands tens of frames apart. Read it as a
+consistency check between two conventions, not as accuracy.</p>
 <p>So the choice is not noise versus signal but <em>which</em> sound is the onset.
 The default finds the first thing audible above the floor; a higher rise
 finds the event the clip was cut for.</p>
-<p><strong>The two modalities want opposite fractions, and that is newer evidence
-than the paragraph above.</strong> The 0.75 figure was measured on <em>audio</em>. On the
-motion series of the same corpus it is wrong in the other direction:
+<p><strong>The two modalities appear to want opposite fractions, and only one half
+of that is established.</strong> The motion side is: on the same corpus,
 marked by eye from video frames, blind to every computed value, 0.10 and
 0.25 land within a median 0.06 s of what a viewer calls the beginning,
 while 0.50 and 0.75 are late on every clip checked, by a median 0.46 s and
@@ -13664,25 +13667,7 @@ find.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">843</span>
-<span class="normal">844</span>
-<span class="normal">845</span>
-<span class="normal">846</span>
-<span class="normal">847</span>
-<span class="normal">848</span>
-<span class="normal">849</span>
-<span class="normal">850</span>
-<span class="normal">851</span>
-<span class="normal">852</span>
-<span class="normal">853</span>
-<span class="normal">854</span>
-<span class="normal">855</span>
-<span class="normal">856</span>
-<span class="normal">857</span>
-<span class="normal">858</span>
-<span class="normal">859</span>
-<span class="normal">860</span>
-<span class="normal">861</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">861</span>
 <span class="normal">862</span>
 <span class="normal">863</span>
 <span class="normal">864</span>
@@ -13728,7 +13713,28 @@ find.</p>
 <span class="normal">904</span>
 <span class="normal">905</span>
 <span class="normal">906</span>
-<span class="normal">907</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">series_onset</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">rise</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">ONSET_RISE</span><span class="p">):</span>
+<span class="normal">907</span>
+<span class="normal">908</span>
+<span class="normal">909</span>
+<span class="normal">910</span>
+<span class="normal">911</span>
+<span class="normal">912</span>
+<span class="normal">913</span>
+<span class="normal">914</span>
+<span class="normal">915</span>
+<span class="normal">916</span>
+<span class="normal">917</span>
+<span class="normal">918</span>
+<span class="normal">919</span>
+<span class="normal">920</span>
+<span class="normal">921</span>
+<span class="normal">922</span>
+<span class="normal">923</span>
+<span class="normal">924</span>
+<span class="normal">925</span>
+<span class="normal">926</span>
+<span class="normal">927</span>
+<span class="normal">928</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">series_onset</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">rise</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">ONSET_RISE</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;First index where a series passes `rise` of its own floor-to-peak range.</span>
 
 <span class="sd">    Deliberately scale-free. It is used to compare series in different units —</span>
@@ -13742,17 +13748,20 @@ find.</p>
 <span class="sd">    before the sound the clip is *of*. Measured on the Sound Actions clips,</span>
 <span class="sd">    where the lead-in sits a median 40 dB below the event peak but 5.5 dB</span>
 <span class="sd">    above the clip floor and carries such transients, the default returns a</span>
-<span class="sd">    median 1.78 s early against hand-checked onsets and agrees within a</span>
-<span class="sd">    quarter second on 17 % of them; ``rise=0.75`` lands +0.01 s and agrees on</span>
-<span class="sd">    77 %.</span>
+<span class="sd">    median 1.78 s early *against another algorithmic onset* --- this same</span>
+<span class="sd">    function at 0.25 on a linear energy series --- and agrees within a quarter</span>
+<span class="sd">    second on 17 % of those; ``rise=0.75`` lands +0.01 s and agrees on 77 %.</span>
+<span class="sd">    That comparison is between two algorithms and not against a person, and</span>
+<span class="sd">    the two passes used different representations (dB against linear energy),</span>
+<span class="sd">    on which the same fraction lands tens of frames apart. Read it as a</span>
+<span class="sd">    consistency check between two conventions, not as accuracy.</span>
 
 <span class="sd">    So the choice is not noise versus signal but *which* sound is the onset.</span>
 <span class="sd">    The default finds the first thing audible above the floor; a higher rise</span>
 <span class="sd">    finds the event the clip was cut for.</span>
 
-<span class="sd">    **The two modalities want opposite fractions, and that is newer evidence</span>
-<span class="sd">    than the paragraph above.** The 0.75 figure was measured on *audio*. On the</span>
-<span class="sd">    motion series of the same corpus it is wrong in the other direction:</span>
+<span class="sd">    **The two modalities appear to want opposite fractions, and only one half</span>
+<span class="sd">    of that is established.** The motion side is: on the same corpus,</span>
 <span class="sd">    marked by eye from video frames, blind to every computed value, 0.10 and</span>
 <span class="sd">    0.25 land within a median 0.06 s of what a viewer calls the beginning,</span>
 <span class="sd">    while 0.50 and 0.75 are late on every clip checked, by a median 0.46 s and</span>
@@ -13836,28 +13845,7 @@ or flat for the range to be defined.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">910</span>
-<span class="normal">911</span>
-<span class="normal">912</span>
-<span class="normal">913</span>
-<span class="normal">914</span>
-<span class="normal">915</span>
-<span class="normal">916</span>
-<span class="normal">917</span>
-<span class="normal">918</span>
-<span class="normal">919</span>
-<span class="normal">920</span>
-<span class="normal">921</span>
-<span class="normal">922</span>
-<span class="normal">923</span>
-<span class="normal">924</span>
-<span class="normal">925</span>
-<span class="normal">926</span>
-<span class="normal">927</span>
-<span class="normal">928</span>
-<span class="normal">929</span>
-<span class="normal">930</span>
-<span class="normal">931</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">931</span>
 <span class="normal">932</span>
 <span class="normal">933</span>
 <span class="normal">934</span>
@@ -13873,7 +13861,28 @@ or flat for the range to be defined.</p>
 <span class="normal">944</span>
 <span class="normal">945</span>
 <span class="normal">946</span>
-<span class="normal">947</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">series_span</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">rise</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">ONSET_RISE</span><span class="p">):</span>
+<span class="normal">947</span>
+<span class="normal">948</span>
+<span class="normal">949</span>
+<span class="normal">950</span>
+<span class="normal">951</span>
+<span class="normal">952</span>
+<span class="normal">953</span>
+<span class="normal">954</span>
+<span class="normal">955</span>
+<span class="normal">956</span>
+<span class="normal">957</span>
+<span class="normal">958</span>
+<span class="normal">959</span>
+<span class="normal">960</span>
+<span class="normal">961</span>
+<span class="normal">962</span>
+<span class="normal">963</span>
+<span class="normal">964</span>
+<span class="normal">965</span>
+<span class="normal">966</span>
+<span class="normal">967</span>
+<span class="normal">968</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">series_span</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">rise</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">ONSET_RISE</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;First and last index above ``rise`` of a series&#39; floor-to-peak range.</span>
 
 <span class="sd">    :func:`series_onset` answers where something begins. This answers where it</span>
@@ -13921,7 +13930,7 @@ or flat for the range to be defined.</p>
 
 
 <h2 id="ambiscape.analysis.onset_lead" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">onset_lead</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">rise</span><span class="o">=</span><span class="n">ONSET_RISE</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">onset_lead</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">rise</span><span class="o">=</span><span class="n">ONSET_RISE</span><span class="p">,</span> <span class="n">first_rise</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">second_rise</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h2>
 
@@ -13942,10 +13951,21 @@ in **84 %** of clips. The remaining sixth is worth keeping in view rather
 than treating as error — an object already moving when it is struck, or an
 action that happens out of frame, genuinely has no visible lead.
 
-Both series are given the same onset rule, applied to each one&#39;s own
-range, so the result does not depend on either modality&#39;s units. Returns
-``lead_s`` (positive when `first` begins earlier), the two onset times,
-and which one led.
+**One fraction is applied to both series by default**, which keeps the
+units out of the comparison at the cost of a fraction that cannot suit
+both: audio fires early on its own noise floor at a low value, motion
+fires late at a high one. Pass ``first_rise`` and ``second_rise`` to give
+each modality its own.
+
+That option exists and is deliberately not the default, because only the
+motion fraction has been checked against a person. :data:`AUDIO_RISE` sets
+out why the usual justification for 0.75 does not survive inspection. A
+lead measured with two fractions is a difference between two
+*differently-defined* onsets, which is defensible once both are validated
+and misleading before.
+
+Returns ``lead_s`` (positive when `first` begins earlier), the two onset
+times, the fraction used for each, and which one led.
 
 This is the seam between the toolboxes rather than a video function: pass
 a motion series computed wherever motion is computed. It is what makes
@@ -13962,49 +13982,74 @@ property of the *action*, and neither modality carries it alone.
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">950</span>
-<span class="normal">951</span>
-<span class="normal">952</span>
-<span class="normal">953</span>
-<span class="normal">954</span>
-<span class="normal">955</span>
-<span class="normal">956</span>
-<span class="normal">957</span>
-<span class="normal">958</span>
-<span class="normal">959</span>
-<span class="normal">960</span>
-<span class="normal">961</span>
-<span class="normal">962</span>
-<span class="normal">963</span>
-<span class="normal">964</span>
-<span class="normal">965</span>
-<span class="normal">966</span>
-<span class="normal">967</span>
-<span class="normal">968</span>
-<span class="normal">969</span>
-<span class="normal">970</span>
-<span class="normal">971</span>
-<span class="normal">972</span>
-<span class="normal">973</span>
-<span class="normal">974</span>
-<span class="normal">975</span>
-<span class="normal">976</span>
-<span class="normal">977</span>
-<span class="normal">978</span>
-<span class="normal">979</span>
-<span class="normal">980</span>
-<span class="normal">981</span>
-<span class="normal">982</span>
-<span class="normal">983</span>
-<span class="normal">984</span>
-<span class="normal">985</span>
-<span class="normal">986</span>
-<span class="normal">987</span>
-<span class="normal">988</span>
-<span class="normal">989</span>
-<span class="normal">990</span>
-<span class="normal">991</span>
-<span class="normal">992</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">onset_lead</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rise</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">ONSET_RISE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 971</span>
+<span class="normal"> 972</span>
+<span class="normal"> 973</span>
+<span class="normal"> 974</span>
+<span class="normal"> 975</span>
+<span class="normal"> 976</span>
+<span class="normal"> 977</span>
+<span class="normal"> 978</span>
+<span class="normal"> 979</span>
+<span class="normal"> 980</span>
+<span class="normal"> 981</span>
+<span class="normal"> 982</span>
+<span class="normal"> 983</span>
+<span class="normal"> 984</span>
+<span class="normal"> 985</span>
+<span class="normal"> 986</span>
+<span class="normal"> 987</span>
+<span class="normal"> 988</span>
+<span class="normal"> 989</span>
+<span class="normal"> 990</span>
+<span class="normal"> 991</span>
+<span class="normal"> 992</span>
+<span class="normal"> 993</span>
+<span class="normal"> 994</span>
+<span class="normal"> 995</span>
+<span class="normal"> 996</span>
+<span class="normal"> 997</span>
+<span class="normal"> 998</span>
+<span class="normal"> 999</span>
+<span class="normal">1000</span>
+<span class="normal">1001</span>
+<span class="normal">1002</span>
+<span class="normal">1003</span>
+<span class="normal">1004</span>
+<span class="normal">1005</span>
+<span class="normal">1006</span>
+<span class="normal">1007</span>
+<span class="normal">1008</span>
+<span class="normal">1009</span>
+<span class="normal">1010</span>
+<span class="normal">1011</span>
+<span class="normal">1012</span>
+<span class="normal">1013</span>
+<span class="normal">1014</span>
+<span class="normal">1015</span>
+<span class="normal">1016</span>
+<span class="normal">1017</span>
+<span class="normal">1018</span>
+<span class="normal">1019</span>
+<span class="normal">1020</span>
+<span class="normal">1021</span>
+<span class="normal">1022</span>
+<span class="normal">1023</span>
+<span class="normal">1024</span>
+<span class="normal">1025</span>
+<span class="normal">1026</span>
+<span class="normal">1027</span>
+<span class="normal">1028</span>
+<span class="normal">1029</span>
+<span class="normal">1030</span>
+<span class="normal">1031</span>
+<span class="normal">1032</span>
+<span class="normal">1033</span>
+<span class="normal">1034</span>
+<span class="normal">1035</span>
+<span class="normal">1036</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">onset_lead</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rise</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">ONSET_RISE</span><span class="p">,</span>
+               <span class="n">first_rise</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+               <span class="n">second_rise</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;How far one series begins before another — an action before its sound.</span>
 
 <span class="sd">    A sound-producing action starts well before the sound it produces: an</span>
@@ -14020,10 +14065,21 @@ property of the *action*, and neither modality carries it alone.
 <span class="sd">    than treating as error — an object already moving when it is struck, or an</span>
 <span class="sd">    action that happens out of frame, genuinely has no visible lead.</span>
 
-<span class="sd">    Both series are given the same onset rule, applied to each one&#39;s own</span>
-<span class="sd">    range, so the result does not depend on either modality&#39;s units. Returns</span>
-<span class="sd">    ``lead_s`` (positive when `first` begins earlier), the two onset times,</span>
-<span class="sd">    and which one led.</span>
+<span class="sd">    **One fraction is applied to both series by default**, which keeps the</span>
+<span class="sd">    units out of the comparison at the cost of a fraction that cannot suit</span>
+<span class="sd">    both: audio fires early on its own noise floor at a low value, motion</span>
+<span class="sd">    fires late at a high one. Pass ``first_rise`` and ``second_rise`` to give</span>
+<span class="sd">    each modality its own.</span>
+
+<span class="sd">    That option exists and is deliberately not the default, because only the</span>
+<span class="sd">    motion fraction has been checked against a person. :data:`AUDIO_RISE` sets</span>
+<span class="sd">    out why the usual justification for 0.75 does not survive inspection. A</span>
+<span class="sd">    lead measured with two fractions is a difference between two</span>
+<span class="sd">    *differently-defined* onsets, which is defensible once both are validated</span>
+<span class="sd">    and misleading before.</span>
+
+<span class="sd">    Returns ``lead_s`` (positive when `first` begins earlier), the two onset</span>
+<span class="sd">    times, the fraction used for each, and which one led.</span>
 
 <span class="sd">    This is the seam between the toolboxes rather than a video function: pass</span>
 <span class="sd">    a motion series computed wherever motion is computed. It is what makes</span>
@@ -14037,7 +14093,15 @@ property of the *action*, and neither modality carries it alone.
 <span class="sd">    than on the sound the clip is of. Raise ``rise`` before reading them as</span>
 <span class="sd">    times — see :func:`series_onset`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">series_onset</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">rise</span><span class="p">),</span> <span class="n">series_onset</span><span class="p">(</span><span class="n">second</span><span class="p">,</span> <span class="n">rise</span><span class="p">)</span>
+    <span class="c1">#: The default is still one fraction for both series. Per-modality</span>
+    <span class="c1">#: fractions are available and must be asked for, because only the motion</span>
+    <span class="c1">#: one is validated --- see :data:`AUDIO_RISE`. A default that silently</span>
+    <span class="c1">#: applied an unvalidated fraction would put it into every figure drawn</span>
+    <span class="c1">#: from this function without anyone choosing it.</span>
+    <span class="n">first_rise</span> <span class="o">=</span> <span class="n">rise</span> <span class="k">if</span> <span class="n">first_rise</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">first_rise</span>
+    <span class="n">second_rise</span> <span class="o">=</span> <span class="n">rise</span> <span class="k">if</span> <span class="n">second_rise</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">second_rise</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">series_onset</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">first_rise</span><span class="p">)</span>
+    <span class="n">j</span> <span class="o">=</span> <span class="n">series_onset</span><span class="p">(</span><span class="n">second</span><span class="p">,</span> <span class="n">second_rise</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">i</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">j</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;lead_s&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;first_onset_s&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;second_onset_s&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
                 <span class="s2">&quot;leads&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="s2">&quot;one series has no onset to find&quot;</span><span class="p">}</span>
@@ -14045,6 +14109,8 @@ property of the *action*, and neither modality carries it alone.
     <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;lead_s&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">lead</span><span class="p">),</span> <span class="mi">4</span><span class="p">),</span>
             <span class="s2">&quot;first_onset_s&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="n">dt</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
             <span class="s2">&quot;second_onset_s&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">j</span> <span class="o">*</span> <span class="n">dt</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+            <span class="s2">&quot;first_rise&quot;</span><span class="p">:</span> <span class="n">first_rise</span><span class="p">,</span>
+            <span class="s2">&quot;second_rise&quot;</span><span class="p">:</span> <span class="n">second_rise</span><span class="p">,</span>
             <span class="s2">&quot;leads&quot;</span><span class="p">:</span> <span class="s2">&quot;first&quot;</span> <span class="k">if</span> <span class="n">lead</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">(</span><span class="s2">&quot;second&quot;</span> <span class="k">if</span> <span class="n">lead</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;neither&quot;</span><span class="p">),</span>
             <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">}</span>
 </code></pre></div></td></tr></table></div>
@@ -14089,45 +14155,45 @@ a median of 0.4 dB above. One number, and it names the room.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 995</span>
-<span class="normal"> 996</span>
-<span class="normal"> 997</span>
-<span class="normal"> 998</span>
-<span class="normal"> 999</span>
-<span class="normal">1000</span>
-<span class="normal">1001</span>
-<span class="normal">1002</span>
-<span class="normal">1003</span>
-<span class="normal">1004</span>
-<span class="normal">1005</span>
-<span class="normal">1006</span>
-<span class="normal">1007</span>
-<span class="normal">1008</span>
-<span class="normal">1009</span>
-<span class="normal">1010</span>
-<span class="normal">1011</span>
-<span class="normal">1012</span>
-<span class="normal">1013</span>
-<span class="normal">1014</span>
-<span class="normal">1015</span>
-<span class="normal">1016</span>
-<span class="normal">1017</span>
-<span class="normal">1018</span>
-<span class="normal">1019</span>
-<span class="normal">1020</span>
-<span class="normal">1021</span>
-<span class="normal">1022</span>
-<span class="normal">1023</span>
-<span class="normal">1024</span>
-<span class="normal">1025</span>
-<span class="normal">1026</span>
-<span class="normal">1027</span>
-<span class="normal">1028</span>
-<span class="normal">1029</span>
-<span class="normal">1030</span>
-<span class="normal">1031</span>
-<span class="normal">1032</span>
-<span class="normal">1033</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">floor_occupancy</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">within_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">AT_FLOOR_WITHIN_DB</span><span class="p">,</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1039</span>
+<span class="normal">1040</span>
+<span class="normal">1041</span>
+<span class="normal">1042</span>
+<span class="normal">1043</span>
+<span class="normal">1044</span>
+<span class="normal">1045</span>
+<span class="normal">1046</span>
+<span class="normal">1047</span>
+<span class="normal">1048</span>
+<span class="normal">1049</span>
+<span class="normal">1050</span>
+<span class="normal">1051</span>
+<span class="normal">1052</span>
+<span class="normal">1053</span>
+<span class="normal">1054</span>
+<span class="normal">1055</span>
+<span class="normal">1056</span>
+<span class="normal">1057</span>
+<span class="normal">1058</span>
+<span class="normal">1059</span>
+<span class="normal">1060</span>
+<span class="normal">1061</span>
+<span class="normal">1062</span>
+<span class="normal">1063</span>
+<span class="normal">1064</span>
+<span class="normal">1065</span>
+<span class="normal">1066</span>
+<span class="normal">1067</span>
+<span class="normal">1068</span>
+<span class="normal">1069</span>
+<span class="normal">1070</span>
+<span class="normal">1071</span>
+<span class="normal">1072</span>
+<span class="normal">1073</span>
+<span class="normal">1074</span>
+<span class="normal">1075</span>
+<span class="normal">1076</span>
+<span class="normal">1077</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">floor_occupancy</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">within_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">AT_FLOOR_WITHIN_DB</span><span class="p">,</span>
                     <span class="n">pct</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;How much of a session sits at its own noise floor.</span>
 
@@ -14187,12 +14253,28 @@ a median of 0.4 dB above. One number, and it names the room.</p>
 <p>A genuine room background breathes: its low-percentile level moves with
 the day, the weather and the building. A microphone's self-noise floor
 does not — it is abnormally flat over time (and typically spectrally
-smooth). In the SINS sensor-network corpus the 4–8 kHz floor of a
-living room is flat to 0.8 dB across a full week (0.56 dB between six
-separate nights), while every band below 1 kHz varies by 2.4–5.3 dB
-over the same nights: the top of the spectrum is the instrument, and
-any L90-derived descriptor weighted towards it (LA90 in particular)
-measures the recorder rather than the room.</p>
+smooth). The consequence is that any L90-derived descriptor weighted
+towards the top of the spectrum (LA90 in particular) can be measuring
+the recorder rather than the room.</p>
+<p>The figures this default was originally justified by came from a single
+living room. Re-measured across all 84 node-sessions of the SINS corpus
+(2026-08-13), the median spread of this statistic per octave band is:</p>
+<div class="highlight"><pre><span></span><code>32 Hz 5.17 | 63 4.54 | 125 2.76 | 250 2.96 | 500 1.85
+1 kHz 1.54 | 2 kHz 0.51 | 4 kHz 0.34 | 8 kHz 0.29
+</code></pre></div>
+<p>which supports the check but not the margin the docstring used to claim.
+"Every band below 1 kHz varies by 2.4–5.3 dB" was true of that one room
+and is not true of the corpus: 500 Hz and 1 kHz sit at 1.85 and 1.54.
+What the corpus does support is the separation above <code>hf_min_hz</code>,
+where the flaggable bands sit at 0.29–0.51 against a 1.5 dB threshold.
+The check is correspondingly conservative at 2 kHz, whose 95th
+percentile reaches 1.67 and so escapes flagging in a minority of
+sessions.</p>
+<p>A caution for anyone using this on SINS itself: the threshold was chosen
+from that corpus, so a flag here is not independent evidence about it.
+Report 20 of the Sound Spaces series establishes the same conclusion from
+measurements that do not pass through this function, and cites those
+rather than this flag, for exactly that reason.</p>
 <p>The check works on the cached 1 s octave-band powers: the session is
 cut into <code>chunk_s</code> chunks, each chunk's <code>pct</code>-percentile band level
 is that chunk's floor, and the temporal spread of the floor is taken as
@@ -14214,51 +14296,7 @@ the last three are None when nothing is flagged.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1036</span>
-<span class="normal">1037</span>
-<span class="normal">1038</span>
-<span class="normal">1039</span>
-<span class="normal">1040</span>
-<span class="normal">1041</span>
-<span class="normal">1042</span>
-<span class="normal">1043</span>
-<span class="normal">1044</span>
-<span class="normal">1045</span>
-<span class="normal">1046</span>
-<span class="normal">1047</span>
-<span class="normal">1048</span>
-<span class="normal">1049</span>
-<span class="normal">1050</span>
-<span class="normal">1051</span>
-<span class="normal">1052</span>
-<span class="normal">1053</span>
-<span class="normal">1054</span>
-<span class="normal">1055</span>
-<span class="normal">1056</span>
-<span class="normal">1057</span>
-<span class="normal">1058</span>
-<span class="normal">1059</span>
-<span class="normal">1060</span>
-<span class="normal">1061</span>
-<span class="normal">1062</span>
-<span class="normal">1063</span>
-<span class="normal">1064</span>
-<span class="normal">1065</span>
-<span class="normal">1066</span>
-<span class="normal">1067</span>
-<span class="normal">1068</span>
-<span class="normal">1069</span>
-<span class="normal">1070</span>
-<span class="normal">1071</span>
-<span class="normal">1072</span>
-<span class="normal">1073</span>
-<span class="normal">1074</span>
-<span class="normal">1075</span>
-<span class="normal">1076</span>
-<span class="normal">1077</span>
-<span class="normal">1078</span>
-<span class="normal">1079</span>
-<span class="normal">1080</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1080</span>
 <span class="normal">1081</span>
 <span class="normal">1082</span>
 <span class="normal">1083</span>
@@ -14277,7 +14315,70 @@ the last three are None when nothing is flagged.</p>
 <span class="normal">1096</span>
 <span class="normal">1097</span>
 <span class="normal">1098</span>
-<span class="normal">1099</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">floor_suspicion</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">chunk_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">300.0</span><span class="p">,</span> <span class="n">pct</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+<span class="normal">1099</span>
+<span class="normal">1100</span>
+<span class="normal">1101</span>
+<span class="normal">1102</span>
+<span class="normal">1103</span>
+<span class="normal">1104</span>
+<span class="normal">1105</span>
+<span class="normal">1106</span>
+<span class="normal">1107</span>
+<span class="normal">1108</span>
+<span class="normal">1109</span>
+<span class="normal">1110</span>
+<span class="normal">1111</span>
+<span class="normal">1112</span>
+<span class="normal">1113</span>
+<span class="normal">1114</span>
+<span class="normal">1115</span>
+<span class="normal">1116</span>
+<span class="normal">1117</span>
+<span class="normal">1118</span>
+<span class="normal">1119</span>
+<span class="normal">1120</span>
+<span class="normal">1121</span>
+<span class="normal">1122</span>
+<span class="normal">1123</span>
+<span class="normal">1124</span>
+<span class="normal">1125</span>
+<span class="normal">1126</span>
+<span class="normal">1127</span>
+<span class="normal">1128</span>
+<span class="normal">1129</span>
+<span class="normal">1130</span>
+<span class="normal">1131</span>
+<span class="normal">1132</span>
+<span class="normal">1133</span>
+<span class="normal">1134</span>
+<span class="normal">1135</span>
+<span class="normal">1136</span>
+<span class="normal">1137</span>
+<span class="normal">1138</span>
+<span class="normal">1139</span>
+<span class="normal">1140</span>
+<span class="normal">1141</span>
+<span class="normal">1142</span>
+<span class="normal">1143</span>
+<span class="normal">1144</span>
+<span class="normal">1145</span>
+<span class="normal">1146</span>
+<span class="normal">1147</span>
+<span class="normal">1148</span>
+<span class="normal">1149</span>
+<span class="normal">1150</span>
+<span class="normal">1151</span>
+<span class="normal">1152</span>
+<span class="normal">1153</span>
+<span class="normal">1154</span>
+<span class="normal">1155</span>
+<span class="normal">1156</span>
+<span class="normal">1157</span>
+<span class="normal">1158</span>
+<span class="normal">1159</span>
+<span class="normal">1160</span>
+<span class="normal">1161</span>
+<span class="normal">1162</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">floor_suspicion</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">chunk_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">300.0</span><span class="p">,</span> <span class="n">pct</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
                     <span class="n">spread_thresh_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">FLOOR_SPREAD_THRESH_DB</span><span class="p">,</span>
                     <span class="n">min_chunks</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">hf_min_hz</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2000.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Flag high-frequency band floors that look like recorder self-noise.</span>
@@ -14285,12 +14386,31 @@ the last three are None when nothing is flagged.</p>
 <span class="sd">    A genuine room background breathes: its low-percentile level moves with</span>
 <span class="sd">    the day, the weather and the building. A microphone&#39;s self-noise floor</span>
 <span class="sd">    does not — it is abnormally flat over time (and typically spectrally</span>
-<span class="sd">    smooth). In the SINS sensor-network corpus the 4–8 kHz floor of a</span>
-<span class="sd">    living room is flat to 0.8 dB across a full week (0.56 dB between six</span>
-<span class="sd">    separate nights), while every band below 1 kHz varies by 2.4–5.3 dB</span>
-<span class="sd">    over the same nights: the top of the spectrum is the instrument, and</span>
-<span class="sd">    any L90-derived descriptor weighted towards it (LA90 in particular)</span>
-<span class="sd">    measures the recorder rather than the room.</span>
+<span class="sd">    smooth). The consequence is that any L90-derived descriptor weighted</span>
+<span class="sd">    towards the top of the spectrum (LA90 in particular) can be measuring</span>
+<span class="sd">    the recorder rather than the room.</span>
+
+<span class="sd">    The figures this default was originally justified by came from a single</span>
+<span class="sd">    living room. Re-measured across all 84 node-sessions of the SINS corpus</span>
+<span class="sd">    (2026-08-13), the median spread of this statistic per octave band is:</span>
+
+<span class="sd">        32 Hz 5.17 | 63 4.54 | 125 2.76 | 250 2.96 | 500 1.85</span>
+<span class="sd">        1 kHz 1.54 | 2 kHz 0.51 | 4 kHz 0.34 | 8 kHz 0.29</span>
+
+<span class="sd">    which supports the check but not the margin the docstring used to claim.</span>
+<span class="sd">    &quot;Every band below 1 kHz varies by 2.4–5.3 dB&quot; was true of that one room</span>
+<span class="sd">    and is not true of the corpus: 500 Hz and 1 kHz sit at 1.85 and 1.54.</span>
+<span class="sd">    What the corpus does support is the separation above ``hf_min_hz``,</span>
+<span class="sd">    where the flaggable bands sit at 0.29–0.51 against a 1.5 dB threshold.</span>
+<span class="sd">    The check is correspondingly conservative at 2 kHz, whose 95th</span>
+<span class="sd">    percentile reaches 1.67 and so escapes flagging in a minority of</span>
+<span class="sd">    sessions.</span>
+
+<span class="sd">    A caution for anyone using this on SINS itself: the threshold was chosen</span>
+<span class="sd">    from that corpus, so a flag here is not independent evidence about it.</span>
+<span class="sd">    Report 20 of the Sound Spaces series establishes the same conclusion from</span>
+<span class="sd">    measurements that do not pass through this function, and cites those</span>
+<span class="sd">    rather than this flag, for exactly that reason.</span>
 
 <span class="sd">    The check works on the cached 1 s octave-band powers: the session is</span>
 <span class="sd">    cut into ``chunk_s`` chunks, each chunk&#39;s ``pct``-percentile band level</span>
@@ -14363,11 +14483,11 @@ the last three are None when nothing is flagged.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1102</span>
-<span class="normal">1103</span>
-<span class="normal">1104</span>
-<span class="normal">1105</span>
-<span class="normal">1106</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">circular_stats</span><span class="p">(</span><span class="n">az_deg</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1165</span>
+<span class="normal">1166</span>
+<span class="normal">1167</span>
+<span class="normal">1168</span>
+<span class="normal">1169</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">circular_stats</span><span class="p">(</span><span class="n">az_deg</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Energy-weighted circular mean (deg) and resultant length R.&quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.circstats</span><span class="w"> </span><span class="kn">import</span> <span class="n">mean_resultant</span>
     <span class="n">mu</span><span class="p">,</span> <span class="n">R</span> <span class="o">=</span> <span class="n">mean_resultant</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">az_deg</span><span class="p">,</span> <span class="nb">float</span><span class="p">)),</span> <span class="n">weights</span><span class="p">)</span>
@@ -14394,62 +14514,62 @@ the last three are None when nothing is flagged.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1109</span>
-<span class="normal">1110</span>
-<span class="normal">1111</span>
-<span class="normal">1112</span>
-<span class="normal">1113</span>
-<span class="normal">1114</span>
-<span class="normal">1115</span>
-<span class="normal">1116</span>
-<span class="normal">1117</span>
-<span class="normal">1118</span>
-<span class="normal">1119</span>
-<span class="normal">1120</span>
-<span class="normal">1121</span>
-<span class="normal">1122</span>
-<span class="normal">1123</span>
-<span class="normal">1124</span>
-<span class="normal">1125</span>
-<span class="normal">1126</span>
-<span class="normal">1127</span>
-<span class="normal">1128</span>
-<span class="normal">1129</span>
-<span class="normal">1130</span>
-<span class="normal">1131</span>
-<span class="normal">1132</span>
-<span class="normal">1133</span>
-<span class="normal">1134</span>
-<span class="normal">1135</span>
-<span class="normal">1136</span>
-<span class="normal">1137</span>
-<span class="normal">1138</span>
-<span class="normal">1139</span>
-<span class="normal">1140</span>
-<span class="normal">1141</span>
-<span class="normal">1142</span>
-<span class="normal">1143</span>
-<span class="normal">1144</span>
-<span class="normal">1145</span>
-<span class="normal">1146</span>
-<span class="normal">1147</span>
-<span class="normal">1148</span>
-<span class="normal">1149</span>
-<span class="normal">1150</span>
-<span class="normal">1151</span>
-<span class="normal">1152</span>
-<span class="normal">1153</span>
-<span class="normal">1154</span>
-<span class="normal">1155</span>
-<span class="normal">1156</span>
-<span class="normal">1157</span>
-<span class="normal">1158</span>
-<span class="normal">1159</span>
-<span class="normal">1160</span>
-<span class="normal">1161</span>
-<span class="normal">1162</span>
-<span class="normal">1163</span>
-<span class="normal">1164</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">summarize</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1172</span>
+<span class="normal">1173</span>
+<span class="normal">1174</span>
+<span class="normal">1175</span>
+<span class="normal">1176</span>
+<span class="normal">1177</span>
+<span class="normal">1178</span>
+<span class="normal">1179</span>
+<span class="normal">1180</span>
+<span class="normal">1181</span>
+<span class="normal">1182</span>
+<span class="normal">1183</span>
+<span class="normal">1184</span>
+<span class="normal">1185</span>
+<span class="normal">1186</span>
+<span class="normal">1187</span>
+<span class="normal">1188</span>
+<span class="normal">1189</span>
+<span class="normal">1190</span>
+<span class="normal">1191</span>
+<span class="normal">1192</span>
+<span class="normal">1193</span>
+<span class="normal">1194</span>
+<span class="normal">1195</span>
+<span class="normal">1196</span>
+<span class="normal">1197</span>
+<span class="normal">1198</span>
+<span class="normal">1199</span>
+<span class="normal">1200</span>
+<span class="normal">1201</span>
+<span class="normal">1202</span>
+<span class="normal">1203</span>
+<span class="normal">1204</span>
+<span class="normal">1205</span>
+<span class="normal">1206</span>
+<span class="normal">1207</span>
+<span class="normal">1208</span>
+<span class="normal">1209</span>
+<span class="normal">1210</span>
+<span class="normal">1211</span>
+<span class="normal">1212</span>
+<span class="normal">1213</span>
+<span class="normal">1214</span>
+<span class="normal">1215</span>
+<span class="normal">1216</span>
+<span class="normal">1217</span>
+<span class="normal">1218</span>
+<span class="normal">1219</span>
+<span class="normal">1220</span>
+<span class="normal">1221</span>
+<span class="normal">1222</span>
+<span class="normal">1223</span>
+<span class="normal">1224</span>
+<span class="normal">1225</span>
+<span class="normal">1226</span>
+<span class="normal">1227</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">summarize</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Session descriptor dict from concatenated features (see features.load_features).&quot;&quot;&quot;</span>
     <span class="n">fast</span><span class="p">,</span> <span class="n">fasta</span> <span class="o">=</span> <span class="n">F</span><span class="p">[</span><span class="s2">&quot;fast_db&quot;</span><span class="p">],</span> <span class="n">F</span><span class="p">[</span><span class="s2">&quot;fast_dba&quot;</span><span class="p">]</span>
     <span class="n">dt</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">F</span><span class="p">[</span><span class="s2">&quot;t_fast&quot;</span><span class="p">])))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">F</span><span class="p">[</span><span class="s2">&quot;t_fast&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mf">0.125</span>
@@ -14531,47 +14651,47 @@ Returns {band: (T60, dynamic_range_db)}.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1167</span>
-<span class="normal">1168</span>
-<span class="normal">1169</span>
-<span class="normal">1170</span>
-<span class="normal">1171</span>
-<span class="normal">1172</span>
-<span class="normal">1173</span>
-<span class="normal">1174</span>
-<span class="normal">1175</span>
-<span class="normal">1176</span>
-<span class="normal">1177</span>
-<span class="normal">1178</span>
-<span class="normal">1179</span>
-<span class="normal">1180</span>
-<span class="normal">1181</span>
-<span class="normal">1182</span>
-<span class="normal">1183</span>
-<span class="normal">1184</span>
-<span class="normal">1185</span>
-<span class="normal">1186</span>
-<span class="normal">1187</span>
-<span class="normal">1188</span>
-<span class="normal">1189</span>
-<span class="normal">1190</span>
-<span class="normal">1191</span>
-<span class="normal">1192</span>
-<span class="normal">1193</span>
-<span class="normal">1194</span>
-<span class="normal">1195</span>
-<span class="normal">1196</span>
-<span class="normal">1197</span>
-<span class="normal">1198</span>
-<span class="normal">1199</span>
-<span class="normal">1200</span>
-<span class="normal">1201</span>
-<span class="normal">1202</span>
-<span class="normal">1203</span>
-<span class="normal">1204</span>
-<span class="normal">1205</span>
-<span class="normal">1206</span>
-<span class="normal">1207</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">decay_time</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bands</span><span class="o">=</span><span class="p">((</span><span class="mi">250</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span> <span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1230</span>
+<span class="normal">1231</span>
+<span class="normal">1232</span>
+<span class="normal">1233</span>
+<span class="normal">1234</span>
+<span class="normal">1235</span>
+<span class="normal">1236</span>
+<span class="normal">1237</span>
+<span class="normal">1238</span>
+<span class="normal">1239</span>
+<span class="normal">1240</span>
+<span class="normal">1241</span>
+<span class="normal">1242</span>
+<span class="normal">1243</span>
+<span class="normal">1244</span>
+<span class="normal">1245</span>
+<span class="normal">1246</span>
+<span class="normal">1247</span>
+<span class="normal">1248</span>
+<span class="normal">1249</span>
+<span class="normal">1250</span>
+<span class="normal">1251</span>
+<span class="normal">1252</span>
+<span class="normal">1253</span>
+<span class="normal">1254</span>
+<span class="normal">1255</span>
+<span class="normal">1256</span>
+<span class="normal">1257</span>
+<span class="normal">1258</span>
+<span class="normal">1259</span>
+<span class="normal">1260</span>
+<span class="normal">1261</span>
+<span class="normal">1262</span>
+<span class="normal">1263</span>
+<span class="normal">1264</span>
+<span class="normal">1265</span>
+<span class="normal">1266</span>
+<span class="normal">1267</span>
+<span class="normal">1268</span>
+<span class="normal">1269</span>
+<span class="normal">1270</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">decay_time</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bands</span><span class="o">=</span><span class="p">((</span><span class="mi">250</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span> <span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>
                <span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">),</span> <span class="p">(</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">),</span> <span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="mi">8000</span><span class="p">)))</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;T60 estimates from an impulse via truncated Schroeder integration.</span>
 
@@ -14641,42 +14761,42 @@ several identical "representative" segments.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1210</span>
-<span class="normal">1211</span>
-<span class="normal">1212</span>
-<span class="normal">1213</span>
-<span class="normal">1214</span>
-<span class="normal">1215</span>
-<span class="normal">1216</span>
-<span class="normal">1217</span>
-<span class="normal">1218</span>
-<span class="normal">1219</span>
-<span class="normal">1220</span>
-<span class="normal">1221</span>
-<span class="normal">1222</span>
-<span class="normal">1223</span>
-<span class="normal">1224</span>
-<span class="normal">1225</span>
-<span class="normal">1226</span>
-<span class="normal">1227</span>
-<span class="normal">1228</span>
-<span class="normal">1229</span>
-<span class="normal">1230</span>
-<span class="normal">1231</span>
-<span class="normal">1232</span>
-<span class="normal">1233</span>
-<span class="normal">1234</span>
-<span class="normal">1235</span>
-<span class="normal">1236</span>
-<span class="normal">1237</span>
-<span class="normal">1238</span>
-<span class="normal">1239</span>
-<span class="normal">1240</span>
-<span class="normal">1241</span>
-<span class="normal">1242</span>
-<span class="normal">1243</span>
-<span class="normal">1244</span>
-<span class="normal">1245</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pick_segments</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">seg_s</span><span class="o">=</span><span class="mf">600.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1273</span>
+<span class="normal">1274</span>
+<span class="normal">1275</span>
+<span class="normal">1276</span>
+<span class="normal">1277</span>
+<span class="normal">1278</span>
+<span class="normal">1279</span>
+<span class="normal">1280</span>
+<span class="normal">1281</span>
+<span class="normal">1282</span>
+<span class="normal">1283</span>
+<span class="normal">1284</span>
+<span class="normal">1285</span>
+<span class="normal">1286</span>
+<span class="normal">1287</span>
+<span class="normal">1288</span>
+<span class="normal">1289</span>
+<span class="normal">1290</span>
+<span class="normal">1291</span>
+<span class="normal">1292</span>
+<span class="normal">1293</span>
+<span class="normal">1294</span>
+<span class="normal">1295</span>
+<span class="normal">1296</span>
+<span class="normal">1297</span>
+<span class="normal">1298</span>
+<span class="normal">1299</span>
+<span class="normal">1300</span>
+<span class="normal">1301</span>
+<span class="normal">1302</span>
+<span class="normal">1303</span>
+<span class="normal">1304</span>
+<span class="normal">1305</span>
+<span class="normal">1306</span>
+<span class="normal">1307</span>
+<span class="normal">1308</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pick_segments</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">seg_s</span><span class="o">=</span><span class="mf">600.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Suggest representative windows: quietest, most active, median-typical,</span>
 <span class="sd">    and (if present) the strongest state transition.</span>
 
@@ -26971,7 +27091,18 @@ past its nominal band edges, so neighbouring scales overlap and their
 agreement where they meet is visible rather than assumed.</p>
 <p><code>profile</code> returns, per scale, a log-frequency modulation spectrum with the
 dominant modulation frequency, its prominence, and the band modulation depth
-(all three statistics taken within the nominal band, not the overlap).
+(all three statistics taken within the nominal band, not the overlap).</p>
+<p><strong>The macro scale needs a record longer than the period you are asking
+about, and says nothing when it does not have one.</strong> Each scale's band starts
+at four cycles over the record, so a session of one day cannot resolve the
+day: its macro band begins at a period of 21600 s and the diurnal peak is
+simply outside it. Nothing errors and no warning is issued --- the returned
+peak is just the strongest thing in a band that excludes what you were looking
+for. To measure a daily or weekly rhythm, concatenate the sessions onto one
+absolute clock first and call <code>modulation_spectrum</code> on that; the Sound Spaces
+series does this in <code>notes/scripts/sins_macro_modulation.py</code>, which also
+shows the two controls such a stitched record needs (the spectrum of the
+coverage mask alone, and a permutation null).
 <code>modulation_spectrogram</code> computes the windowed version — the "rhythm
 spectrogram of the day" — and <code>render</code> writes the combined figure.</p>
 
@@ -27016,19 +27147,7 @@ only allows a single Welch segment.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/modulation.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">55</span>
 <span class="normal">56</span>
 <span class="normal">57</span>
 <span class="normal">58</span>
@@ -27037,7 +27156,19 @@ only allows a single Welch segment.</p>
 <span class="normal">61</span>
 <span class="normal">62</span>
 <span class="normal">63</span>
-<span class="normal">64</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">modulation_spectrum</span><span class="p">(</span><span class="n">env</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">fmin</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">fmax</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">modulation_spectrum</span><span class="p">(</span><span class="n">env</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">fmin</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">fmax</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
                         <span class="n">n_bins</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">48</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Welch modulation spectrum of a linear-power envelope, log-resampled.</span>
 
@@ -27086,19 +27217,7 @@ Nyquist); statistics are taken within the nominal band only.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/modulation.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 81</span>
-<span class="normal"> 82</span>
-<span class="normal"> 83</span>
-<span class="normal"> 84</span>
-<span class="normal"> 85</span>
-<span class="normal"> 86</span>
-<span class="normal"> 87</span>
-<span class="normal"> 88</span>
-<span class="normal"> 89</span>
-<span class="normal"> 90</span>
-<span class="normal"> 91</span>
-<span class="normal"> 92</span>
-<span class="normal"> 93</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 93</span>
 <span class="normal"> 94</span>
 <span class="normal"> 95</span>
 <span class="normal"> 96</span>
@@ -27122,7 +27241,19 @@ Nyquist); statistics are taken within the nominal band only.</p>
 <span class="normal">114</span>
 <span class="normal">115</span>
 <span class="normal">116</span>
-<span class="normal">117</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">profile</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">profile</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Three-scale modulation profile from cached features.</span>
 
 <span class="sd">    Every scale is a unit-mean linear-power envelope PSD (see</span>
@@ -27183,24 +27314,24 @@ median (so rhythmic structure reads as ridges regardless of level).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/modulation.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
-<span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">132</span>
 <span class="normal">133</span>
 <span class="normal">134</span>
 <span class="normal">135</span>
 <span class="normal">136</span>
-<span class="normal">137</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">modulation_spectrogram</span><span class="p">(</span><span class="n">env</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">win_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">600.0</span><span class="p">,</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">modulation_spectrogram</span><span class="p">(</span><span class="n">env</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">win_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">600.0</span><span class="p">,</span>
                            <span class="n">step_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">120.0</span><span class="p">,</span> <span class="n">fmin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.02</span><span class="p">,</span>
                            <span class="n">fmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20.0</span><span class="p">,</span> <span class="n">n_bins</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">64</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Windowed modulation spectra: the rhythm spectrogram of the session.</span>
@@ -27240,19 +27371,7 @@ median (so rhythmic structure reads as ridges regardless of level).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/modulation.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span>
-<span class="normal">145</span>
-<span class="normal">146</span>
-<span class="normal">147</span>
-<span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span>
-<span class="normal">152</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">152</span>
 <span class="normal">153</span>
 <span class="normal">154</span>
 <span class="normal">155</span>
@@ -27290,7 +27409,19 @@ median (so rhythmic structure reads as ridges regardless of level).</p>
 <span class="normal">187</span>
 <span class="normal">188</span>
 <span class="normal">189</span>
-<span class="normal">190</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">render</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">prof</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">out_path</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">clock</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">render</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">prof</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">out_path</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">clock</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Combined figure: per-scale spectra + rhythm spectrogram.&quot;&quot;&quot;</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span>
     <span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;Agg&quot;</span><span class="p">)</span>
@@ -27363,17 +27494,17 @@ median (so rhythmic structure reads as ridges regardless of level).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/modulation.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span>
-<span class="normal">197</span>
-<span class="normal">198</span>
-<span class="normal">199</span>
-<span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span>
-<span class="normal">203</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_session</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_session</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;CLI driver: profile + figure + modulation.json.&quot;&quot;&quot;</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_features</span>
@@ -36038,20 +36169,38 @@ docstring for why those cannot test a single energy direction).</p>
 
 
 <h2 id="ambiscape.starss.frame_azimuths" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">frame_azimuths</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">frame_s</span><span class="o">=</span><span class="n">FRAME_S</span><span class="p">,</span> <span class="n">wyzx</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">band</span><span class="o">=</span><span class="p">(</span><span class="mf">80.0</span><span class="p">,</span> <span class="mf">3000.0</span><span class="p">))</span></code>
+            <code class="highlight language-python"><span class="n">frame_azimuths</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">frame_s</span><span class="o">=</span><span class="n">FRAME_S</span><span class="p">,</span> <span class="n">wyzx</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">band</span><span class="o">=</span><span class="p">(</span><span class="mf">80.0</span><span class="p">,</span> <span class="mf">3000.0</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;intensity&#39;</span><span class="p">,</span> <span class="n">sub_s</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span></code>
 
 </h2>
 
 
     <div class="doc doc-contents ">
 
-        <p>Per-frame energy azimuth of a FOA clip, on the label grid.</p>
+        <p>Per-frame azimuth of a FOA clip, on the label grid.</p>
 <p>Streams the clip in blocks, band-passes all channels to <code>band</code> (the
-corpus DOA band, capped below Nyquist), and takes per frame the
-pseudo-intensity azimuth <code>atan2(sum W*Y, sum W*X)</code> in degrees —
-counter-clockwise positive, 0 = front, the STARSS convention. Returns
-<code>(az_deg, energy)</code> arrays with one value per complete <code>frame_s</code>
-frame (a trailing partial frame is dropped, as it has no label).</p>
+corpus DOA band, capped below Nyquist), and returns <code>(az_deg, energy,
+diffuseness)</code> with one value per complete <code>frame_s</code> frame; a trailing
+partial frame is dropped, as it has no label. Azimuth is in degrees,
+counter-clockwise positive, 0 = front, which is the STARSS convention.</p>
+<p>Two estimators, neither with a parameter fitted to any corpus:</p>
+<p><code>method="intensity"</code>
+    The pseudo-intensity azimuth over the whole frame,
+    <code>atan2(sum W*Y, sum W*X)</code>. Every sample counts equally, so a frame
+    that is mostly reverberant tail is dominated by the tail.</p>
+<p><code>method="energy"</code>
+    The same azimuth computed on <code>sub_s</code> sub-frames and combined as a
+    circular mean weighted by each sub-frame's energy. The direct sound
+    of an event carries more energy than the reverberation after it, so
+    this asks where the <em>loudest</em> part of the frame came from rather than
+    where the frame came from on average. It is the natural second
+    estimator and it is not obviously better: weighting by energy also
+    weights toward whichever source is loudest when two overlap.</p>
+<p><code>diffuseness</code> is <code>1 - |I| / E</code> per frame, with <code>I</code> the
+pseudo-intensity vector and <code>E</code> the total energy in the standard
+convention. It runs from 0 for a single plane wave to 1 for an isotropic
+field, and is returned so a caller can withhold an estimate where the
+field carries no usable direction --- a choice this function deliberately
+does not make on the caller's behalf.</p>
 
 
             <details class="mkdocstrings-source">
@@ -36097,103 +36246,15 @@ frame (a trailing partial frame is dropped, as it has no label).</p>
 <span class="normal">142</span>
 <span class="normal">143</span>
 <span class="normal">144</span>
-<span class="normal">145</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">frame_azimuths</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">frame_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">FRAME_S</span><span class="p">,</span>
-                   <span class="n">wyzx</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">band</span><span class="o">=</span><span class="p">(</span><span class="mf">80.0</span><span class="p">,</span> <span class="mf">3000.0</span><span class="p">)):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Per-frame energy azimuth of a FOA clip, on the label grid.</span>
-
-<span class="sd">    Streams the clip in blocks, band-passes all channels to ``band`` (the</span>
-<span class="sd">    corpus DOA band, capped below Nyquist), and takes per frame the</span>
-<span class="sd">    pseudo-intensity azimuth ``atan2(sum W*Y, sum W*X)`` in degrees —</span>
-<span class="sd">    counter-clockwise positive, 0 = front, the STARSS convention. Returns</span>
-<span class="sd">    ``(az_deg, energy)`` arrays with one value per complete ``frame_s``</span>
-<span class="sd">    frame (a trailing partial frame is dropped, as it has no label).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">soundfile</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sf</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <span class="n">butter</span><span class="p">,</span> <span class="n">sosfilt</span>
-
-    <span class="k">with</span> <span class="n">sf</span><span class="o">.</span><span class="n">SoundFile</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">fs</span><span class="p">,</span> <span class="n">nch</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">samplerate</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">channels</span>
-        <span class="k">if</span> <span class="n">nch</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">: DOA validation needs 4-channel FOA, &quot;</span>
-                             <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">nch</span><span class="si">}</span><span class="s2"> channel(s)&quot;</span><span class="p">)</span>
-        <span class="n">spf</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">frame_s</span> <span class="o">*</span> <span class="n">fs</span><span class="p">)),</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">hi</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">band</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.45</span> <span class="o">*</span> <span class="n">fs</span><span class="p">)</span>
-        <span class="n">sos</span> <span class="o">=</span> <span class="n">butter</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="p">[</span><span class="n">band</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">hi</span><span class="p">],</span> <span class="s2">&quot;bandpass&quot;</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;sos&quot;</span><span class="p">)</span>
-        <span class="n">zi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">sos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span><span class="p">,</span> <span class="n">nch</span><span class="p">))</span>
-        <span class="n">iw</span><span class="p">,</span> <span class="n">iy</span><span class="p">,</span> <span class="n">ix</span> <span class="o">=</span> <span class="n">wyzx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">wyzx</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">wyzx</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
-        <span class="n">azs</span><span class="p">,</span> <span class="n">ens</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
-        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="n">blk</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">spf</span> <span class="o">*</span> <span class="mi">600</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">,</span> <span class="n">always_2d</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">blk</span><span class="p">):</span>
-                <span class="k">break</span>
-            <span class="n">blk</span><span class="p">,</span> <span class="n">zi</span> <span class="o">=</span> <span class="n">sosfilt</span><span class="p">(</span><span class="n">sos</span><span class="p">,</span> <span class="n">blk</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">zi</span><span class="o">=</span><span class="n">zi</span><span class="p">)</span>
-            <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">blk</span><span class="p">)</span> <span class="o">//</span> <span class="n">spf</span>
-            <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">break</span>
-            <span class="n">blk</span> <span class="o">=</span> <span class="n">blk</span><span class="p">[:</span><span class="n">n</span> <span class="o">*</span> <span class="n">spf</span><span class="p">]</span>
-            <span class="n">W</span> <span class="o">=</span> <span class="n">blk</span><span class="p">[:,</span> <span class="n">iw</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">spf</span><span class="p">)</span>
-            <span class="n">Y</span> <span class="o">=</span> <span class="n">blk</span><span class="p">[:,</span> <span class="n">iy</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">spf</span><span class="p">)</span>
-            <span class="n">X</span> <span class="o">=</span> <span class="n">blk</span><span class="p">[:,</span> <span class="n">ix</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">spf</span><span class="p">)</span>
-            <span class="n">azs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">((</span><span class="n">W</span> <span class="o">*</span> <span class="n">Y</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="n">W</span> <span class="o">*</span> <span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">))))</span>
-            <span class="n">ens</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">W</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">azs</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">azs</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">ens</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-<h2 id="ambiscape.starss.wrap_deg" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">wrap_deg</span><span class="p">(</span><span class="n">d</span><span class="p">)</span></code>
-
-</h2>
-
-
-    <div class="doc doc-contents ">
-
-        <p>Wrap angle difference(s) to (-180, 180] degrees.</p>
-
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/ambiscape/starss.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">148</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
 <span class="normal">149</span>
-<span class="normal">150</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">wrap_deg</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrap angle difference(s) to (-180, 180] degrees.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="o">-</span><span class="p">((</span><span class="mf">180.0</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="o">%</span> <span class="mf">360.0</span> <span class="o">-</span> <span class="mf">180.0</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-<h2 id="ambiscape.starss.validate_clip" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">validate_clip</span><span class="p">(</span><span class="n">wav_path</span><span class="p">,</span> <span class="n">csv_path</span><span class="p">,</span> <span class="n">frame_s</span><span class="o">=</span><span class="n">FRAME_S</span><span class="p">,</span> <span class="n">wyzx</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span></code>
-
-</h2>
-
-
-    <div class="doc doc-contents ">
-
-        <p>Compare one clip's energy azimuth with its labels, frame by frame.</p>
-<p>Only single-source frames are scored (see the module docstring).
-Returns <code>records</code> (one dict per scored frame: frame, class_name,
-label azimuth, estimated azimuth, signed circular <code>error_deg</code>),
-<code>n_frames_labelled</code> (distinct labelled frames), and <code>n_multi</code>
-(frames excluded as multi-source).</p>
-
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/ambiscape/starss.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">153</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
 <span class="normal">154</span>
 <span class="normal">155</span>
 <span class="normal">156</span>
@@ -36220,8 +36281,200 @@ label azimuth, estimated azimuth, signed circular <code>error_deg</code>),
 <span class="normal">177</span>
 <span class="normal">178</span>
 <span class="normal">179</span>
-<span class="normal">180</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">validate_clip</span><span class="p">(</span><span class="n">wav_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
-                  <span class="n">frame_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">FRAME_S</span><span class="p">,</span> <span class="n">wyzx</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">frame_azimuths</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">frame_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">FRAME_S</span><span class="p">,</span>
+                   <span class="n">wyzx</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">band</span><span class="o">=</span><span class="p">(</span><span class="mf">80.0</span><span class="p">,</span> <span class="mf">3000.0</span><span class="p">),</span>
+                   <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;intensity&quot;</span><span class="p">,</span> <span class="n">sub_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Per-frame azimuth of a FOA clip, on the label grid.</span>
+
+<span class="sd">    Streams the clip in blocks, band-passes all channels to ``band`` (the</span>
+<span class="sd">    corpus DOA band, capped below Nyquist), and returns ``(az_deg, energy,</span>
+<span class="sd">    diffuseness)`` with one value per complete ``frame_s`` frame; a trailing</span>
+<span class="sd">    partial frame is dropped, as it has no label. Azimuth is in degrees,</span>
+<span class="sd">    counter-clockwise positive, 0 = front, which is the STARSS convention.</span>
+
+<span class="sd">    Two estimators, neither with a parameter fitted to any corpus:</span>
+
+<span class="sd">    ``method=&quot;intensity&quot;``</span>
+<span class="sd">        The pseudo-intensity azimuth over the whole frame,</span>
+<span class="sd">        ``atan2(sum W*Y, sum W*X)``. Every sample counts equally, so a frame</span>
+<span class="sd">        that is mostly reverberant tail is dominated by the tail.</span>
+
+<span class="sd">    ``method=&quot;energy&quot;``</span>
+<span class="sd">        The same azimuth computed on ``sub_s`` sub-frames and combined as a</span>
+<span class="sd">        circular mean weighted by each sub-frame&#39;s energy. The direct sound</span>
+<span class="sd">        of an event carries more energy than the reverberation after it, so</span>
+<span class="sd">        this asks where the *loudest* part of the frame came from rather than</span>
+<span class="sd">        where the frame came from on average. It is the natural second</span>
+<span class="sd">        estimator and it is not obviously better: weighting by energy also</span>
+<span class="sd">        weights toward whichever source is loudest when two overlap.</span>
+
+<span class="sd">    ``diffuseness`` is ``1 - |I| / E`` per frame, with ``I`` the</span>
+<span class="sd">    pseudo-intensity vector and ``E`` the total energy in the standard</span>
+<span class="sd">    convention. It runs from 0 for a single plane wave to 1 for an isotropic</span>
+<span class="sd">    field, and is returned so a caller can withhold an estimate where the</span>
+<span class="sd">    field carries no usable direction --- a choice this function deliberately</span>
+<span class="sd">    does not make on the caller&#39;s behalf.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">soundfile</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sf</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <span class="n">butter</span><span class="p">,</span> <span class="n">sosfilt</span>
+
+    <span class="k">with</span> <span class="n">sf</span><span class="o">.</span><span class="n">SoundFile</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">fs</span><span class="p">,</span> <span class="n">nch</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">samplerate</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">channels</span>
+        <span class="k">if</span> <span class="n">nch</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">: DOA validation needs 4-channel FOA, &quot;</span>
+                             <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">nch</span><span class="si">}</span><span class="s2"> channel(s)&quot;</span><span class="p">)</span>
+        <span class="n">spf</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">frame_s</span> <span class="o">*</span> <span class="n">fs</span><span class="p">)),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">hi</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">band</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.45</span> <span class="o">*</span> <span class="n">fs</span><span class="p">)</span>
+        <span class="n">sos</span> <span class="o">=</span> <span class="n">butter</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="p">[</span><span class="n">band</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">hi</span><span class="p">],</span> <span class="s2">&quot;bandpass&quot;</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;sos&quot;</span><span class="p">)</span>
+        <span class="n">zi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">sos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span><span class="p">,</span> <span class="n">nch</span><span class="p">))</span>
+        <span class="n">iw</span><span class="p">,</span> <span class="n">iy</span><span class="p">,</span> <span class="n">iz</span><span class="p">,</span> <span class="n">ix</span> <span class="o">=</span> <span class="n">wyzx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">wyzx</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">wyzx</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">wyzx</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+        <span class="n">spsub</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">sub_s</span> <span class="o">*</span> <span class="n">fs</span><span class="p">)),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">azs</span><span class="p">,</span> <span class="n">ens</span><span class="p">,</span> <span class="n">dfs</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">blk</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">spf</span> <span class="o">*</span> <span class="mi">600</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">,</span> <span class="n">always_2d</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">blk</span><span class="p">):</span>
+                <span class="k">break</span>
+            <span class="n">blk</span><span class="p">,</span> <span class="n">zi</span> <span class="o">=</span> <span class="n">sosfilt</span><span class="p">(</span><span class="n">sos</span><span class="p">,</span> <span class="n">blk</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">zi</span><span class="o">=</span><span class="n">zi</span><span class="p">)</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">blk</span><span class="p">)</span> <span class="o">//</span> <span class="n">spf</span>
+            <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">blk</span> <span class="o">=</span> <span class="n">blk</span><span class="p">[:</span><span class="n">n</span> <span class="o">*</span> <span class="n">spf</span><span class="p">]</span>
+            <span class="n">W</span> <span class="o">=</span> <span class="n">blk</span><span class="p">[:,</span> <span class="n">iw</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">spf</span><span class="p">)</span>
+            <span class="n">Y</span> <span class="o">=</span> <span class="n">blk</span><span class="p">[:,</span> <span class="n">iy</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">spf</span><span class="p">)</span>
+            <span class="n">X</span> <span class="o">=</span> <span class="n">blk</span><span class="p">[:,</span> <span class="n">ix</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">spf</span><span class="p">)</span>
+            <span class="n">Z</span> <span class="o">=</span> <span class="n">blk</span><span class="p">[:,</span> <span class="n">iz</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">spf</span><span class="p">)</span>
+            <span class="n">ix_</span> <span class="o">=</span> <span class="p">(</span><span class="n">W</span> <span class="o">*</span> <span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">iy_</span> <span class="o">=</span> <span class="p">(</span><span class="n">W</span> <span class="o">*</span> <span class="n">Y</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">iz_</span> <span class="o">=</span> <span class="p">(</span><span class="n">W</span> <span class="o">*</span> <span class="n">Z</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="c1"># Standard diffuseness: the intensity vector shrinks relative to</span>
+            <span class="c1"># the energy as the field becomes isotropic.</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="p">(</span><span class="n">W</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">X</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">Y</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">Z</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3.0</span>
+            <span class="n">mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ix_</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">iy_</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">iz_</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">mag</span> <span class="o">/</span> <span class="p">(</span><span class="n">e</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">+</span> <span class="n">EPS</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+            <span class="n">ens</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">W</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;intensity&quot;</span><span class="p">:</span>
+                <span class="n">azs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">iy_</span><span class="p">,</span> <span class="n">ix_</span><span class="p">)))</span>
+            <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;energy&quot;</span><span class="p">:</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="n">spf</span> <span class="o">//</span> <span class="n">spsub</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">azs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">iy_</span><span class="p">,</span> <span class="n">ix_</span><span class="p">)))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="n">k</span> <span class="o">*</span> <span class="n">spsub</span>
+                    <span class="n">Ws</span> <span class="o">=</span> <span class="n">W</span><span class="p">[:,</span> <span class="p">:</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">spsub</span><span class="p">)</span>
+                    <span class="n">Ys</span> <span class="o">=</span> <span class="n">Y</span><span class="p">[:,</span> <span class="p">:</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">spsub</span><span class="p">)</span>
+                    <span class="n">Xs</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:,</span> <span class="p">:</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">spsub</span><span class="p">)</span>
+                    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">((</span><span class="n">Ws</span> <span class="o">*</span> <span class="n">Ys</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="n">Ws</span> <span class="o">*</span> <span class="n">Xs</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+                    <span class="n">w</span> <span class="o">=</span> <span class="p">(</span><span class="n">Ws</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                    <span class="n">v</span> <span class="o">=</span> <span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">a</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">azs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unknown method </span><span class="si">{</span><span class="n">method</span><span class="si">!r}</span><span class="s2">; &quot;</span>
+                                 <span class="s2">&quot;expected &#39;intensity&#39; or &#39;energy&#39;&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">azs</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">azs</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">ens</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">dfs</span><span class="p">))</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ambiscape.starss.wrap_deg" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">wrap_deg</span><span class="p">(</span><span class="n">d</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Wrap angle difference(s) to (-180, 180] degrees.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ambiscape/starss.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">wrap_deg</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrap angle difference(s) to (-180, 180] degrees.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="o">-</span><span class="p">((</span><span class="mf">180.0</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="o">%</span> <span class="mf">360.0</span> <span class="o">-</span> <span class="mf">180.0</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ambiscape.starss.validate_clip" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">validate_clip</span><span class="p">(</span><span class="n">wav_path</span><span class="p">,</span> <span class="n">csv_path</span><span class="p">,</span> <span class="n">frame_s</span><span class="o">=</span><span class="n">FRAME_S</span><span class="p">,</span> <span class="n">wyzx</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;intensity&#39;</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compare one clip's energy azimuth with its labels, frame by frame.</p>
+<p>Only single-source frames are scored (see the module docstring).
+Returns <code>records</code> (one dict per scored frame: frame, class_name,
+label azimuth, estimated azimuth, signed circular <code>error_deg</code>),
+<code>n_frames_labelled</code> (distinct labelled frames), and <code>n_multi</code>
+(frames excluded as multi-source).</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ambiscape/starss.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">validate_clip</span><span class="p">(</span><span class="n">wav_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+                  <span class="n">frame_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">FRAME_S</span><span class="p">,</span> <span class="n">wyzx</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                  <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;intensity&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compare one clip&#39;s energy azimuth with its labels, frame by frame.</span>
 
 <span class="sd">    Only single-source frames are scored (see the module docstring).</span>
@@ -36232,7 +36485,8 @@ label azimuth, estimated azimuth, signed circular <code>error_deg</code>),
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">rows</span> <span class="o">=</span> <span class="n">read_annotations</span><span class="p">(</span><span class="n">csv_path</span><span class="p">)</span>
     <span class="n">singles</span><span class="p">,</span> <span class="n">n_multi</span> <span class="o">=</span> <span class="n">single_source_frames</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
-    <span class="n">az_est</span><span class="p">,</span> <span class="n">_en</span> <span class="o">=</span> <span class="n">frame_azimuths</span><span class="p">(</span><span class="n">wav_path</span><span class="p">,</span> <span class="n">frame_s</span><span class="o">=</span><span class="n">frame_s</span><span class="p">,</span> <span class="n">wyzx</span><span class="o">=</span><span class="n">wyzx</span><span class="p">)</span>
+    <span class="n">az_est</span><span class="p">,</span> <span class="n">_en</span><span class="p">,</span> <span class="n">diff</span> <span class="o">=</span> <span class="n">frame_azimuths</span><span class="p">(</span><span class="n">wav_path</span><span class="p">,</span> <span class="n">frame_s</span><span class="o">=</span><span class="n">frame_s</span><span class="p">,</span> <span class="n">wyzx</span><span class="o">=</span><span class="n">wyzx</span><span class="p">,</span>
+                                       <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
     <span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">frame</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">singles</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">frame</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">az_est</span><span class="p">):</span>
@@ -36240,6 +36494,7 @@ label azimuth, estimated azimuth, signed circular <code>error_deg</code>),
         <span class="n">err</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">wrap_deg</span><span class="p">(</span><span class="n">az_est</span><span class="p">[</span><span class="n">frame</span><span class="p">]</span> <span class="o">-</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;azimuth&quot;</span><span class="p">]))</span>
         <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
             <span class="s2">&quot;frame&quot;</span><span class="p">:</span> <span class="n">frame</span><span class="p">,</span>
+            <span class="s2">&quot;diffuseness&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">diff</span><span class="p">[</span><span class="n">frame</span><span class="p">]),</span> <span class="mi">3</span><span class="p">),</span>
             <span class="s2">&quot;class_name&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;class_name&quot;</span><span class="p">],</span>
             <span class="s2">&quot;label_az_deg&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;azimuth&quot;</span><span class="p">],</span>
             <span class="s2">&quot;est_az_deg&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">az_est</span><span class="p">[</span><span class="n">frame</span><span class="p">]),</span> <span class="mi">1</span><span class="p">),</span>
@@ -36273,38 +36528,38 @@ degrees, and a per-class breakdown (n, median, IQR).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/starss.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span>
-<span class="normal">197</span>
-<span class="normal">198</span>
-<span class="normal">199</span>
-<span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span>
-<span class="normal">203</span>
-<span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span>
-<span class="normal">209</span>
-<span class="normal">210</span>
-<span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span>
-<span class="normal">214</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">error_stats</span><span class="p">(</span><span class="n">records</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">error_stats</span><span class="p">(</span><span class="n">records</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Circular error statistics over scored frames.</span>
 
 <span class="sd">    Median and IQR of the absolute circular error, circular bias (mean of</span>
@@ -36363,45 +36618,45 @@ statistics, per-clip statistics, and the pooled per-frame records.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/starss.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">217</span>
-<span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
-<span class="normal">225</span>
-<span class="normal">226</span>
-<span class="normal">227</span>
-<span class="normal">228</span>
-<span class="normal">229</span>
-<span class="normal">230</span>
-<span class="normal">231</span>
-<span class="normal">232</span>
-<span class="normal">233</span>
-<span class="normal">234</span>
-<span class="normal">235</span>
-<span class="normal">236</span>
-<span class="normal">237</span>
-<span class="normal">238</span>
-<span class="normal">239</span>
-<span class="normal">240</span>
-<span class="normal">241</span>
-<span class="normal">242</span>
-<span class="normal">243</span>
-<span class="normal">244</span>
-<span class="normal">245</span>
-<span class="normal">246</span>
-<span class="normal">247</span>
-<span class="normal">248</span>
-<span class="normal">249</span>
-<span class="normal">250</span>
-<span class="normal">251</span>
-<span class="normal">252</span>
-<span class="normal">253</span>
-<span class="normal">254</span>
-<span class="normal">255</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">validate_collection</span><span class="p">(</span><span class="n">folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">ann_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">validate_collection</span><span class="p">(</span><span class="n">folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">ann_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
                         <span class="n">frame_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">FRAME_S</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate every clip in ``folder`` against CSVs in ``ann_dir``.</span>
 
@@ -36464,29 +36719,29 @@ statistics, per-clip statistics, and the pooled per-frame records.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/starss.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">299</span>
-<span class="normal">300</span>
-<span class="normal">301</span>
-<span class="normal">302</span>
-<span class="normal">303</span>
-<span class="normal">304</span>
-<span class="normal">305</span>
-<span class="normal">306</span>
-<span class="normal">307</span>
-<span class="normal">308</span>
-<span class="normal">309</span>
-<span class="normal">310</span>
-<span class="normal">311</span>
-<span class="normal">312</span>
-<span class="normal">313</span>
-<span class="normal">314</span>
-<span class="normal">315</span>
-<span class="normal">316</span>
-<span class="normal">317</span>
-<span class="normal">318</span>
-<span class="normal">319</span>
-<span class="normal">320</span>
-<span class="normal">321</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_validation</span><span class="p">(</span><span class="n">folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">ann_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_validation</span><span class="p">(</span><span class="n">folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">ann_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
                    <span class="n">out_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                    <span class="n">frame_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">FRAME_S</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;CLI driver: validate, write ``doavalidate.json`` + ``doavalidate.png``.</span>

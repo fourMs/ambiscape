@@ -820,10 +820,22 @@ def cycle_profile(level_db, dt: float, min_period_s: float = 60.0,
     Periodicity alone does not separate them: a converter warms and cools
     with the building, so a node sitting at its own floor can carry a daily
     cycle that has nothing to do with the room. That premise is well
-    established on the SINS corpus by an hour-of-day analysis --- node 9 is a
-    dead channel, hears nothing, and still swings 10.7 dB with the clock,
-    peaking at 12:00--14:00 and troughing at 04:00--06:00, and node 10's
-    profile correlates with it at r = 0.97.
+    supported on the SINS corpus by an hour-of-day analysis. Node 9 is the least
+    sensitive instrument in that deployment, in a bedroom nobody enters by day,
+    and it sits on its own noise floor for the great majority of the week; its
+    hourly profile still swings 10.7 dB, peaking at 14:00 and troughing at
+    04:00--06:00, and node 10's profile correlates with it at r = 0.97. A node
+    that is reporting its own floor almost all the time, whose profile peaks at
+    midday, is most simply read as a floor that warms with the building.
+
+    Note what that argument is *not*. An earlier version of this docstring
+    called node 9 a dead channel that hears nothing, which would have made the
+    case decisive. It is not dead --- that call was made and retracted within
+    the project: node 9 separates activity classes by 31.6 dB (sleeping -62,
+    dressing -50, vacuum cleaner -28) and reads 13.7 dB of per-second spread
+    during a labelled vacuum span. So some part of its 10.7 dB could in
+    principle be room signal, and the thermal reading is an inference from the
+    at-floor fraction and the phase rather than a measurement of temperature.
 
     **What is not established is that this function can be used to apply
     that.** Run over the whole SINS week at 10 s across all twelve nodes

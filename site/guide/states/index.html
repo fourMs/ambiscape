@@ -507,6 +507,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../timescales/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Timescales & validity windows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grounding/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Grounding (signal vs perception)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../stereo-mono/" class="md-nav__link">
         
   
@@ -599,6 +655,45 @@
     <span class="md-ellipsis">
       
         On/off segmentation (ambiscape.states)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="On/off segmentation (ambiscape.states)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ask-whether-there-are-two-states-before-splitting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ask whether there are two states before splitting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-cycle-is-two-quantities-not-one" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A cycle is two quantities, not one
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-crossing-between-states-statestransition_profile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The crossing between states (states.transition_profile)
       
     </span>
   </a>
@@ -749,6 +844,62 @@
     
   
     Spatial analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../network/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-room acoustic network
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../array/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spaced-microphone array
   
 
     
@@ -1841,6 +1992,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../starss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DCASE STARSS validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1906,6 +2085,45 @@
     <span class="md-ellipsis">
       
         On/off segmentation (ambiscape.states)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="On/off segmentation (ambiscape.states)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ask-whether-there-are-two-states-before-splitting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ask whether there are two states before splitting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-cycle-is-two-quantities-not-one" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A cycle is two quantities, not one
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-crossing-between-states-statestransition_profile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The crossing between states (states.transition_profile)
       
     </span>
   </a>
@@ -1991,6 +2209,70 @@ period, duty fraction, and cycle count (a fridge: ~24 min at ~50 %).</p>
 <p>Pass an explicit <code>thresh_db</code> when the timeline is not clearly bimodal.
 Segment times (<code>t0_s</code>) index the 1 Hz feature rows, so map them through
 <code>F["t"]</code> for absolute clock time in multi-take sessions.</p>
+<h3 id="ask-whether-there-are-two-states-before-splitting">Ask whether there are two states before splitting</h3>
+<div class="highlight"><pre><span></span><code><span class="n">sep</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">bimodal_separation</span><span class="p">(</span><span class="n">lvl</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">sep</span><span class="p">[</span><span class="s2">&quot;bimodal&quot;</span><span class="p">]:</span>
+    <span class="n">segs</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">state_segments</span><span class="p">(</span><span class="n">lvl</span><span class="p">,</span> <span class="n">thresh_db</span><span class="o">=</span><span class="n">sep</span><span class="p">[</span><span class="s2">&quot;threshold_db&quot;</span><span class="p">])</span>
+</code></pre></div>
+<p>Otsu's method returns a threshold for any series, including one with a
+single populated mode. The split then divides noise and <code>duty_cycle</code>
+reports a period for a machine nothing detected, with nothing in the chain
+signalling a problem. <code>bimodal_separation</code> returns the two class means,
+their <code>separation_db</code>, the <code>upper_fraction</code>, and a <code>bimodal</code> flag that is
+False when the modes are closer than <code>min_separation_db</code> or one class is
+nearly empty.</p>
+<p>One refrigerator in two rooms of the same house shows the range: 8.4 dB of
+separation and twelve clean cycles in the kitchen, 0.6 dB and a single
+night-long segment in the living room. A False flag does not prove the
+machine is absent — only that a two-state split of this timeline is not
+evidence that it is present.</p>
+<h3 id="a-cycle-is-two-quantities-not-one">A cycle is two quantities, not one</h3>
+<div class="highlight"><pre><span></span><code><span class="n">c</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">cycle_series</span><span class="p">(</span><span class="n">segs</span><span class="p">)</span>
+<span class="n">c</span><span class="p">[</span><span class="s2">&quot;on_s&quot;</span><span class="p">],</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;period_s&quot;</span><span class="p">]</span>                 <span class="c1"># per cycle, not medians</span>
+<span class="n">c</span><span class="p">[</span><span class="s2">&quot;on_trend&quot;</span><span class="p">][</span><span class="s2">&quot;rho&quot;</span><span class="p">],</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;period_trend&quot;</span><span class="p">][</span><span class="s2">&quot;rho&quot;</span><span class="p">]</span>
+</code></pre></div>
+<p>A thermostat's on-time is set by the appliance and its period by the room,
+so the two can move independently and a duty fraction — their ratio — hides
+both. <code>cycle_series</code> returns each as a series with its correlation against
+cycle number, the change per cycle and the spread. Read the trend against
+the spread: a period moving by a quarter of itself and an on-time moving by
+a minute can both correlate at 0.9. A refrigerator over one night: on-time
+7.6 to 8.5 minutes, period 30.5 to 38.0.</p>
+<p>A run still on when the series ends has an unknown length and is dropped
+from <code>on_s</code>, with <code>truncated_final_run</code> set; the period series is measured
+onset to onset and is unaffected.</p>
+<p>For the same question asked of a level series rather than of segments, see
+<code>analysis.cycle_drift</code>, which reports a median period and a drift percentage
+over overlapping windows.</p>
+<h2 id="the-crossing-between-states-statestransition_profile">The crossing between states (<code>states.transition_profile</code>)</h2>
+<p>Segmentation tells you the states a room passed through. It says nothing
+about the crossings, and the crossing is what anyone in the room notices: a
+refrigerator does not fade in, it strikes, clatters for a moment and
+subsides into the hum that will be ignored for the next eleven minutes.</p>
+<p><code>transition_profile</code> describes each boundary — the direction, the size of
+the step, the 10–90 % crossing time, and how long the level took to settle
+into its new state:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape.states</span><span class="w"> </span><span class="kn">import</span> <span class="n">band_level</span><span class="p">,</span> <span class="n">state_segments</span><span class="p">,</span> <span class="n">transition_profile</span>
+
+<span class="n">lvl</span> <span class="o">=</span> <span class="n">band_level</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="p">(</span><span class="mf">250.0</span><span class="p">,</span> <span class="mf">1000.0</span><span class="p">))</span>
+<span class="n">segs</span> <span class="o">=</span> <span class="n">state_segments</span><span class="p">(</span><span class="n">lvl</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">transition_profile</span><span class="p">(</span><span class="n">lvl</span><span class="p">,</span> <span class="n">segs</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;direction&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;step_db&quot;</span><span class="p">],</span> <span class="s2">&quot;dB in&quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;crossing_s&quot;</span><span class="p">],</span> <span class="s2">&quot;s&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>Why it matters: a fridge and a slow fade can end at the same level, and to
+any per-state descriptor they are identical. Only the crossing tells them
+apart.</p>
+<p>The settling band is the wider of your tolerance and twice the new state's
+own variability, because a tolerance tighter than the state's noise would
+report that a steady state never settles — which says something about the
+tolerance and nothing about the room. "Stays inside" is a fraction rather
+than every sample, since a merely noisy state throws the occasional
+excursion past any band.</p>
+<p><code>detect_cessations</code> is the same idea without a segmentation to hand: it
+finds a level that held steady, fell, and stayed down. Ordinary event
+detection looks for level <em>rising</em> above a background, which is a good
+definition of an arrival and no definition of a departure — so every
+machine that stops was previously invisible.</p>
 <h2 id="source-fingerprints-backgroundsource_fingerprint">Source fingerprints (<code>background.source_fingerprint</code>)</h2>
 <p>With minute masks for "source clearly on" and "clearly off" (e.g. derived
 from the state segments), the fingerprint is the dB difference of the two
@@ -2052,7 +2334,7 @@ side-facing cardioids for listenable previews; write the result with
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 6, 2026 15:21:37 UTC">August 6, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 10, 2026 18:08:03 UTC">August 10, 2026</span>
   </span>
 
     

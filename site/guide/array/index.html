@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://fourms.github.io/ambiscape/guide/music/">
+        <link rel="canonical" href="https://fourms.github.io/ambiscape/guide/array/">
       
       
-        <link rel="prev" href="../loop/">
+        <link rel="prev" href="../network/">
       
       
-        <link rel="next" href="../carillon/">
+        <link rel="next" href="../acoustics/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Music (tempo & chroma) - ambiscape</title>
+        <title>Spaced-microphone array - ambiscape</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#mir-views-tempogram-and-chromagram" class="md-skip">
+        <a href="#spaced-microphone-array" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Music (tempo & chroma)
+              Spaced-microphone array
             
           </span>
         </div>
@@ -649,8 +649,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -661,11 +663,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
         
           
           <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
@@ -686,7 +688,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             
@@ -757,10 +759,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../array/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spaced-microphone array
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -776,6 +805,81 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How it works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#honest-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Honest limits
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-it-produces" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What it produces
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#triangulation-across-nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Triangulation across nodes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#programmatic-helpers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Programmatic helpers
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1019,8 +1123,6 @@
       
   
   
-    
-  
   
   
     
@@ -1033,11 +1135,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
         
           
           <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="">
@@ -1058,7 +1160,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_9">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1185,37 +1287,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Music (tempo & chroma)
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../music/" class="md-nav__link">
         
   
   
@@ -1231,59 +1306,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#in-python" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        In Python
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#circular-views-pulse-clarity-and-the-circle-of-fifths" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Circular views: pulse clarity and the circle of fifths
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#object-level-schaeffer-profile" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Object-level Schaeffer profile
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2031,10 +2053,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#in-python" class="md-nav__link">
+  <a href="#how-it-works" class="md-nav__link">
     <span class="md-ellipsis">
       
-        In Python
+        How it works
       
     </span>
   </a>
@@ -2042,10 +2064,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#circular-views-pulse-clarity-and-the-circle-of-fifths" class="md-nav__link">
+  <a href="#honest-limits" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Circular views: pulse clarity and the circle of fifths
+        Honest limits
       
     </span>
   </a>
@@ -2053,10 +2075,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#object-level-schaeffer-profile" class="md-nav__link">
+  <a href="#what-it-produces" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Object-level Schaeffer profile
+        What it produces
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#triangulation-across-nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Triangulation across nodes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#programmatic-helpers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Programmatic helpers
       
     </span>
   </a>
@@ -2083,77 +2127,144 @@
   
 
 
-<h1 id="mir-views-tempogram-and-chromagram">MIR views: tempogram and chromagram</h1>
-<p><code>ambiscape music</code> adds the two standard music-information-retrieval views on
-top of the built-in analyses: the tempogram (onset autocorrelation over
-time, in BPM) and the chromagram (12-bin pitch-class energy over time).
-They are the time-resolved, MIR-conventional counterparts of the built-in
-<code>rhythm</code> tempogram and <code>tonality.pitch_class_profile</code>, useful as an
-independent cross-check and for readers who expect the librosa picture.</p>
-<p><img alt="librosa tempogram (BPM over time) above a chromagram (12 pitch classes over time)." src="../../img/music.png" /></p>
-<div class="highlight"><pre><span></span><code>ambiscape<span class="w"> </span>music<span class="w"> </span>&lt;session-folder&gt;<span class="w"> </span>--t0<span class="w"> </span><span class="m">60</span><span class="w"> </span>--dur<span class="w"> </span><span class="m">1500</span><span class="w">   </span><span class="c1"># needs the [music] extra</span>
-</code></pre></div>
-<p>Reads audio directly (not the feature cache), so it needs
-<code>pip install "ambiscape[music]"</code>. <code>--t0</code> and <code>--dur</code> (seconds into the first
-take) bound the analysed span; a 25-minute file takes on the order of a
-minute. Analysis runs on the mono W reference resampled to 22.05 kHz.</p>
-<p>Writes <code>music.json</code> (<code>tempo_bpm_global</code> and <code>tempo_period_s</code> from librosa's
-global tempo estimate, <code>chroma_mean</code>, which is the 12 pitch classes
-normalised to sum to 1, and <code>top_pitch_classes</code>) and <code>music.png</code> (the
-tempogram over the chromagram).</p>
-<h2 id="in-python">In Python</h2>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape</span><span class="w"> </span><span class="kn">import</span> <span class="n">music</span>
+<h1 id="spaced-microphone-array">Spaced-microphone array</h1>
+<p>The toolbox reads space in three ways, differing in where the microphones
+sit. <a href="../spatial/">Spatial analysis</a> reads a soundfield sampled at one point
+— co-located ambisonic capsules — and asks <em>from which direction</em>; the
+<a href="../network/">multi-room acoustic network</a> reads one microphone per room and
+asks <em>through which fabric</em>; <code>array</code> sits between them: a handful of spaced
+omnis in one room, the SINS nodes' linear four-MEMS arrays being the model
+case. Across a spaced array a wavefront arrives at each capsule at a
+slightly different time, and the pattern of those arrival-time differences
+carries a bearing; how coherent the channels remain across frequency
+carries a direct-versus-diffuse reading. Neither needs a soundfield
+microphone to have been present.</p>
+<p><img alt="Bearing track of a source moving past a four-mic linear array: bearing sweeps across the half-plane, confidence collapsing during the diffuse-only interval (documentation demo data)." src="../../img/array_bearing.png" /></p>
+<div class="highlight"><pre><span></span><code>ambiscape<span class="w"> </span>array<span class="w"> </span>node.wav<span class="w"> </span>--geometry<span class="w"> </span>geometry.json
+<span class="c1">#   4 mics, 6 pairs, 1199 frames of 0.100 s</span>
+<span class="c1">#   bearing median 62.1° from the axis (IQR 4.0°), confident frames 81% — front-back ambiguous, endfire-blind</span>
+<span class="c1">#   gamma_array median 0.24 (0 = direct wavefront, 1 = diffuse; spaced-omni proxy, not the FOA psi)</span>
+<span class="c1">#   wrote analysis/array.json and 2 figure(s)</span>
 
-<span class="n">y</span><span class="p">,</span> <span class="n">sr</span> <span class="o">=</span> <span class="n">music</span><span class="o">.</span><span class="n">load_w</span><span class="p">(</span><span class="n">sess</span><span class="o">.</span><span class="n">takes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">t0</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">1500</span><span class="p">)</span>
-<span class="n">times</span><span class="p">,</span> <span class="n">bpm</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">tempo</span> <span class="o">=</span> <span class="n">music</span><span class="o">.</span><span class="n">tempogram</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">sr</span><span class="p">)</span>   <span class="c1"># T is the tempogram matrix</span>
-<span class="n">tc</span><span class="p">,</span> <span class="n">C</span> <span class="o">=</span> <span class="n">music</span><span class="o">.</span><span class="n">chromagram</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">sr</span><span class="p">)</span>                 <span class="c1"># C is 12 x n_frames</span>
+ambiscape<span class="w"> </span>array<span class="w"> </span>node.wav<span class="w"> </span>--spacing<span class="w"> </span><span class="m">0</span>.05<span class="w">      </span><span class="c1"># uniform linear shortcut</span>
 </code></pre></div>
-<p><code>tempogram</code> returns librosa's global <code>tempo</code> alongside the matrix, which
-resolves the octave ambiguity a raw tempogram argmax suffers from. Because
-this is the MIR-standard estimator, a disagreement with the built-in
-<code>rhythm</code> tempo is diagnostic rather than an error, since the two use
-different onset models.</p>
-<h2 id="circular-views-pulse-clarity-and-the-circle-of-fifths">Circular views: pulse clarity and the circle of fifths</h2>
-<p>Three functions apply the <a href="../../api/">circular statistics</a> machinery to
-musical material. They were developed on a five-album solo-harp catalogue
-(57 tracks) where conventional beat tracking fails outright.</p>
-<div class="highlight"><pre><span></span><code><span class="n">music</span><span class="o">.</span><span class="n">pulse_clarity</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">sr</span><span class="p">)</span>
-<span class="c1"># {&quot;R&quot;: 0.05, &quot;period_s&quot;: 0.47, &quot;period_bpm&quot;: 127.7, &quot;rayleigh_p&quot;: ..., &quot;n_onsets&quot;: 412}</span>
+<p>The geometry file gives mic positions in metres (and optionally the speed
+of sound); a flat list is read as positions along one line:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;mics&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[[</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">0.10</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">0.15</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">]],</span><span class="w"> </span><span class="nt">&quot;c&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">343.0</span><span class="p">}</span>
 </code></pre></div>
-<p><em><code>pulse_clarity</code></em> measures <em>metric lock</em> rather than tempo: onsets are
-folded at the dominant period and the strength-weighted resultant length R
-taken as the score, where 0 is free rubato and 1 metronomic. The period is chosen
-among the envelope-ACF peak and its metrical octaves by maximising R itself
-(folding 120 BPM onsets at the octave-below period would cancel the
-resultant). Use it where a BPM number would be meaningless: rubato playing,
-drones, ambient textures. One caveat: the single global period means slow
-tempo drift also reads as low R.</p>
-<div class="highlight"><pre><span></span><code><span class="n">music</span><span class="o">.</span><span class="n">fifths_center</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>          <span class="c1"># one recording&#39;s tonal center + focus</span>
-<span class="n">music</span><span class="o">.</span><span class="n">tonal_center_spread</span><span class="p">([</span><span class="n">c1</span><span class="p">,</span> <span class="n">c2</span><span class="p">,</span> <span class="n">c3</span><span class="p">])</span> <span class="c1"># how tightly a corpus clusters in key space</span>
+<h2 id="how-it-works">How it works</h2>
+<ul>
+<li><strong>TDOA</strong> (<code>tdoa</code>) — every frame (default 100 ms, hopped by half) is
+  Hann-windowed and, per mic pair, the PHAT-weighted cross-power spectrum
+  is inverted to a generalised cross-correlation (GCC-PHAT). The peak is
+  searched only over physically possible lags (± spacing / c) and refined
+  by parabolic interpolation. Convention: <code>tau_s[frame, pair] = t_i − t_j</code>
+  for pair <code>(i, j)</code>, positive when the wavefront reaches mic <em>j</em> first.
+  Each estimate carries the GCC peak height (1 for a clean single delay,
+  near 0 for decorrelated channels) and its <em>prominence</em> over the
+  strongest rival lag — the confidence base.</li>
+<li><strong>Bearing</strong> (<code>bearing</code>) — for mics on one line with axis <em>u</em>, a plane
+  wave from cone angle θ gives <code>tau_ij = −(s_i − s_j) cos θ / c</code>, so each
+  frame's <code>cos θ</code> is a prominence-weighted least-squares fit across all
+  pairs. Bearings run 0–180° from the axis (0/180 = endfire, 90 =
+  broadside); the confidence stream is the median GCC prominence across
+  pairs, and frames whose fit falls outside |cos θ| ≤ 1 are flagged
+  <code>clipped</code>.</li>
+<li><strong>Coherence profile</strong> (<code>coherence_profile</code>) — per window (default 4 s)
+  the magnitude-squared coherence of every pair versus frequency, next to
+  the analytic diffuse-field curve for spaced omnis at that spacing,
+  <code>sinc(2 f d / c)²</code>.</li>
+<li><strong>Diffuseness proxy</strong> (<code>gamma_array</code>) — per window, the energy-weighted
+  excess of measured coherence over the diffuse curve (taken where the
+  curve has fallen below 0.5, so the spacing is informative) is normalised
+  to a directness reading; <code>gamma_array</code> is one minus its median across
+  pairs: 0 when a coherent wavefront crosses the array, 1 when coherence
+  sits at or below the diffuse prediction.</li>
+</ul>
+<p><img alt="Inter-channel coherence per spacing against the analytic diffuse-field curves (dashed), over the gamma_array timeline (documentation demo data)." src="../../img/array_coherence.png" /></p>
+<h2 id="honest-limits">Honest limits</h2>
+<ul>
+<li><strong>Front–back ambiguity</strong> — a linear array observes only the cone angle:
+  the two sides of its axis fold onto one bearing, and nothing in the data
+  can unfold them. Triangulation resolves the fold only when the node
+  geometry breaks the mirror symmetry (see below).</li>
+<li><strong>Endfire blindness</strong> — near 0° and 180° the delay–angle mapping
+  flattens (<code>dτ/dθ → 0</code>), so endfire bearings are low-resolution even at
+  high confidence, and fits pushed past the physical limit are clipped to
+  the endfire and flagged.</li>
+<li><strong><code>gamma_array</code> is a proxy</strong> — it is built from spaced-omni coherence
+  deviations and is deliberately named apart from the first-order-ambisonic
+  diffuseness ψ (<code>diffuse</code> in the feature cache), an energetic soundfield
+  measure at a single point. The two agree in tendency, not in value; do
+  not pool them in one column.</li>
+<li><strong>One clock per node</strong> — TDOAs compare channels of one interface, so
+  sample-synchronous capture is assumed within a node. Across nodes only
+  bearings are combined, never sample times.</li>
+</ul>
+<h2 id="what-it-produces">What it produces</h2>
+<ul>
+<li><code>array.json</code> — geometry, per-pair median TDOAs (ms), bearing summary
+  over the confident frames (median, IQR, confident fraction), and the
+  <code>gamma_array</code> median and IQR.</li>
+<li><code>array_bearing.png</code> — the bearing track, time × bearing with the
+  confidence as colour (linear geometries only).</li>
+<li><code>array_coherence.png</code> — measured coherence per spacing against the
+  dashed diffuse-field curves, over the <code>gamma_array</code> timeline.</li>
+</ul>
+<h2 id="triangulation-across-nodes">Triangulation across nodes</h2>
+<p>With two or more nodes bearing on the same event, <code>triangulate</code> intersects
+the bearing streams on a floor plan by weighted least squares — a library
+call, since it needs several recordings on a shared clock. The floor plan
+gives each node's position and the world direction of its array axis
+(anticlockwise from +x, first mic towards last):</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;nodes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;living&quot;</span><span class="p">,</span><span class="w">  </span><span class="nt">&quot;pos&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">],</span><span class="w"> </span><span class="nt">&quot;axis_deg&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;kitchen&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;pos&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">4.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">],</span><span class="w"> </span><span class="nt">&quot;axis_deg&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">90.0</span><span class="p">}</span>
+<span class="p">]}</span>
 </code></pre></div>
-<p><em><code>fifths_center</code></em> places the 12 pitch classes a fifth apart around a
-circle and takes the chroma-weighted resultant: the mean angle is the tonal
-centre, R the tonal focus (diatonic material concentrates, chromatic or
-inharmonic material smears). <code>tonal_center_spread</code> applies the same
-resultant to <em>many</em> recordings' centres, near 1 for a repertoire that stays
-in neighbouring keys, near 0 for one that wanders the circle. The
-between-recording statistic must be circular, since key centres have no
-meaningful linear mean: the average of C and B is not F sharp.</p>
-<h2 id="object-level-schaeffer-profile">Object-level Schaeffer profile</h2>
-<div class="highlight"><pre><span></span><code><span class="n">music</span><span class="o">.</span><span class="n">tartyp_profile</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">sr</span><span class="p">)</span>
-<span class="c1"># {&quot;dist&quot;: {&quot;N&quot;: 0.62, &quot;N&#39;&quot;: 0.35, &quot;N&#39;&#39;&quot;: 0.02, &quot;Y&quot;: 0.01}, &quot;n_objects&quot;: 803}</span>
+<p>Each linear-array bearing admits two world rays, <code>axis_deg ± bearing</code>;
+every sign combination is solved and the one with the smallest residual
+wins, with rays that would place the source behind a node rejected. When
+the runner-up fits almost as well — parallel array axes make the two sides
+genuinely indistinguishable — the fix is flagged <code>ambiguous</code> rather than
+silently resolved. With exactly two nodes any two non-parallel rays meet
+exactly, so only mirror rays that fall behind a node can be eliminated;
+a third node makes the residual itself discriminating. The residual (RMS ray-to-point distance) is the coarse
+uncertainty: treat each position as a blob of about that radius, and
+distrust fixes whose intersection angle is small.</p>
+<p>A worked synthetic example, with the bearing streams built directly from
+the plan geometry (in practice they come from <code>bearing(tdoa(...))</code> per
+node):</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape</span><span class="w"> </span><span class="kn">import</span> <span class="n">array</span>
+
+<span class="n">plan</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;living&quot;</span><span class="p">,</span>  <span class="s2">&quot;pos&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="s2">&quot;axis_deg&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">},</span>
+    <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;kitchen&quot;</span><span class="p">,</span> <span class="s2">&quot;pos&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="s2">&quot;axis_deg&quot;</span><span class="p">:</span> <span class="mf">90.0</span><span class="p">},</span>
+<span class="p">]}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">stream</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">axis_deg</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">60</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The bearing a node at ``pos`` would report for ``source``.&quot;&quot;&quot;</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">pos</span><span class="p">)</span>
+    <span class="n">world</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">((</span><span class="n">world</span> <span class="o">-</span> <span class="n">axis_deg</span> <span class="o">+</span> <span class="mi">180</span><span class="p">)</span> <span class="o">%</span> <span class="mi">360</span> <span class="o">-</span> <span class="mi">180</span><span class="p">)</span>   <span class="c1"># cone angle</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;t&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
+            <span class="s2">&quot;bearing_deg&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">theta</span><span class="p">),</span>
+            <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">),</span>
+            <span class="s2">&quot;clipped&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)}</span>
+
+<span class="n">source</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>
+<span class="n">tri</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">triangulate</span><span class="p">([</span><span class="n">stream</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">source</span><span class="p">),</span>
+                         <span class="n">stream</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mf">90.0</span><span class="p">,</span> <span class="n">source</span><span class="p">)],</span> <span class="n">plan</span><span class="p">)</span>
+<span class="n">tri</span><span class="p">[</span><span class="s2">&quot;xy&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>                                  <span class="c1"># -&gt; [1.5, 2.0]</span>
+<span class="n">array</span><span class="o">.</span><span class="n">triangulate_figure</span><span class="p">(</span><span class="n">tri</span><span class="p">,</span> <span class="n">plan</span><span class="p">,</span> <span class="s2">&quot;triangulation.png&quot;</span><span class="p">)</span>
 </code></pre></div>
-<p><em><code>tartyp_profile</code></em> segments a recording into onset-bounded sound objects
-and classifies each on a simplified TARTYP grid—mass N (tonic) / Y
-(variable) / X (complex) from spectral flatness and centroid drift, facture
-held / impulse (<code>'</code>) / iteration (<code>''</code>) from duration and 4–20 Hz envelope
-modulation—returning the share of sounding time per type. It is the
-object-level counterpart of the regime-level <code>draft.schaeffer_hint</code>, and
-feeds the same interpretive vocabulary as the
-<a href="../taxonomy/">taxonomy</a> figures (N→tonic, Y→tonic-complex,
-X→complex/noise). The thresholds are signal proxies for aural categories,
-calibrated on tonal instrumental material, so treat the output as a draft
-for reduced listening, not a verdict.</p>
+<p><img alt="Three-node triangulation of a source walking across a floor plan: array axes as arrows, fixes coloured by time, a few flagged ambiguous where the geometry turns momentarily symmetric (documentation demo data)." src="../../img/array_triangulate.png" /></p>
+<h2 id="programmatic-helpers">Programmatic helpers</h2>
+<p><code>ambiscape.array</code> exposes the pieces directly: <code>load_geometry</code>, <code>tdoa</code>,
+<code>bearing</code>, <code>bearing_figure</code>, <code>coherence_profile</code>, <code>coherence_figure</code>,
+<code>load_plan</code>, <code>triangulate</code>, <code>triangulate_figure</code>, and <code>run_array</code>. See the
+API reference.</p>
 
 
 
@@ -2176,7 +2287,7 @@ for reduced listening, not a verdict.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 10, 2026 13:03:20 UTC">August 10, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 7, 2026 09:21:08 UTC">August 7, 2026</span>
   </span>
 
     
@@ -2186,7 +2297,7 @@ for reduced listening, not a verdict.</p>
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 22, 2026 21:27:35 UTC">July 22, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 7, 2026 09:21:08 UTC">August 7, 2026</span>
   </span>
 
     

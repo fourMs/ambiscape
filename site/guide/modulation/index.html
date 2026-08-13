@@ -505,6 +505,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../timescales/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Timescales & validity windows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grounding/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Grounding (signal vs perception)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../stereo-mono/" class="md-nav__link">
         
   
@@ -656,6 +712,62 @@
     
   
     Spatial analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../network/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-room acoustic network
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../array/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spaced-microphone array
   
 
     
@@ -913,6 +1025,17 @@
     <span class="md-ellipsis">
       
         The three scales
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#one-spectrum-one-normalisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        One spectrum, one normalisation
       
     </span>
   </a>
@@ -1819,6 +1942,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../starss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DCASE STARSS validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1891,6 +2042,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#one-spectrum-one-normalisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        One spectrum, one normalisation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#in-python" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1950,6 +2112,19 @@ rhythm spectrogram, in dB relative to each window's median).</p>
 <p>Each scale comes from a different cached envelope, since no single
 envelope rate resolves both a footstep and a fridge that runs for eight
 minutes in every thirty-six.</p>
+<h2 id="one-spectrum-one-normalisation">One spectrum, one normalisation</h2>
+<p>All three scales are computed identically: the source stream is converted
+to a linear-power envelope, normalised to unit mean, and its Welch power
+spectral density taken (Welch bins averaged into a log-frequency grid).
+The three curves therefore share one axis — PSD in dB re 1/Hz of the
+unit-mean power envelope — and are directly comparable in level, with no
+per-band offsets. Each scale is additionally computed half a decade past
+its nominal band edges, so adjacent scales overlap; in the figure the
+overlap is drawn faint and the nominal band solid, and the curves joining
+where they meet is the visible check that the shared normalisation holds
+(on the SINS reference sessions, adjacent scales agree to within a couple
+of dB in the overlaps). The reported statistics are always taken within
+the nominal band only.</p>
 <p>Each scale reports <code>peak_freq_hz</code>, <code>peak_period_s</code>, <code>peak_prominence_db</code>
 (peak over the band median) and <code>modulation_depth</code> (band-integrated
 modulation power of the unit-mean envelope). A sharp, prominent peak means
@@ -1987,7 +2162,7 @@ spectrogram from a custom envelope.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 6, 2026 15:21:37 UTC">August 6, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 7, 2026 13:48:46 UTC">August 7, 2026</span>
   </span>
 
     

@@ -505,6 +505,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../timescales/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Timescales & validity windows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grounding/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Grounding (signal vs perception)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../stereo-mono/" class="md-nav__link">
         
   
@@ -656,6 +712,62 @@
     
   
     Spatial analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../network/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-room acoustic network
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../array/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spaced-microphone array
   
 
     
@@ -1830,6 +1942,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../starss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DCASE STARSS validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2005,6 +2145,39 @@ any orientation on the body.</p>
   significance speaks to locking onto <em>wandering</em> real-world modulation,
   which is the conservative behaviour you want.</li>
 </ul>
+<div class="admonition warning">
+<p class="admonition-title">Rotation invariance is not reflection invariance</p>
+<p>Mirroring one of the two angle series flips the coefficient's sign and
+leaves its magnitude exactly unchanged, so judging by |rho| places the
+blind spot precisely where a handedness error lands. A recorder mounted
+upside down writes Y inverted and its horizontal bearing becomes its own
+mirror image; no offset recovers that, and neither does a search over
+rotations, because a reflection is not in the set being searched. Such a
+search returns a poor best fit rather than a complaint. Settle handedness
+from how the rig was mounted, and from whether the recorder already
+compensated for it.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Whose frame is the azimuth in?</p>
+<p>A recorder travelling on the same body as the sensor is partly measuring
+that body's posture, and will correlate with its motion for reasons that
+have nothing to do with the soundscape. Settle that first with
+<a href="../spatial/#which-frame-is-the-bearing-in"><code>spatial.frame_reference_test</code></a>;
+a directional correlation from a body-referenced rig is not a fact about
+the room.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">A best-over-shifts figure is positive by construction</p>
+<p>The circular shifts in this module are the null and never the answer. It
+is a short step to quoting the best-fitting shift's statistic instead,
+and that number rises with the number of shifts tried and with how smooth
+the two series are. On a year of daily recordings, the best of 72
+circular shifts scored <em>higher</em> on deliberately mismatched day pairs than
+on real ones — 0.599 against 0.494 — after three separate hypotheses
+about the apparatus had been tested and none of them was the problem. If
+a maximum over alignments must be reported, run the same search over
+pairs known not to belong together and quote the difference.</p>
+</div>
 <h2 id="in-notebooks">In notebooks</h2>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">ambiscape</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">asc</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape</span><span class="w"> </span><span class="kn">import</span> <span class="n">entrain</span>
@@ -2039,7 +2212,7 @@ three standard measures.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 6, 2026 15:21:37 UTC">August 6, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 13, 2026 17:35:43 UTC">August 13, 2026</span>
   </span>
 
     

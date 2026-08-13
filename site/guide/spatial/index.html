@@ -16,7 +16,7 @@
         <link rel="prev" href="../resolve/">
       
       
-        <link rel="next" href="../acoustics/">
+        <link rel="next" href="../network/">
       
       
         
@@ -505,6 +505,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../timescales/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Timescales & validity windows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grounding/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Grounding (signal vs perception)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../stereo-mono/" class="md-nav__link">
         
   
@@ -731,10 +787,77 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#which-frame-is-the-bearing-in" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Which frame is the bearing in?
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../network/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-room acoustic network
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../array/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spaced-microphone array
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1819,6 +1942,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../starss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DCASE STARSS validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1901,6 +2052,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#which-frame-is-the-bearing-in" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Which frame is the bearing in?
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1963,6 +2125,49 @@ corpus:</p>
 index, which is something only an ambisonic corpus can report. Azimuth
 measures cover ambix and (lateral) stereo but not mono, and the horizon split
 requires ambix, since neither stereo nor mono resolves elevation.</p>
+<h2 id="which-frame-is-the-bearing-in">Which frame is the bearing in?</h2>
+<p>Every azimuth above is measured in the recorder's own frame, because that
+is the only frame the audio knows about. On a recorder that sits on a
+shelf, the two frames coincide and the numbers describe the room. On a
+recorder that travels — worn, carried, mounted in a vehicle — they come
+apart, and a high <code>azimuth_R_median</code> may say only that the rig kept its
+pose.</p>
+<p><code>frame_reference_test</code> decides between the two, if a heading series exists
+alongside the bearings (a compass, a magnetometer, a written-down
+orientation per session):</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape</span><span class="w"> </span><span class="kn">import</span> <span class="n">spatial</span>
+
+<span class="n">spatial</span><span class="o">.</span><span class="n">frame_reference_test</span><span class="p">(</span>
+    <span class="n">bearing_deg</span><span class="p">,</span>          <span class="c1"># what the recorder reported</span>
+    <span class="n">heading_deg</span><span class="p">,</span>          <span class="c1"># where the recorder&#39;s nose pointed, in the world</span>
+    <span class="n">control_deg</span><span class="o">=</span><span class="n">sway_deg</span><span class="p">,</span> <span class="c1"># a positive control, in the same rig frame</span>
+<span class="p">)</span>
+<span class="c1"># {&#39;R_rig&#39;: .., &#39;R_world&#39;: .., &#39;ratio&#39;: .., &#39;R_chance&#39;: .., &#39;frame&#39;: &#39;rig&#39;}</span>
+</code></pre></div>
+<p>The world bearing is <code>bearing + heading</code>, and the answer is simply which
+of the two concentrates. <code>R_chance</code> is <code>1/sqrt(n)</code>, the resultant of <code>n</code>
+uniformly random angles, and an R below it means nothing at all.</p>
+<p>Pass the control. Without one, a result of <code>'rig'</code> cannot be told apart
+from a method that returns <code>'rig'</code> whatever it is given, and that
+difference is the whole result.</p>
+<p>This question comes before the decode, not after it. A body-worn recorder
+carried through 300 days and seven kinds of place — corridors, living
+rooms, an auditorium, a train — reported its loudest bearing at R = 0.813
+in its own frame against 0.268 in compass coordinates, with the seven
+groups' mean bearings only 18 degrees apart: one bearing for a corridor, a
+lecture hall and a moving train, because the bearing was the recorder's.
+Re-decoding those recordings with the correct channel convention softened
+the figures to 0.393 against 0.144 and spread the groups over 45 degrees in
+a sensible physical order. A wrong decode makes this worse; a right one
+does not fix it.</p>
+<p>All of this describes one point of observation, read from a soundfield.
+The toolbox holds two sibling paradigms for other microphone layouts: a
+<a href="../array/">spaced-microphone array</a> recovers bearings and a diffuseness
+proxy from the arrival-time differences and coherence of a few spaced
+omnis in one room, and when several recorders cover several rooms of one
+building at once, the <a href="../network/">multi-room acoustic network</a> makes the
+building itself the spatial object—rooms as nodes, walls and doors as
+edges.</p>
 
 
 
@@ -1985,7 +2190,7 @@ requires ambix, since neither stereo nor mono resolves elevation.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 6, 2026 15:21:37 UTC">August 6, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 13, 2026 17:35:32 UTC">August 13, 2026</span>
   </span>
 
     

@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://fourms.github.io/ambiscape/guide/acoustics/">
       
       
-        <link rel="prev" href="../spatial/">
+        <link rel="prev" href="../array/">
       
       
         <link rel="next" href="../survey/">
@@ -505,6 +505,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../timescales/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Timescales & validity windows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grounding/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Grounding (signal vs perception)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../stereo-mono/" class="md-nav__link">
         
   
@@ -675,6 +731,62 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../network/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-room acoustic network
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../array/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spaced-microphone array
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -742,6 +854,56 @@
     <span class="md-ellipsis">
       
         Reverberation from claps (decay_time)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#measuring-the-source-not-the-source-plus-the-recorder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Measuring the source, not the source plus the recorder
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-rhythm-is-the-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The rhythm is the signal
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The rhythm is the signal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#anomaly-is-the-complement-of-rhythm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anomaly is the complement of rhythm
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#an-action-begins-before-its-sound" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        An action begins before its sound
       
     </span>
   </a>
@@ -1864,6 +2026,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../starss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DCASE STARSS validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1929,6 +2119,56 @@
     <span class="md-ellipsis">
       
         Reverberation from claps (decay_time)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#measuring-the-source-not-the-source-plus-the-recorder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Measuring the source, not the source plus the recorder
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-rhythm-is-the-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The rhythm is the signal
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The rhythm is the signal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#anomaly-is-the-complement-of-rhythm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anomaly is the complement of rhythm
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#an-action-begins-before-its-sound" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        An action begins before its sound
       
     </span>
   </a>
@@ -2030,6 +2270,101 @@ each guarding against a failure mode common in field recordings:</p>
    find, so the fixed-range fits would otherwise extrapolate past the end
    of the file; T60 (adaptive range) and EDT still stand.</li>
 </ol>
+<div class="admonition warning">
+<p class="admonition-title">Camera audio can replace a recorder for T60 — and not for the rest</p>
+<p>Measured over a full year: a GoPro MAX and a Zoom H3-VR recording the
+same room and the same clap, 369 paired events, aligned by envelope
+cross-correlation and each window verified to contain a transient before
+it was measured. Reading the camera's <em>4-channel PCM ambisonic</em> track:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>camera − recorder</th>
+<th>95 % limits of agreement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>T60</strong></td>
+<td><strong>+0.03 s</strong></td>
+<td>−0.39 to +0.40 s</td>
+</tr>
+<tr>
+<td>EDT</td>
+<td><strong>+0.31 s</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>C50</td>
+<td><strong>−4.0 dB</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Reverberation time survives the substitution in the median almost
+exactly. The early field does not: the camera reports a slower early
+decay and a room about 3.6 dB less clear than it is.</p>
+<p><strong>Read the limits, not just the median.</strong> Those T60 limits span about
+0.8 s, against a median room of half a second. The camera is <em>unbiased and imprecise</em>: a distribution of T60
+computed from camera audio lands where the recorder's would, and any
+single measurement may be far out. Per event the camera falls within the
+±20 % usually granted to a clap-derived estimate on 77 % of days. Use
+camera audio to populate a distribution; do not use it to certify a room.</p>
+<p><strong>Read the right track</strong> — but for precision, not accuracy. A GoPro MAX
+<code>.360</code> carries both a processed stereo AAC mix and a 4-channel PCM
+ambisonic stream, and <code>ffmpeg</code> will hand you the stereo one by default.
+On bias the two layers are near-identical (C50 −3.6 dB against −3.8 dB);
+where they differ is spread, the stereo mix giving T60 limits of −0.59
+to +0.53 s against the ambisonic stream's −0.39 to +0.40. Note also that
+the small <code>.LRV</code> proxy carries <em>only</em> the stereo mix, so it cannot be
+used as a cheap stand-in for ambisonic work.</p>
+<p><em>Corrected 2026-08-09.</em> This box previously said that "roughly half the
+apparent clarity deficit is the convenience track", from EDT +0.24 s and
+C50 −5.5 dB on the stereo track over 7 days. That was two artefacts, not
+a finding: the windows were cut from an alignment rather than from the
+transient, and the stereo layer was measured on its <em>left channel</em>
+while the ambisonic layers were measured on W. A directional channel
+collects a different share of the direct sound, which is exactly what
+C50 measures. Measured on the mid signal (L+R)/2, with windows centred
+on the clap, the difference between the layers' bias disappears.</p>
+<p>This matters well beyond one corpus. Cameras are often the recorder with
+full coverage, and consumer cameras do not document their processing, so
+treat any camera-derived clarity or early-decay figure as unusable and
+any camera-derived T60 as sound. <em>Do not mix the two sources in one
+distribution without checking</em>, and do not assume the result transfers
+to another camera model: this was measured on one, and the processing is
+undocumented and may change with firmware.</p>
+<p>Matching matters too. The recorders here are unsynchronised — the
+measured offsets ran from −51 s to +14 s — so pairing by timestamp
+compares different events. Waveform correlation cannot verify a pair
+either, since the camera's coding changes the waveform of the same clap
+(peaks of 0.03–0.14 on every day tried). Align on the level envelope.</p>
+<p><strong>Verify the alignment on the signal, not on the correlation peak.</strong> The
+envelope correlation reports a peak height relative to its own median,
+and that number can be large and wrong: aligning the proxy <code>.LRV</code>
+instead of the <code>.360</code> agreed exactly with the full file on three days
+out of four and on the fourth returned an offset 60 s out — with a peak
+standing 50× above median, well past any plausible threshold. The cheap,
+decisive check is to cut the window at the predicted position and ask
+whether a transient is there at all: a real clap window shows 25–45 dB
+between the 20 ms after the onset and the 20 ms before it, and a
+mis-aligned one shows about zero. Gate on that, not on the correlation's
+self-report. (The proxy is also 60× faster to read, so it is tempting;
+treat it as a hint that must be confirmed against the full file.)</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Trimmed IRs: regenerate anything measured before 0.28.1</p>
+<p><code>ir_metrics</code> prepends silence when the peak sits near the start of the
+buffer, so the estimator has samples before it. Until 0.28.1 the noise
+floor was then measured <em>on that silence</em>: a trimmed IR with a real
+45 dB floor reported 173 dB of dynamic range, which satisfies every
+guard above and lets T20/T30 be fitted over noise without complaint.</p>
+<p>Since 0.28.1 the floor is read from the quietest part of the decay
+instead, and <code>dr_db</code> tracks the real signal-to-noise ratio. Numbers
+change for trimmed material only — an IR with genuine pre-roll was
+never affected.</p>
+</div>
 <p>Report T20/T30-style extrapolations only when they agree; treat impact
 sources as ±20 % (they ring structurally, which reads as extra decay,
 especially below 250 Hz). A balloon pop at ≥ 2 m with 5 s of stillness
@@ -2037,6 +2372,236 @@ around it approaches ISO 3382-2 survey grade.</p>
 <p>For a deliberate measurement, a swept sine buys far more dynamic range
 than any clap and adds STI, IACC and auralization — see
 <a href="../impulse/">Impulse response &amp; auralization</a>.</p>
+<h2 id="measuring-the-source-not-the-source-plus-the-recorder">Measuring the source, not the source plus the recorder</h2>
+<p>Every level a recorder reports is <code>P = S + N</code> — what the room did, plus what
+the machine contributed. Nothing in the number says which is which, and
+reading <code>P</code> as <code>S</code> is the single most productive source of error in this
+project's history: it produced a "loudest room" rule that ranked floor depth,
+a speech comparison that ranked microphone sensitivity, a dead-channel verdict
+on a quiet bedroom, and a daily rhythm that turned out to be a converter
+warming up.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape</span><span class="w"> </span><span class="kn">import</span> <span class="n">analysis</span>
+
+<span class="n">sig_db</span><span class="p">,</span> <span class="n">floor_db</span><span class="p">,</span> <span class="n">measurable</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">floor_corrected_level</span><span class="p">(</span><span class="n">fast_dba</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">0.125</span><span class="p">)</span>
+<span class="n">summary</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">summarize_floor_corrected</span><span class="p">(</span><span class="n">sig_db</span><span class="p">,</span> <span class="n">measurable</span><span class="p">)</span>
+<span class="c1"># {&#39;level_db&#39;: -37.8, &#39;coverage&#39;: 0.32, &#39;n_measurable&#39;: 137_216, &#39;reason&#39;: &#39;&#39;}</span>
+</code></pre></div>
+<p>Three parts, and the third is the one usually skipped:</p>
+<ol>
+<li><strong>Track the floor over time</strong> (<code>track_noise_floor</code>). One figure per session
+   cannot be right when the floor moves — a floor-dominated node in the SINS corpus
+   swings 10.7 dB between night and midday as its electronics warm, which is
+   larger than most differences such a figure gets used to interpret. Minimum
+   statistics after Martin (2001): the running minimum of power over a window
+   long enough to contain a real gap, lifted by a bias compensation because
+   the minimum of a fluctuating estimate sits below the mean of what it
+   estimates.</li>
+<li><strong>Subtract in power.</strong> Noise adds as energy. Subtracting decibels is a
+   category error that happens to look plausible.</li>
+<li><strong>Censor and count; never clamp.</strong> A frame that does not clear the floor
+   carries no information about the source, so it comes back as <code>nan</code> and
+   <code>measurable=False</code>. <code>coverage</code> travels with every level, and no level is
+   returned below 10 %.</li>
+</ol>
+<div class="admonition danger">
+<p class="admonition-title">Clamping is worse than doing nothing</p>
+<p>Setting sub-floor frames to zero and averaging what is left does not
+merely lose precision — it converts a bias in level into a bias in
+<strong>sampling</strong>. The frames that survive censoring are the loud ones, so a
+quiet span reports as loud. Measured on a real living-room node, dropping
+sub-floor hours and averaging the survivors made its <em>midday quieter than
+its night</em>, which is impossible for an occupied room. The mistake is
+invisible in the output; only the coverage figure exposes it.</p>
+</div>
+<div class="admonition danger">
+<p class="admonition-title">A fridge is not noise — run <code>steady_sources</code> first</p>
+<p>Minimum statistics looks for the quietest moment in each window, so
+anything steady for longer than the window is absorbed into the floor and
+subtracted away. For a ventilation plant, a fridge or a circulation pump
+that is precisely wrong: they are steady for minutes at a time and they
+are usually the thing being studied.</p>
+<p>What separates them from the recorder is that <em>they turn off</em>. Self-noise
+does not. <code>steady_sources</code> uses that:</p>
+<div class="highlight"><pre><span></span><code><span class="n">analysis</span><span class="o">.</span><span class="n">steady_sources</span><span class="p">(</span><span class="n">fast_dba</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">0.125</span><span class="p">,</span> <span class="n">short_s</span><span class="o">=</span><span class="mf">120.0</span><span class="p">,</span> <span class="n">long_s</span><span class="o">=</span><span class="mf">7200.0</span><span class="p">)</span>
+<span class="c1"># {&#39;self_noise_db&#39;: -62.1, &#39;steady_excess_db&#39;: 6.3, &#39;machine_duty&#39;: 0.07,</span>
+<span class="c1">#  &#39;machine_detected&#39;: True, &#39;steady_source_unresolved&#39;: False}</span>
+</code></pre></div>
+<p>The floor is tracked twice — over minutes, which absorbs a running machine,
+and over hours, which does not, because the machine's off-phase falls
+inside the window. The difference is the machinery, and <code>machine_duty</code> says
+how much of the time it runs. Set <code>long_s</code> longer than the machine's full
+cycle: a domestic fridge turns over in roughly three quarters of an hour,
+so two hours is a safe default.</p>
+<p><strong>When it cannot help.</strong> A plant that runs continuously for longer than
+<code>long_s</code> is indistinguishable from self-noise by level alone, and
+<code>steady_source_unresolved</code> says so — not "there is a constant source" but
+"one cannot be ruled out, and it is inside <code>self_noise_db</code>". The failure of
+too short a <code>long_s</code> is quiet: <code>machine_duty</code> is understated first, a
+fridge running 60 % of the time reported at 17 %, and only then does the
+floor climb toward the machine. If the duty looks implausibly low for a
+machine you can hear, lengthen the window before believing the floor.</p>
+</div>
+<p><em>What coverage is for.</em> A level computed over 4 % of a session and one
+computed over 96 % are different kinds of statement, and the level alone
+cannot tell them apart. In the corpus this came from, a node reading a
+plausible 6.6 dB below the living room cleared its own floor on 5 % of frames;
+the raw number invited a comparison the data could not support and said
+nothing about it. Per hour, coverage also answers <em>when</em> a node can be
+measured at all — a live living room runs 85–90 % through the evening, while a
+floor-dominated node never exceeds 18 % at any hour of the day.</p>
+<h2 id="the-rhythm-is-the-signal">The rhythm is the signal</h2>
+<p>The deepest version of the floor question is not "how loud is the noise?" but
+"what here ever changes?" A recorder's own hiss is stationary. Everything else
+in a room turns over eventually: a fridge in tens of minutes, a ventilation
+plant in hours, a household in a day, a heating system across a season. So
+whether something is signal or noise is a question about <em>periodicity across
+timescales</em> — and the period that answers it also names the thing.</p>
+<div class="highlight"><pre><span></span><code><span class="n">analysis</span><span class="o">.</span><span class="n">dominant_cycles</span><span class="p">(</span><span class="n">level_db</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">min_period_s</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">max_period_s</span><span class="o">=</span><span class="mi">4</span><span class="o">*</span><span class="mi">3600</span><span class="p">)</span>
+<span class="c1"># [{&#39;period_s&#39;: 3720.0, &#39;strength&#39;: 0.42, &#39;band&#39;: &#39;cyclic&#39;}]</span>
+</code></pre></div>
+<p>Periods are placed on a ladder that extends the descriptor registry upward,
+where its <code>macro</code> band runs from 5 s to infinity and so cannot tell a fridge
+cycle from a season:</p>
+<table>
+<thead>
+<tr>
+<th>band</th>
+<th>span</th>
+<th>what lives there</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>meso</code></td>
+<td>0.5–5 s</td>
+<td>the sound object</td>
+</tr>
+<tr>
+<td><code>macro</code></td>
+<td>5 s – 10 min</td>
+<td>an activity, a passage</td>
+</tr>
+<tr>
+<td><code>cyclic</code></td>
+<td>10 min – 6 h</td>
+<td>machinery, a meal, a rehearsal</td>
+</tr>
+<tr>
+<td><code>circadian</code></td>
+<td>6 h – 3 days</td>
+<td>the household's day</td>
+</tr>
+<tr>
+<td><code>seasonal</code></td>
+<td>3 days – 1 year</td>
+<td>heating, weather, term time</td>
+</tr>
+<tr>
+<td><code>archival</code></td>
+<td>&gt; 1 year</td>
+<td>the building's life</td>
+</tr>
+</tbody>
+</table>
+<p>On a domestic sensor network this separates the rooms from the instruments
+without any calibration: on a given day the living room and the kitchen
+independently show a 62-minute cycle, while the floor-dominated nodes are
+stationary at every scale. <em>A node with no rhythm has nothing in it but its
+own electronics.</em></p>
+<p>Check persistence before generalising, though. That 62-minute cycle held for
+the day it was measured on and not for the week: across six 24-hour windows
+only one carried it, and six-hour windows returned periods scattered from 30
+to 60 minutes. Two nodes agreeing is strong evidence for <em>that day</em>. A machine
+rhythm that is stable enough to characterise a building has to be shown to be
+stable, and the way to show it is to look in several windows and see whether
+the period holds.</p>
+<div class="admonition warning">
+<p class="admonition-title">Validated for machinery; provisional for anything daily</p>
+<p>On real recordings <code>dominant_cycles</code> reliably finds machinery — two rooms
+of a domestic network agreeing on a 62-minute cycle. <em>At <code>circadian</code> and
+longer it is not yet trustworthy.</em> Over six days of real data it returned
+a 48-hour harmonic instead of the 24-hour fundamental, and a spurious
+two-hour peak on a floor-dominated node; six days is only five repetitions of a
+daily cycle, and the estimate moves with how the series is smoothed.</p>
+<p>For anything circadian, prefer a direct test — how the quantity varies by
+hour of day — and treat a long period from this function as a hypothesis
+rather than a finding.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">The instrument has a rhythm too</p>
+<p>Periodicity alone does not mean "this is the room". A converter warms and
+cools with the building, so a node that spends most of its week at its own
+floor still varies across the day — and the variation is the electronics,
+not the room. In the corpus behind this, such a node cleared its own floor
+in 8 % of night hours, 83 % of midday hours and 17 % of evening hours: the
+opposite phase to a household, which peaks in the evening. Five of the
+twelve nodes there behave this way, and all five are working microphones
+in quiet or isolated rooms. (That comes
+from the by-hour test, not from <code>dominant_cycles</code>; see the caution above.) What distinguishes a household is that it also leaves faster marks
+— a kettle, a shower, a fridge — which is what <code>cycle_profile</code> reports as
+<code>has_sub_daily_cycle</code>. A diurnal rhythm with nothing underneath it is an
+instrument breathing, not a home.</p>
+</div>
+<h3 id="anomaly-is-the-complement-of-rhythm">Anomaly is the complement of rhythm</h3>
+<p>An outlier detector run on a kitchen flags the fridge thirty times a day. It
+is a good detector answering the wrong question: what makes the fridge normal
+is precisely that it repeats.</p>
+<div class="highlight"><pre><span></span><code><span class="n">analysis</span><span class="o">.</span><span class="n">cycle_residual</span><span class="p">(</span><span class="n">level_db</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
+<span class="c1"># {&#39;period_s&#39;: 2700.0, &#39;residual_std_db&#39;: 0.41, &#39;anomalies&#39;: [...]}</span>
+</code></pre></div>
+<p>The cycle is found, the series folded onto its phase to get what the room
+usually does at that point in the cycle, and that subtracted. What survives is
+what the room did <em>not</em> repeat. A spike has no period and cannot be folded
+away; a machine can. So rhythm and anomaly are two readings of one series, and
+finding the first is what makes the second meaningful.</p>
+<p>Three limits worth knowing. It models one cycle, not several at once. A
+<em>change</em> in the cycle — a fridge whose period drifts as it fails — appears as
+residual rather than as the more interesting finding it usually is. And with
+no cycle found it falls back to the plain series, where slow drift reads as
+anomalous.</p>
+<h2 id="an-action-begins-before-its-sound">An action begins before its sound</h2>
+<p>A sound-producing action does not start when the sound does. An intention
+becomes a signal in the nervous system, then activity in muscle and fibre,
+then motion in the arm and the object, and only at the end does the air move.
+A sound object therefore <em>embeds</em> an action, and the silence before the attack
+is the part of the event a microphone cannot reach.</p>
+<div class="highlight"><pre><span></span><code><span class="n">r</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">onset_lead</span><span class="p">(</span><span class="n">motion_series</span><span class="p">,</span> <span class="n">audio_energy</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="mi">25</span><span class="p">)</span>
+<span class="c1"># {&#39;lead_s&#39;: 0.72, &#39;first_onset_s&#39;: 0.44, &#39;second_onset_s&#39;: 1.16, &#39;leads&#39;: &#39;first&#39;}</span>
+</code></pre></div>
+<p><code>lead_s</code> is the quantity this is for. The two onset times are returned for
+inspection and are not reliable <em>times</em> at the default <code>rise</code> — see the third
+design point below.</p>
+<p>Measured on 180 clips of a corpus recorded with both modalities, <em>motion
+leads sound by a median 0.72 s, in 84 % of clips.</em> The remaining sixth is
+real rather than error: an object already moving when it is struck, or an
+action performed out of frame, has no visible beginning to find.</p>
+<p>Two design points worth stating, because both are easy to get wrong.</p>
+<p><em>Same rule, both series.</em> Each onset is the first point passing a fixed
+fraction of that series' <em>own</em> floor-to-peak range. A rule with an absolute
+threshold would compare the units — pixels against acoustic energy — rather
+than the events.</p>
+<p><em>The default rise finds a different onset than you may want.</em> Each onset is
+the first point passing a quarter of that series' floor-to-peak range, and on
+a recording of a person that is reached by the action's own handling noises —
+an object picked up, a step — well before the sound the clip is of. On the
+Sound Actions clips the default lands a median 1.78 s earlier than
+hand-checked onsets and agrees within a quarter second on 17 % of them, where
+<code>rise=0.75</code> lands +0.01 s and agrees on 77 %. It is not noise against signal
+but which sound counts as the onset.</p>
+<p><em>That evidence is about audio, and motion wants the opposite.</em> The same rule
+goes to the motion series in <code>onset_lead</code>, and there a high fraction is late:
+checked against onsets marked by eye from video frames, <code>0.10</code> and <code>0.25</code> land
+within a median 0.06 s of what a viewer calls the beginning, while <code>0.50</code> and
+<code>0.75</code> are late on every clip checked, by a median 0.46 s and 0.66 s. Audio
+carries a noise floor a low fraction fires on; motion has a still lead-in a
+high fraction sits through. So raise <code>rise</code> for an audio onset time, leave it
+low for a motion one, and where a lead uses both, say that it is a difference
+between two differently-defined onsets rather than assuming the bias cancels.</p>
+<p><em>It takes series, not files.</em> Motion is computed wherever motion is computed;
+this is the seam between toolboxes rather than a video function hidden in an
+audio one. It is also what makes audio–video analysis more than two analyses
+side by side: the lead belongs to the <em>action</em>, and neither modality carries
+it alone.</p>
 <h2 id="calibration">Calibration</h2>
 <p><code>calibration.json</code> in the session folder defines the offset <code>O</code> such that a
 signal at −X dBFS corresponds to (O − X) dB SPL:</p>
@@ -2116,10 +2681,10 @@ prominent tones (<code>ambiscape tones</code>, <code>iso.prominent_tones</code>)
 for it, so <code>iso.fluctuation_strength</code> implements the Fastl &amp; Zwicker
 envelope-modulation model in spirit: per Zwicker critical band, the
 &lt; 32 Hz envelope level depth ΔL is weighted by the band-pass
-modulation-frequency weighting that peaks at <strong>4 Hz</strong> (the slow wobble
+modulation-frequency weighting that peaks at <em>4 Hz</em> (the slow wobble
 sitting between level drift and roughness) and by the coherence of the
 dominant modulation, then summed over Bark bands and scaled so the classic
-reference — a 1 kHz tone, 100 % AM at 4 Hz — reads <strong>1 vacil</strong>. Treat
+reference — a 1 kHz tone, 100 % AM at 4 Hz — reads <em>1 vacil</em>. Treat
 absolute values as indicative and same-pipeline comparisons as the
 meaningful output; masking-based depth and level dependence are
 simplified. It is pure numpy/scipy (no <code>[iso]</code> extra needed on its own)
@@ -2148,7 +2713,7 @@ audio pass.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 6, 2026 19:13:28 UTC">August 6, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 12, 2026 20:32:38 UTC">August 12, 2026</span>
   </span>
 
     

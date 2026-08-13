@@ -99,6 +99,117 @@ def synth_session(folder, seed=0):
     return folder
 
 
+def synth_network(root, seed=7):
+    """Three coupled node sessions (a SINS-style house) for the network figure.
+
+    Envelope ground truth mirrors the network test fixture: the kitchen's
+    activity envelope reappears in the hall 0.5 s later at reduced strength,
+    and the bedroom carries an unrelated envelope. In the last third of the
+    deployment every room falls back to its own independent quiet floor, so
+    the density timeline shows the house decoupling when activity stops. The
+    node WAVs are written at 16 kHz to keep regeneration cheap; the network
+    reads only the 8 Hz level streams, so nothing downstream changes.
+    """
+    rate, dur, shift, fs = 8.0, 1800.0, 4, 16000   # 0.5 s lag = 4 samples
+    m = int(dur * rate) + shift
+
+    def env(sd, smooth=2):
+        rng = np.random.default_rng(sd)
+        pad = 8 * smooth
+        e = np.convolve(rng.standard_normal(m + 2 * pad),
+                        np.hanning(2 * smooth + 1), "same")[pad:pad + m]
+        return 12 * (e - e.mean()) / e.std()
+
+    e1, e2 = env(seed), env(seed + 1)
+    rooms = (("kitchen", e1[shift:m], 30.0),           # leads
+             ("hall", 0.8 * e1[:m - shift], 120.0),    # lags kitchen by 0.5 s
+             ("bedroom", e2[shift:m], -60.0))          # uncoupled
+    quiet = np.arange(m - shift) > 2 * (m - shift) / 3
+    for k, (name, e_db, az) in enumerate(rooms):
+        e_db = np.where(quiet, 0.2 * env(seed + 20 + k)[:m - shift] - 14.0,
+                        e_db)                          # activity stops
+        folder = root / name
+        folder.mkdir(parents=True, exist_ok=True)
+        n = int(dur * fs)
+        rng = np.random.default_rng(seed + 10 + k)
+        amp = np.interp(np.arange(n) / fs, np.arange(len(e_db)) / rate,
+                        10 ** (e_db / 20))
+        data = (plane_wave(0.03 * rng.standard_normal(n) * amp, az)
+                + 0.001 * rng.standard_normal((n, 4)))
+        write_bwf(folder / "take.wav", data, fs=fs, time="07:00:00")
+    return root
+
+
+def synth_array(folder, seed=3, fs=16000, dur=60.0, spacing=0.05, c=343.0):
+    """One SINS-style node WAV for the array figures: a band-noise source
+    sweeping 20°–160° past a four-mic linear array, silent over 25–35 s so
+    only the decorrelated floor remains (the confidence dip and the diffuse
+    reading), plus that floor throughout. Returns (wav_path, geometry_path).
+    """
+    import json as _json
+    import soundfile as sf
+    folder.mkdir(parents=True, exist_ok=True)
+    pos = np.array([[k * spacing, 0.0] for k in range(4)])
+    n = int(dur * fs)
+    rng = np.random.default_rng(seed)
+    src = rng.standard_normal(n)
+    S = np.fft.rfft(src)
+    fr = np.fft.rfftfreq(n, 1 / fs)
+    S[(fr < 200) | (fr > 6000)] = 0
+    src = np.fft.irfft(S, n)
+    src /= src.std()
+    t = np.arange(n) / fs
+    src *= np.clip(np.minimum(np.abs(t - 25.0), np.abs(t - 35.0)), 0, 1) \
+        ** 2 * ((t < 25.0) | (t > 35.0))          # smooth silent interval
+    data = np.zeros((n, 4))
+    block = int(0.25 * fs)                        # piecewise-constant angle
+    fb = np.fft.rfftfreq(block, 1 / fs)
+    for b0 in range(0, n - block + 1, block):
+        theta = np.radians(20.0 + 140.0 * b0 / n)
+        v = np.array([np.cos(theta), np.sin(theta)])
+        Sb = np.fft.rfft(src[b0:b0 + block])
+        for m in range(4):
+            tau = -float(pos[m] @ v) / c
+            data[b0:b0 + block, m] += np.fft.irfft(
+                Sb * np.exp(-2j * np.pi * fb * tau), block)
+    data += 0.1 * rng.standard_normal((n, 4))     # decorrelated floor
+    wav = folder / "node.wav"
+    sf.write(str(wav), (0.2 * data).astype(np.float32), fs, subtype="FLOAT")
+    geom = folder / "geometry.json"
+    geom.write_text(_json.dumps({"mics": pos.tolist(), "c": c}))
+    return wav, geom
+
+
+def array_triangulation(tmp):
+    """Three-node triangulation of a source walking across a floor plan
+    (the library-call side of the array module). Three nodes, because with
+    two the mirror rays of a bearing pair also intersect exactly and many
+    fixes are honestly flagged ambiguous; a third ray breaks the tie."""
+    from ambiscape import array as arr
+    plan = {"nodes": [{"name": "living", "pos": [0.0, 0.0], "axis_deg": 0.0},
+                      {"name": "kitchen", "pos": [4.0, 0.0],
+                       "axis_deg": 90.0},
+                      {"name": "hall", "pos": [2.0, 3.5],
+                       "axis_deg": -30.0}]}
+    rng = np.random.default_rng(11)
+    tt = np.arange(60.0)
+    path = np.stack([0.8 + (3.2 - 0.8) * tt / tt[-1],
+                     2.8 - (2.8 - 1.2) * tt / tt[-1]], 1)
+    streams = []
+    for nd in plan["nodes"]:
+        v = path - np.asarray(nd["pos"])
+        world = np.degrees(np.arctan2(v[:, 1], v[:, 0]))
+        theta = np.abs((world - nd["axis_deg"] + 180) % 360 - 180)
+        streams.append({"t": tt,
+                        "bearing_deg": theta + 0.8 * rng.standard_normal(60),
+                        "confidence": np.full(60, 0.85),
+                        "clipped": np.zeros(60, bool)})
+    tri = arr.triangulate(streams, plan)
+    out = tmp / "array_triangulate.png"
+    arr.triangulate_figure(tri, plan, out, title="three nodes")
+    return out
+
+
 # --------------------------------------------------------------- driving
 def run(*args, cwd=None):
     print("  $ ambiscape", *args)
@@ -126,6 +237,10 @@ COLLECT = {
     "schafer_timeline.png": "schafer_timeline.png",
     "survey.png": "survey.png",
     "entrain.png": "entrain.png",
+    "network.png": "network.png",
+    "array_bearing.png": "array_bearing.png",
+    "array_coherence.png": "array_coherence.png",
+    "array_triangulate.png": "array_triangulate.png",
 }
 
 # ISO 12913-2 Method-A responses (5-point) for the survey circumplex: a
@@ -162,19 +277,41 @@ def write_motion_csv(path, dur=DUR, fs_m=50.0, seed=5):
     Path(path).write_text("\n".join(lines) + "\n")
     return Path(path)
 
+# Annotation times run on the session clock, which for the demo scene starts
+# at 09:00:00 — times written from zero fall outside the timeline's panels and
+# draw nothing.
+T0 = 9 * 3600
+
+
+def _at(s):
+    return float(round(T0 + s, 2))
+
+
+# The bells are annotated as what they are — individual strokes, each a sound
+# object of a second or two — while the hum and the floor are keynote spans of
+# the whole session. The two scales sit in the same file and are drawn by
+# different figures: the strokes reach the Schaeffer map, the beds the Schafer
+# timeline. Bell A strikes at cycle phases 0 and 0.35, bell B at 0.5, on the
+# 3 s cycle of ``synth_session``, up to ACTIVE.
 ANNOTATIONS = {
     "session": "docs-demo",
     "objects": [
         {"name": "bell A", "facture": "impulse", "mass": "tonic",
-         "kind": "soundmark", "source": "anthrophony", "spans": [[0, 90]]},
+         "kind": "soundmark", "source": "anthrophony",
+         "events": sorted(_at(s) for ph in (0.0, 0.35)
+                          for s in np.arange(ph * 3.0, ACTIVE, 3.0))},
         {"name": "bell B", "facture": "impulse", "mass": "tonic-complex",
-         "kind": "signal", "source": "anthrophony", "spans": [[0, 90]]},
+         "kind": "signal", "source": "anthrophony",
+         "events": [_at(s) for s in np.arange(1.5, ACTIVE, 3.0)]},
         {"name": "mains hum", "facture": "sustained", "mass": "tonic",
-         "kind": "keynote", "source": "anthrophony", "spans": [[0, 120]]},
+         "kind": "keynote", "source": "anthrophony",
+         "spans": [[_at(0), _at(120)]]},
         {"name": "voices", "facture": "iteration", "mass": "complex",
-         "kind": "figure", "source": "anthrophony", "spans": [[10, 80]]},
+         "kind": "figure", "source": "anthrophony",
+         "spans": [[_at(10), _at(80)]]},
         {"name": "diffuse floor", "facture": "unlimited", "mass": "noise",
-         "kind": "keynote", "source": "geophony", "spans": [[0, 120]]},
+         "kind": "keynote", "source": "geophony",
+         "spans": [[_at(0), _at(120)]]},
     ],
 }
 
@@ -213,11 +350,31 @@ def main():
     run("analyze", str(rsess))
     run("rhythm", str(rsess))
 
+    # multi-recorder network: three coupled node sessions of one house
+    house = synth_network(tmp / "house")
+    for room in ("kitchen", "hall", "bedroom"):
+        run("analyze", str(house / room), "--no-resolve")
+    run("network", str(house), "--win", "30", "--max-lag", "2")
+
     # gather produced PNGs: everything from the rich scene, rhythm from bells
     produced = {p.name: p for p in sess.rglob("*.png")}
     for p in rsess.rglob("*.png"):
         if p.name == "rhythm_overview.png":
             produced[p.name] = p
+    net_png = house / "analysis" / "network.png"
+    if net_png.exists():
+        produced["network.png"] = net_png
+    # spaced-mic array: one node WAV through the CLI, triangulation as the
+    # library call it is
+    wav, geom = synth_array(tmp / "arraynode")
+    run("array", str(wav), "--geometry", str(geom))
+    for name in ("array_bearing.png", "array_coherence.png"):
+        p = tmp / "arraynode" / "analysis" / name
+        if p.exists():
+            produced[name] = p
+    tri_png = array_triangulation(tmp)
+    if tri_png.exists():
+        produced["array_triangulate.png"] = tri_png
     got, missing = [], []
     for src_name, dst_name in COLLECT.items():
         if src_name in produced:

@@ -817,41 +817,39 @@ def cycle_profile(level_db, dt: float, min_period_s: float = 60.0,
                   max_period_s: float = 3 * 86400.0) -> dict:
     """What kind of thing is cycling here — a room, or the recorder?
 
-    Periodicity alone does not separate them. **The rule this docstring used
-    to give for separating them is withdrawn**: it said that a converter warms
-    and cools with the building, so a node sitting at its own floor still
-    shows a 24-hour cycle, and that a diurnal rhythm with nothing faster
-    underneath it is therefore the signature of an instrument. Tested on the
-    whole SINS week at 10 s resolution across all twelve nodes (2026-08-13),
-    that is inverted:
+    Periodicity alone does not separate them: a converter warms and cools
+    with the building, so a node sitting at its own floor can carry a daily
+    cycle that has nothing to do with the room. That premise is well
+    established on the SINS corpus by an hour-of-day analysis --- node 9 is a
+    dead channel, hears nothing, and still swings 10.7 dB with the clock,
+    peaking at 12:00--14:00 and troughing at 04:00--06:00, and node 10's
+    profile correlates with it at r = 0.97.
 
-    - the seven living-room nodes — the busiest in the deployment — are the
-      ones showing a circadian cycle with nothing faster underneath, which is
-      exactly the pattern the rule attributed to an instrument;
-    - the four nodes that do sit near their own floor (bedroom, WC, hall,
-      bathroom) return *nothing*: stationary at every scale.
+    **What is not established is that this function can be used to apply
+    that.** Run over the whole SINS week at 10 s across all twelve nodes
+    (2026-08-13), it returns *stationary at every scale* for the bedroom, WC,
+    hall and bathroom nodes --- including the ones the hourly analysis shows
+    swinging 7.8 to 10.7 dB daily --- while returning a circadian cycle with
+    nothing faster underneath for all seven living-room nodes, which are the
+    busiest in the deployment. So on this corpus the function misses the
+    daily cycles that are there and reports the pattern that was supposed to
+    mark an instrument on the rooms that are plainly occupied.
 
-    So a diurnal-only profile does not identify a recorder here, and a
-    floor-dominated node does not reliably carry a daily cycle at all. The
-    original claim came from an hourly-level analysis rather than from this
-    function, and was asserted in three places before being tested.
+    Two consequences. Do not infer *instrument* from a ``diurnal_only``
+    verdict here; the shape is a description, not an attribution. And do not
+    read an empty result as "no daily cycle" --- check with an hour-of-day
+    fold, which is what the corpus evidence above rests on.
 
-    ``has_sub_daily_cycle`` still reports whether faster marks are present,
-    which is a useful fact on its own; it is the *inference to the
-    instrument* that is not supported.
+    ``has_sub_daily_cycle`` reports whether faster marks are present, which
+    remains a useful fact in its own right.
 
-    **An open inconsistency, not yet diagnosed.** On these nodes this function
-    returns a single peak near 47.9 h and classifies it circadian, where
-    ``modulation`` on the same recordings puts the rhythm within one bin of
-    24 h and the event fold puts the peak hour in the evening. 47.9 h is twice
-    24, and the harmonic rule here drops a multiple only when the shorter
-    period was accepted first, so the 24 h peak is failing strength or
-    prominence while its double passes. The wiki's Multi-Recorder-Networks
-    page already recorded this as a 48-hour harmonic returned in place of the
-    fundamental, with the advice to use a by-hour test for anything circadian;
-    that advice stands. Do not read the period this function returns as
-    authoritative without checking it against ``modulation`` or an
-    hour-of-day fold.
+    **A related known limitation.** On these nodes the function returns a
+    single peak near 47.9 h and classifies it circadian, where ``modulation``
+    on the same recordings puts the rhythm within one bin of 24 h. The wiki's
+    Multi-Recorder-Networks page records this as a 48-hour harmonic returned
+    in place of the fundamental, with the advice to use a by-hour test for
+    anything circadian; that advice stands, and the two failures are probably
+    the same one.
     """
     cycles = dominant_cycles(level_db, dt, min_period_s, max_period_s, top=6)
     sub = [c for c in cycles if c["band"] in ("meso", "macro", "cyclic")]

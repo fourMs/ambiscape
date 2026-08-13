@@ -505,6 +505,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../timescales/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Timescales & validity windows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grounding/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Grounding (signal vs perception)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../stereo-mono/" class="md-nav__link">
         
   
@@ -658,6 +714,62 @@
     
   
     Spatial analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../network/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-room acoustic network
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../array/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spaced-microphone array
   
 
     
@@ -1841,6 +1953,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../starss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DCASE STARSS validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1967,7 +2107,9 @@
 
 <h1 id="impulse-response-auralization">Impulse response &amp; auralization</h1>
 <p>Clap-based T60 (<a href="../acoustics/"><code>decay_time</code></a>) is fine for incidental
-impulses, but a deliberate measurement deserves a deliberate excitation.
+impulses, but a deliberate measurement deserves a deliberate excitation. If the only
+recording of a room is a camera's, see the substitution warning in the
+<a href="../acoustics/">clap-based guide</a>: T60 survives it, the early field does not.
 The <code>impulse</code> module implements Farina's exponential sine sweep (ESS)
 method: tens of decibels more dynamic range than any clap, and the
 loudspeaker's harmonic distortion is pushed <em>ahead</em> of the linear
@@ -1982,7 +2124,7 @@ default 0.5.) The command writes three files:</p>
 <ul>
 <li><code>sweep.wav</code> — the exponential sweep, equal time per octave, with
   raised-cosine fades (100 ms in, 20 ms out) so the loudspeaker is not
-  stepped, at peak <strong>−6 dBFS</strong> (<code>--amplitude 0.5</code>). The headroom is
+  stepped, at peak <em>−6 dBFS</em> (<code>--amplitude 0.5</code>). The headroom is
   deliberate: playback chains have bass boosts and resonances, and a sweep
   that clips anywhere in the chain injects distortion the method can no
   longer separate out.</li>
@@ -2016,8 +2158,11 @@ level-invariant). Alongside it, <code>impulse.json</code> holds:</p>
   EDT; clarity C50/C80; definition D50; and the usable dynamic range
   <code>dr_db</code> behind each fit. These reuse the toolbox's
   truncated-Schroeder machinery (<code>analysis.decay_metrics</code>) — the same
-  noise-floor and re-attack safeguards as the clap path, now fed a proper
-  excitation.</li>
+  noise-floor and re-attack safeguards as the clap path, here fed a proper
+  excitation. On a <em>trimmed</em> IR, one with no recording before its peak,
+  <code>dr_db</code> is measured from the quietest part of the decay rather than from
+  the silence <code>ir_metrics</code> prepends to let the estimator run (fixed in
+  0.28.1; before that it read the padding and reported around 190 dB).</li>
 <li>
 <p><strong>STI</strong> (IEC 60268-16, <em>indirect method</em>): modulation transfer functions
   from Schroeder's integral of the squared IR at the 14 standard
@@ -2026,20 +2171,38 @@ level-invariant). Alongside it, <code>impulse.json</code> holds:</p>
 <p class="admonition-title">STI assumptions</p>
 <p>The indirect method assumes the measurement chain is noise-free
 and the room linear and time-invariant. No ambient-noise or
-masking correction is applied, so the value is an <strong>upper bound</strong>
+masking correction is applied, so the value is an <em>upper bound</em>
 describing reverberant smearing only — an occupied or noisy room
 will have a lower effective STI. Treat it as a room descriptor,
 not an occupancy-condition prediction.</p>
 </div>
 </li>
 <li>
-<p><strong>IACC (early)</strong> for two-channel IRs: the maximum <em>absolute</em> interaural
-  cross-correlation over 0–80 ms after the direct sound, lags ±1 ms,
-  broadband (ISO 3382-1 takes the signed maximum; the absolute value
-  differs only for strongly anti-correlated channels). Meaningful for binaural (ear-signal) IRs; for an ordinary
-  spaced stereo pair it is a channel-similarity figure, not a perceptual
-  one. Multichannel decay/STI metrics are computed on channel 0 (the
-  omni/W channel of a B-format IR).</p>
+<p><strong>IACC (early)</strong> for two-channel IRs: the maximum of the <em>modulus</em> of
+  the interaural cross-correlation over 0–80 ms after the direct sound,
+  lags ±1 ms, broadband. Taking the modulus is ISO 3382-1's definition,
+  not a deviation from it. Meaningful for binaural (ear-signal) IRs; for
+  an ordinary spaced stereo pair it is a channel-similarity figure, not a
+  perceptual one. Multichannel decay/STI metrics are computed on channel 0
+  (the omni/W channel of a B-format IR).</p>
+</li>
+<li>
+<p><strong>IACC_E3</strong> (<code>iacc_e3</code>, since 0.28.0): the same quantity per octave
+  band, plus the mean of the 500, 1000 and 2000 Hz bands.</p>
+<div class="admonition warning">
+<p class="admonition-title">Use this one against the literature</p>
+<p>Published concert-hall values are IACC_E3, not broadband. The two
+are different quantities — low-frequency content moves the
+broadband figure — so comparing <code>iacc_early</code> against hall values
+compares different things.</p>
+</div>
+<p>The result also carries <code>iacc_signed</code>: the signed correlation at the
+same lag as the reported IACC. The modulus discards exactly one case,
+ears receiving <em>anti-phase</em> sound, which otherwise read as strongly
+correlated. The CLI mentions it only above <code>IACC_SIGN_FLOOR</code> (0.5),
+because the sign of a near-zero peak is noise — decorrelated ears
+would otherwise be flagged anti-phase on every band. A diagnostic,
+not an ISO quantity.</p>
 </li>
 </ul>
 <h2 id="3-auralize">3. Auralize</h2>
@@ -2069,7 +2232,8 @@ against <code>scipy.signal.oaconvolve</code> to machine precision).</p>
 <span class="n">ir</span><span class="p">,</span> <span class="n">direct</span> <span class="o">=</span> <span class="n">impulse</span><span class="o">.</span><span class="n">extract_ir</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
 <span class="n">impulse</span><span class="o">.</span><span class="n">ir_metrics</span><span class="p">(</span><span class="n">ir</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>                      <span class="c1"># {&quot;500&quot;: {&quot;T60&quot;: ...}, ...}</span>
 <span class="n">impulse</span><span class="o">.</span><span class="n">sti</span><span class="p">(</span><span class="n">ir</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>                             <span class="c1"># {&quot;sti&quot;: ..., &quot;mti&quot;: {...}}</span>
-<span class="n">impulse</span><span class="o">.</span><span class="n">iacc_early</span><span class="p">(</span><span class="n">ir</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>                      <span class="c1"># stereo/binaural IRs</span>
+<span class="n">impulse</span><span class="o">.</span><span class="n">iacc_early</span><span class="p">(</span><span class="n">ir</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>                      <span class="c1"># broadband, stereo/binaural</span>
+<span class="n">impulse</span><span class="o">.</span><span class="n">iacc_e3</span><span class="p">(</span><span class="n">ir</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>                         <span class="c1"># {&quot;iacc_e3&quot;, &quot;iacc&quot;, ...}</span>
 <span class="n">wet</span><span class="p">,</span> <span class="n">gain_db</span> <span class="o">=</span> <span class="n">impulse</span><span class="o">.</span><span class="n">auralize</span><span class="p">(</span><span class="n">dry</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">ir</span><span class="p">,</span> <span class="n">fs_ir</span><span class="p">)</span>
 </code></pre></div>
 <p>or <code>impulse.measure(recording, params="sweep.json")</code> for the whole
@@ -2096,7 +2260,7 @@ deconvolve-trim-save-analyse pass the CLI runs.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 6, 2026 15:21:37 UTC">August 6, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 10, 2026 13:01:04 UTC">August 10, 2026</span>
   </span>
 
     

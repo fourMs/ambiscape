@@ -14,7 +14,34 @@ been carrying feature work throughout a pre-1.0 life.
 > imports the functions that moved.
 
 
-## [Unreleased]
+## [0.41.0] — 2026-08-13
+
+### Changed
+- **`starss.frame_azimuths` returns three values, not two.** It now yields
+  `(az_deg, energy, diffuseness)`; callers unpacking two will break.
+  Diffuseness is `1 - |I| / E` per frame, returned so a caller can withhold an
+  estimate where the field is too diffuse to carry a direction. The function
+  also takes `method="intensity"` (the default, unchanged behaviour) or
+  `"energy"`, and a `sub_s` sub-frame length.
+- **`onset_lead` takes a crossing fraction per modality.** New optional
+  `first_rise` and `second_rise` arguments; the default remains the symmetric
+  `rise=ONSET_RISE`, so existing calls are unaffected. Motion and audio series
+  do not reach a given fraction of their own range at comparable moments, and
+  one number for both was hiding that.
+- **`AUDIO_RISE` is no longer used as a default.** It remains exported at 0.75,
+  now labelled provisional.
+
+### Fixed
+- **The justification for the audio crossing fraction was wrong, and the error
+  was the kind that reads as validation.** The figure quoted for 0.75 —
+  landing within 0.01 s where 0.25 lands 1.78 s early — compares the rule
+  against *another algorithmic onset*, not against anyone's ear or eye; the
+  word "hand-checked" attached to it somewhere between the measurement and the
+  docstring. The agreement is also partly an artefact: the two passes used dB
+  and linear energy, on which the same fraction lands tens of frames apart, so
+  the 0.01 s was two mismatches cancelling. `MOTION_RISE` is validated (median
+  0.06 s against onsets marked by eye); `AUDIO_RISE` is not, and the docstring
+  now says not to publish a figure that depends on it.
 
 ### Documentation
 - **`floor_suspicion`'s justification was written from one room and stated as a

@@ -102,15 +102,38 @@ def single_source_frames(rows: list[dict]) -> tuple[dict, int]:
 
 
 def frame_azimuths(path: str | Path, frame_s: float = FRAME_S,
-                   wyzx=(0, 1, 2, 3), band=(80.0, 3000.0)):
-    """Per-frame energy azimuth of a FOA clip, on the label grid.
+                   wyzx=(0, 1, 2, 3), band=(80.0, 3000.0),
+                   method: str = "intensity", sub_s: float = 0.01):
+    """Per-frame azimuth of a FOA clip, on the label grid.
 
     Streams the clip in blocks, band-passes all channels to ``band`` (the
-    corpus DOA band, capped below Nyquist), and takes per frame the
-    pseudo-intensity azimuth ``atan2(sum W*Y, sum W*X)`` in degrees —
-    counter-clockwise positive, 0 = front, the STARSS convention. Returns
-    ``(az_deg, energy)`` arrays with one value per complete ``frame_s``
-    frame (a trailing partial frame is dropped, as it has no label).
+    corpus DOA band, capped below Nyquist), and returns ``(az_deg, energy,
+    diffuseness)`` with one value per complete ``frame_s`` frame; a trailing
+    partial frame is dropped, as it has no label. Azimuth is in degrees,
+    counter-clockwise positive, 0 = front, which is the STARSS convention.
+
+    Two estimators, neither with a parameter fitted to any corpus:
+
+    ``method="intensity"``
+        The pseudo-intensity azimuth over the whole frame,
+        ``atan2(sum W*Y, sum W*X)``. Every sample counts equally, so a frame
+        that is mostly reverberant tail is dominated by the tail.
+
+    ``method="energy"``
+        The same azimuth computed on ``sub_s`` sub-frames and combined as a
+        circular mean weighted by each sub-frame's energy. The direct sound
+        of an event carries more energy than the reverberation after it, so
+        this asks where the *loudest* part of the frame came from rather than
+        where the frame came from on average. It is the natural second
+        estimator and it is not obviously better: weighting by energy also
+        weights toward whichever source is loudest when two overlap.
+
+    ``diffuseness`` is ``1 - |I| / E`` per frame, with ``I`` the
+    pseudo-intensity vector and ``E`` the total energy in the standard
+    convention. It runs from 0 for a single plane wave to 1 for an isotropic
+    field, and is returned so a caller can withhold an estimate where the
+    field carries no usable direction --- a choice this function deliberately
+    does not make on the caller's behalf.
     """
     import soundfile as sf
     from scipy.signal import butter, sosfilt
@@ -124,8 +147,9 @@ def frame_azimuths(path: str | Path, frame_s: float = FRAME_S,
         hi = min(band[1], 0.45 * fs)
         sos = butter(4, [band[0], hi], "bandpass", fs=fs, output="sos")
         zi = np.zeros((sos.shape[0], 2, nch))
-        iw, iy, ix = wyzx[0], wyzx[1], wyzx[3]
-        azs, ens = [], []
+        iw, iy, iz, ix = wyzx[0], wyzx[1], wyzx[2], wyzx[3]
+        spsub = max(int(round(sub_s * fs)), 1)
+        azs, ens, dfs = [], [], []
         while True:
             blk = f.read(spf * 600, dtype="float64", always_2d=True)
             if not len(blk):
@@ -138,11 +162,37 @@ def frame_azimuths(path: str | Path, frame_s: float = FRAME_S,
             W = blk[:, iw].reshape(n, spf)
             Y = blk[:, iy].reshape(n, spf)
             X = blk[:, ix].reshape(n, spf)
-            azs.append(np.degrees(np.arctan2((W * Y).sum(1), (W * X).sum(1))))
+            Z = blk[:, iz].reshape(n, spf)
+            ix_ = (W * X).sum(1)
+            iy_ = (W * Y).sum(1)
+            iz_ = (W * Z).sum(1)
+            # Standard diffuseness: the intensity vector shrinks relative to
+            # the energy as the field becomes isotropic.
+            e = (W ** 2).sum(1) + (X ** 2 + Y ** 2 + Z ** 2).sum(1) / 3.0
+            mag = np.sqrt(ix_ ** 2 + iy_ ** 2 + iz_ ** 2)
+            dfs.append(np.clip(1.0 - mag / (e / 2.0 + EPS), 0.0, 1.0))
             ens.append((W ** 2).sum(1))
+            if method == "intensity":
+                azs.append(np.degrees(np.arctan2(iy_, ix_)))
+            elif method == "energy":
+                k = spf // spsub
+                if k < 2:
+                    azs.append(np.degrees(np.arctan2(iy_, ix_)))
+                else:
+                    m = k * spsub
+                    Ws = W[:, :m].reshape(n, k, spsub)
+                    Ys = Y[:, :m].reshape(n, k, spsub)
+                    Xs = X[:, :m].reshape(n, k, spsub)
+                    a = np.arctan2((Ws * Ys).sum(2), (Ws * Xs).sum(2))
+                    w = (Ws ** 2).sum(2)
+                    v = (w * np.exp(1j * a)).sum(1)
+                    azs.append(np.degrees(np.angle(v)))
+            else:
+                raise ValueError(f"unknown method {method!r}; "
+                                 "expected 'intensity' or 'energy'")
     if not azs:
-        return np.zeros(0), np.zeros(0)
-    return np.concatenate(azs), np.concatenate(ens)
+        return np.zeros(0), np.zeros(0), np.zeros(0)
+    return (np.concatenate(azs), np.concatenate(ens), np.concatenate(dfs))
 
 
 def wrap_deg(d):
@@ -151,7 +201,8 @@ def wrap_deg(d):
 
 
 def validate_clip(wav_path: str | Path, csv_path: str | Path,
-                  frame_s: float = FRAME_S, wyzx=(0, 1, 2, 3)) -> dict:
+                  frame_s: float = FRAME_S, wyzx=(0, 1, 2, 3),
+                  method: str = "intensity") -> dict:
     """Compare one clip's energy azimuth with its labels, frame by frame.
 
     Only single-source frames are scored (see the module docstring).
@@ -162,7 +213,8 @@ def validate_clip(wav_path: str | Path, csv_path: str | Path,
     """
     rows = read_annotations(csv_path)
     singles, n_multi = single_source_frames(rows)
-    az_est, _en = frame_azimuths(wav_path, frame_s=frame_s, wyzx=wyzx)
+    az_est, _en, diff = frame_azimuths(wav_path, frame_s=frame_s, wyzx=wyzx,
+                                       method=method)
     records = []
     for frame, row in sorted(singles.items()):
         if not 0 <= frame < len(az_est):
@@ -170,6 +222,7 @@ def validate_clip(wav_path: str | Path, csv_path: str | Path,
         err = float(wrap_deg(az_est[frame] - row["azimuth"]))
         records.append({
             "frame": frame,
+            "diffuseness": round(float(diff[frame]), 3),
             "class_name": row["class_name"],
             "label_az_deg": row["azimuth"],
             "est_az_deg": round(float(az_est[frame]), 1),

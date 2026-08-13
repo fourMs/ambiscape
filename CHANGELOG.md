@@ -14,6 +14,83 @@ been carrying feature work throughout a pre-1.0 life.
 > imports the functions that moved.
 
 
+## [0.42.0] — 2026-08-13
+
+### Added
+- **`spatial.frame_reference_test` --- is a bearing fixed to the recorder or to
+  the world?** Given a bearing series in the recorder's frame and a heading
+  series in world coordinates, it returns the circular concentration in each
+  frame, their ratio, the chance floor `1/sqrt(n)` that an R has to beat, and
+  a `frame` label of `"rig"`, `"world"` or `"neither"`. An optional
+  `control_deg` carries a positive control through the same arithmetic,
+  because a test that answers "rig" cannot otherwise be told apart from a
+  method that answers "rig" whatever it is fed. Weighted, `n` is the effective
+  count `(sum w)^2 / sum w^2`.
+
+  It exists because a body-worn first-order recorder carried through 300
+  recording days and seven kinds of place --- corridors, living rooms, an
+  auditorium, a train --- put its loudest bearing at R = 0.813 in its own
+  frame against 0.268 in compass coordinates, chance being 0.058, with the
+  seven groups' mean bearings spanning 18 degrees between them. The wearer's
+  own sway axis, as the positive control, gave 0.490 against 0.194.
+  Re-decoding with the correct channel convention softened this to 0.393
+  against 0.144 and widened the group spread to 45 degrees in a physically
+  sensible order: a wrong decode makes it worse and is not the cause of it,
+  and **no decode answers the frame question**. `azimuth_organization` and
+  `directional_entropy` now say as much in their own docstrings, since both
+  describe the rig rather than the place whenever the rig travels with its
+  subject.
+
+### Documentation
+- **`entrain.directional_correlation`: rotation invariance does not extend to
+  reflection, and `|rho|` puts the blind spot exactly where a handedness error
+  lands.** Mirroring one angle series flips the coefficient's sign and leaves
+  its magnitude untouched --- exactly, to machine precision --- so the advice
+  to judge coupling by `|rho|` makes an inverted recorder invisible. A
+  rotation search cannot find one either: a reflection is not in the set being
+  searched, so the search returns a poor best fit rather than a complaint. The
+  docstring also notes that a coupling between an audio bearing and a body's
+  motion says nothing about the soundscape until `spatial.frame_reference_test`
+  has been run, because a recorder riding on the same body is partly measuring
+  that body's posture.
+- **`entrain._shift_p`: the shifts are the null, never the answer.** It is a
+  short step from that loop to quoting the best-fitting shift's statistic,
+  and that number is positive by construction, rising with the number of
+  shifts tried and with how smooth the two series are. On a year of daily
+  recordings the best of 72 circular shifts scored *higher* on deliberately
+  mismatched day pairs than on real ones, 0.599 against 0.494 --- by which
+  point three separate hypotheses about the apparatus had been tested, and
+  none of them was the problem.
+- **`io.channel_order`: the default is a guess, and a wrong guess looks like
+  data.** Two independent re-decodes of one year of the same recordings
+  differed by a median of about 48 degrees per day, with year-long directional
+  concentrations of 0.815 and 0.393; both series were entirely presentable and
+  which one was faithful was never settled. A decode is validated by an
+  outside fact --- a source at a known bearing, a pass-by of known direction,
+  an independent heading --- not by looking sensible.
+- **`enf.enf_summary`: `coverage` is not a proxy for where a recording was
+  made.** Across 365 daily recordings in seven kinds of place the group medians
+  ran 0.590 to 0.475, a range of 0.115 against a within-group interquartile
+  width of 0.260, with Kruskal--Wallis H = 3.7 at p = 0.72; outdoor and
+  semi-open ranked sixth of seven, in among the indoor groups. The ENF
+  measurement itself was in excellent health over the same year --- the grid
+  recovered on 364 of 365 days at a median 49.9913 Hz --- which is what makes
+  this the durable kind of error: a good measurement of the wrong thing.
+  Coverage tracks the recording (gain, wind, noise floor) and is tied to
+  `win_s`, `step_s` and `min_rise_db`, so two coverages compare only where all
+  three match.
+- **`biophony`: machinery is one mechanism for a false species and not the
+  mechanism.** This module blamed BirdNET's indoor failures on low-frequency
+  machinery, from a corridor that returned Great Bitterns. A second corpus of
+  37 sessions put a Long-eared Owl in 24 of them, and its association with the
+  mechanical index ran the *other* way --- median 0.066 in owl sessions against
+  0.292 without, a factor of 4.5 at Mann--Whitney p = 0.00039. Those false
+  detections sat in the quiet, not in the noise. Two checks are added that the
+  machinery story would not have caught: read the detection *rate* rather than
+  the entry, since a regionally plausible species at an implausible rate is
+  the signature; and check the calendar against the range, since a Common
+  Swift in October disqualifies itself on a fact nothing acoustic can rescue.
+
 ## [0.41.0] — 2026-08-13
 
 ### Changed

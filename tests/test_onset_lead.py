@@ -48,16 +48,26 @@ def test_it_finds_a_known_lead():
     """
     motion = _ramp(200, 20)
     audio = _ramp(200, 40, seed=1)
-    r = analysis.onset_lead(motion, audio, dt=1 / 25, rise=0.25)
+    r = analysis.onset_lead(motion, audio, dt=1 / 25)
     assert abs(r["lead_s"] - 0.8) < 0.1
     assert r["leads"] == "first"
 
 
-def test_the_defaults_are_per_modality():
-    """The change of 2026-08-12, asserted rather than assumed."""
+def test_the_default_is_one_fraction_for_both():
+    """Per-modality fractions must be asked for, not inherited.
+
+    Only MOTION_RISE is validated against a person; AUDIO_RISE is provisional.
+    A default that applied it silently would put an unvalidated convention into
+    every figure drawn from this function.
+    """
     r = analysis.onset_lead(_ramp(200, 20), _ramp(200, 40, seed=1), dt=1 / 25)
-    assert r["first_rise"] == analysis.MOTION_RISE
-    assert r["second_rise"] == analysis.AUDIO_RISE
+    assert r["first_rise"] == r["second_rise"] == analysis.ONSET_RISE
+
+
+def test_per_modality_fractions_are_available_when_asked_for():
+    r = analysis.onset_lead(_ramp(200, 20), _ramp(200, 40, seed=1), dt=1 / 25,
+                            first_rise=analysis.MOTION_RISE,
+                            second_rise=analysis.AUDIO_RISE)
     assert r["first_rise"] < r["second_rise"]
 
 
@@ -129,17 +139,15 @@ def test_the_default_rise_fires_on_the_action_not_the_sound():
     assert abs(strict - event_s) < 0.15       # rise 0.75 finds the event
 
 
-def test_the_audio_onset_is_now_accurate_by_default():
-    """The bias this file used to document is what the defaults now remove.
+def test_a_high_fraction_moves_the_audio_onset_to_the_event():
+    """On this synthetic signal a high fraction lands on the event.
 
-    At the old symmetric 0.25 the audio onset landed well over a second early,
-    firing on the action's handling noises rather than on the sound the clip is
-    of. `AUDIO_RISE` is the fraction that was measured against hand-checked
-    acoustic onsets, so by default the returned time is usable.
+    That is a fact about the signal, not a validation of the fraction: nobody
+    has marked an acoustic onset on the real corpus by ear. See AUDIO_RISE.
     """
     x, dt, event_s = _action_then_sound(seed=1)
     motion = np.concatenate([x[40:], np.full(40, x[-1])])
-    r = analysis.onset_lead(motion, x, dt)
-    assert abs(r["second_onset_s"] - event_s) < 0.15
-    legacy = analysis.onset_lead(motion, x, dt, rise=0.25)
-    assert legacy["second_onset_s"] < event_s - 1.5
+    strict = analysis.onset_lead(motion, x, dt, rise=0.75)
+    assert abs(strict["second_onset_s"] - event_s) < 0.15
+    default = analysis.onset_lead(motion, x, dt)
+    assert default["second_onset_s"] < event_s - 1.5

@@ -838,13 +838,22 @@ def cycle_profile(level_db, dt: float, min_period_s: float = 60.0,
 
 
 ONSET_RISE = 0.25     # fraction of a series' own floor-to-peak range
-#: Validated per modality on the Sound Actions corpus, 2026-08-12. Motion
-#: matches onsets marked by eye from video frames at 0.10--0.25 (median error
-#: 0.06 s), and is late by 0.46--0.66 s at 0.50--0.75. Audio needs the high
-#: value: at 0.25 it fires on the action's handling noises a median 1.78 s
-#: early, and at 0.75 it lands within 0.01 s of hand-checked acoustic onsets.
-#: The asymmetry is structural --- audio carries a noise floor a low fraction
-#: triggers on, motion has a still lead-in a high fraction sits through.
+#: MOTION_RISE is validated: on the Sound Actions corpus it matches onsets
+#: marked by eye from video frames to a median 0.06 s, where 0.50 and 0.75 are
+#: late on every clip checked by 0.46--0.66 s.
+#:
+#: **AUDIO_RISE is provisional and is not validated against a human.** The
+#: figure usually quoted for it --- 0.75 landing within 0.01 s where 0.25 lands
+#: 1.78 s early --- compares this rule against *another algorithmic onset*,
+#: namely `series_onset` at 0.25 on a linear energy series, and not against
+#: anyone's ear or eye. The wording "hand-checked" attached to it somewhere
+#: between the measurement and this docstring and was wrong. Worse, that
+#: agreement is partly an artefact: the two passes used different
+#: representations, dB against linear energy, on which the same fraction lands
+#: tens of frames apart, so the +0.01 s was two mismatches cancelling.
+#:
+#: Until acoustic onsets are marked by a person, do not treat 0.75 as
+#: established for audio, and do not publish a figure that depends on it.
 MOTION_RISE = 0.25
 AUDIO_RISE = 0.75
 
@@ -863,17 +872,20 @@ def series_onset(series, rise: float = ONSET_RISE):
     before the sound the clip is *of*. Measured on the Sound Actions clips,
     where the lead-in sits a median 40 dB below the event peak but 5.5 dB
     above the clip floor and carries such transients, the default returns a
-    median 1.78 s early against hand-checked onsets and agrees within a
-    quarter second on 17 % of them; ``rise=0.75`` lands +0.01 s and agrees on
-    77 %.
+    median 1.78 s early *against another algorithmic onset* --- this same
+    function at 0.25 on a linear energy series --- and agrees within a quarter
+    second on 17 % of those; ``rise=0.75`` lands +0.01 s and agrees on 77 %.
+    That comparison is between two algorithms and not against a person, and
+    the two passes used different representations (dB against linear energy),
+    on which the same fraction lands tens of frames apart. Read it as a
+    consistency check between two conventions, not as accuracy.
 
     So the choice is not noise versus signal but *which* sound is the onset.
     The default finds the first thing audible above the floor; a higher rise
     finds the event the clip was cut for.
 
-    **The two modalities want opposite fractions, and that is newer evidence
-    than the paragraph above.** The 0.75 figure was measured on *audio*. On the
-    motion series of the same corpus it is wrong in the other direction:
+    **The two modalities appear to want opposite fractions, and only one half
+    of that is established.** The motion side is: on the same corpus,
     marked by eye from video frames, blind to every computed value, 0.10 and
     0.25 land within a median 0.06 s of what a viewer calls the beginning,
     while 0.50 and 0.75 are late on every clip checked, by a median 0.46 s and
@@ -956,9 +968,9 @@ def series_span(series, rise: float = ONSET_RISE):
     return (int(idx[0]), int(idx[-1])) if len(idx) else (None, None)
 
 
-def onset_lead(first, second, dt: float, rise: float | None = None,
-               first_rise: float = MOTION_RISE,
-               second_rise: float = AUDIO_RISE) -> dict:
+def onset_lead(first, second, dt: float, rise: float = ONSET_RISE,
+               first_rise: float | None = None,
+               second_rise: float | None = None) -> dict:
     """How far one series begins before another — an action before its sound.
 
     A sound-producing action starts well before the sound it produces: an
@@ -974,18 +986,18 @@ def onset_lead(first, second, dt: float, rise: float | None = None,
     than treating as error — an object already moving when it is struck, or an
     action that happens out of frame, genuinely has no visible lead.
 
-    **Each series gets the fraction validated for its own modality**, since
-    2026-08-12: `first_rise` defaults to :data:`MOTION_RISE` and `second_rise`
-    to :data:`AUDIO_RISE`. Giving both the same fraction, which this function
-    used to do, keeps the units out of the comparison but guarantees the
-    fraction is wrong for one of the two --- audio fires early on its noise
-    floor at a low fraction, motion fires late at a high one. Pass the legacy
-    ``rise=`` to force one fraction on both and reproduce older figures.
+    **One fraction is applied to both series by default**, which keeps the
+    units out of the comparison at the cost of a fraction that cannot suit
+    both: audio fires early on its own noise floor at a low value, motion
+    fires late at a high one. Pass ``first_rise`` and ``second_rise`` to give
+    each modality its own.
 
-    The consequence has to be stated wherever the result is: a lead measured
-    this way is a difference between two *differently-defined* onsets. That is
-    the honest version of a comparison across modalities, not a flaw in it ---
-    the alternative is a single definition that is right for neither.
+    That option exists and is deliberately not the default, because only the
+    motion fraction has been checked against a person. :data:`AUDIO_RISE` sets
+    out why the usual justification for 0.75 does not survive inspection. A
+    lead measured with two fractions is a difference between two
+    *differently-defined* onsets, which is defensible once both are validated
+    and misleading before.
 
     Returns ``lead_s`` (positive when `first` begins earlier), the two onset
     times, the fraction used for each, and which one led.
@@ -1002,8 +1014,13 @@ def onset_lead(first, second, dt: float, rise: float | None = None,
     than on the sound the clip is of. Raise ``rise`` before reading them as
     times — see :func:`series_onset`.
     """
-    if rise is not None:
-        first_rise = second_rise = rise
+    #: The default is still one fraction for both series. Per-modality
+    #: fractions are available and must be asked for, because only the motion
+    #: one is validated --- see :data:`AUDIO_RISE`. A default that silently
+    #: applied an unvalidated fraction would put it into every figure drawn
+    #: from this function without anyone choosing it.
+    first_rise = rise if first_rise is None else first_rise
+    second_rise = rise if second_rise is None else second_rise
     i = series_onset(first, first_rise)
     j = series_onset(second, second_rise)
     if i is None or j is None:

@@ -71,6 +71,36 @@ any orientation on the body.
   significance speaks to locking onto *wandering* real-world modulation,
   which is the conservative behaviour you want.
 
+!!! warning "Rotation invariance is not reflection invariance"
+    Mirroring one of the two angle series flips the coefficient's sign and
+    leaves its magnitude exactly unchanged, so judging by |rho| places the
+    blind spot precisely where a handedness error lands. A recorder mounted
+    upside down writes Y inverted and its horizontal bearing becomes its own
+    mirror image; no offset recovers that, and neither does a search over
+    rotations, because a reflection is not in the set being searched. Such a
+    search returns a poor best fit rather than a complaint. Settle handedness
+    from how the rig was mounted, and from whether the recorder already
+    compensated for it.
+
+!!! warning "Whose frame is the azimuth in?"
+    A recorder travelling on the same body as the sensor is partly measuring
+    that body's posture, and will correlate with its motion for reasons that
+    have nothing to do with the soundscape. Settle that first with
+    [`spatial.frame_reference_test`](spatial.md#which-frame-is-the-bearing-in);
+    a directional correlation from a body-referenced rig is not a fact about
+    the room.
+
+!!! warning "A best-over-shifts figure is positive by construction"
+    The circular shifts in this module are the null and never the answer. It
+    is a short step to quoting the best-fitting shift's statistic instead,
+    and that number rises with the number of shifts tried and with how smooth
+    the two series are. On a year of daily recordings, the best of 72
+    circular shifts scored *higher* on deliberately mismatched day pairs than
+    on real ones — 0.599 against 0.494 — after three separate hypotheses
+    about the apparatus had been tested and none of them was the problem. If
+    a maximum over alignments must be reported, run the same search over
+    pairs known not to belong together and quote the difference.
+
 ## In notebooks
 
 ```python

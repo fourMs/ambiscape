@@ -213,6 +213,20 @@ def _shift_p(obs: float, stat, n: int, n_surrogates: int, min_shift: int,
     frames. Circular time shifts keep each series' autocorrelation intact —
     the correct null for slow, self-similar signals, where naive shuffling
     would wildly overstate significance.
+
+    THE SHIFTS ARE THE NULL, NEVER THE ANSWER. It is a short step from this
+    loop to reporting the best-fitting shift's statistic as the result, and
+    that number is positive by construction: it is the largest of however
+    many draws were taken, so it rises with the number of shifts tried and
+    with how smooth the two series are. Measured on a year of daily
+    recordings, the best of 72 circular shifts scored *higher* on
+    deliberately mismatched day pairs, 0.599 against 0.494, than on the real
+    ones — a statistic that had by then survived three separate hypotheses
+    about the apparatus, none of which was the problem. A best-over-shifts
+    figure means nothing until the same search has been run on pairs known
+    not to belong together, and what is quoted is the difference between
+    them. The unshifted statistic reported by the callers here needs no such
+    caveat, which is one reason it is the one they report.
     """
     lo = min(min_shift, max(n // 4, 1))
     ks = rng.integers(lo, n - lo, size=n_surrogates)
@@ -254,6 +268,27 @@ def directional_correlation(az_deg, sway_deg, mask=None, dt=0.125,
     coupling by |rho| and p). ``mask`` selects the frames that enter the
     statistic (e.g. frames where both streams carry energy); surrogates
     roll the full sway series before masking, preserving its rhythm.
+
+    ROTATION INVARIANCE DOES NOT EXTEND TO REFLECTION, and judging by |rho|
+    puts the blind spot exactly where a handedness error lands. Mirroring
+    one of the two series --- sending every angle a to -a --- leaves the
+    coefficient's magnitude untouched and flips only its sign. That is
+    algebra rather than an approximation, and it holds to machine precision.
+    So the frame-free comfort this function offers stops at rotations: a
+    recorder mounted upside down writes Y inverted, its horizontal bearing
+    atan2(Y, X) becomes atan2(-Y, X), and that mirror is invisible here at
+    every offset. Nor can a search over rotations find it, since a
+    reflection is not in the set being searched, and such a search returns a
+    poor best fit rather than a complaint. Establish handedness from the rig
+    --- how the microphone was mounted, and whether the recorder already
+    compensated --- never from the statistic.
+
+    A COUPLING FOUND HERE IS ONLY THE SOUNDSCAPE'S IF THE AZIMUTH IS. An
+    audio bearing from a recorder travelling on the same body as the sensor
+    is in part a measurement of that body's posture, and will correlate with
+    the body's motion for reasons that have nothing to do with the room.
+    :func:`ambiscape.spatial.frame_reference_test` settles that question,
+    and it is worth settling before this one is asked.
 
     **Needs micromotion**, since ambiscape 0.40.0: the coefficient comes from
     :func:`ambiscape.circstats.circ_corr`, which re-exports

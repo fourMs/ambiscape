@@ -88,7 +88,28 @@ def read_bext(path: str | Path) -> dict:
 def channel_order(bext_description: str) -> str:
     """Detect B-format convention from the H3-VR's zTRK tags in the bext
     description: 'ambix' (W,Y,Z,X) or 'fuma' (W,X,Y,Z). Defaults to 'ambix'
-    when no tags are present."""
+    when no tags are present.
+
+    THE DEFAULT IS A GUESS, AND A WRONG GUESS LOOKS LIKE DATA. Swapping two
+    of the three directional channels does not produce noise; it produces a
+    bearing series that is smooth, plausible and wrong, and nothing
+    downstream will object to it. Two independent re-decodes of one year of
+    the same ambisonic recordings differed by a median of about 48 degrees
+    per day and returned year-long directional concentrations of 0.815 and
+    0.393 — same audio, same nominal convention, both series entirely
+    presentable — and which of them was faithful to the field the microphone
+    saw was never settled. So a decode is not validated by producing a
+    sensible-looking result.
+
+    What does validate one is an outside fact: a source at a known bearing,
+    a pass-by whose direction of travel is known, or a
+    :func:`ambiscape.spatial.frame_reference_test` against an independent
+    heading. Orientation is a separate question from channel order and needs
+    the same treatment. A recorder inverted, or set to its upside-down mode
+    and then corrected a second time, mirrors the horizontal plane; a mirror
+    is not a rotation, so no rotational alignment search will find it, and
+    the search will report a poor fit rather than a fault.
+    """
     trk = {}
     for line in bext_description.replace("\r", "\n").split("\n"):
         if line.startswith("zTRK") and "=" in line:

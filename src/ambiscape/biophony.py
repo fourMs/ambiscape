@@ -35,17 +35,48 @@ over a university corridor in January it returned eight Great Bittern
 detections, the best at 0.87 confidence. A bittern booms at roughly
 150–200 Hz, which is where a ventilation plant lives. Gray Heron, Tawny Owl
 and Red-throated Loon came back from other empty interiors the same day. The
-classifier does not merely miss faint birds indoors; it *manufactures*
-low-frequency species out of machinery, confidently, so a detection count is
-not evidence that anything was alive.
+classifier does not merely miss faint birds indoors; it returns confident
+low-frequency species where none were, so a detection count is not evidence
+that anything was alive.
+
+MACHINERY IS ONE MECHANISM AND NOT THE MECHANISM, which this note claimed
+until 2026-08-13. A second corpus — 37 sessions across a year, indoors and
+out — put a Long-eared Owl in 24 of them, 65 per cent, in daylight, in a
+city, in spring and summer. The obvious story was the one above: a hooting
+owl and a ventilation plant occupy the same octave. Tested against the
+sessions' mechanical index, the association ran the other way and strongly.
+Owl sessions had a median mechanical index of 0.066 against 0.292 without,
+a factor of 4.5 at Mann--Whitney p = 0.00039. The false detections lived in
+the quiet, where a low floor lets faint and ambiguous material through, not
+in the noise. Both mechanisms are real; neither predicts the other, so name
+the one that was tested rather than the one that was plausible.
+
+Two cheap checks the machinery story would not have caught:
+
+1. **Read the rate, not the entry.** A species that is regionally
+   unremarkable becomes a finding or an artefact depending on how often it
+   appears. Long-eared Owls do live around that city; they are not in 24
+   different locations across two seasons in the middle of the day. A
+   plausible species at an implausible rate is the signature.
+2. **Check the calendar against the range.** In the same list a Common
+   Swift arrived in an October session, and swifts have left the country by
+   the end of August. One detection out of season disqualifies itself on a
+   fact nothing acoustic can rescue.
 
 The fix is a control, not a threshold. Run the same settings over recordings
 from comparable rooms and the same recorder that certainly contain no birds —
 a plant room, a corridor at night, a toilet — and treat every species that
-comes back as confusable with that building's machinery. Say what the control
-removed rather than quietly reporting the remainder. It is the
-:mod:`ambiscape.enf` lesson in another key: a test that any drone can pass is
-not a test.
+comes back as confusable with that building's machinery. Include quiet
+controls as well as loud ones, now that the quiet is known to be where the
+worse rate sits. Say what the control removed rather than quietly reporting
+the remainder. It is the :mod:`ambiscape.enf` lesson in another key: a test
+that any drone can pass is not a test.
+
+A low confidence threshold is defensible and a low threshold on its own is
+not. The owl list was taken at 0.25 deliberately, on the argument that a low
+threshold with an explicit validation step beats a high one that hides its
+own failures — which is sound, and only sound while the validation step
+actually happens. Until it does, a species list is a list of candidates.
 """
 from __future__ import annotations
 

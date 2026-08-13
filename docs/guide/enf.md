@@ -59,3 +59,25 @@ sounds: a machine-room measured +45 dB of 50 Hz line, a quiet hotel room
 essentially none. Compare across sessions before interpreting any
 low-frequency tonal finding, since the hum is in nearly every indoor
 recording.
+
+!!! warning "Coverage is not a location proxy"
+    It is tempting to read `coverage` as proximity to mains, and so as a
+    physical check on whether a session happened indoors. It does not work.
+    Across 365 daily recordings sorted into seven kinds of place, the group
+    medians ran from 0.590 down to 0.475 — a total range of 0.115 against a
+    within-group interquartile width of 0.260, with Kruskal–Wallis
+    returning H = 3.7 at p = 0.72. Outdoor and semi-open sessions ranked
+    sixth of seven, in among the indoor groups rather than below them.
+
+    Nothing was wrong with the ENF measurement over that year: the grid was
+    recovered on 364 of 365 days at a median 49.9913 Hz. What coverage
+    tracks is the recording — gain, wind, the recorder's own floor — not
+    the room. It is also a fraction of windows clearing a threshold, so it
+    depends on `win_s`, `step_s` and `min_rise_db`, and two coverages are
+    comparable only where all three match.
+
+    A between-group difference means nothing until it is put beside the
+    within-group spread. And a single extreme day deserves a look at the
+    file before it is believed: the lowest reading of that year came from a
+    WAV whose header declared 690 seconds over 379 MB of audio and returned
+    no frames at all to libsndfile, without raising anything.

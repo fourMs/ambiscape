@@ -61,3 +61,41 @@ actually legible, instead of wasting inference on masked hours.
 `lat`/`lon` enable BirdNET's location/season species filter, cutting false
 positives. BirdNET analyses the W channel resampled to 48 kHz; spatial
 structure comes from the `biophony` measures, species identity from here.
+
+!!! warning "A species list is a list of candidates"
+    The classifier returns confident species where there were none, and it
+    does so by more than one route.
+
+    Run over a university corridor in January it returned eight Great
+    Bittern detections, the best at 0.87, alongside Gray Heron, Tawny Owl
+    and Red-throated Loon from other empty interiors. A bittern booms at
+    roughly 150–200 Hz, which is where a ventilation plant lives, and that
+    looked like the mechanism.
+
+    It is one mechanism, not the mechanism. A second corpus of 37 sessions
+    put a Long-eared Owl in 24 of them — 65 per cent, in daylight, in a
+    city, across spring and summer — and the association with those
+    sessions' mechanical index ran the *other* way: median 0.066 where the
+    owl appeared against 0.292 where it did not, a factor of 4.5 at
+    Mann–Whitney p = 0.00039. Those false detections lived in the quiet,
+    where a low noise floor lets faint and ambiguous material through.
+
+    Three habits follow:
+
+    - **Run a control, not a higher threshold.** Same settings, same
+      recorder, recordings that certainly contain no birds — a plant room,
+      a corridor at night — and treat every species that comes back as
+      confusable. Include quiet controls as well as loud ones. Report what
+      the control removed, rather than quietly reporting the remainder.
+    - **Read the rate, not the entry.** A regionally unremarkable species
+      becomes a finding or an artefact depending on how often it appears.
+      Long-eared Owls do live around that city; they are not in 24
+      different places across two seasons in the middle of the day.
+    - **Check the calendar against the range.** The same list held a Common
+      Swift in October, and swifts have left the country by the end of
+      August. One detection out of season disqualifies itself on a fact
+      nothing acoustic can rescue.
+
+    A low confidence threshold is defensible — a low threshold with an
+    explicit validation step beats a high one that hides its own failures —
+    and it is only defensible while the validation step actually happens.

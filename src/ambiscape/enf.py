@@ -124,6 +124,31 @@ def enf_summary(track: dict, nominal: float = 50.0,
     difference between the first two tracked harmonics (fundamental-scaled)
     where both are detected — millihertz-level agreement authenticates the
     line as electrical.
+
+    COVERAGE IS NOT A PROXY FOR WHERE THE RECORDING WAS MADE, however
+    reasonable that sounds — mains hum means mains nearby, so more hum
+    should mean more indoors. Tested on 365 daily recordings sorted into
+    seven kinds of place, the group medians ran from 0.590 down to 0.475, a
+    total range of 0.115 against a within-group interquartile width of
+    0.260: the differences between kinds of place were 2.3 times smaller
+    than the differences within them, and Kruskal--Wallis returned H = 3.7
+    at p = 0.72. Outdoor and semi-open sessions ranked sixth of seven, in
+    among the indoor groups rather than below them. The measurement itself
+    was in excellent health over the same year — the grid recovered on 364
+    of 365 days at a median 49.9913 Hz — so this is a good measurement of
+    the wrong thing, which is the kind that survives review.
+
+    What coverage does track is the recording: gain, wind, the recorder's
+    own noise floor, how much of the window something was leaning on the
+    microphone. It is a quality figure wearing a location figure's clothes.
+    It is also tied to ``win_s``, ``step_s`` and ``min_rise_db``, being a
+    fraction of windows clearing a threshold, so two coverages compare only
+    where all three match. And a single day's zero deserves a look at the
+    file before it is believed: the most extreme reading of that year came
+    from a WAV whose header declared 690 seconds over 379 MB of audio and
+    returned no frames at all to libsndfile without raising anything — on an
+    outdoor day, so the artefact was the one number that made the story come
+    out the way it was expected to.
     """
     ks = sorted(track["f"])
     k0 = ks[0]

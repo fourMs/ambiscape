@@ -866,6 +866,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#when-the-spacing-was-never-written-down" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When the spacing was never written down
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#programmatic-helpers" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2097,6 +2108,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#when-the-spacing-was-never-written-down" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When the spacing was never written down
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#programmatic-helpers" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2260,11 +2282,34 @@ node):</p>
 <span class="n">array</span><span class="o">.</span><span class="n">triangulate_figure</span><span class="p">(</span><span class="n">tri</span><span class="p">,</span> <span class="n">plan</span><span class="p">,</span> <span class="s2">&quot;triangulation.png&quot;</span><span class="p">)</span>
 </code></pre></div>
 <p><img alt="Three-node triangulation of a source walking across a floor plan: array axes as arrows, fixes coloured by time, a few flagged ambiguous where the geometry turns momentarily symmetric (documentation demo data)." src="../../img/array_triangulate.png" /></p>
+<h2 id="when-the-spacing-was-never-written-down">When the spacing was never written down</h2>
+<p>Everything above needs <code>load_geometry</code> — the mic positions in metres. Plenty of
+archives do not have them. <code>near_source_index</code> is the fallback: mean
+inter-channel coherence in one band, averaged over every channel pair, assuming
+nothing about which channel sits where.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape.array</span><span class="w"> </span><span class="kn">import</span> <span class="n">near_source_index</span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">near_source_index</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">band</span><span class="o">=</span><span class="p">(</span><span class="mf">500.0</span><span class="p">,</span> <span class="mf">1000.0</span><span class="p">))</span>   <span class="c1"># x is (samples, channels)</span>
+</code></pre></div>
+<p>It answers one question — how directional is this moment — and it answers it
+without calibration, because a ratio between two channels of one device divides
+that device's gain out. On a network of uncalibrated nodes that is worth a good
+deal: on the SINS corpus a single fixed threshold, no per-node tuning, separates
+loud activity from an empty room at 95.5 % across twelve nodes.</p>
+<p><strong>It is not an occupancy detector.</strong> Over 749 labelled minutes of that corpus a
+television playing to an empty room scored higher than any class with a person
+in it (0.717 against 0.678 for a vacuum cleaner), and a person working quietly
+scored 0.365 against 0.247 for an empty room. It detects a near <em>sound source</em>.
+A loudspeaker is one; a silent person is not.</p>
+<p>Two practical points. Keep <code>band</code> below the array's spatial aliasing limit,
+<code>c / 2d</code> — under about 2 kHz is safe for capsules a few centimetres apart, and
+a band that is too high collapses towards zero for every input alike. And the
+reading is comparable only against itself and against arrays of the same build:
+there is no absolute scale, which is the price of taking no geometry.</p>
 <h2 id="programmatic-helpers">Programmatic helpers</h2>
 <p><code>ambiscape.array</code> exposes the pieces directly: <code>load_geometry</code>, <code>tdoa</code>,
-<code>bearing</code>, <code>bearing_figure</code>, <code>coherence_profile</code>, <code>coherence_figure</code>,
-<code>load_plan</code>, <code>triangulate</code>, <code>triangulate_figure</code>, and <code>run_array</code>. See the
-API reference.</p>
+<code>bearing</code>, <code>bearing_figure</code>, <code>near_source_index</code>, <code>coherence_profile</code>,
+<code>coherence_figure</code>, <code>load_plan</code>, <code>triangulate</code>, <code>triangulate_figure</code>, and
+<code>run_array</code>. See the API reference.</p>
 
 
 
@@ -2287,7 +2332,7 @@ API reference.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 7, 2026 09:21:08 UTC">August 7, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 14, 2026 09:14:02 UTC">August 14, 2026</span>
   </span>
 
     

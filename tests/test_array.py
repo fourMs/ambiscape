@@ -262,3 +262,42 @@ def test_cli_spacing_shortcut(tmp_path):
     assert abs(doc["bearing"]["median_deg"] - 90.0) < 3.0
     # exactly one of --geometry/--spacing must be given
     assert main(["array", str(wav)]) == 1
+
+
+def test_near_source_index_separates_a_source_from_a_diffuse_field():
+    """One delayed source correlates across channels; independent noise does not."""
+    import numpy as np
+    from ambiscape.array import near_source_index
+    rng = np.random.default_rng(0)
+    fs, n = 16000, 16000 * 3
+    src = rng.standard_normal(n)
+    coherent = np.stack([np.roll(src, k) + 0.05 * rng.standard_normal(n)
+                         for k in range(4)], axis=1)
+    diffuse = rng.standard_normal((n, 4))
+    assert near_source_index(coherent, fs) > 0.8
+    assert near_source_index(diffuse, fs) < 0.2
+
+
+def test_near_source_index_is_blind_to_gain():
+    """The point of it: a ratio between channels of one device.
+
+    A node twice as sensitive as its neighbour must read the same, or the
+    measure is no better than the levels it was introduced to replace.
+    """
+    import numpy as np
+    from ambiscape.array import near_source_index
+    rng = np.random.default_rng(1)
+    fs, n = 16000, 16000 * 3
+    src = rng.standard_normal(n)
+    x = np.stack([np.roll(src, k) + 0.1 * rng.standard_normal(n)
+                  for k in range(4)], axis=1)
+    assert near_source_index(x, fs) == pytest.approx(
+        near_source_index(x * 8.0, fs), abs=1e-9)
+
+
+def test_near_source_index_declines_what_it_cannot_measure():
+    """Too short for a Welch segment, or single-channel, returns nan not 0."""
+    import numpy as np
+    from ambiscape.array import near_source_index
+    assert np.isnan(near_source_index(np.zeros((10, 4)), 16000))
+    assert np.isnan(near_source_index(np.zeros((48000, 1)), 16000))

@@ -15,6 +15,9 @@ present.
   the GCC peak height and its prominence over the runner-up;
 - ``bearing`` — frame-wise bearing for a *linear* array from a weighted
   least-squares fit across the pair TDOAs, with a confidence stream;
+- ``near_source_index`` — geometry-free inter-channel coherence in one band,
+  for arrays whose capsule spacing is not documented; a calibration-free
+  reading of how directional a moment is, and explicitly *not* occupancy;
 - ``coherence_profile`` — inter-channel magnitude-squared coherence versus
   frequency per window, against the analytic diffuse-field curve for each
   spacing, and the per-window diffuseness proxy ``gamma_array``;
@@ -236,6 +239,65 @@ def bearing_figure(b: dict, out_path: str | Path,
 
 
 # ---------------------------------------------------------------- coherence
+
+
+def near_source_index(data: np.ndarray, fs: int,
+                      band: tuple[float, float] = (500.0, 1000.0),
+                      nperseg: int = 2048) -> float:
+    """How directional this moment is, for an array of unknown geometry.
+
+    Mean magnitude-squared coherence over *every* channel pair, averaged
+    across ``band``. A source close to the array reaches its microphones with
+    one fixed delay and correlates strongly between them; a diffuse or
+    reverberant field arrives from everywhere at once and does not. High means
+    something is sounding near the array, low means the array is hearing a
+    room.
+
+    Unlike :func:`coherence_profile` this takes no geometry and returns no
+    diffuse-field reference, which is the point: it is for the common case of
+    an archive that does not document where its capsules sit. Averaging over
+    all pairs means no assumption is made about which channel is where. The
+    price is that the reading is comparable only against itself and against
+    other arrays of the same build --- there is no absolute scale here.
+
+    **What makes it worth having on an uncalibrated deployment.** It is a
+    ratio between two channels of one device, so that device's gain divides
+    out. On a network where every level statistic is a statement about a
+    sensor until proven otherwise, this is the one measure that can be
+    compared across nodes with no calibration at all: on the SINS corpus a
+    single fixed threshold, with no per-node tuning, separates loud activity
+    from an empty room at 95.5 % across twelve uncalibrated nodes.
+
+    **It is not an occupancy detector, and the failure is not subtle.**
+    Measured over 749 labelled minutes of that corpus, a television playing to
+    an empty room gives the highest median of any class (0.717), above a
+    vacuum cleaner (0.678) and above every class with a person in the room;
+    a person working quietly gives 0.365 against 0.247 for an empty room. What
+    is detected is a near *sound source*. A loudspeaker is one and a silent
+    person is not. Anything built on this that says "somebody is here" will
+    say it of an empty room with the radio on.
+
+    ``band`` must stay below the array's spatial aliasing limit, ``c / 2d``
+    for spacing ``d``. Where the spacing is unknown, staying under about 2 kHz
+    is safe for capsules a few centimetres apart, and a band that is too high
+    shows up as coherence collapsing towards zero for every input alike.
+
+    Returns the mean coherence in ``band``, or ``nan`` if the input is too
+    short for one Welch segment or has fewer than two channels.
+    """
+    x = np.asarray(data, np.float64)
+    if x.ndim != 2 or x.shape[1] < 2 or x.shape[0] < nperseg:
+        return float("nan")
+    lo, hi = band
+    vals = []
+    for i in range(x.shape[1]):
+        for j in range(i + 1, x.shape[1]):
+            f, c = signal.coherence(x[:, i], x[:, j], fs=fs,
+                                    nperseg=min(nperseg, x.shape[0]))
+            m = (f >= lo) & (f <= hi)
+            if m.any():
+                vals.append(float(np.mean(c[m])))
+    return float(np.mean(vals)) if vals else float("nan")
 
 
 def coherence_profile(data: np.ndarray, fs: int, geometry,

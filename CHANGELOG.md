@@ -14,9 +14,27 @@ been carrying feature work throughout a pre-1.0 life.
 > imports the functions that moved.
 
 
-## [0.42.0] — 2026-08-13
+## [0.42.0] — 2026-08-14
 
 ### Added
+- **`array.near_source_index`** — geometry-free inter-channel coherence in one
+  band, for arrays whose capsule spacing is not documented. `coherence_profile`
+  needs geometry to build its diffuse-field reference; this averages over every
+  channel pair and assumes nothing about which channel is where, which is the
+  common case for an archive that never wrote the spacing down. Being a ratio
+  between two channels of one device, the gain divides out: on the SINS corpus
+  one fixed threshold with no per-node tuning separates loud activity from an
+  empty room at 95.5 % across twelve uncalibrated nodes, which no level
+  statistic there can do.
+
+  The docstring is explicit that this is **not** an occupancy detector, because
+  the obvious reading of a high value is "somebody is here" and that is wrong:
+  over 749 labelled minutes a television playing to an empty room gives the
+  highest median of any class (0.717, above a vacuum cleaner's 0.678 and above
+  every class with a person in it), while a person working quietly gives 0.365
+  against 0.247 for an empty room. It detects a near sound source. A
+  loudspeaker is one; a silent person is not.
+
 - **`spatial.frame_reference_test` --- is a bearing fixed to the recorder or to
   the world?** Given a bearing series in the recorder's frame and a heading
   series in world coordinates, it returns the circular concentration in each
@@ -90,27 +108,6 @@ been carrying feature work throughout a pre-1.0 life.
   the entry, since a regionally plausible species at an implausible rate is
   the signature; and check the calendar against the range, since a Common
   Swift in October disqualifies itself on a fact nothing acoustic can rescue.
-
-## [Unreleased]
-
-### Added
-- **`array.near_source_index`** — geometry-free inter-channel coherence in one
-  band, for arrays whose capsule spacing is not documented. `coherence_profile`
-  needs geometry to build its diffuse-field reference; this averages over every
-  channel pair and assumes nothing about which channel is where, which is the
-  common case for an archive that never wrote the spacing down. Being a ratio
-  between two channels of one device, the gain divides out: on the SINS corpus
-  one fixed threshold with no per-node tuning separates loud activity from an
-  empty room at 95.5 % across twelve uncalibrated nodes, which no level
-  statistic there can do.
-
-  The docstring is explicit that this is **not** an occupancy detector, because
-  the obvious reading of a high value is "somebody is here" and that is wrong:
-  over 749 labelled minutes a television playing to an empty room gives the
-  highest median of any class (0.717, above a vacuum cleaner's 0.678 and above
-  every class with a person in it), while a person working quietly gives 0.365
-  against 0.247 for an empty room. It detects a near sound source. A
-  loudspeaker is one; a silent person is not.
 
 ## [0.41.0] — 2026-08-13
 

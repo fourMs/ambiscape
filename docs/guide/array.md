@@ -149,9 +149,39 @@ array.triangulate_figure(tri, plan, "triangulation.png")
 
 ![Three-node triangulation of a source walking across a floor plan: array axes as arrows, fixes coloured by time, a few flagged ambiguous where the geometry turns momentarily symmetric (documentation demo data).](../img/array_triangulate.png)
 
+## When the spacing was never written down
+
+Everything above needs `load_geometry` — the mic positions in metres. Plenty of
+archives do not have them. `near_source_index` is the fallback: mean
+inter-channel coherence in one band, averaged over every channel pair, assuming
+nothing about which channel sits where.
+
+```python
+from ambiscape.array import near_source_index
+v = near_source_index(x, fs, band=(500.0, 1000.0))   # x is (samples, channels)
+```
+
+It answers one question — how directional is this moment — and it answers it
+without calibration, because a ratio between two channels of one device divides
+that device's gain out. On a network of uncalibrated nodes that is worth a good
+deal: on the SINS corpus a single fixed threshold, no per-node tuning, separates
+loud activity from an empty room at 95.5 % across twelve nodes.
+
+**It is not an occupancy detector.** Over 749 labelled minutes of that corpus a
+television playing to an empty room scored higher than any class with a person
+in it (0.717 against 0.678 for a vacuum cleaner), and a person working quietly
+scored 0.365 against 0.247 for an empty room. It detects a near *sound source*.
+A loudspeaker is one; a silent person is not.
+
+Two practical points. Keep `band` below the array's spatial aliasing limit,
+`c / 2d` — under about 2 kHz is safe for capsules a few centimetres apart, and
+a band that is too high collapses towards zero for every input alike. And the
+reading is comparable only against itself and against arrays of the same build:
+there is no absolute scale, which is the price of taking no geometry.
+
 ## Programmatic helpers
 
 `ambiscape.array` exposes the pieces directly: `load_geometry`, `tdoa`,
-`bearing`, `bearing_figure`, `coherence_profile`, `coherence_figure`,
-`load_plan`, `triangulate`, `triangulate_figure`, and `run_array`. See the
-API reference.
+`bearing`, `bearing_figure`, `near_source_index`, `coherence_profile`,
+`coherence_figure`, `load_plan`, `triangulate`, `triangulate_figure`, and
+`run_array`. See the API reference.

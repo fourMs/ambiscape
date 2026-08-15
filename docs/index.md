@@ -84,3 +84,13 @@ two overlap.
 - **[Wiki](https://github.com/fourMs/ambiscape/wiki)**—field-recording
   protocol, recipes, worked case studies, design rationale, and research
   context.
+
+
+## Citing
+
+Jensenius, A. R., & Guo, J. (2026). *ambiscape: analysis of soundscapes from mono, stereo, binaural and ambisonic recordings* (Version 0.42.0) [Computer software]. Zenodo.
+<https://doi.org/10.5281/zenodo.21948997>
+
+That is the CONCEPT DOI and it always resolves to the newest version. Where the exact behaviour
+matters, name the version you ran as well: version 0.42.0 is
+<https://doi.org/10.5281/zenodo.21948998>.

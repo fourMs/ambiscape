@@ -40,6 +40,24 @@ This streams the audio in constant memory, however long it is. It extracts featu
 
 Ambiscape analyses sound; its sister toolbox [MGT-python](https://github.com/fourMs/MGT-python) analyses video. The two meet at file boundaries—see [Working with other packages](https://fourms.github.io/ambiscape/interop/).
 
+## Related toolboxes
+
+These come out of the same lab, as separate packages with separate release cycles. They are built to
+be used together and share several implementations, so a measure computed in one agrees with the
+same measure computed in another.
+
+- [micromotion](https://github.com/fourMs/micromotion)—human micromotion: quantity of motion from
+  optical markers, accelerometers, respiration belts and force plates
+- [musiscape](https://github.com/fourMs/musiscape)—music collections: comparing many tracks and
+  albums held as audio files in folders; it reuses this package's circular statistics and Schaeffer
+  typology machinery
+- [Musical Gestures Toolbox](https://github.com/fourMs/MGT-python) (`musicalgestures`)—video and
+  audio: motiongrams, videograms, and motion analysis from ordinary video files
+
+The boundary with musiscape is the one worth stating: ambiscape is about a PLACE and its sonic
+ambience, musiscape about a COLLECTION of music. Music analysis moved out of ambiscape into
+musiscape on 2026-08-12, so an older release of either may still carry the other's functions.
+
 ## Licence
 
 MIT—see [LICENSE](LICENSE).

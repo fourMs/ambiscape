@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+title: "ambiscape: analysis of soundscapes from mono, stereo, binaural and ambisonic recordings"
+message: "If you use this software, please cite it."
+type: software
+authors:
+  - family-names: Jensenius
+    given-names: "Alexander Refsum"
+    affiliation: "RITMO Centre for Interdisciplinary Studies in Rhythm, Time and Motion, University of Oslo"
+    orcid: "https://orcid.org/0000-0001-6171-8743"
+  - family-names: Guo
+    given-names: "Jinyue"
+    affiliation: "University of Oslo"
+    orcid: "https://orcid.org/0009-0003-7438-1483"
+repository-code: "https://github.com/fourMs/ambiscape"
+abstract: >-
+  A holistic toolbox for analysing soundscapes (sonic ambiences) from mono, stereo, binaural, or ambisonic recordings.
+keywords:
+  - soundscape
+  - ambisonics
+  - acoustics
+  - audio analysis
+  - spatial audio
+license: MIT
+version: 0.42.0
+date-released: "2026-08-14"

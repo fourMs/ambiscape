@@ -14,6 +14,7 @@ import numpy as np
 
 
 def main(argv=None):
+    """Entry point for the `ambiscape` command. See the module docstring for the subcommands."""
     ap = argparse.ArgumentParser(prog="ambiscape",
                                  description="Long-duration ambisonic soundscape analysis")
     sub = ap.add_subparsers(dest="cmd", required=True)

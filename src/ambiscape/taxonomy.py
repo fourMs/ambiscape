@@ -125,6 +125,11 @@ ACTIVITY_PALETTE = [BLUE, GREEN, MAGENTA, YELLOW, "#7f5bd5", "#b4232f",
 
 
 def parse_time(x) -> float:
+    """Seconds from a number, `HH:MM:SS`, or `D HH:MM:SS` for a session past midnight.
+
+    The day field exists because these recordings run overnight, so an annotation at 01:00
+    can be later than one at 23:00 and a bare clock time would sort them the wrong way.
+    """
     if isinstance(x, (int, float)):
         return float(x)
     parts = str(x).strip().split()
@@ -134,6 +139,11 @@ def parse_time(x) -> float:
 
 
 def load_annotations(folder: str | Path) -> dict:
+    """Read `annotations.json`, `.yml` or `.yaml` from a session folder.
+
+    Raises FileNotFoundError rather than returning an empty dict, because an annotation file
+    that is silently absent produces a figure with nothing on it and no way to tell why.
+    """
     folder = Path(folder)
     for name in ("annotations.json", "annotations.yml", "annotations.yaml"):
         p = folder / name

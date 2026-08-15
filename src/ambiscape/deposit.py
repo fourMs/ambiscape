@@ -24,6 +24,12 @@ from .analysis import db
 
 
 def export_take_tsv(npz_path: str | Path, out_dir: str | Path) -> Path:
+    """One take's per-second features as a plain TSV: level, centroid, low and high share.
+
+    The deposit format, written so that a reader who has neither this package nor numpy can
+    use the analysis: four columns, one row a second, no compression and no pickling. The
+    `.npz` beside it keeps the full resolution.
+    """
     p = np.load(str(npz_path))
     logf = p["logf"]
     fc = np.sqrt(logf[:-1] * logf[1:])
@@ -44,6 +50,7 @@ def export_take_tsv(npz_path: str | Path, out_dir: str | Path) -> Path:
 
 
 def export_session(folder: str | Path) -> list[Path]:
+    """Run `export_take_tsv` over every feature file in a session, into `deposit/`."""
     folder = Path(folder)
     fdir = folder / "analysis" / "features"
     outs = []

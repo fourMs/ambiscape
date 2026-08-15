@@ -176,6 +176,13 @@ def schaeffer_hint(F: dict, a: float, b: float) -> dict:
 def draft_annotations(F: dict, folder: str | Path,
                       out_name="annotations.draft.json",
                       session=None) -> Path:
+    """Draft an annotation file from the features, for a person to correct.
+
+    It proposes the steady beds and the events it can find and names them where a tagger is
+    available. The output is `annotations.draft.json` and never `annotations.json`, because
+    a draft that overwrote the human-checked file would lose the only part of this pipeline
+    that is not reproducible.
+    """
     folder = Path(folder)
     tf, fast = F["t_fast"], F["fast_db"]
     dt = float(np.median(np.diff(tf))) if len(tf) > 1 else 0.125

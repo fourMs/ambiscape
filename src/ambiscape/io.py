@@ -123,6 +123,15 @@ def channel_order(bext_description: str) -> str:
 
 @dataclass
 class Take:
+    """One recorded file, with the two things a reader cannot get from the audio itself.
+
+    `start` is seconds from the session's day-0 midnight rather than from the file, so takes
+    from different recorders sit on one timeline; `order` is the channel convention, AmbiX
+    (W, Y, Z, X) or FuMa (W, X, Y, Z), which no WAV header states and which a wrong guess
+    turns into a mirrored horizontal bearing that no rotation can undo. Use `wyzx` to index
+    channels rather than assuming either.
+    """
+
     path: Path
     start: float          # seconds since session day 0 midnight
     duration: float
@@ -162,6 +171,12 @@ class Take:
 
 @dataclass
 class Session:
+    """A folder of takes read as one recording, with its own day-0 midnight.
+
+    A session is the unit everything downstream is computed over, because an overnight
+    recording arrives as many files whose individual start times mean nothing on their own.
+    """
+
     folder: Path
     takes: list[Take] = field(default_factory=list)
     day0: _dt.date | None = None

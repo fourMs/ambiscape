@@ -34,6 +34,11 @@ def _resample(x: np.ndarray, fs: int, target: int) -> np.ndarray:
 
 
 def panns_available() -> bool:
+    """Whether `panns_inference` can be imported, so tagging can be skipped rather than fail.
+
+    The model packages are optional dependencies: the analysis runs without them and simply
+    omits the tags.
+    """
     try:
         import panns_inference  # noqa: F401
         return True
@@ -99,6 +104,7 @@ def tag_probabilities(x: np.ndarray, fs: int,
 
 
 def birdnet_available() -> bool:
+    """Whether `birdnetlib` can be imported. Optional, like `panns_available`."""
     try:
         import birdnetlib  # noqa: F401
         return True

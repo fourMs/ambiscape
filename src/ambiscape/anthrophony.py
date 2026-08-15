@@ -38,6 +38,12 @@ def _voice_band(F):
 
 
 def voice_band_fraction(F: dict) -> float:
+    """Share of octave-band power inside the voice band, 0 to 1.
+
+    A level-independent measure, since it is a ratio: a quiet conversation close by and a
+    loud one further off give a similar figure. It says how much of the spectrum sits where
+    speech does, not that anybody was speaking.
+    """
     band, tot = _voice_band(F)
     return float(band.sum() / (tot.sum() + EPS))
 

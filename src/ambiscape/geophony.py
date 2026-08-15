@@ -41,12 +41,23 @@ def _median_diffuse(F):
 
 
 def wind_index(F: dict) -> float:
+    """Low-frequency share weighted by how diffuse the field is, clipped to 0 to 1.
+
+    Wind is broadband, low and directionless, so neither half identifies it alone: a passing
+    lorry is low but directional, and a diffuse field can be quiet. The product is an index
+    rather than a measurement, and it has no units.
+    """
     lf = _oct_frac(F, 0.0, LOWBAND_HZ)
     diff = _median_diffuse(F)
     return float(np.clip(lf * diff if diff is not None else lf, 0.0, 1.0))
 
 
 def rain_index(F: dict) -> float:
+    """High-frequency share weighted by spectral flatness, clipped to 0 to 1.
+
+    Rain is high, broadband and noise-like, which is what flatness measures; a bird in the
+    same octaves is tonal and scores low on it. An index rather than a measurement.
+    """
     hf = _oct_frac(F, *HIGH_BAND)
     flat = np.asarray(F.get("flatness"), float)
     flat = flat[np.isfinite(flat)]

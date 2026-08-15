@@ -14,10 +14,22 @@ EPS = 1e-20
 
 
 def db(x, eps=1e-12):
+    """Power to decibels, floored at `eps` so a silent block returns a number.
+
+    The floor is what keeps a log-scaled figure from running to negative infinity where a
+    recorder was switched off; it is a plotting convenience rather than a measurement.
+    """
     return 10 * np.log10(np.maximum(x, eps))
 
 
 def running_background(fast_db: np.ndarray, fast_dt: float, win_s=60.0, pct=10):
+    """The quiet floor a level series sits on: a low percentile in a sliding window.
+
+    `pct` = 10 by default, so it follows the quietest tenth of each `win_s` window rather
+    than the mean, which an event would drag upward. This is what `detect_events` measures
+    exceedance against, and it is why an event count is comparable between recorders that
+    were never calibrated against one another.
+    """
     n = max(3, int(round(win_s / fast_dt)) | 1)
     return percentile_filter(fast_db, pct, size=n, mode="nearest")
 

@@ -54,6 +54,11 @@ ASSUMED_OFFSET = 94.0  # used (and flagged) when no calibration.json exists
 
 
 def load_calibration(folder: str | Path) -> dict | None:
+    """The session's `calibration.json`, or None if it has none.
+
+    None is the ordinary case rather than an error: an uncalibrated session still yields
+    every ratio-based descriptor, and only the dB SPL levels are unavailable.
+    """
     p = Path(folder) / "calibration.json"
     if p.exists():
         return json.loads(p.read_text())
@@ -129,6 +134,11 @@ def write_calibration(folder: str | Path, offset: float, method: str = "",
 
 
 def to_pascal(x: np.ndarray, dbfs_to_dbspl: float) -> np.ndarray:
+    """Full-scale samples to pascals, given the session's dBFS-to-dB SPL offset.
+
+    The offset is the whole of the calibration; get it wrong and every level moves by a
+    constant while every ratio stays right.
+    """
     return x.astype(np.float64) * P_REF * 10 ** (dbfs_to_dbspl / 20)
 
 

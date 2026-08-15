@@ -37,11 +37,20 @@ def _oct_frac(F, lo, hi):
 
 
 def low_frequency_fraction(F: dict) -> float:
+    """Share of octave-band power below the low-band edge, 0 to 1.
+
+    A ratio, so it is independent of level and of any calibration offset.
+    """
     band, tot = _oct_frac(F, 0.0, LOWBAND_HZ)
     return float(band.sum() / (tot.sum() + EPS))
 
 
 def rumble_level_db(F: dict) -> float:
+    """Mean power in the rumble band, in dB relative to full scale.
+
+    Unlike `low_frequency_fraction` this is a LEVEL, so it moves with the recorder's gain and
+    is only comparable across takes that share a calibration.
+    """
     band, _ = _oct_frac(F, *RUMBLE)
     return float(10 * np.log10(band.mean() + EPS))
 

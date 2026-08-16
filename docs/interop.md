@@ -10,11 +10,11 @@ owns it, and the packages are meant to meet at file boundaries rather than by im
 | `ambiscape` | spatial audio in, soundscape features out | numpy, scipy, soundfile, matplotlib |
 | [`micromotion`](https://fourms.github.io/micromotion/) | motion time series: mocap, IMU, force plate | numpy, scipy, pandas |
 | `musicalgestures` (MGT) | video in, visual features out | ~282 MB — opencv, librosa, numba, scikit-image, ffmpeg |
-| `musiscape` | music corpora, fingerprints, similarity | + librosa, ambiscape |
+| `musiscape` | music collections and long music recordings | + librosa, micromotion |
 
 The dependency arrow points from the heavy packages to the light ones. ambiscape does not import
-MGT or micromotion; MGT's `_soundscape.py` consumes ambiscape's *output* and adapts it at the seam.
-It stays that way because someone analysing a field recording should not have to install a
+MGT, micromotion or musiscape; MGT's `_soundscape.py` consumes ambiscape's *output* and adapts it at
+the seam. It stays that way because someone analysing a field recording should not have to install a
 computer-vision stack, and someone analysing accelerometer data should not have to install an audio
 one.
 

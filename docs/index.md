@@ -89,7 +89,7 @@ two overlap.
 ## Citing
 
 Jensenius, A. R., & Guo, J. (2026). *ambiscape: analysis of soundscapes from mono, stereo, binaural and ambisonic recordings* [Computer software]. Zenodo.
-<https://doi.org/10.5281/zenodo.21948997>
+<https://doi.org/10.5281/zenodo.21965234>
 
 That is the concept DOI and it always resolves to the newest version. Where the exact behaviour
 matters, add the version you ran; every release has its own DOI, listed on the Zenodo record.

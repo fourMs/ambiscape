@@ -5,7 +5,7 @@
 [![PyPI version](https://img.shields.io/pypi/v/ambiscape)](https://pypi.org/project/ambiscape/)
 [![Python](https://img.shields.io/pypi/pyversions/ambiscape.svg)](https://pypi.org/project/ambiscape/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21948997.svg)](https://doi.org/10.5281/zenodo.21948997)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21965234.svg)](https://doi.org/10.5281/zenodo.21965234)
 
 ambiscape is a Python toolbox for analysing soundscapes—the sonic ambiences of rooms and other places. It reads mono, stereo, binaural, or first-order ambisonic recordings of any length and describes a place's sound as a whole: level, spectrum, space, rhythm, sources, and more. Several recorders spread through a building can be read together as one acoustic network.
 
@@ -71,9 +71,9 @@ ambiscape is developed as part of the [AMBIENT project](https://www.uio.no/ritmo
 Cite the concept DOI, which always resolves to the newest version:
 
 > Jensenius, A. R., & Guo, J. (2026). *ambiscape: analysis of soundscapes from mono, stereo, binaural and ambisonic recordings* [Computer software]. Zenodo.
-> https://doi.org/10.5281/zenodo.21948997
+> https://doi.org/10.5281/zenodo.21965234
 
 Where the exact behaviour matters, add the version you ran. Every release has its own DOI, listed on
-the [Zenodo record](https://doi.org/10.5281/zenodo.21948997).
+the [Zenodo record](https://doi.org/10.5281/zenodo.21965234).
 
 `CITATION.cff` in this repository carries the same information in machine-readable form.

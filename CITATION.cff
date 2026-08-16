@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-title: "ambiscape: analysis of soundscapes from mono, stereo, binaural and ambisonic recordings"
+title: "ambiscape: A Python toolbox for analysing soundscapes from mono, stereo, binaural and ambisonic recordings"
 message: "If you use this software, please cite it."
 type: software
 authors:
@@ -25,4 +25,6 @@ keywords:
   - audio analysis
   - spatial audio
 license: MIT
-doi: "10.5281/zenodo.21948997"
+doi: "10.5281/zenodo.21965234"
+version: 0.43.0
+date-released: "2026-08-16"

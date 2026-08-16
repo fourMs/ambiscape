@@ -11182,7 +11182,7 @@ the file stem.</p>
 
 
 <h2 id="ambiscape.io.export_segment" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">export_segment</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">dur</span><span class="p">,</span> <span class="n">out_path</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">export_segment</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">dur</span><span class="p">,</span> <span class="n">out_path</span><span class="p">,</span> <span class="n">stamp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
 
 </h2>
 
@@ -11194,8 +11194,14 @@ the file stem.</p>
 round trip), so the excerpt is archival: the representative segments of a
 report stay citable against the raw takes (or, for a transcoded input,
 against its decoded WAV). The span must lie within one take (recorder
-2 GB splits chain seamlessly only in <code>read_span</code>'s float path).
-Returns the output path.</p>
+2 GB splits chain seamlessly only in <code>read_span</code>'s float path).</p>
+<p>The filename is prefixed with the excerpt's wall clock as
+<code>YYYYMMDD_HHMMSS</code>, which is the stamp :func:<code>open_session</code> reads. A
+folder of exports is then itself a session, on the clock it was cut
+from, rather than a set of files dated to whenever they were written.
+Pass <code>stamp=False</code> for an exact filename.</p>
+<p>Returns the path actually written, which is not <code>out_path</code> when a
+stamp was added.</p>
 
 
             <details class="mkdocstrings-source">
@@ -11224,8 +11230,22 @@ Returns the output path.</p>
 <span class="normal">507</span>
 <span class="normal">508</span>
 <span class="normal">509</span>
-<span class="normal">510</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">export_segment</span><span class="p">(</span><span class="n">sess</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span> <span class="n">t0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">dur</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-                   <span class="n">out_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="normal">510</span>
+<span class="normal">511</span>
+<span class="normal">512</span>
+<span class="normal">513</span>
+<span class="normal">514</span>
+<span class="normal">515</span>
+<span class="normal">516</span>
+<span class="normal">517</span>
+<span class="normal">518</span>
+<span class="normal">519</span>
+<span class="normal">520</span>
+<span class="normal">521</span>
+<span class="normal">522</span>
+<span class="normal">523</span>
+<span class="normal">524</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">export_segment</span><span class="p">(</span><span class="n">sess</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span> <span class="n">t0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">dur</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                   <span class="n">out_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">stamp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Bit-exact excerpt [t0, t0+dur) to a WAV, in the take&#39;s channel count.</span>
 
 <span class="sd">    Samples are copied in the readable source&#39;s own PCM subtype (no float</span>
@@ -11233,9 +11253,23 @@ Returns the output path.</p>
 <span class="sd">    report stay citable against the raw takes (or, for a transcoded input,</span>
 <span class="sd">    against its decoded WAV). The span must lie within one take (recorder</span>
 <span class="sd">    2 GB splits chain seamlessly only in ``read_span``&#39;s float path).</span>
-<span class="sd">    Returns the output path.</span>
+
+<span class="sd">    The filename is prefixed with the excerpt&#39;s wall clock as</span>
+<span class="sd">    ``YYYYMMDD_HHMMSS``, which is the stamp :func:`open_session` reads. A</span>
+<span class="sd">    folder of exports is then itself a session, on the clock it was cut</span>
+<span class="sd">    from, rather than a set of files dated to whenever they were written.</span>
+<span class="sd">    Pass ``stamp=False`` for an exact filename.</span>
+
+<span class="sd">    Returns the path actually written, which is not ``out_path`` when a</span>
+<span class="sd">    stamp was added.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">out_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">stamp</span> <span class="ow">and</span> <span class="n">sess</span><span class="o">.</span><span class="n">day0</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">when</span> <span class="o">=</span> <span class="p">(</span><span class="n">_dt</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">combine</span><span class="p">(</span><span class="n">sess</span><span class="o">.</span><span class="n">day0</span><span class="p">,</span> <span class="n">_dt</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
+                <span class="o">+</span> <span class="n">_dt</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">t0</span><span class="p">))</span>
+        <span class="n">out_path</span> <span class="o">=</span> <span class="n">out_path</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">when</span><span class="si">:</span><span class="s2">%Y%m%d_%H%M%S</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">out_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">out_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">tk</span> <span class="ow">in</span> <span class="n">sess</span><span class="o">.</span><span class="n">takes</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">tk</span><span class="o">.</span><span class="n">start</span> <span class="o">&lt;=</span> <span class="n">t0</span> <span class="o">&lt;</span> <span class="n">tk</span><span class="o">.</span><span class="n">end</span><span class="p">:</span>
             <span class="n">fs</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">samplerate</span>
@@ -11275,22 +11309,22 @@ Returns an (n, 2) float array — write it with <code>soundfile</code>.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/io.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">513</span>
-<span class="normal">514</span>
-<span class="normal">515</span>
-<span class="normal">516</span>
-<span class="normal">517</span>
-<span class="normal">518</span>
-<span class="normal">519</span>
-<span class="normal">520</span>
-<span class="normal">521</span>
-<span class="normal">522</span>
-<span class="normal">523</span>
-<span class="normal">524</span>
-<span class="normal">525</span>
-<span class="normal">526</span>
-<span class="normal">527</span>
-<span class="normal">528</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">stereo_preview</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">wyzx</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">az_deg</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">90.0</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;ambix&quot;</span><span class="p">):</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">527</span>
+<span class="normal">528</span>
+<span class="normal">529</span>
+<span class="normal">530</span>
+<span class="normal">531</span>
+<span class="normal">532</span>
+<span class="normal">533</span>
+<span class="normal">534</span>
+<span class="normal">535</span>
+<span class="normal">536</span>
+<span class="normal">537</span>
+<span class="normal">538</span>
+<span class="normal">539</span>
+<span class="normal">540</span>
+<span class="normal">541</span>
+<span class="normal">542</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">stereo_preview</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">wyzx</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">az_deg</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">90.0</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;ambix&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Two-channel decode of a block for listenable previews.</span>
 
 <span class="sd">    ``ambix``: side-facing cardioids at ±``az_deg`` in the horizontal plane,</span>

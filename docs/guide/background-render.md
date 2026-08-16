@@ -13,6 +13,12 @@ Use the bed when you need the background as a continuous signal (ambience
 beds, keynote study, masking analysis); use the excerpt when you need a
 compact, artefact-free *summary* of the space, a soundscape thumbnail.
 
+The excerpt's filename is prefixed with its wall clock, as
+`YYYYMMDD_HHMMSS`, which is the stamp `open_session` reads. A folder of
+excerpts is therefore itself a session, on the clock it was cut from, and
+can be re-opened and analysed like any other. `io.export_segment` takes
+`stamp=False` where an exact filename is needed.
+
 ## Rendering the bed
 
 ```bash

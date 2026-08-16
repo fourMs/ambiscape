@@ -14,6 +14,20 @@ been carrying feature work throughout a pre-1.0 life.
 > imports the functions that moved.
 
 
+## [0.43.0] — 2026-08-16
+
+### Changed
+- **`io.export_segment` names its output with the excerpt's wall clock**, as
+  `YYYYMMDD_HHMMSS`, which is the stamp `open_session` reads. Exports carried none of the three
+  things that function looks for, so a folder of excerpts re-opened as a session had every file
+  dated to whenever it happened to be written: the toolbox could not read back what it had just
+  written. A folder of exports is now a session on the clock it was cut from. Pass `stamp=False`
+  for an exact filename. `export_segment` returns the path actually written, which callers should
+  use rather than the path they passed.
+- `docs/interop.md` states the file-boundary conventions the fourMs packages exchange audio by, and
+  corrects musiscape's row: it depends on micromotion, not on ambiscape.
+
+
 ## [0.42.0] — 2026-08-14
 
 ### Added

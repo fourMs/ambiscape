@@ -219,9 +219,10 @@ def characteristic_excerpt(sess, F: dict, out_dir, dur_s: float = 60.0,
     if out_path is None:
         take = sess.takes[0]
         out_path = out_dir / f"excerpt_{take.path.stem}_{int(dur_s)}s.wav"
-    out_path = Path(out_path)
-    export_segment(sess, t0, float(min(dur_s, t[-1] - t0 + 1.0)),
-                   str(out_path))
+    # export_segment stamps the filename with the excerpt's wall clock, so
+    # the path it returns is the one that exists
+    out_path = export_segment(sess, t0, float(min(dur_s, t[-1] - t0 + 1.0)),
+                              Path(out_path))
     doc = {
         "out_path": str(out_path), "t0_s": round(t0, 1),
         "t0_in_take_s": round(t0 - sess.takes[0].start, 1),

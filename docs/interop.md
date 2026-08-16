@@ -18,6 +18,23 @@ the seam. It stays that way because someone analysing a field recording should n
 computer-vision stack, and someone analysing accelerometer data should not have to install an audio
 one.
 
+## The file boundary
+
+Where the packages hand audio to one another, two conventions carry what the
+audio itself cannot.
+
+A **leading `YYYYMMDD_HHMMSS` in the filename**, in local wall-clock time.
+`open_session` takes a recording's start from its BWF timestamp if there is
+one, else from this stamp, else from the file's modification time --- and
+that last fallback silently dates a segment to whenever it was written
+rather than to when it was recorded. Anything writing audio for another tool
+should write the stamp; `io.export_segment` does.
+
+**FLAC for exchanged audio that is not archival.** Lossless, roughly half
+the size of WAV, and read natively on every side. WAV keeps its place for
+bit-exact excerpts, where the BWF chunk and the source's own PCM subtype are
+the point.
+
 ## Crossing to micromotion
 
 **One function does not merely cross, it defers.** Since 0.40.0

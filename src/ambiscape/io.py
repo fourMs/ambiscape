@@ -484,7 +484,7 @@ def read_span(sess: Session, t0: float, dur: float, dtype="float32"):
 
 
 def export_segment(sess: Session, t0: float, dur: float,
-                   out_path: str | Path) -> Path:
+                   out_path: str | Path, stamp: bool = True) -> Path:
     """Bit-exact excerpt [t0, t0+dur) to a WAV, in the take's channel count.
 
     Samples are copied in the readable source's own PCM subtype (no float
@@ -492,9 +492,23 @@ def export_segment(sess: Session, t0: float, dur: float,
     report stay citable against the raw takes (or, for a transcoded input,
     against its decoded WAV). The span must lie within one take (recorder
     2 GB splits chain seamlessly only in ``read_span``'s float path).
-    Returns the output path.
+
+    The filename is prefixed with the excerpt's wall clock as
+    ``YYYYMMDD_HHMMSS``, which is the stamp :func:`open_session` reads. A
+    folder of exports is then itself a session, on the clock it was cut
+    from, rather than a set of files dated to whenever they were written.
+    Pass ``stamp=False`` for an exact filename.
+
+    Returns the path actually written, which is not ``out_path`` when a
+    stamp was added.
     """
     out_path = Path(out_path)
+    if stamp and sess.day0 is not None:
+        when = (_dt.datetime.combine(sess.day0, _dt.time())
+                + _dt.timedelta(seconds=t0))
+        out_path = out_path.with_name(
+            f"{when:%Y%m%d_%H%M%S} {out_path.name}")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
     for tk in sess.takes:
         if tk.start <= t0 < tk.end:
             fs = tk.samplerate

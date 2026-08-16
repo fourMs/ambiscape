@@ -68,11 +68,12 @@ ambiscape is developed as part of the [AMBIENT project](https://www.uio.no/ritmo
 
 ## Citing
 
-Cite the CONCEPT DOI, which always resolves to the newest version:
+Cite the concept DOI, which always resolves to the newest version:
 
-> Jensenius, A. R., & Guo, J. (2026). *ambiscape: analysis of soundscapes from mono, stereo, binaural and ambisonic recordings* (Version 0.42.0) [Computer software]. Zenodo.
+> Jensenius, A. R., & Guo, J. (2026). *ambiscape: analysis of soundscapes from mono, stereo, binaural and ambisonic recordings* [Computer software]. Zenodo.
 > https://doi.org/10.5281/zenodo.21948997
 
-Where the exact behaviour matters, cite the version you ran instead. Version 0.42.0 is https://doi.org/10.5281/zenodo.21948998.
+Where the exact behaviour matters, add the version you ran. Every release has its own DOI, listed on
+the [Zenodo record](https://doi.org/10.5281/zenodo.21948997).
 
 `CITATION.cff` in this repository carries the same information in machine-readable form.

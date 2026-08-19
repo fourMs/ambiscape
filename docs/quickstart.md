@@ -1,5 +1,32 @@
 # Quickstart
 
+## Run something now, with no recordings of your own
+
+Everything below points at `2026-07-15-Haarlem`, which is a session you do not have.
+This writes one you do:
+
+```python
+import ambiscape
+
+root = ambiscape.examples.demo_session("/tmp/demo-session")
+```
+
+```bash
+ambiscape analyze /tmp/demo-session
+```
+
+Two takes an hour apart: background alone, then two swinging bells at azimuths of 30 and
+60 degrees over the same background, four-channel AmbiX at 48 kHz. Every command on this
+page works against it, and because the two bearings are known, the anglegram and the
+spatial descriptors have a right answer you can check them against.
+
+A soundscape is a property of a PLACE, and a synthetic session has no place in it. There
+is no room here, no reverberation, no traffic and no birds, so the ecological and
+source-domain indices will return numbers that mean nothing. Use it to learn what the
+commands produce and to check an installation, not as material for a claim.
+
+## The pipeline
+
 A *session* is a folder of WAV files from one recording occasion. The whole
 CLI pipeline, in the order you would actually run it:
 

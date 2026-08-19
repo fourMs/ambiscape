@@ -14,6 +14,39 @@ been carrying feature work throughout a pre-1.0 life.
 > imports the functions that moved.
 
 
+## [0.44.0] — 2026-08-19
+
+### Added
+- `ambiscape.examples`, so the documentation runs with no recordings of your own. Every guide
+  pointed at a session folder like `2026-07-15-Haarlem`, which the reader does not have, so a
+  student following the quickstart could not run its first command.
+  `examples.demo_session(path)` writes a two-take synthetic session: background alone, then an
+  hour later two swinging bells at KNOWN azimuths of 30 and 60 degrees over the same background,
+  four-channel AmbiX at 48 kHz. `ambiscape analyze` works against it, and the recovered bearings
+  give the spatial code something with a right answer.
+
+  The generators are the ones `tests/conftest.py` already used; the fixtures import them now
+  rather than keeping their own copies, since a fixture that drifts from the shipped example
+  tests something no user can reproduce.
+
+  A soundscape is a property of a PLACE and a synthetic session has no place in it. There is no
+  room here, no reverberation, no traffic and no birds, so the ecological and source-domain
+  indices will return numbers that mean nothing. The docstring says so, and so does the
+  quickstart.
+
+### Changed
+- The README no longer states that musiscape reuses this package's circular statistics and
+  Schaeffer typology machinery. musiscape imports circular statistics from micromotion and
+  contains no import of ambiscape anywhere in its source. Replaced with the canonical
+  four-toolbox statement the other three now carry, plus the fact that was missing: this package
+  keeps its own copy of six circular-statistics primitives so that it installs alone, which is a
+  deliberate exception to the single-owner rule rather than an oversight, held equal to
+  micromotion's by `tests/test_circstats_agreement.py`.
+
+### Fixed
+- 115 files of built documentation site were tracked in git. `.gitignore` covered `build/` and
+  `dist/` but not `site/`, so a build output sat in the tree looking like a source.
+
 ## [0.43.0] — 2026-08-16
 
 ### Changed

@@ -40,23 +40,32 @@ This streams the audio in constant memory, however long it is. It extracts featu
 
 ambiscape analyses sound; its sister toolbox [MGT-python](https://github.com/fourMs/MGT-python) analyses video. The two meet at file boundaries—see [Working with other packages](https://fourms.github.io/ambiscape/interop/).
 
-## Related toolboxes
+## The four toolboxes
 
-These come out of the same lab, as separate packages with separate release cycles. They are built to
-be used together and share several implementations, so a measure computed in one agrees with the
-same measure computed in another.
+Four packages from the fourMs lab, each released separately on PyPI. Which one you want is
+decided by what you have in hand rather than by what you want to know:
 
-- [micromotion](https://github.com/fourMs/micromotion)—human micromotion: quantity of motion from
-  optical markers, accelerometers, respiration belts and force plates
-- [musiscape](https://github.com/fourMs/musiscape)—music collections: comparing many tracks and
-  albums held as audio files in folders; it reuses this package's circular statistics and Schaeffer
-  typology machinery
-- [Musical Gestures Toolbox](https://github.com/fourMs/MGT-python) (`musicalgestures`)—video and
-  audio: motiongrams, videograms, and motion analysis from ordinary video files
+| you have | use | it gives you |
+|---|---|---|
+| a recording of a place — mono, stereo, binaural or ambisonic | ambiscape (this one) | the sonic ambience of that place: level, spectrum, space, rhythm, sources |
+| a motion time series from a body — optical markers, an accelerometer, a respiration belt, a force plate | [micromotion](https://github.com/fourMs/micromotion) | quantity of motion, posture, balance, and the band conventions the others follow |
+| a video file, with or without its sound | [musicalgestures](https://github.com/fourMs/MGT-python) | motiongrams, videograms, motion analysis from ordinary video |
+| a folder of music, or a concert recording | [musiscape](https://github.com/fourMs/musiscape) | many tracks and albums compared at a glance |
 
-The boundary with musiscape is the one worth stating: ambiscape is about a PLACE and its sonic
-ambience, musiscape about a COLLECTION of music. Music analysis moved out of ambiscape into
-musiscape on 2026-08-12, so an older release of either may still carry the other's functions.
+Where a measure appears in more than one package it has a single owner and a single
+implementation, so the answer does not depend on which package you called. micromotion owns
+filtering, lag estimation and circular statistics; ambiscape owns the soundscape descriptors;
+musicalgestures owns everything that starts from pixels. Music analysis moved out of ambiscape
+into musiscape on 2026-08-12, so a release of either from before then may still carry the
+other's functions.
+
+ambiscape installs and runs without any of the others. It keeps its own copy of six short
+circular-statistics primitives rather than taking a dependency for them, which is a deliberate
+exception to the single-owner rule: `tests/test_circstats_agreement.py` checks them against
+micromotion's and skips when it is not installed. That test exists because the two Rayleigh
+implementations were once found to disagree on about a fifth of random cases — ambiscape used
+Zar's series expansion and micromotion uses Wilkie's approximation, both published, neither
+wrong, and nothing anywhere saying they were meant to match.
 
 ## Licence
 

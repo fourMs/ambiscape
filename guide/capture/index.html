@@ -2066,7 +2066,7 @@
 ambisonic audio is impractical (terabytes) and a privacy hazard (speech).
 The <code>capture</code> daemon (optional <code>[capture]</code> extra) extracts <em>features</em>
 continuously on a small always-on computer and keeps only those.</p>
-<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;ambiscape[capture]&quot;</span>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"ambiscape[capture]"</span>
 ambiscape<span class="w"> </span>capture<span class="w"> </span>--list-devices<span class="w">          </span><span class="c1"># find your 4-channel interface</span>
 ambiscape<span class="w"> </span>capture<span class="w"> </span>/data/room<span class="w"> </span>--device<span class="w"> </span><span class="m">2</span><span class="w"> </span>--block-seconds<span class="w"> </span><span class="m">3600</span>
 </code></pre></div>
@@ -2088,7 +2088,7 @@ in progress.</p>
 <p>A soundfield mic that outputs A-format (four raw capsules) needs converting
 to B-format (AmbiX W/Y/Z/X) before extraction. In the library:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape.capture</span><span class="w"> </span><span class="kn">import</span> <span class="n">CaptureDaemon</span><span class="p">,</span> <span class="n">aformat_to_bformat</span>
-<span class="n">CaptureDaemon</span><span class="p">(</span><span class="s2">&quot;/data/room&quot;</span><span class="p">,</span> <span class="n">aformat_matrix</span><span class="o">=</span><span class="n">my_mic_matrix</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">CaptureDaemon</span><span class="p">(</span><span class="s2">"/data/room"</span><span class="p">,</span> <span class="n">aformat_matrix</span><span class="o">=</span><span class="n">my_mic_matrix</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </code></pre></div>
 <p>The 4×4 matrix comes from the microphone maker's calibration. A mic that
 already outputs B-format needs no matrix; pass <code>--order fuma</code> if it is FuMa

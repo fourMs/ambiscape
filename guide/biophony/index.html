@@ -2076,9 +2076,9 @@ ground truth on the good windows.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape</span><span class="w"> </span><span class="kn">import</span> <span class="n">biophony</span>
 
 <span class="n">biophony</span><span class="o">.</span><span class="n">summarize_biophony</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
-<span class="c1"># {&#39;bird_peaks_per_min&#39;: 5.0, &#39;bird_band_activity_pct&#39;: 21.3,</span>
-<span class="c1">#  &#39;bird_temporal_entropy&#39;: 0.71, &#39;bird_directional_entropy&#39;: 0.83,</span>
-<span class="c1">#  &#39;bird_above_horizon_fraction&#39;: 0.74, ...}</span>
+<span class="c1"># {'bird_peaks_per_min': 5.0, 'bird_band_activity_pct': 21.3,</span>
+<span class="c1">#  'bird_temporal_entropy': 0.71, 'bird_directional_entropy': 0.83,</span>
+<span class="c1">#  'bird_above_horizon_fraction': 0.74, ...}</span>
 </code></pre></div>
 <ul>
 <li><strong><code>narrowband_activity</code></strong>—persistent narrow spectral peaks in the bird
@@ -2106,8 +2106,8 @@ species with BirdNET, and always read them beside the taxonomy layer.</p>
 
 <span class="n">doc</span> <span class="o">=</span> <span class="n">ml</span><span class="o">.</span><span class="n">birdnet_session</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">F</span><span class="o">=</span><span class="n">F</span><span class="p">,</span> <span class="n">hifi_max_diffuse</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span>
                          <span class="n">lat</span><span class="o">=</span><span class="mf">52.38</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="mf">4.64</span><span class="p">)</span>   <span class="c1"># Haarlem</span>
-<span class="c1"># {&#39;n_species&#39;: 3, &#39;species&#39;: [{&#39;common_name&#39;: &#39;Eurasian Collared-Dove&#39;,</span>
-<span class="c1">#   &#39;species&#39;: &#39;Streptopelia decaocto&#39;, &#39;n&#39;: 6, &#39;max_conf&#39;: 0.82}, ...]}</span>
+<span class="c1"># {'n_species': 3, 'species': [{'common_name': 'Eurasian Collared-Dove',</span>
+<span class="c1">#   'species': 'Streptopelia decaocto', 'n': 6, 'max_conf': 0.82}, ...]}</span>
 </code></pre></div>
 <p>Or <code>ambiscape birdnet &lt;folder&gt; --lat 52.38 --lon 4.64 --hifi-max-diffuse
 0.75</code>. Passing the cached features <code>F</code> with <code>hifi_max_diffuse</code> runs BirdNET

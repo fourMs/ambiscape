@@ -2182,10 +2182,10 @@ pairs known not to belong together and quote the difference.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">ambiscape</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">asc</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape</span><span class="w"> </span><span class="kn">import</span> <span class="n">entrain</span>
 
-<span class="n">sess</span> <span class="o">=</span> <span class="n">asc</span><span class="o">.</span><span class="n">open_session</span><span class="p">(</span><span class="s2">&quot;2026-07-15-Haarlem-loft&quot;</span><span class="p">)</span>
-<span class="n">J</span> <span class="o">=</span> <span class="n">entrain</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="s2">&quot;motion.csv&quot;</span><span class="p">)</span>        <span class="c1"># common-clock series dict</span>
-<span class="n">doc</span> <span class="o">=</span> <span class="n">entrain</span><span class="o">.</span><span class="n">analyze_entrainment</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="s2">&quot;motion.csv&quot;</span><span class="p">)</span>
-<span class="n">doc</span><span class="p">[</span><span class="s2">&quot;summary&quot;</span><span class="p">]</span>                              <span class="c1"># ent_* rows for summary.json</span>
+<span class="n">sess</span> <span class="o">=</span> <span class="n">asc</span><span class="o">.</span><span class="n">open_session</span><span class="p">(</span><span class="s2">"2026-07-15-Haarlem-loft"</span><span class="p">)</span>
+<span class="n">J</span> <span class="o">=</span> <span class="n">entrain</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="s2">"motion.csv"</span><span class="p">)</span>        <span class="c1"># common-clock series dict</span>
+<span class="n">doc</span> <span class="o">=</span> <span class="n">entrain</span><span class="o">.</span><span class="n">analyze_entrainment</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="s2">"motion.csv"</span><span class="p">)</span>
+<span class="n">doc</span><span class="p">[</span><span class="s2">"summary"</span><span class="p">]</span>                              <span class="c1"># ent_* rows for summary.json</span>
 </code></pre></div>
 <p><code>join</code> returns the aligned series themselves (<code>t</code>, <code>level_db</code>, <code>qom</code>,
 <code>az_deg</code>, <code>sway_deg</code>, <code>sway_pow</code> at 8 Hz) for custom analyses beyond the

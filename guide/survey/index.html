@@ -2144,10 +2144,10 @@ quieter session actually <em>feel</em> more pleasant?</p>
 <h2 id="in-a-notebook">In a notebook</h2>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape</span><span class="w"> </span><span class="kn">import</span> <span class="n">survey</span>
 
-<span class="n">r</span> <span class="o">=</span> <span class="n">survey</span><span class="o">.</span><span class="n">read_responses</span><span class="p">(</span><span class="s2">&quot;responses.csv&quot;</span><span class="p">)</span>     <span class="c1"># scale auto-detected</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">survey</span><span class="o">.</span><span class="n">read_responses</span><span class="p">(</span><span class="s2">"responses.csv"</span><span class="p">)</span>     <span class="c1"># scale auto-detected</span>
 <span class="n">doc</span> <span class="o">=</span> <span class="n">survey</span><span class="o">.</span><span class="n">summarize</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>                      <span class="c1"># points, mean, ellipse</span>
-<span class="n">survey</span><span class="o">.</span><span class="n">coordinates</span><span class="p">({</span><span class="s2">&quot;pleasant&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="o">...</span><span class="p">})</span>       <span class="c1"># one respondent -&gt; (P, E)</span>
-<span class="n">survey</span><span class="o">.</span><span class="n">run_survey</span><span class="p">(</span><span class="s2">&quot;SESSION/&quot;</span><span class="p">,</span> <span class="s2">&quot;responses.csv&quot;</span><span class="p">)</span> <span class="c1"># files + summary join</span>
+<span class="n">survey</span><span class="o">.</span><span class="n">coordinates</span><span class="p">({</span><span class="s2">"pleasant"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="o">...</span><span class="p">})</span>       <span class="c1"># one respondent -&gt; (P, E)</span>
+<span class="n">survey</span><span class="o">.</span><span class="n">run_survey</span><span class="p">(</span><span class="s2">"SESSION/"</span><span class="p">,</span> <span class="s2">"responses.csv"</span><span class="p">)</span> <span class="c1"># files + summary join</span>
 </code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Protocol vs software</p>

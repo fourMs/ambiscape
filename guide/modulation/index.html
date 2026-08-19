@@ -2133,9 +2133,9 @@ periodic structure; a flat spectrum means the level just wanders.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape</span><span class="w"> </span><span class="kn">import</span> <span class="n">modulation</span>
 
 <span class="n">prof</span> <span class="o">=</span> <span class="n">modulation</span><span class="o">.</span><span class="n">profile</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>          <span class="c1"># F = load_features(...)</span>
-<span class="n">prof</span><span class="p">[</span><span class="s2">&quot;scales&quot;</span><span class="p">][</span><span class="s2">&quot;meso&quot;</span><span class="p">]</span>
-<span class="c1"># {&#39;peak_freq_hz&#39;: 0.033, &#39;peak_period_s&#39;: 30.0,</span>
-<span class="c1">#  &#39;peak_prominence_db&#39;: 7.4, &#39;modulation_depth&#39;: 0.21}</span>
+<span class="n">prof</span><span class="p">[</span><span class="s2">"scales"</span><span class="p">][</span><span class="s2">"meso"</span><span class="p">]</span>
+<span class="c1"># {'peak_freq_hz': 0.033, 'peak_period_s': 30.0,</span>
+<span class="c1">#  'peak_prominence_db': 7.4, 'modulation_depth': 0.21}</span>
 </code></pre></div>
 <p><code>modulation.modulation_spectrogram(env, dt)</code> returns the windowed version
 directly, as <code>(t_centers, mod_freqs, S)</code>, if you want to build the rhythm

@@ -2425,7 +2425,7 @@ differ audibly, and a comparison — do two takes of the same action match?
 does a machine's onset resemble a deliberate one? — needs the numbers
 rather than the label.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape.objects</span><span class="w"> </span><span class="kn">import</span> <span class="n">object_profile</span>
-<span class="n">p</span> <span class="o">=</span> <span class="n">object_profile</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>      <span class="c1"># env: the object&#39;s amplitude envelope</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">object_profile</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>      <span class="c1"># env: the object's amplitude envelope</span>
 </code></pre></div>
 <table>
 <thead>
@@ -2465,7 +2465,7 @@ can still be told apart.</p>
 <p><code>object_profile</code> measures an envelope and says nothing about frequency. Pass
 it the object's own rows of the log-frequency spectrogram and it merges in
 three more, or call <code>object_spectrum</code> directly:</p>
-<div class="highlight"><pre><span></span><code><span class="n">p</span> <span class="o">=</span> <span class="n">object_profile</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">logspec</span><span class="o">=</span><span class="n">F</span><span class="p">[</span><span class="s2">&quot;logspec&quot;</span><span class="p">][</span><span class="n">i0</span><span class="p">:</span><span class="n">i1</span><span class="p">],</span> <span class="n">logf</span><span class="o">=</span><span class="n">F</span><span class="p">[</span><span class="s2">&quot;logf&quot;</span><span class="p">])</span>
+<div class="highlight"><pre><span></span><code><span class="n">p</span> <span class="o">=</span> <span class="n">object_profile</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">logspec</span><span class="o">=</span><span class="n">F</span><span class="p">[</span><span class="s2">"logspec"</span><span class="p">][</span><span class="n">i0</span><span class="p">:</span><span class="n">i1</span><span class="p">],</span> <span class="n">logf</span><span class="o">=</span><span class="n">F</span><span class="p">[</span><span class="s2">"logf"</span><span class="p">])</span>
 </code></pre></div>
 <table>
 <thead>

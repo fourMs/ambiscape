@@ -2062,10 +2062,10 @@ corpus view in one table.</p>
 <h2 id="in-a-notebook">In a notebook</h2>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape</span><span class="w"> </span><span class="kn">import</span> <span class="n">catalog</span>
 
-<span class="n">col</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="s2">&quot;CORPUS/&quot;</span><span class="p">)</span>            <span class="c1"># {session: summary}</span>
-<span class="n">catalog</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="s2">&quot;catalog.csv&quot;</span><span class="p">)</span>
-<span class="n">catalog</span><span class="o">.</span><span class="n">rank</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="s2">&quot;ndsi&quot;</span><span class="p">)</span>                   <span class="c1"># sessions by any descriptor</span>
-<span class="n">catalog</span><span class="o">.</span><span class="n">outliers</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="s2">&quot;azimuth_R&quot;</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>   <span class="c1"># what stands out, as z-scores</span>
+<span class="n">col</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="s2">"CORPUS/"</span><span class="p">)</span>            <span class="c1"># {session: summary}</span>
+<span class="n">catalog</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="s2">"catalog.csv"</span><span class="p">)</span>
+<span class="n">catalog</span><span class="o">.</span><span class="n">rank</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="s2">"ndsi"</span><span class="p">)</span>                   <span class="c1"># sessions by any descriptor</span>
+<span class="n">catalog</span><span class="o">.</span><span class="n">outliers</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="s2">"azimuth_R"</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>   <span class="c1"># what stands out, as z-scores</span>
 </code></pre></div>
 <p><code>rank</code> returns <code>(session, value)</code> pairs sorted on any numeric descriptor;
 <code>outliers</code> flags sessions more than <code>z</code> standard deviations from the corpus

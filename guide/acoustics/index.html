@@ -2384,7 +2384,7 @@ warming up.</p>
 
 <span class="n">sig_db</span><span class="p">,</span> <span class="n">floor_db</span><span class="p">,</span> <span class="n">measurable</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">floor_corrected_level</span><span class="p">(</span><span class="n">fast_dba</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">0.125</span><span class="p">)</span>
 <span class="n">summary</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">summarize_floor_corrected</span><span class="p">(</span><span class="n">sig_db</span><span class="p">,</span> <span class="n">measurable</span><span class="p">)</span>
-<span class="c1"># {&#39;level_db&#39;: -37.8, &#39;coverage&#39;: 0.32, &#39;n_measurable&#39;: 137_216, &#39;reason&#39;: &#39;&#39;}</span>
+<span class="c1"># {'level_db': -37.8, 'coverage': 0.32, 'n_measurable': 137_216, 'reason': ''}</span>
 </code></pre></div>
 <p>Three parts, and the third is the one usually skipped:</p>
 <ol>
@@ -2423,8 +2423,8 @@ are usually the thing being studied.</p>
 <p>What separates them from the recorder is that <em>they turn off</em>. Self-noise
 does not. <code>steady_sources</code> uses that:</p>
 <div class="highlight"><pre><span></span><code><span class="n">analysis</span><span class="o">.</span><span class="n">steady_sources</span><span class="p">(</span><span class="n">fast_dba</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">0.125</span><span class="p">,</span> <span class="n">short_s</span><span class="o">=</span><span class="mf">120.0</span><span class="p">,</span> <span class="n">long_s</span><span class="o">=</span><span class="mf">7200.0</span><span class="p">)</span>
-<span class="c1"># {&#39;self_noise_db&#39;: -62.1, &#39;steady_excess_db&#39;: 6.3, &#39;machine_duty&#39;: 0.07,</span>
-<span class="c1">#  &#39;machine_detected&#39;: True, &#39;steady_source_unresolved&#39;: False}</span>
+<span class="c1"># {'self_noise_db': -62.1, 'steady_excess_db': 6.3, 'machine_duty': 0.07,</span>
+<span class="c1">#  'machine_detected': True, 'steady_source_unresolved': False}</span>
 </code></pre></div>
 <p>The floor is tracked twice — over minutes, which absorbs a running machine,
 and over hours, which does not, because the machine's off-phase falls
@@ -2457,7 +2457,7 @@ plant in hours, a household in a day, a heating system across a season. So
 whether something is signal or noise is a question about <em>periodicity across
 timescales</em> — and the period that answers it also names the thing.</p>
 <div class="highlight"><pre><span></span><code><span class="n">analysis</span><span class="o">.</span><span class="n">dominant_cycles</span><span class="p">(</span><span class="n">level_db</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">min_period_s</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">max_period_s</span><span class="o">=</span><span class="mi">4</span><span class="o">*</span><span class="mi">3600</span><span class="p">)</span>
-<span class="c1"># [{&#39;period_s&#39;: 3720.0, &#39;strength&#39;: 0.42, &#39;band&#39;: &#39;cyclic&#39;}]</span>
+<span class="c1"># [{'period_s': 3720.0, 'strength': 0.42, 'band': 'cyclic'}]</span>
 </code></pre></div>
 <p>Periods are placed on a ladder that extends the descriptor registry upward,
 where its <code>macro</code> band runs from 5 s to infinity and so cannot tell a fridge
@@ -2547,7 +2547,7 @@ instrument breathing, not a home.</p>
 is a good detector answering the wrong question: what makes the fridge normal
 is precisely that it repeats.</p>
 <div class="highlight"><pre><span></span><code><span class="n">analysis</span><span class="o">.</span><span class="n">cycle_residual</span><span class="p">(</span><span class="n">level_db</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
-<span class="c1"># {&#39;period_s&#39;: 2700.0, &#39;residual_std_db&#39;: 0.41, &#39;anomalies&#39;: [...]}</span>
+<span class="c1"># {'period_s': 2700.0, 'residual_std_db': 0.41, 'anomalies': [...]}</span>
 </code></pre></div>
 <p>The cycle is found, the series folded onto its phase to get what the room
 usually does at that point in the cycle, and that subtracted. What survives is
@@ -2566,7 +2566,7 @@ then motion in the arm and the object, and only at the end does the air move.
 A sound object therefore <em>embeds</em> an action, and the silence before the attack
 is the part of the event a microphone cannot reach.</p>
 <div class="highlight"><pre><span></span><code><span class="n">r</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">onset_lead</span><span class="p">(</span><span class="n">motion_series</span><span class="p">,</span> <span class="n">audio_energy</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="mi">25</span><span class="p">)</span>
-<span class="c1"># {&#39;lead_s&#39;: 0.72, &#39;first_onset_s&#39;: 0.44, &#39;second_onset_s&#39;: 1.16, &#39;leads&#39;: &#39;first&#39;}</span>
+<span class="c1"># {'lead_s': 0.72, 'first_onset_s': 0.44, 'second_onset_s': 1.16, 'leads': 'first'}</span>
 </code></pre></div>
 <p><code>lead_s</code> is the quantity this is for. The two onset times are returned for
 inspection and are not reliable <em>times</em> at the default <code>rise</code> — see the third
@@ -2605,7 +2605,7 @@ it alone.</p>
 <h2 id="calibration">Calibration</h2>
 <p><code>calibration.json</code> in the session folder defines the offset <code>O</code> such that a
 signal at −X dBFS corresponds to (O − X) dB SPL:</p>
-<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;dbfs_to_dbspl&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">94.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SPL meter vs running HVAC&quot;</span><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">"dbfs_to_dbspl"</span><span class="p">:</span><span class="w"> </span><span class="mf">94.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SPL meter vs running HVAC"</span><span class="p">}</span>
 </code></pre></div>
 <p>With it, <code>analyze</code> adds <code>leq_db_spl</code>, <code>laeq_db_spl</code>, <code>L10/L50/L90_db_spl</code>
 to the summary (ISO 1996-comparable), and the ISO indicators below run in
@@ -2614,9 +2614,9 @@ true pascals.</p>
 <p>You rarely know the offset, but any SPL meter (or a phone SPL app held
 next to the microphone) gives you a reading you can anchor to later:</p>
 <div class="highlight"><pre><span></span><code>ambiscape<span class="w"> </span>calibrate<span class="w"> </span>SESSION/<span class="w"> </span>--spl<span class="w"> </span><span class="m">62</span>.5<span class="w"> </span>--t0<span class="w"> </span><span class="m">0</span><span class="w"> </span>--dur<span class="w"> </span><span class="m">60</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--method<span class="w"> </span><span class="s2">&quot;Phone SPL app on the bench, LAeq over the first minute&quot;</span>
+<span class="w">    </span>--method<span class="w"> </span><span class="s2">"Phone SPL app on the bench, LAeq over the first minute"</span>
 ambiscape<span class="w"> </span>calibrate<span class="w"> </span>SESSION/<span class="w"> </span>--offset<span class="w"> </span><span class="m">94</span>.0<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--method<span class="w"> </span><span class="s2">&quot;1 kHz calibrator, 94 dB&quot;</span><span class="w">          </span><span class="c1"># skip derivation</span>
+<span class="w">    </span>--method<span class="w"> </span><span class="s2">"1 kHz calibrator, 94 dB"</span><span class="w">          </span><span class="c1"># skip derivation</span>
 </code></pre></div>
 <p>The first form computes the recording's own LAeq (dBFS) over the stated
 span from the cached features and stores <code>meter reading − recording LAeq</code>
@@ -2626,15 +2626,15 @@ corrections etc.) are preserved.</p>
 <p>Multi-device sessions (a Zoom and a phone running side by side) need
 different offsets per device: pass <code>--take &lt;filename&gt;</code> to store the
 offset in a per-take map, which the ISO indicators resolve per segment:</p>
-<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;dbfs_to_dbspl&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">83.2</span><span class="p">,</span>
-<span class="w"> </span><span class="nt">&quot;dbfs_to_dbspl_takes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;260728_100056-station.m4a&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">77.0</span><span class="p">}}</span>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">"dbfs_to_dbspl"</span><span class="p">:</span><span class="w"> </span><span class="mf">83.2</span><span class="p">,</span>
+<span class="w"> </span><span class="nt">"dbfs_to_dbspl_takes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"260728_100056-station.m4a"</span><span class="p">:</span><span class="w"> </span><span class="mf">77.0</span><span class="p">}}</span>
 </code></pre></div>
 <p>Field habit worth forming: at every session, note one SPL-app LAeq
 reading and when you took it. It costs ten seconds and turns every
 uncalibrated dBFS table into dB SPL, retroactively.</p>
 <p>The same file may carry a clock correction:</p>
-<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;clock_offset_s&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">665.0</span><span class="p">,</span>
-<span class="w"> </span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ringing of the town bells ends 21:30:00 sharp&quot;</span><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">"clock_offset_s"</span><span class="p">:</span><span class="w"> </span><span class="mf">665.0</span><span class="p">,</span>
+<span class="w"> </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ringing of the town bells ends 21:30:00 sharp"</span><span class="p">}</span>
 </code></pre></div>
 <p><code>clock_offset_s</code> seconds are added to every take's start time when the
 session is opened (positive = the recorder clock was slow), so figures,

@@ -2208,11 +2208,11 @@ loud classes (music, speech) localise far better than sparse quiet ones.</p>
 <h2 id="python">Python</h2>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape</span><span class="w"> </span><span class="kn">import</span> <span class="n">open_clips</span><span class="p">,</span> <span class="n">starss</span>
 
-<span class="n">sess</span> <span class="o">=</span> <span class="n">open_clips</span><span class="p">(</span><span class="s2">&quot;foa_dev/dev-test-sony&quot;</span><span class="p">)</span>   <span class="c1"># synthetic clock, see above</span>
-<span class="n">rows</span> <span class="o">=</span> <span class="n">starss</span><span class="o">.</span><span class="n">read_annotations</span><span class="p">(</span><span class="s2">&quot;metadata_dev/fold4_room23_mix001.csv&quot;</span><span class="p">)</span>
-<span class="n">doc</span> <span class="o">=</span> <span class="n">starss</span><span class="o">.</span><span class="n">validate_collection</span><span class="p">(</span><span class="s2">&quot;foa_dev/dev-test-sony&quot;</span><span class="p">,</span>
-                                 <span class="s2">&quot;metadata_dev/dev-test-sony&quot;</span><span class="p">)</span>
-<span class="n">doc</span><span class="p">[</span><span class="s2">&quot;overall&quot;</span><span class="p">][</span><span class="s2">&quot;median_abs_deg&quot;</span><span class="p">],</span> <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;overall&quot;</span><span class="p">][</span><span class="s2">&quot;per_class&quot;</span><span class="p">]</span>
+<span class="n">sess</span> <span class="o">=</span> <span class="n">open_clips</span><span class="p">(</span><span class="s2">"foa_dev/dev-test-sony"</span><span class="p">)</span>   <span class="c1"># synthetic clock, see above</span>
+<span class="n">rows</span> <span class="o">=</span> <span class="n">starss</span><span class="o">.</span><span class="n">read_annotations</span><span class="p">(</span><span class="s2">"metadata_dev/fold4_room23_mix001.csv"</span><span class="p">)</span>
+<span class="n">doc</span> <span class="o">=</span> <span class="n">starss</span><span class="o">.</span><span class="n">validate_collection</span><span class="p">(</span><span class="s2">"foa_dev/dev-test-sony"</span><span class="p">,</span>
+                                 <span class="s2">"metadata_dev/dev-test-sony"</span><span class="p">)</span>
+<span class="n">doc</span><span class="p">[</span><span class="s2">"overall"</span><span class="p">][</span><span class="s2">"median_abs_deg"</span><span class="p">],</span> <span class="n">doc</span><span class="p">[</span><span class="s2">"overall"</span><span class="p">][</span><span class="s2">"per_class"</span><span class="p">]</span>
 </code></pre></div>
 <p>Synthetic ground truth in the test suite closes the loop: a generated FOA
 clip with a known panned source and a matching CSV recovers near-zero

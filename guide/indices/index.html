@@ -2161,10 +2161,10 @@ appended automatically to the <code>analyze</code> summary and README table.</p>
 <h2 id="room-noise-criteria-ventilation-building-services">Room noise criteria (ventilation &amp; building services)</h2>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape</span><span class="w"> </span><span class="kn">import</span> <span class="n">iso</span>
 
-<span class="n">spec</span> <span class="o">=</span> <span class="n">iso</span><span class="o">.</span><span class="n">background_octaves_db</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">pct</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">offset_db</span><span class="o">=</span><span class="n">cal</span><span class="p">[</span><span class="s2">&quot;dbfs_to_dbspl&quot;</span><span class="p">])</span>
+<span class="n">spec</span> <span class="o">=</span> <span class="n">iso</span><span class="o">.</span><span class="n">background_octaves_db</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">pct</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">offset_db</span><span class="o">=</span><span class="n">cal</span><span class="p">[</span><span class="s2">"dbfs_to_dbspl"</span><span class="p">])</span>
 <span class="n">iso</span><span class="o">.</span><span class="n">room_criteria</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
-<span class="c1"># {&#39;NR&#39;: 28.3, &#39;NR_governing_hz&#39;: 250, &#39;NC&#39;: 27.9, &#39;RC&#39;: 25.6,</span>
-<span class="c1">#  &#39;RC_class&#39;: &#39;R&#39;}</span>
+<span class="c1"># {'NR': 28.3, 'NR_governing_hz': 250, 'NC': 27.9, 'RC': 25.6,</span>
+<span class="c1">#  'RC_class': 'R'}</span>
 </code></pre></div>
 <p><em>NR</em> (ISO/R 1996, analytic curves), NC (ANSI S12.2, tabulated), and
 a simplified RC (Blazier) with rumble/hiss classification, which together

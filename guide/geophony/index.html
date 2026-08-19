@@ -2105,7 +2105,7 @@ its descriptors ride in the <code>analyze</code> summary.</p>
 ambiscape<span class="w"> </span>geophony<span class="w"> </span>&lt;session&gt;<span class="w">    </span><span class="c1"># detail: writes geophony.json</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape</span><span class="w"> </span><span class="kn">import</span> <span class="n">features</span><span class="p">,</span> <span class="n">geophony</span>
-<span class="n">F</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">load_features</span><span class="p">(</span><span class="nb">sorted</span><span class="p">((</span><span class="n">out</span> <span class="o">/</span> <span class="s2">&quot;features&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.npz&quot;</span><span class="p">)))</span>
+<span class="n">F</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">load_features</span><span class="p">(</span><span class="nb">sorted</span><span class="p">((</span><span class="n">out</span> <span class="o">/</span> <span class="s2">"features"</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">"*.npz"</span><span class="p">)))</span>
 <span class="n">geophony</span><span class="o">.</span><span class="n">summarize_geophony</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="caveats">Caveats</h2>

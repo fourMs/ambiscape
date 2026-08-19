@@ -2196,7 +2196,7 @@ with no audio pass except segment export.</p>
 <h2 id="onoff-segmentation-ambiscapestates">On/off segmentation (<code>ambiscape.states</code>)</h2>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape</span><span class="w"> </span><span class="kn">import</span> <span class="n">states</span>
 
-<span class="n">lvl</span>  <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">band_level</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="p">(</span><span class="mi">250</span><span class="p">,</span> <span class="mi">1000</span><span class="p">))</span>       <span class="c1"># the source&#39;s &quot;machine band&quot;</span>
+<span class="n">lvl</span>  <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">band_level</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="p">(</span><span class="mi">250</span><span class="p">,</span> <span class="mi">1000</span><span class="p">))</span>       <span class="c1"># the source's "machine band"</span>
 <span class="n">segs</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">state_segments</span><span class="p">(</span><span class="n">lvl</span><span class="p">,</span> <span class="n">min_dur_s</span><span class="o">=</span><span class="mi">120</span><span class="p">)</span>
 </code></pre></div>
 <p><code>state_segments</code> median-smooths the band level, splits it at an automatic
@@ -2211,8 +2211,8 @@ Segment times (<code>t0_s</code>) index the 1 Hz feature rows, so map them throu
 <code>F["t"]</code> for absolute clock time in multi-take sessions.</p>
 <h3 id="ask-whether-there-are-two-states-before-splitting">Ask whether there are two states before splitting</h3>
 <div class="highlight"><pre><span></span><code><span class="n">sep</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">bimodal_separation</span><span class="p">(</span><span class="n">lvl</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">sep</span><span class="p">[</span><span class="s2">&quot;bimodal&quot;</span><span class="p">]:</span>
-    <span class="n">segs</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">state_segments</span><span class="p">(</span><span class="n">lvl</span><span class="p">,</span> <span class="n">thresh_db</span><span class="o">=</span><span class="n">sep</span><span class="p">[</span><span class="s2">&quot;threshold_db&quot;</span><span class="p">])</span>
+<span class="k">if</span> <span class="n">sep</span><span class="p">[</span><span class="s2">"bimodal"</span><span class="p">]:</span>
+    <span class="n">segs</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">state_segments</span><span class="p">(</span><span class="n">lvl</span><span class="p">,</span> <span class="n">thresh_db</span><span class="o">=</span><span class="n">sep</span><span class="p">[</span><span class="s2">"threshold_db"</span><span class="p">])</span>
 </code></pre></div>
 <p>Otsu's method returns a threshold for any series, including one with a
 single populated mode. The split then divides noise and <code>duty_cycle</code>
@@ -2228,8 +2228,8 @@ machine is absent — only that a two-state split of this timeline is not
 evidence that it is present.</p>
 <h3 id="a-cycle-is-two-quantities-not-one">A cycle is two quantities, not one</h3>
 <div class="highlight"><pre><span></span><code><span class="n">c</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">cycle_series</span><span class="p">(</span><span class="n">segs</span><span class="p">)</span>
-<span class="n">c</span><span class="p">[</span><span class="s2">&quot;on_s&quot;</span><span class="p">],</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;period_s&quot;</span><span class="p">]</span>                 <span class="c1"># per cycle, not medians</span>
-<span class="n">c</span><span class="p">[</span><span class="s2">&quot;on_trend&quot;</span><span class="p">][</span><span class="s2">&quot;rho&quot;</span><span class="p">],</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;period_trend&quot;</span><span class="p">][</span><span class="s2">&quot;rho&quot;</span><span class="p">]</span>
+<span class="n">c</span><span class="p">[</span><span class="s2">"on_s"</span><span class="p">],</span> <span class="n">c</span><span class="p">[</span><span class="s2">"period_s"</span><span class="p">]</span>                 <span class="c1"># per cycle, not medians</span>
+<span class="n">c</span><span class="p">[</span><span class="s2">"on_trend"</span><span class="p">][</span><span class="s2">"rho"</span><span class="p">],</span> <span class="n">c</span><span class="p">[</span><span class="s2">"period_trend"</span><span class="p">][</span><span class="s2">"rho"</span><span class="p">]</span>
 </code></pre></div>
 <p>A thermostat's on-time is set by the appliance and its period by the room,
 so the two can move independently and a duty fraction — their ratio — hides
@@ -2257,7 +2257,7 @@ into its new state:</p>
 <span class="n">lvl</span> <span class="o">=</span> <span class="n">band_level</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="p">(</span><span class="mf">250.0</span><span class="p">,</span> <span class="mf">1000.0</span><span class="p">))</span>
 <span class="n">segs</span> <span class="o">=</span> <span class="n">state_segments</span><span class="p">(</span><span class="n">lvl</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">transition_profile</span><span class="p">(</span><span class="n">lvl</span><span class="p">,</span> <span class="n">segs</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;direction&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;step_db&quot;</span><span class="p">],</span> <span class="s2">&quot;dB in&quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;crossing_s&quot;</span><span class="p">],</span> <span class="s2">&quot;s&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">"direction"</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">"step_db"</span><span class="p">],</span> <span class="s2">"dB in"</span><span class="p">,</span> <span class="n">t</span><span class="p">[</span><span class="s2">"crossing_s"</span><span class="p">],</span> <span class="s2">"s"</span><span class="p">)</span>
 </code></pre></div>
 <p>Why it matters: a fridge and a slow fade can end at the same level, and to
 any per-state descriptor they are identical. Only the crossing tells them
@@ -2281,9 +2281,9 @@ subtracted:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape</span><span class="w"> </span><span class="kn">import</span> <span class="n">background</span>
 
 <span class="n">fp</span> <span class="o">=</span> <span class="n">background</span><span class="o">.</span><span class="n">source_fingerprint</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">active_minutes</span><span class="p">,</span> <span class="n">quiet_minutes</span><span class="p">)</span>
-<span class="n">fp</span><span class="p">[</span><span class="s2">&quot;rise_max_db&quot;</span><span class="p">],</span> <span class="n">fp</span><span class="p">[</span><span class="s2">&quot;rise_max_hz&quot;</span><span class="p">]</span>   <span class="c1"># the broadband turbulence hump</span>
-<span class="n">fp</span><span class="p">[</span><span class="s2">&quot;peaks&quot;</span><span class="p">]</span>                            <span class="c1"># narrowband lines riding on it</span>
-<span class="n">fp</span><span class="p">[</span><span class="s2">&quot;comb&quot;</span><span class="p">]</span>                             <span class="c1"># {f0_hz, harmonicity} of the lines</span>
+<span class="n">fp</span><span class="p">[</span><span class="s2">"rise_max_db"</span><span class="p">],</span> <span class="n">fp</span><span class="p">[</span><span class="s2">"rise_max_hz"</span><span class="p">]</span>   <span class="c1"># the broadband turbulence hump</span>
+<span class="n">fp</span><span class="p">[</span><span class="s2">"peaks"</span><span class="p">]</span>                            <span class="c1"># narrowband lines riding on it</span>
+<span class="n">fp</span><span class="p">[</span><span class="s2">"comb"</span><span class="p">]</span>                             <span class="c1"># {f0_hz, harmonicity} of the lines</span>
 </code></pre></div>
 <p>A blade-pass or compressor comb reports its base frequency via the harmonic
 sieve, which is 130 Hz for the Haarlem pump (~1950 rpm × 4 blades). Combine with
@@ -2304,7 +2304,7 @@ to <code>schedule.clock_offset</code> and store the result as <code>clock_offset
 <h2 id="segment-export-ioexport_segment-iostereo_preview">Segment export (<code>io.export_segment</code>, <code>io.stereo_preview</code>)</h2>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">export_segment</span><span class="p">,</span> <span class="n">stereo_preview</span>
 
-<span class="n">export_segment</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="mf">600.0</span><span class="p">,</span> <span class="s2">&quot;seg6_vent_switchoff.wav&quot;</span><span class="p">)</span>   <span class="c1"># bit-exact AmbiX</span>
+<span class="n">export_segment</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="mf">600.0</span><span class="p">,</span> <span class="s2">"seg6_vent_switchoff.wav"</span><span class="p">)</span>   <span class="c1"># bit-exact AmbiX</span>
 <span class="n">st</span> <span class="o">=</span> <span class="n">stereo_preview</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>                                       <span class="c1"># ±90° cardioids</span>
 </code></pre></div>
 <p><code>export_segment</code> copies samples using the source's own PCM subtype,

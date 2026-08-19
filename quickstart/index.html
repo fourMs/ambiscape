@@ -376,6 +376,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#run-something-now-with-no-recordings-of-your-own" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run something now, with no recordings of your own
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The pipeline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the-same-from-python" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2018,6 +2040,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#run-something-now-with-no-recordings-of-your-own" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run something now, with no recordings of your own
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The pipeline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the-same-from-python" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2060,32 +2104,50 @@
 
 
 <h1 id="quickstart">Quickstart</h1>
+<h2 id="run-something-now-with-no-recordings-of-your-own">Run something now, with no recordings of your own</h2>
+<p>Everything below points at <code>2026-07-15-Haarlem</code>, which is a session you do not have.
+This writes one you do:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">ambiscape</span>
+
+<span class="n">root</span> <span class="o">=</span> <span class="n">ambiscape</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">demo_session</span><span class="p">(</span><span class="s2">"/tmp/demo-session"</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>ambiscape<span class="w"> </span>analyze<span class="w"> </span>/tmp/demo-session
+</code></pre></div>
+<p>Two takes an hour apart: background alone, then two swinging bells at azimuths of 30 and
+60 degrees over the same background, four-channel AmbiX at 48 kHz. Every command on this
+page works against it, and because the two bearings are known, the anglegram and the
+spatial descriptors have a right answer you can check them against.</p>
+<p>A soundscape is a property of a PLACE, and a synthetic session has no place in it. There
+is no room here, no reverberation, no traffic and no birds, so the ecological and
+source-domain indices will return numbers that mean nothing. Use it to learn what the
+commands produce and to check an installation, not as material for a claim.</p>
+<h2 id="the-pipeline">The pipeline</h2>
 <p>A <em>session</em> is a folder of WAV files from one recording occasion. The whole
 CLI pipeline, in the order you would actually run it:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># 1. What is this folder? (metadata only, instant)</span>
-ambiscape<span class="w"> </span>probe<span class="w"> </span><span class="s2">&quot;2026-07-15-Haarlem&quot;</span>
+ambiscape<span class="w"> </span>probe<span class="w"> </span><span class="s2">"2026-07-15-Haarlem"</span>
 
 <span class="c1"># 2. Extract features, compute descriptors, render figures, write README.</span>
 <span class="c1">#    Features are cached as npz — re-runs are fast.</span>
-ambiscape<span class="w"> </span>analyze<span class="w"> </span><span class="s2">&quot;2026-07-15-Haarlem&quot;</span><span class="w"> </span>--notes<span class="w"> </span><span class="s2">&quot;Loft; mic on couch overnight&quot;</span>
+ambiscape<span class="w"> </span>analyze<span class="w"> </span><span class="s2">"2026-07-15-Haarlem"</span><span class="w"> </span>--notes<span class="w"> </span><span class="s2">"Loft; mic on couch overnight"</span>
 
 <span class="c1"># 3. Pre-fill taxonomy annotations from detected states and events</span>
 <span class="c1">#    (adds AudioSet tag suggestions when the [ml] extra is installed)</span>
-ambiscape<span class="w"> </span>draft<span class="w"> </span><span class="s2">&quot;2026-07-15-Haarlem&quot;</span>
+ambiscape<span class="w"> </span>draft<span class="w"> </span><span class="s2">"2026-07-15-Haarlem"</span>
 
 <span class="c1"># 4. LISTEN. Edit annotations.draft.json, save as annotations.json.</span>
 
 <span class="c1"># 5. Render the Schaeffer map + Schafer timeline</span>
-ambiscape<span class="w"> </span>taxonomy<span class="w"> </span><span class="s2">&quot;2026-07-15-Haarlem&quot;</span>
+ambiscape<span class="w"> </span>taxonomy<span class="w"> </span><span class="s2">"2026-07-15-Haarlem"</span>
 
 <span class="c1"># 6. Optional: ISO 12913-3 psychoacoustic indicators ([iso] extra)</span>
-ambiscape<span class="w"> </span>iso<span class="w"> </span><span class="s2">&quot;2026-07-15-Haarlem&quot;</span>
+ambiscape<span class="w"> </span>iso<span class="w"> </span><span class="s2">"2026-07-15-Haarlem"</span>
 
 <span class="c1"># 7. Before publishing any excerpt: the speech privacy gate ([ml] extra)</span>
 ambiscape<span class="w"> </span>speechgate<span class="w"> </span>path/to/segment.wav
 
 <span class="c1"># 8. Non-identifying 1 Hz TSV export for open deposits</span>
-ambiscape<span class="w"> </span>deposit<span class="w"> </span><span class="s2">&quot;2026-07-15-Haarlem&quot;</span>
+ambiscape<span class="w"> </span>deposit<span class="w"> </span><span class="s2">"2026-07-15-Haarlem"</span>
 </code></pre></div>
 <p>After <code>analyze</code>, the session folder contains a <code>README.md</code> (metadata,
 descriptor table, figures) and an <code>analysis/</code> folder (cached features,
@@ -2098,8 +2160,8 @@ descriptor table, figures) and an <code>analysis/</code> folder (cached features
 <h2 id="the-same-from-python">The same from Python</h2>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">ambiscape</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">asc</span>
 
-<span class="n">sess</span> <span class="o">=</span> <span class="n">asc</span><span class="o">.</span><span class="n">open_session</span><span class="p">(</span><span class="s2">&quot;2026-07-15-Haarlem&quot;</span><span class="p">)</span>
-<span class="n">paths</span> <span class="o">=</span> <span class="n">asc</span><span class="o">.</span><span class="n">extract_session</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="s2">&quot;features&quot;</span><span class="p">)</span>     <span class="c1"># streams, caches npz</span>
+<span class="n">sess</span> <span class="o">=</span> <span class="n">asc</span><span class="o">.</span><span class="n">open_session</span><span class="p">(</span><span class="s2">"2026-07-15-Haarlem"</span><span class="p">)</span>
+<span class="n">paths</span> <span class="o">=</span> <span class="n">asc</span><span class="o">.</span><span class="n">extract_session</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="s2">"features"</span><span class="p">)</span>     <span class="c1"># streams, caches npz</span>
 <span class="n">F</span> <span class="o">=</span> <span class="n">asc</span><span class="o">.</span><span class="n">load_features</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span>                      <span class="c1"># one absolute time axis</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="n">asc</span><span class="o">.</span><span class="n">summarize</span><span class="p">(</span><span class="n">F</span><span class="p">))</span>                           <span class="c1"># descriptor dict</span>
@@ -2108,15 +2170,15 @@ descriptor table, figures) and an <code>analysis/</code> folder (cached features
 <span class="n">x</span><span class="p">,</span> <span class="n">fs</span> <span class="o">=</span> <span class="n">asc</span><span class="o">.</span><span class="n">read_span</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">t0</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mf">6.0</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">asc</span><span class="o">.</span><span class="n">decay_time</span><span class="p">(</span><span class="n">x</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">fs</span><span class="p">))</span>                <span class="c1"># T60 from a clap at t≈4 s</span>
 
-<span class="n">asc</span><span class="o">.</span><span class="n">figures</span><span class="o">.</span><span class="n">overview</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="s2">&quot;overview.png&quot;</span><span class="p">,</span> <span class="n">clock</span><span class="o">=</span><span class="n">sess</span><span class="o">.</span><span class="n">clock</span><span class="p">)</span>
+<span class="n">asc</span><span class="o">.</span><span class="n">figures</span><span class="o">.</span><span class="n">overview</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="s2">"overview.png"</span><span class="p">,</span> <span class="n">clock</span><span class="o">=</span><span class="n">sess</span><span class="o">.</span><span class="n">clock</span><span class="p">)</span>
 <span class="n">segs</span> <span class="o">=</span> <span class="n">asc</span><span class="o">.</span><span class="n">pick_segments</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>                       <span class="c1"># representative windows</span>
 </code></pre></div>
 <h2 id="calibration-optional-but-recommended">Calibration (optional but recommended)</h2>
 <p>Drop a <code>calibration.json</code> next to the WAVs and <code>analyze</code> adds dB SPL
 versions of the level descriptors:</p>
-<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;dbfs_to_dbspl&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">94.0</span><span class="p">,</span>
-<span class="w"> </span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SPL meter next to mic, HVAC running, LAeq 42 dB&quot;</span><span class="p">,</span>
-<span class="w"> </span><span class="nt">&quot;date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-07-16&quot;</span><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">"dbfs_to_dbspl"</span><span class="p">:</span><span class="w"> </span><span class="mf">94.0</span><span class="p">,</span>
+<span class="w"> </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SPL meter next to mic, HVAC running, LAeq 42 dB"</span><span class="p">,</span>
+<span class="w"> </span><span class="nt">"date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-07-16"</span><span class="p">}</span>
 </code></pre></div>
 <p>The same file can correct a wrong recorder clock: add
 <code>"clock_offset_s": 665.0</code> (positive = clock was slow) and every
@@ -2145,7 +2207,7 @@ clock-labelled output uses corrected time. See
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 6, 2026 15:21:37 UTC">August 6, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 19, 2026 09:32:31 UTC">August 19, 2026</span>
   </span>
 
     

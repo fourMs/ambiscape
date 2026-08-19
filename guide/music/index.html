@@ -2118,7 +2118,7 @@ different onset models.</p>
 musical material. They were developed on a five-album solo-harp catalogue
 (57 tracks) where conventional beat tracking fails outright.</p>
 <div class="highlight"><pre><span></span><code><span class="n">music</span><span class="o">.</span><span class="n">pulse_clarity</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">sr</span><span class="p">)</span>
-<span class="c1"># {&quot;R&quot;: 0.05, &quot;period_s&quot;: 0.47, &quot;period_bpm&quot;: 127.7, &quot;rayleigh_p&quot;: ..., &quot;n_onsets&quot;: 412}</span>
+<span class="c1"># {"R": 0.05, "period_s": 0.47, "period_bpm": 127.7, "rayleigh_p": ..., "n_onsets": 412}</span>
 </code></pre></div>
 <p><em><code>pulse_clarity</code></em> measures <em>metric lock</em> rather than tempo: onsets are
 folded at the dominant period and the strength-weighted resultant length R
@@ -2128,7 +2128,7 @@ among the envelope-ACF peak and its metrical octaves by maximising R itself
 resultant). Use it where a BPM number would be meaningless: rubato playing,
 drones, ambient textures. One caveat: the single global period means slow
 tempo drift also reads as low R.</p>
-<div class="highlight"><pre><span></span><code><span class="n">music</span><span class="o">.</span><span class="n">fifths_center</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>          <span class="c1"># one recording&#39;s tonal center + focus</span>
+<div class="highlight"><pre><span></span><code><span class="n">music</span><span class="o">.</span><span class="n">fifths_center</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>          <span class="c1"># one recording's tonal center + focus</span>
 <span class="n">music</span><span class="o">.</span><span class="n">tonal_center_spread</span><span class="p">([</span><span class="n">c1</span><span class="p">,</span> <span class="n">c2</span><span class="p">,</span> <span class="n">c3</span><span class="p">])</span> <span class="c1"># how tightly a corpus clusters in key space</span>
 </code></pre></div>
 <p><em><code>fifths_center</code></em> places the 12 pitch classes a fifth apart around a
@@ -2141,7 +2141,7 @@ between-recording statistic must be circular, since key centres have no
 meaningful linear mean: the average of C and B is not F sharp.</p>
 <h2 id="object-level-schaeffer-profile">Object-level Schaeffer profile</h2>
 <div class="highlight"><pre><span></span><code><span class="n">music</span><span class="o">.</span><span class="n">tartyp_profile</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">sr</span><span class="p">)</span>
-<span class="c1"># {&quot;dist&quot;: {&quot;N&quot;: 0.62, &quot;N&#39;&quot;: 0.35, &quot;N&#39;&#39;&quot;: 0.02, &quot;Y&quot;: 0.01}, &quot;n_objects&quot;: 803}</span>
+<span class="c1"># {"dist": {"N": 0.62, "N'": 0.35, "N''": 0.02, "Y": 0.01}, "n_objects": 803}</span>
 </code></pre></div>
 <p><em><code>tartyp_profile</code></em> segments a recording into onset-bounded sound objects
 and classifies each on a simplified TARTYP grid—mass N (tonic) / Y

@@ -2094,7 +2094,7 @@ state.</p>
 
 <span class="n">states</span> <span class="o">=</span> <span class="n">resolve</span><span class="o">.</span><span class="n">machine_states</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">band</span><span class="o">=</span><span class="p">(</span><span class="mi">250</span><span class="p">,</span> <span class="mi">1000</span><span class="p">))</span>   <span class="c1"># {on: iv, off: iv}</span>
 <span class="n">res</span> <span class="o">=</span> <span class="n">resolve</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">states</span><span class="p">)</span>                       <span class="c1"># {state: full_summary}</span>
-<span class="n">res</span><span class="p">[</span><span class="s2">&quot;machine_off&quot;</span><span class="p">][</span><span class="s2">&quot;ndsi&quot;</span><span class="p">],</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;machine_on&quot;</span><span class="p">][</span><span class="s2">&quot;ndsi&quot;</span><span class="p">]</span>
+<span class="n">res</span><span class="p">[</span><span class="s2">"machine_off"</span><span class="p">][</span><span class="s2">"ndsi"</span><span class="p">],</span> <span class="n">res</span><span class="p">[</span><span class="s2">"machine_on"</span><span class="p">][</span><span class="s2">"ndsi"</span><span class="p">]</span>
 </code></pre></div>
 <h2 id="automatic-in-analyze">Automatic in <code>analyze</code></h2>
 <p><code>ambiscape analyze</code> runs <code>resolve.auto_states</code> after the pooled summary:

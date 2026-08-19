@@ -2118,7 +2118,7 @@ corpus:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape</span><span class="w"> </span><span class="kn">import</span> <span class="n">spatial</span>
 
 <span class="n">spatial</span><span class="o">.</span><span class="n">directional_entropy</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>     <span class="c1"># 0 = one bearing, 1 = spread round the horizon</span>
-<span class="n">spatial</span><span class="o">.</span><span class="n">horizon_fractions</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>       <span class="c1"># {&#39;above&#39;: .., &#39;level&#39;: .., &#39;below&#39;: ..}</span>
+<span class="n">spatial</span><span class="o">.</span><span class="n">horizon_fractions</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>       <span class="c1"># {'above': .., 'level': .., 'below': ..}</span>
 <span class="n">spatial</span><span class="o">.</span><span class="n">fg_bg_az_overlap</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>        <span class="c1"># do figure and ground share a direction?</span>
 </code></pre></div>
 <p><code>directional_entropy</code> is the spatial analogue of an acoustic diversity
@@ -2139,10 +2139,10 @@ orientation per session):</p>
 
 <span class="n">spatial</span><span class="o">.</span><span class="n">frame_reference_test</span><span class="p">(</span>
     <span class="n">bearing_deg</span><span class="p">,</span>          <span class="c1"># what the recorder reported</span>
-    <span class="n">heading_deg</span><span class="p">,</span>          <span class="c1"># where the recorder&#39;s nose pointed, in the world</span>
+    <span class="n">heading_deg</span><span class="p">,</span>          <span class="c1"># where the recorder's nose pointed, in the world</span>
     <span class="n">control_deg</span><span class="o">=</span><span class="n">sway_deg</span><span class="p">,</span> <span class="c1"># a positive control, in the same rig frame</span>
 <span class="p">)</span>
-<span class="c1"># {&#39;R_rig&#39;: .., &#39;R_world&#39;: .., &#39;ratio&#39;: .., &#39;R_chance&#39;: .., &#39;frame&#39;: &#39;rig&#39;}</span>
+<span class="c1"># {'R_rig': .., 'R_world': .., 'ratio': .., 'R_chance': .., 'frame': 'rig'}</span>
 </code></pre></div>
 <p>The world bearing is <code>bearing + heading</code>, and the answer is simply which
 of the two concentrates. <code>R_chance</code> is <code>1/sqrt(n)</code>, the resultant of <code>n</code>

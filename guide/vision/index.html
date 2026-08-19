@@ -1990,8 +1990,8 @@ writes <code>vision.json</code> and <code>vision.png</code>.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape</span><span class="w"> </span><span class="kn">import</span> <span class="n">vision</span>
 
 <span class="n">f</span> <span class="o">=</span> <span class="n">vision</span><span class="o">.</span><span class="n">frame_features</span><span class="p">(</span><span class="n">rgb</span><span class="p">)</span>          <span class="c1"># rgb: (H, W, 3), uint8 0..255 or float</span>
-<span class="c1"># {&#39;brightness&#39;: 0.41, &#39;warm_cool_ratio&#39;: 1.8, &#39;colourfulness&#39;: 0.22,</span>
-<span class="c1">#  &#39;spatial_entropy&#39;: 0.88, &#39;bright_centroid_x&#39;: 0.63, ...}</span>
+<span class="c1"># {'brightness': 0.41, 'warm_cool_ratio': 1.8, 'colourfulness': 0.22,</span>
+<span class="c1">#  'spatial_entropy': 0.88, 'bright_centroid_x': 0.63, ...}</span>
 <span class="n">m</span> <span class="o">=</span> <span class="n">vision</span><span class="o">.</span><span class="n">frame_delta</span><span class="p">(</span><span class="n">prev_rgb</span><span class="p">,</span> <span class="n">rgb</span><span class="p">)</span>   <span class="c1"># motion proxy (0..1)</span>
 <span class="n">vision</span><span class="o">.</span><span class="n">summarize_vision</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span> <span class="n">motion</span><span class="o">=</span><span class="n">motions</span><span class="p">)</span>   <span class="c1"># a day -&gt; vis_* summary</span>
 </code></pre></div>

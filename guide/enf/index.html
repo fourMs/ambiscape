@@ -2103,8 +2103,8 @@ the window length (default 60); the command writes <code>enf.json</code> and
 
 <span class="n">tr</span> <span class="o">=</span> <span class="n">enf</span><span class="o">.</span><span class="n">enf_track</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">step_s</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">win_s</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">harmonics</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 <span class="n">enf</span><span class="o">.</span><span class="n">enf_summary</span><span class="p">(</span><span class="n">tr</span><span class="p">)</span>
-<span class="c1"># {&#39;mean_hz&#39;: 49.9958, &#39;sd_mhz&#39;: 21.0, &#39;max_dev_mhz&#39;: 88.0,</span>
-<span class="c1">#  &#39;coverage&#39;: 1.0, &#39;harmonic_agreement_mhz&#39;: 0.9, ...}</span>
+<span class="c1"># {'mean_hz': 49.9958, 'sd_mhz': 21.0, 'max_dev_mhz': 88.0,</span>
+<span class="c1">#  'coverage': 1.0, 'harmonic_agreement_mhz': 0.9, ...}</span>
 </code></pre></div>
 <p><img alt="The tracked electric network frequency across a session: the grid's frequency wander in millihertz, recovered independently from the 50 Hz and 100 Hz hum lines." src="../../img/enf.png" /></p>
 <p><code>hum_peak</code> measures one window (zero-padded FFT + parabolic interpolation

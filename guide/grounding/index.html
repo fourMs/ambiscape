@@ -2312,12 +2312,12 @@ reports the same thing at runtime for summaries from outside the toolbox.</p>
 <h2 id="inspecting-the-registry">Inspecting the registry</h2>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape</span><span class="w"> </span><span class="kn">import</span> <span class="n">grounding</span>
 
-<span class="n">grounding</span><span class="o">.</span><span class="n">tier_of</span><span class="p">(</span><span class="s2">&quot;laeq_dbfs&quot;</span><span class="p">)</span>      <span class="c1"># &#39;PC&#39;</span>
-<span class="n">grounding</span><span class="o">.</span><span class="n">tier_of</span><span class="p">(</span><span class="s2">&quot;leq_dbfs&quot;</span><span class="p">)</span>       <span class="c1"># &#39;S&#39;  -- unweighted, no listener</span>
-<span class="n">grounding</span><span class="o">.</span><span class="n">counts</span><span class="p">()</span>                  <span class="c1"># {&#39;S&#39;: 40, &#39;PM&#39;: 19, &#39;PC&#39;: 7, &#39;PD&#39;: 5}</span>
+<span class="n">grounding</span><span class="o">.</span><span class="n">tier_of</span><span class="p">(</span><span class="s2">"laeq_dbfs"</span><span class="p">)</span>      <span class="c1"># 'PC'</span>
+<span class="n">grounding</span><span class="o">.</span><span class="n">tier_of</span><span class="p">(</span><span class="s2">"leq_dbfs"</span><span class="p">)</span>       <span class="c1"># 'S'  -- unweighted, no listener</span>
+<span class="n">grounding</span><span class="o">.</span><span class="n">counts</span><span class="p">()</span>                  <span class="c1"># {'S': 40, 'PM': 19, 'PC': 7, 'PD': 5}</span>
 
 <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">grounding</span><span class="o">.</span><span class="n">table</span><span class="p">():</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;tier&quot;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;descriptor&quot;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;why&quot;</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"tier"</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">"descriptor"</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">"why"</span><span class="p">])</span>
 </code></pre></div>
 <p>Every entry carries a <code>why</code>, and a <code>ref</code> where the tier rests on a published
 standard. If you disagree with a classification, the <code>why</code> is the thing to

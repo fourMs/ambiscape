@@ -8,7 +8,7 @@ The `impulse` module implements Farina's exponential sine sweep (ESS)
 method: tens of decibels more dynamic range than any clap, and the
 loudspeaker's harmonic distortion is pushed *ahead* of the linear
 response, where it can simply be trimmed off. The resulting impulse
-response (IR) is both a measurement (T60, clarity, STI) and an instrument:
+response (IR) is both a measurement (T60, clarity, STI) and a tool:
 convolve any dry sound with it and it plays in that room.
 
 ## 1. Generate a sweep

@@ -6,7 +6,7 @@ a household in a day, a heating system in a season. So the question "is this
 signal or noise?" becomes a question about *periodicity across timescales* —
 find the period and you have named the thing.
 
-The catch, which the SINS corpus supplies, is that the instrument has a
+The catch, which the SINS corpus supplies, is that the recorder has a
 rhythm too: a converter warms and cools with the building, so its self-noise
 carries a diurnal cycle. Periodicity alone therefore does not separate room
 from recorder. The *period* does, and these tests pin that distinction.
@@ -81,7 +81,7 @@ def test_the_instruments_own_diurnal_cycle_is_not_mistaken_for_a_room():
     A node that sits at its own noise floor for most of a week, whose only
     real variation is thermal, still shows a 24-hour cycle. Periodicity therefore cannot mean "this is the room" on its own —
     a diurnal cycle with nothing faster beneath it is the signature of an
-    instrument warming and cooling, not of a household.
+    recorder warming and cooling, not of a household.
     """
     thermal, dt = _levels(24 * 6, dt_s=30.0, cycles=[(86400, 9.0, 0.5)])
     lived, _ = _levels(24 * 6, dt_s=30.0,

@@ -833,7 +833,7 @@ def cycle_profile(level_db, dt: float, min_period_s: float = 60.0,
     with the building, so a node sitting at its own floor can carry a daily
     cycle that has nothing to do with the room. That premise is well
     supported on the SINS corpus by an hour-of-day analysis. Node 9 is the least
-    sensitive instrument in that deployment, in a bedroom nobody enters by day,
+    sensitive recorder in that deployment, in a bedroom nobody enters by day,
     and it sits on its own noise floor for the great majority of the week; its
     hourly profile still swings 10.7 dB, peaking at 14:00 and troughing at
     04:00--06:00, and node 10's profile correlates with it at r = 0.97. A node
@@ -857,9 +857,9 @@ def cycle_profile(level_db, dt: float, min_period_s: float = 60.0,
     nothing faster underneath for all seven living-room nodes, which are the
     busiest in the deployment. So on this corpus the function misses the
     daily cycles that are there and reports the pattern that was supposed to
-    mark an instrument on the rooms that are plainly occupied.
+    mark a recorder on the rooms that are plainly occupied.
 
-    Two consequences. Do not infer *instrument* from a ``diurnal_only``
+    Two consequences. Do not infer *recorder* from a ``diurnal_only``
     verdict here; the shape is a description, not an attribution. And do not
     read an empty result as "no daily cycle" --- check with an hour-of-day
     fold, which is what the corpus evidence above rests on.
@@ -1093,7 +1093,7 @@ def floor_occupancy(F: dict, within_db: float = AT_FLOOR_WITHIN_DB,
     is the right question and it has a limit: across a whole sensor network
     it can fire for every node, because every recorder's top octaves are its
     own hiss during quiet hours. It therefore cannot separate "this band is
-    the instrument" from "this room was empty all week".
+    the recorder" from "this room was empty all week".
 
     This asks the second question. Each second's broadband level is compared
     against the session's own ``pct``-percentile floor, and the fraction

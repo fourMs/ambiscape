@@ -99,7 +99,7 @@ def test_readme_warning_line(tmp_path):
     txt = (tmp_path / "README.md").read_text()
     assert "2.8–11.3 kHz" in txt
     assert "recorder self-noise" in txt
-    assert "reflect the instrument, not the room" in txt
+    assert "reflect the recorder, not the room" in txt
 
     summary["floor_suspect"] = False
     report.write_readme(sess, summary, out)

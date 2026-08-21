@@ -92,7 +92,7 @@ def _floor_warning(summary: dict) -> str:
     return (f"> **Warning.** Low-percentile levels in {rng} are consistent "
             f"with recorder self-noise{detail}: the band floor barely moves "
             "over time. L90-derived descriptors (L90, LA90, emergence) may "
-            "reflect the instrument, not the room.")
+            "reflect the recorder, not the room.")
 
 
 def _json_safe(o):

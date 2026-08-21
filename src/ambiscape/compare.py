@@ -487,7 +487,7 @@ def xnode_floor(arr, pct: float = 5.0, floor_suspect: bool = False,
     """A node's day noise floor: low percentile of its finite 1 Hz levels.
 
     When the session's analysis flagged ``floor_suspect`` (the recorded
-    floor is pinned at the instrument's self-noise, so the acoustic floor
+    floor is pinned at the recorder's self-noise, so the acoustic floor
     is somewhere below it and small excursions above it measure the
     recorder, not the room), the floor is raised by ``adjust_db`` so the
     loudest-room rule demands that much more clearance before trusting a

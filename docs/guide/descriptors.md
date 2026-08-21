@@ -113,7 +113,7 @@ the SINS sensor-network corpus the 4–8 kHz background floor of a living
 room is flat to 0.8 dB across a full week (0.56 dB between six separate
 nights), while every band below 1 kHz varies by 2.4–5.3 dB over the same
 nights: the top of the spectrum is microphone self-noise, and A-weighting
-emphasises exactly that region, so LA90 there measures the instrument.
+emphasises exactly that region, so LA90 there measures the recorder.
 
 `analysis.floor_suspicion` (run as part of every `summarize`) checks each
 octave band centred at 2 kHz and above: the session is cut into 300 s
@@ -127,7 +127,7 @@ the quietest genuinely acoustic bands there (≥ 2.4 dB), with at least
 (boolean), the affected band range `floor_suspect_lo_hz` /
 `floor_suspect_hi_hz`, and `floor_spread_db`; when the flag fires, the
 session README carries a warning that L90-derived descriptors in that
-range may reflect the instrument, not the room.
+range may reflect the recorder, not the room.
 
 This is an annotation, not a correction — no descriptor value changes.
 Sessions shorter than six chunks (30 min) are never flagged, and bands
@@ -138,7 +138,7 @@ with no content below the Nyquist frequency are excluded.
 The guard above asks whether a *band's* floor is self-noise. Run across a
 whole sensor network it tends to fire for every node, because every
 recorder's top octaves are its own hiss during quiet hours — so it cannot
-separate "this band is the instrument" from "this room was empty all week".
+separate "this band is the recorder" from "this room was empty all week".
 
 `analysis.floor_occupancy` asks the second question: what fraction of the
 session sits within a few dB of that session's own floor. Across the SINS

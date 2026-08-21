@@ -105,9 +105,9 @@ GROUNDINGS: dict[str, Grounding] = {g.key: g for g in [
               "Calling the result figure and ground is the PD step",
               "notes/sins-analysis.md 2026-08-11, 12 nodes"),
     Grounding("floor_spread_db", "S", "dispersion of the level floor"),
-    Grounding("floor_suspect", "S", "instrument-facing: is this the recorder"),
-    Grounding("floor_suspect_lo_hz", "S", "instrument-facing"),
-    Grounding("floor_suspect_hi_hz", "S", "instrument-facing"),
+    Grounding("floor_suspect", "S", "recorder-facing: is this the recorder"),
+    Grounding("floor_suspect_lo_hz", "S", "recorder-facing"),
+    Grounding("floor_suspect_hi_hz", "S", "recorder-facing"),
     Grounding("duration_min", "S", "length of the recording"),
 
     # ------------------------------------------------------------- spectrum

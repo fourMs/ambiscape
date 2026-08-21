@@ -252,7 +252,7 @@ the period holds.
     hour of day — and treat a long period from this function as a hypothesis
     rather than a finding.
 
-!!! warning "The instrument has a rhythm too"
+!!! warning "The recorder has a rhythm too"
 
     Periodicity alone does not mean "this is the room". A converter warms and
     cools with the building, so a node that spends most of its week at its own
@@ -265,7 +265,7 @@ the period holds.
     from the by-hour test, not from `dominant_cycles`; see the caution above.) What distinguishes a household is that it also leaves faster marks
     — a kettle, a shower, a fridge — which is what `cycle_profile` reports as
     `has_sub_daily_cycle`. A diurnal rhythm with nothing underneath it is an
-    instrument breathing, not a home.
+    recorder breathing, not a home.
 
 ### Anomaly is the complement of rhythm
 

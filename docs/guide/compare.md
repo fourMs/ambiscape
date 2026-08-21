@@ -71,7 +71,7 @@ plus a loudest-room strip from per-node full-day 1 Hz level arrays:
     2. *Floor rule*: the node's absolute level clears its own noise floor
        (`xnode_floor`: a low percentile of the day's 1 Hz levels, raised by
        `adjust_db` when the session's analysis flagged `floor_suspect` —
-       i.e. the recorded floor is instrument self-noise, so marginal
+       i.e. the recorded floor is recorder self-noise, so marginal
        excursions above it measure the recorder, not the room) by at least
        `floor_clear_db` (default 3 dB).
 

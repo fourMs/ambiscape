@@ -125,7 +125,7 @@ def group_tracks(tracks: list[dict], tol_cents: float = 60.0) -> list[dict]:
     and it is sensor self-noise: it falls in the band where every node of that
     deployment is already flagged floor-suspect. Split the candidates by band
     before reading a shared line as a shared source, and treat anything inside
-    the known self-noise region as the instrument until shown otherwise.
+    the known self-noise region as the recorder until shown otherwise.
     """
     if not tracks:
         return []

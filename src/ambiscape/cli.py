@@ -169,6 +169,21 @@ def main(argv=None):
                     help="instead of rendering, export the SEC-second "
                          "bit-exact excerpt that best characterizes the "
                          "background (needs a prior analyze run)")
+    bg.add_argument("--bst", default=None, metavar="CODE",
+                    help="Broad Sound Taxonomy subcategory for the excerpt "
+                         "(ss-i indoors, ss-u urban, ss-n nature, ss-s "
+                         "synthetic); mandatory on Freesound upload since "
+                         "April 2025, so passing it writes an upload sidecar "
+                         "beside the WAV")
+    bg.add_argument("--licence", default="CC BY 4.0",
+                    help="licence recorded in the excerpt sidecar "
+                         "(default 'CC BY 4.0')")
+    bg.add_argument("--tags", default=None,
+                    help="comma-separated tags for the excerpt sidecar")
+    bg.add_argument("--any-bst", action="store_true", dest="any_bst",
+                    help="allow a non-soundscape --bst code; by default a "
+                         "whole-room excerpt must take one of the ss-* "
+                         "categories")
     cb = sub.add_parser("calibrate",
                         help="derive and store the dBFS->dB SPL offset "
                              "from a field SPL-meter reading "
@@ -1030,6 +1045,16 @@ def main(argv=None):
         if args.excerpt:
             from .features import load_features
             from .render import characteristic_excerpt
+            if args.bst:
+                # before the export, not after: a typo should not cost a
+                # file on disk and a second run
+                from .deposit import validate_bst_category
+                try:
+                    args.bst = validate_bst_category(
+                        args.bst, soundscape_only=not args.any_bst)
+                except ValueError as e:
+                    print(f"error: {e}")
+                    return 1
             feats = sorted((out / "features").glob("*.npz"))
             if not feats:
                 print("no cached features - run 'ambiscape analyze' first")
@@ -1042,6 +1067,21 @@ def main(argv=None):
                   f"{doc['spectral_distance_db']} dB, eventful "
                   f"{doc['eventful_fraction']:.0%}")
             print(f"wrote {doc['out_path']}")
+            if args.bst:
+                from .deposit import BST_CATEGORIES, freesound_sidecar
+                tags = ([t.strip() for t in args.tags.split(",") if t.strip()]
+                        if args.tags else [])
+                side = freesound_sidecar(
+                    doc["out_path"], args.bst, licence=args.licence,
+                    tags=tags, soundscape_only=not args.any_bst,
+                    extra={"session": sess.name,
+                           "excerpt_clock": doc["clock"],
+                           "excerpt_dur_s": doc["dur_s"],
+                           "excerpt_method": doc["_method_note"]})
+                print(f"wrote {side} "
+                      f"({args.bst}: {BST_CATEGORIES[args.bst]})")
+                print("  run 'ambiscape speechgate' on the excerpt and record "
+                      "the fraction before uploading")
             return 0
         print(f"background render: {sess.name}")
         doc = run_session(sess, out, margin_db=args.margin_db, t0=args.t0,

@@ -14,6 +14,23 @@ been carrying feature work throughout a pre-1.0 life.
 > imports the functions that moved.
 
 
+## [Unreleased]
+
+### Added
+- Freesound upload metadata for curated excerpts. Freesound has required a category from its
+  Broad Sound Taxonomy on every upload since April 2025, and the category is a search facet, so
+  it decides whether an excerpt is findable at all. `ambiscape background --excerpt SEC --bst
+  ss-i` now writes `<excerpt>.wav.freesound.json` beside the WAV, carrying the category, its
+  full name, the licence, the tags and the excerpt's own provenance. `deposit.BST_CATEGORIES`
+  holds all 28 subcategories and `deposit.validate_bst_category()` checks a code before the
+  export runs, so a typo costs nothing. A whole-room recording is a soundscape, so `--bst`
+  accepts only the `ss-*` categories unless `--any-bst` is passed.
+
+  The taxonomy is kept out of `ambiscape.taxonomy` on purpose. It classifies the *file* --- what
+  kind of audio this is and what somebody would use it for --- where Schaeffer, Schafer and
+  soundscape ecology each ask a question of the same *sound*. For a session recorded in a room
+  the answer is almost always `ss-i`, and a field with one value is no use as a descriptor.
+
 ## [0.44.0] — 2026-08-19
 
 ### Added

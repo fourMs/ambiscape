@@ -49,7 +49,7 @@ See [Strike-level rhythm](guide/rhythm.md), [Modulation profile](guide/modulatio
 | `ambiscape tonality <session>` | Tonal tracks, harmonicity, pitch-class profile (*cache*). |
 | `ambiscape tones <session>` | DIN 45681-style prominent tones: spectral peaks against the masking-band level (*cache*). |
 | `ambiscape timbre <session>` | Event timbre templates: rise/decay fingerprints, clustered without ML (*cache*). |
-| `ambiscape background <session>` | Render a background-only bed, or with `--excerpt SEC` export the most characteristic original minute. |
+| `ambiscape background <session>` | Render a background-only bed, or with `--excerpt SEC` export the most characteristic original minute; `--bst` writes Freesound upload metadata beside it. |
 | `ambiscape loop <session>` | Export a seamlessly loopable prototype segment, chosen for typicality (*cache*). |
 | `ambiscape music <session>` | Librosa tempogram and chromagram (`[music]`). |
 | `ambiscape carillon <session>` | Which bells a carillon played: strike-note inventory (`[music]`). |

@@ -344,6 +344,23 @@ keep their "listen to confirm" marking, and the acoustic summaries are measured,
 also the scale mismatch: an activity label runs for minutes and a sound object for seconds, so the
 activity colour says what was going on around the object, never what the object is.
 
+## What is not here: Freesound's Broad Sound Taxonomy
+
+A reader looking for Freesound's [Broad Sound
+Taxonomy](https://freesound.org/help/broad-sound-taxonomy/) will not find it on
+this page, and the reason is the same principle the page opens with. The three
+schemes above each ask a question of the same *sound*: what it is in itself,
+what it does in a place, where it physically came from. The Broad Sound
+Taxonomy asks about the *file*. Is this music, an instrument sample, speech, a
+sound effect or a soundscape, and what would somebody use it for? That is a
+retrieval question, and a good one for a repository to ask, but it is not a
+fourth label a sound object can carry alongside the other three.
+
+It also carries no information here. For a session recorded in a room the
+answer is `ss-i` every time, and a field with one value describes nothing. So
+the taxonomy lives where it is actually needed, in the upload metadata: see
+[Deposit export](deposit.md#publishing-an-excerpt-the-freesound-category).
+
 ## A note on spelling
 
 The field value is `anthrophony`, which is the spelling Pijanowski and most of the soundscape-ecology

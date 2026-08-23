@@ -14,7 +14,7 @@ been carrying feature work throughout a pre-1.0 life.
 > imports the functions that moved.
 
 
-## [Unreleased]
+## [0.45.0] — 2026-08-23
 
 ### Added
 - Freesound upload metadata for curated excerpts. Freesound has required a category from its

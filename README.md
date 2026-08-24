@@ -85,4 +85,6 @@ Cite the concept DOI, which always resolves to the newest version:
 Where the exact behaviour matters, add the version you ran. Every release has its own DOI, listed on
 the [Zenodo record](https://doi.org/10.5281/zenodo.21965234).
 
+An older concept DOI, https://doi.org/10.5281/zenodo.21948997, is frozen at 0.42.0. It was created by a hand deposit made on 2026-08-15, before the Zenodo GitHub integration was archiving this repository; the integration began working the next day and every release since is under the DOI above. Zenodo cannot merge two concepts, so both records exist and only one of them advances. Cite the DOI above.
+
 `CITATION.cff` in this repository carries the same information in machine-readable form.

@@ -216,7 +216,8 @@ def schaeffer_hint(F: dict, a: float, b: float) -> dict:
 
 def draft_annotations(F: dict, folder: str | Path,
                       out_name="annotations.draft.json",
-                      session=None) -> Path:
+                      session=None, tagger=None,
+                      max_tagged: int | None = MAX_TAGGED) -> Path:
     """Draft an annotation file from the features, for a person to correct.
 
     It proposes the steady beds and the events it can find and names them where a tagger is
@@ -228,7 +229,8 @@ def draft_annotations(F: dict, folder: str | Path,
     tf, fast = F["t_fast"], F["fast_db"]
     dt = float(np.median(np.diff(tf))) if len(tf) > 1 else 0.125
     objects = []
-    tag = _tagger(session)
+    tag = tagger if tagger is not None else _tagger(session)
+    budget = float("inf") if max_tagged is None else max_tagged
     n_tagged = 0
 
     # --- steady-state keynote beds: regimes clustered by level similarity
@@ -282,7 +284,7 @@ def draft_annotations(F: dict, folder: str | Path,
                                  for o in objects):
                 c = int(_np.median(_np.asarray(F["centroid"], float)[sel]))
                 obj["name"] += f", centroid {c} Hz"
-        if tag and n_tagged < MAX_TAGGED:
+        if tag and n_tagged < budget:
             a, b, _ = max(spans, key=lambda r: r[1] - r[0])
             tags = tag((a + b) / 2)
             n_tagged += 1
@@ -311,7 +313,7 @@ def draft_annotations(F: dict, folder: str | Path,
             "el": round(float(F["el"][si]), 0),
             "diffuseness": round(float(F["diffuse"][si]), 2),
         }
-        if tag and n_tagged < MAX_TAGGED:
+        if tag and n_tagged < budget:
             tags = tag(te)
             n_tagged += 1
             if tags:

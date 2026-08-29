@@ -548,3 +548,24 @@ def test_split_beds_keep_distinct_names(tmp_path):
     doc = json.loads(out.read_text())
     names = [o["name"] for o in doc["objects"] if o["kind"] == "keynote"]
     assert len(set(names)) == len(names)
+
+
+def test_tag_budget_is_a_parameter(tmp_path):
+    calls = []
+
+    def stub_tagger(t_center):
+        calls.append(t_center)
+        return [{"label": "Stub", "p": 0.9}]
+
+    F = _many_regime_F()
+    draft_annotations(F, tmp_path, tagger=stub_tagger, max_tagged=5)
+    assert len(calls) == 5
+    calls.clear()
+    draft_annotations(F, tmp_path, tagger=stub_tagger, max_tagged=None)
+    # unlimited: every bed and every listed event window gets a tag
+    doc = json.loads((tmp_path / "annotations.draft.json").read_text())
+    ev = [o for o in doc["objects"] if o["name"].startswith("events")]
+    n_expected = sum(1 for o in doc["objects"] if o["kind"] == "keynote")
+    if ev:
+        n_expected += len(ev[0]["_hints"])
+    assert len(calls) == n_expected

@@ -64,6 +64,9 @@ def main(argv=None):
     dr.add_argument("-o", "--out", default=None,
                     help="analysis dir with cached features "
                          "(default <folder>/analysis)")
+    dr.add_argument("--max-tags", type=int, default=None, dest="max_tags",
+                    help="PANNs windows to tag (default 40; 0 disables, "
+                         "-1 tags every bed and listed event — slow on CPU)")
     dp = sub.add_parser("deposit",
                         help="export non-identifying 1 Hz feature TSVs "
                              "(StillStanding365 schema) to <folder>/deposit/")
@@ -994,7 +997,10 @@ def main(argv=None):
             sess = open_session(args.folder)
         except (FileNotFoundError, ValueError):
             sess = None
-        out = draft_annotations(F, args.folder, session=sess)
+        from .draft import MAX_TAGGED
+        mt = MAX_TAGGED if args.max_tags is None else (
+            None if args.max_tags < 0 else args.max_tags)
+        out = draft_annotations(F, args.folder, session=sess, max_tagged=mt)
         doc = json.loads(out.read_text())
         n_obj = len(doc["objects"])
         n_tag = sum(1 for o in doc["objects"] for h in o.get("_hints", [{}])

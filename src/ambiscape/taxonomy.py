@@ -512,6 +512,30 @@ def map_objects(ann: dict | None = None, F: dict | None = None,
         expanded = _expand_events(o)
         stats["n_hand"] += len(expanded)
         objs += expanded
+    # Detected events inherit the hand annotation that covers them: an
+    # event inside a named signal/soundmark/figure span plots in that
+    # object's colour and name instead of as an anonymous incidental
+    # figure. Keynote spans do not capture — a bed is not a source of
+    # figures, and painting every event over it keynote-blue would say
+    # the opposite of what the annotator meant.
+    stats["n_attributed"] = 0
+    named = [(parse_time(s[0]), parse_time(s[1]), o)
+             for o in (ann or {}).get("objects", [])
+             if not _is_auto(o) and o.get("spans")
+             and o.get("kind") in ("signal", "soundmark", "figure")
+             for s in o["spans"]]
+    if named:
+        for o in objs:
+            if not o.get("_object"):
+                continue
+            t0 = float(o["spans"][0][0])
+            for a, b, h in named:
+                if a <= t0 <= b:
+                    o["kind"] = h["kind"]
+                    o["name"] = f"{h['name']} — {o['name']}"
+                    o["_attributed"] = True
+                    stats["n_attributed"] += 1
+                    break
     stats["n_untyped"] += sum(1 for o in objs
                               if o.get("facture") not in FACTURES
                               or o.get("mass") not in MASSES)
@@ -721,6 +745,8 @@ def _census_line(stats: dict) -> str:
         bits.append(s)
     if stats.get("n_hand"):
         bits.append(f"{stats['n_hand']} hand-authored")
+    if stats.get("n_attributed"):
+        bits.append(f"{stats['n_attributed']} attributed to named spans")
     if stats.get("n_regime"):
         bits.append(f"{stats['n_regime']} keynote regime"
                     f"{'s' if stats['n_regime'] != 1 else ''} on the Schafer "
@@ -802,6 +828,21 @@ def schafer_timeline(ann: dict, out_path, title="", session=None,
                               activities=activities)
 
 
+def _timeline_style(o: dict) -> tuple:
+    """Fill, edge colour and edge width for a timeline bar.
+
+    The Schaeffer map already rings a soundmark-tagged object in magenta;
+    the timeline previously dropped the attribute on the floor, so a
+    ``kind: signal`` object with ``soundmark: community`` drew as a plain
+    signal. Same convention here: the kind keeps the fill, the soundmark
+    attribute earns a magenta edge.
+    """
+    fill = KIND_COLOR[o["kind"]]
+    if "soundmark" in o and o.get("kind") != "soundmark":
+        return fill, MAGENTA, 1.6
+    return fill, "none", 0
+
+
 def _acoustic_timeline(ann: dict, out_path, title="", session=None,
                        activities=None):
     """The acoustic-first lane timeline (see :func:`schafer_timeline`)."""
@@ -855,16 +896,17 @@ def _acoustic_timeline(ann: dict, out_path, title="", session=None,
                             color="#6b4a00")
             for o in objects:
                 y = Y(o["name"])
-                c = KIND_COLOR[o["kind"]]
+                c, edge, elw = _timeline_style(o)
                 for a, b in o.get("spans", []):
                     a, b = parse_time(a), parse_time(b)
                     a, b = max(a, t0), min(b, t1)
                     if a >= b:
                         continue
                     ax.add_patch(Rectangle((a, y - 0.2), max(b - a, (t1-t0)*0.004),
-                                           0.4, color=c,
+                                           0.4, facecolor=c,
                                            alpha=0.85 if o["kind"] == "keynote"
-                                           else 1.0, lw=0))
+                                           else 1.0,
+                                           edgecolor=edge, lw=elw))
                 ev = [parse_time(e) for e in o.get("events", [])]
                 ev = [e for e in ev if t0 <= e <= t1]
                 if ev:

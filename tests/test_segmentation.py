@@ -63,3 +63,29 @@ def test_boundaries_are_sorted_times_within_session():
     assert bounds == sorted(bounds)
     assert all(0 < b < 600 for b in bounds)
     assert len(bounds) >= 2
+
+
+def test_nonstationarity_flags_a_multi_regime_session():
+    F = _two_zone_features(600, change=200)
+    F["oct_pow"][400:] = F["oct_pow"][0] * 3.0
+    F["centroid"][400:] -= 1500.0
+    from ambiscape.segmentation import nonstationarity
+    r = nonstationarity(F)
+    assert r["nonstationary"] is True
+    assert r["n_regimes"] >= 3
+    assert "why" in r
+
+
+def test_nonstationarity_passes_a_stationary_session():
+    from ambiscape.segmentation import nonstationarity
+    r = nonstationarity(_flat_features(300))
+    assert r["nonstationary"] is False
+    assert r["n_regimes"] == 1
+
+
+def test_full_summary_carries_the_nonstationarity_block(bell_features):
+    from ambiscape import resolve
+    _sess, _out, F = bell_features
+    s = resolve.full_summary(F)
+    assert "nonstationarity" in s
+    assert set(s["nonstationarity"]) >= {"nonstationary", "n_regimes"}

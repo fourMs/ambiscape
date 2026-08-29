@@ -173,10 +173,25 @@ def write_readme(sess: Session, summary: dict, out_dir: Path,
                      f"{tk.duration/60:.1f} min |")
     lines += ["", _recording_note(sess),
               "", "## Descriptors", "", "| Descriptor | Value |", "|---|---|"]
+    soft = {e["key"]: e for e in summary.get("low_confidence", [])
+            if e.get("kind") == "soft"}
+    flagged = []
     for key, label in TABLE_ROWS:
         v = summary.get(key)
         if v is not None:
-            lines.append(f"| {label} | {v} |")
+            mark = " †" if key in soft else ""
+            lines.append(f"| {label} | {v}{mark} |")
+            if key in soft:
+                flagged.append((label, soft[key]))
+    if flagged:
+        lines.append("")
+        for label, e in flagged:
+            lines.append(f"† {label}: below its trusted window "
+                         f"(needed {e['needs_s']:.0f} s, had "
+                         f"{e['had_s']:.0f} s) — {e['why']}.")
+    ns = summary.get("nonstationarity") or {}
+    if ns.get("nonstationary"):
+        lines += ["", f"**Multi-regime session.** {ns.get('why', '')}"]
     if summary.get("floor_suspect"):
         lines += ["", _floor_warning(summary)]
     fig_lines = [ln for fname, ln in _FIGURES if (out_dir / fname).exists()]

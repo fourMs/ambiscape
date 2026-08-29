@@ -223,6 +223,7 @@ GROUNDINGS: dict[str, Grounding] = {g.key: g for g in [
 
 #: Keys that are not descriptors and need no tier.
 EXEMPT: set[str] = {"low_confidence", "grounding_cautions", "n_frames",
+                    "nonstationarity",
                     "fs", "path", "channels", "mode"}
 
 

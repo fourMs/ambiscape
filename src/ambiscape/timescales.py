@@ -251,6 +251,7 @@ WINDOWS: dict[str, Window] = {w.key: w for w in [
 #: what stops the registry rotting as descriptors are added.
 EXEMPT: dict[str, str] = {
     "duration_min": "the window itself",
+    "nonstationarity": "a diagnosis of the session's shape, not a descriptor; it exists to caveat the others at any length",
     "leq_dbfs": "an energy mean is defined at any length (its fragility is "
                 "a different problem, addressed by laeq_trim5_dbfs)",
     "laeq_dbfs": "as leq_dbfs",

@@ -76,3 +76,24 @@ def segment(F: dict, min_seg_s: float = MIN_SEG_S,
                           prominence=threshold_db / 2.0)
     return sorted(float(t[p]) for p in peaks
                   if (t[p] - t[0]) >= min_seg_s and (t[-1] - t[p]) >= min_seg_s)
+
+
+def nonstationarity(F: dict) -> dict:
+    """A diagnosis of the session's shape: one soundscape, or several?
+
+    Every session-level descriptor downstream assumes the statistics come
+    from one regime. This runs :func:`segment` and reports how many the
+    features actually hold, so a summary over a moving recorder — or a
+    room whose machines changed state — carries its own caveat instead of
+    a confident average over different places.
+    """
+    bounds = segment(F)
+    n = len(bounds) + 1
+    out = {"nonstationary": n >= 3, "n_regimes": n}
+    if out["nonstationary"]:
+        out["boundaries_s"] = [round(b, 1) for b in bounds]
+        out["why"] = (f"the features hold {n} distinct regimes; "
+                      "session-level descriptors average over them — "
+                      "for a walking recording run 'ambiscape walk', "
+                      "for machine states run 'ambiscape draft'")
+    return out

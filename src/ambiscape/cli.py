@@ -125,6 +125,15 @@ def main(argv=None):
                          "reach (default 4.0)")
     wk.add_argument("--min-zone", type=float, default=30.0, dest="min_zone",
                     help="shortest zone to report, s (default 30)")
+    wk.add_argument("--gps", default=None, metavar="TRACK.gpx",
+                    help="GPX track recorded during the walk: adds distance, "
+                         "speed and position per zone, and a route map")
+    wk.add_argument("--gps-offset", type=float, default=0.0,
+                    dest="gps_offset",
+                    help="seconds to add to session time before matching the "
+                         "track (for a recorder clock the track does not "
+                         "share; calibration.json clock_offset_s is applied "
+                         "to the session already)")
     for dom, desc in (
             ("mechanical", "engines/machinery/traffic: low-freq fraction, "
                            "rumble, envelope periodicity"),
@@ -1319,7 +1328,16 @@ def main(argv=None):
             return 1
         F = feats.load_features(sorted((out / "features").glob("*.npz")))
         from .walk import analyze_walk, write_walk
-        r = write_walk(F, args.folder, out)
+        track, epoch0 = None, 0.0
+        if args.gps:
+            import datetime as _dt
+            from .geo import load_gpx
+            from .io import open_session
+            track = load_gpx(args.gps)
+            day0 = open_session(args.folder).day0
+            midnight = _dt.datetime.combine(day0, _dt.time()).astimezone()
+            epoch0 = midnight.timestamp() + args.gps_offset
+        r = write_walk(F, args.folder, out, track=track, epoch0=epoch0)
         for i, z in enumerate(r["zones"], 1):
             print(f"  zone {i}: {z['t0']:.0f}-{z['t1']:.0f}s "
                   f"Leq {z['leq_dbfs']} dBFS, {z['regime']}, "

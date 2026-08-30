@@ -69,6 +69,44 @@ def cadence_track(F: dict, win_s: float = CADENCE_WIN_S,
             "salience": np.array(sal)}
 
 
+GATE_SALIENCE = 5.0        # zone gait salience above which gating engages
+STEP_HALO_S = 0.07         # masked around each detected footfall
+WIND_SCORE = 0.5           # per-second LF-fraction x diffuseness above: gust
+
+
+def step_mask(F: dict) -> np.ndarray:
+    """True at 8 Hz fast frames that carry the walker's own footfalls.
+
+    Envelope impulses (50 Hz layer) standing 6 dB over their 30 s local
+    mean, dilated by ``STEP_HALO_S``, mapped onto the fast-level clock.
+    The mask says where the steps are; whether they matter is the zone's
+    gait salience, which is why gating is decided per zone, not here.
+    """
+    from scipy.ndimage import binary_dilation, uniform_filter1d
+    env = np.asarray(F["env_hi"], float)
+    hi_dt = float(F["hi_dt"])
+    base = uniform_filter1d(env, max(1, int(30.0 / hi_dt)))
+    hits = env > 2.0 * base
+    hits = binary_dilation(hits, iterations=max(1, int(STEP_HALO_S / hi_dt)))
+    th = np.asarray(F["t_hi"], float)
+    tf = np.asarray(F["t_fast"], float)
+    return np.interp(tf, th, hits.astype(float)) > 0.3
+
+
+def wind_mask(F: dict) -> np.ndarray:
+    """True at 1 Hz seconds that read as wind on the capsules.
+
+    Wind is low, broadband and directionless: the per-second low-band
+    fraction (below ~200 Hz) times diffuseness, over ``WIND_SCORE``.
+    Shares geophony's caveat — HVAC rumble in a diffuse room scores too;
+    on an outdoor walk the reading is usually honest.
+    """
+    op = np.asarray(F["oct_pow"], float)
+    lf = op[:, :3].sum(1) / (op.sum(1) + 1e-20)
+    score = lf * np.asarray(F["diffuse"], float)
+    return score > WIND_SCORE
+
+
 def classify_regime(l10_l90_db: float, step_salience: float) -> str:
     """Which layer is the foreground in a zone.
 
@@ -86,7 +124,7 @@ def classify_regime(l10_l90_db: float, step_salience: float) -> str:
 
 
 def _zone_row(F: dict, ev_times: np.ndarray, tr: dict,
-              a: float, b: float) -> dict:
+              a: float, b: float, smask=None, wmask=None) -> dict:
     t = np.asarray(F["t"], float)
     sel = (t >= a) & (t < b)
     tf = np.asarray(F["t_fast"], float)
@@ -102,7 +140,7 @@ def _zone_row(F: dict, ev_times: np.ndarray, tr: dict,
     sal = float(np.median(tr["salience"][m])) if m.any() else np.nan
     n_ev = int(((ev_times >= a) & (ev_times < b)).sum())
     dur = b - a
-    return {
+    row = {
         "t0": float(a), "t1": float(b), "duration_s": round(dur, 1),
         "leq_dbfs": round(float(10 * np.log10(
             np.mean(10 ** (fast / 10)) + 1e-20)), 1) if fast.size else None,
@@ -120,6 +158,25 @@ def _zone_row(F: dict, ev_times: np.ndarray, tr: dict,
         "regime": classify_regime(float(l10 - l90),
                                   sal if sal == sal else 0.0),
     }
+    # self-noise: what the zone sounds like without the walker
+    wsec = (np.asarray(F["t"], float) >= a) & (np.asarray(F["t"], float) < b)
+    row["wind_time_fraction"] = (round(float(wmask[wsec].mean()), 2)
+                                 if wmask is not None and wsec.any() else None)
+    row["leq_gated_dbfs"] = None
+    row["step_time_fraction"] = None
+    if (smask is not None and fast.size
+            and sal == sal and sal > GATE_SALIENCE):
+        zmask = smask[self_]
+        if wmask is not None:
+            tfz = tf[self_]
+            zmask = zmask | (np.interp(tfz, np.asarray(F["t"], float),
+                                       wmask.astype(float)) > 0.5)
+        keep = fast[~zmask]
+        if keep.size:
+            row["leq_gated_dbfs"] = round(float(
+                10 * np.log10(np.mean(10 ** (keep / 10)) + 1e-20)), 1)
+            row["step_time_fraction"] = round(float(zmask.mean()), 2)
+    return row
 
 
 def analyze_walk(F: dict, min_seg_s: float = 30.0,
@@ -137,7 +194,9 @@ def analyze_walk(F: dict, min_seg_s: float = 30.0,
     events, _bg = detect_events(np.asarray(F["fast_db"], float), fd)
     tf = np.asarray(F["t_fast"], float)
     ev_times = np.array([tf[e["ipk"]] for e in events])
-    zones = [_zone_row(F, ev_times, tr, a, b)
+    smask = step_mask(F) if "env_hi" in F else None
+    wmask = wind_mask(F) if "oct_pow" in F else None
+    zones = [_zone_row(F, ev_times, tr, a, b, smask, wmask)
              for a, b in zip(edges[:-1], edges[1:])]
     return {"boundaries": bounds, "zones": zones, "cadence": tr}
 
@@ -183,36 +242,84 @@ def _route_profile(F: dict, r: dict, out_path: Path) -> None:
     plt.close(fig)
 
 
-_TSV_COLS = ("t0", "t1", "duration_s", "leq_dbfs", "l10_l90_db",
+_GEO_COLS = ("distance_m", "speed_ms", "lat", "lon")
+
+_TSV_COLS = ("t0", "t1", "duration_s", "leq_dbfs", "leq_gated_dbfs",
+             "step_time_fraction", "wind_time_fraction", "l10_l90_db",
              "lf_fraction", "mf_fraction", "hf_fraction", "flatness",
              "centroid_hz", "diffuseness", "events_per_min", "cadence_hz",
              "steps_per_min", "step_salience", "regime")
 
 
-def write_walk(F: dict, folder: str | Path, out_dir: str | Path) -> dict:
+def _route_map(track: dict, zones: list, epoch0: float,
+               out_path: Path) -> None:
+    """The walked route, coloured by zone index, one label per zone."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots(figsize=(7, 7))
+    cmap = plt.get_cmap("viridis", max(len(zones), 2))
+    tt, la, lo = track["t"], track["lat"], track["lon"]
+    for i, z in enumerate(zones):
+        a, b = z["t0"] + epoch0, z["t1"] + epoch0
+        ts = np.arange(max(a, tt[0]), min(b, tt[-1]), 1.0)
+        if len(ts) < 2:
+            continue
+        ax.plot(np.interp(ts, tt, lo), np.interp(ts, tt, la),
+                color=cmap(i), lw=2.5)
+        if z.get("lat") is not None:
+            ax.annotate(str(i + 1), (z["lon"], z["lat"]), fontsize=8,
+                        ha="center", va="center",
+                        bbox=dict(boxstyle="circle", fc="white",
+                                  ec=cmap(i), lw=1.2))
+    ax.set_xlabel("longitude")
+    ax.set_ylabel("latitude")
+    ax.set_aspect(1.0 / np.cos(np.radians(np.mean(la))))
+    ax.set_title("route, coloured by zone")
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=150)
+    plt.close(fig)
+
+
+def write_walk(F: dict, folder: str | Path, out_dir: str | Path,
+               track: dict | None = None, epoch0: float = 0.0) -> dict:
     """Run :func:`analyze_walk` and write its outputs beside the analysis.
 
     Writes ``walk_zones.tsv`` (one row per zone), ``walk.md`` (the zone
-    table with clock times and regimes), and ``route_profile.png``.
-    Returns the :func:`analyze_walk` result.
+    table with clock times and regimes), and ``route_profile.png``. With a
+    GPS ``track`` (:func:`ambiscape.geo.load_gpx`) and ``epoch0`` (the
+    epoch second matching session time zero), each zone also carries
+    distance, mean speed and midpoint position, and ``route_map.png`` is
+    drawn. Returns the :func:`analyze_walk` result.
     """
     out = Path(out_dir)
     r = analyze_walk(F)
-    with open(out / "walk_zones.tsv", "w") as fh:
-        fh.write("\t".join(_TSV_COLS) + "\n")
+    cols = _TSV_COLS
+    if track is not None:
+        from .geo import zone_geo
         for z in r["zones"]:
-            fh.write("\t".join(str(z[c]) for c in _TSV_COLS) + "\n")
+            z.update(zone_geo(track, z["t0"] + epoch0, z["t1"] + epoch0))
+        cols = _TSV_COLS + _GEO_COLS
+        _route_map(track, r["zones"], epoch0, out / "route_map.png")
+    with open(out / "walk_zones.tsv", "w") as fh:
+        fh.write("\t".join(cols) + "\n")
+        for z in r["zones"]:
+            fh.write("\t".join(str(z[c]) for c in cols) + "\n")
     lines = ["# Walk zones", "",
              f"{len(r['zones'])} zones from {len(r['boundaries'])} feature-"
              "novelty boundaries. Between-zone comparison within this walk "
              "and rig is the defensible use; session-level ecoacoustic "
              "indices are not reported for a moving recording.", "",
-             "| Zone | Clock | Leq | L10−L90 | Centroid | ψ | Ev/min "
-             "| Steps/min | Regime |", "|---|---|---|---|---|---|---|---|---|"]
+             "| Zone | Clock | Leq | Leq w/o self-noise | L10−L90 | Centroid "
+             "| ψ | Ev/min | Steps/min | Regime |",
+             "|---|---|---|---|---|---|---|---|---|---|"]
     for i, z in enumerate(r["zones"], 1):
         lines.append(
             f"| {i} | {_fmt_clock(z['t0'])}–{_fmt_clock(z['t1'])} "
-            f"| {z['leq_dbfs']} | {z['l10_l90_db']} | {z['centroid_hz']} "
+            f"| {z['leq_dbfs']} "
+            f"| {z['leq_gated_dbfs'] if z['leq_gated_dbfs'] is not None else '—'} "
+            f"| {z['l10_l90_db']} | {z['centroid_hz']} "
             f"| {z['diffuseness']} | {z['events_per_min']} "
             f"| {z['steps_per_min'] if z['steps_per_min'] else '—'} "
             f"| {z['regime']} |")

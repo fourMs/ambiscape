@@ -37,6 +37,7 @@ See [Spatial analysis](guide/spatial.md), [Spaced-microphone array](guide/array.
 |---|---|
 | `ambiscape rhythm <session>` | Strike-level rhythm of quasi-periodic pitched sources: periods, phase clusters, variation (*cache*). |
 | `ambiscape modspec <session>` | Multi-scale envelope modulation profile: micro, meso, and macro (*cache*). |
+| `ambiscape walk <session>` | Soundwalk mode: sub-soundscape zones, per-zone descriptors, step cadence, self-noise gating, optional GPS (*cache*). |
 | `ambiscape schedule <session>` | Match event streams against civic time grids—church clocks, sirens (*cache*). |
 | `ambiscape escapement <session>` | Tick-level regularity of clockwork: beat period, jitter versus wander, Allan deviation. |
 

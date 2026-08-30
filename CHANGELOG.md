@@ -14,7 +14,7 @@ been carrying feature work throughout a pre-1.0 life.
 > imports the functions that moved.
 
 
-## [Unreleased]
+## [0.47.0] — 2026-08-30
 
 ### Added
 - **GPS tracks in walk mode** (`ambiscape walk --gps track.gpx`,

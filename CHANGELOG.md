@@ -14,7 +14,7 @@ been carrying feature work throughout a pre-1.0 life.
 > imports the functions that moved.
 
 
-## [Unreleased]
+## [0.46.0] — 2026-08-30
 
 ### Added
 - **Walk mode** (`ambiscape walk`): segment-first analysis of a moving

@@ -120,6 +120,8 @@ def full_summary(F: dict, check_windows: bool = True) -> dict:
     s.update(anthrophony.summarize_anthrophony(F))
     s.update(geophony.summarize_geophony(F))
     s.update(iso.summarize_psycho(F))
+    from .segmentation import nonstationarity
+    s["nonstationarity"] = nonstationarity(F)
     if check_windows:
         s, low = timescales.check(s, float(len(F["t"])))
         if low:

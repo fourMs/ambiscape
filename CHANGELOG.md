@@ -14,6 +14,41 @@ been carrying feature work throughout a pre-1.0 life.
 > imports the functions that moved.
 
 
+## [Unreleased]
+
+### Added
+- **Walk mode** (`ambiscape walk`): segment-first analysis of a moving
+  recording. Sub-soundscape zones from multivariate change-point detection on
+  the cached 1 Hz features (`ambiscape.segmentation`, Foote novelty on
+  physical dB-like scales), each zone described as a short stationary session,
+  step cadence tracked from the 50 Hz envelope (rate as a walking-speed proxy,
+  salience as a self-noise measure), and a figure–ground regime per zone
+  (own-steps / external-events / bed-only / mixed). Writes `walk.md`,
+  `walk_zones.tsv` and `route_profile.png`. Grew out of the first soundwalk
+  analysed with the toolbox (Blindern campus, 2026-08-24); design notes in the
+  wiki's Soundwalk-Mode page.
+- **Non-stationarity diagnosis** in every summary: `full_summary` runs the
+  segmenter as a check and a multi-regime session's README now says so where
+  the averages are printed, pointing at walk mode or draft.
+- `ambiscape draft --max-tags` (0 disables, -1 unlimited): the PANNs tag
+  budget was a fixed 40 windows.
+
+### Changed
+- Draft keynote regimes split on spectrum, not level alone: same-level
+  spectral changes (gravel vs paved underfoot, a fan whose pitch moves)
+  now produce separate beds, disambiguated by a centroid suffix.
+- The Schaeffer map attributes detected events to covering hand-annotated
+  signal/soundmark/figure spans (kind, name and caption census) instead of
+  plotting them all as anonymous incidental figures; keynote beds do not
+  capture.
+- Soft low-confidence descriptors carry a dagger and footnote in the README
+  table, not only an entry in `summary.json`.
+
+### Fixed
+- The Schafer timeline now draws the magenta soundmark edge on objects of
+  other kinds carrying a `soundmark:` attribute, matching the map's ring.
+
+
 ## [0.45.0] — 2026-08-23
 
 ### Added

@@ -64,6 +64,9 @@ def main(argv=None):
     dr.add_argument("-o", "--out", default=None,
                     help="analysis dir with cached features "
                          "(default <folder>/analysis)")
+    dr.add_argument("--max-tags", type=int, default=None, dest="max_tags",
+                    help="PANNs windows to tag (default 40; 0 disables, "
+                         "-1 tags every bed and listed event — slow on CPU)")
     dp = sub.add_parser("deposit",
                         help="export non-identifying 1 Hz feature TSVs "
                              "(StillStanding365 schema) to <folder>/deposit/")
@@ -110,6 +113,18 @@ def main(argv=None):
                              "(needs a prior analyze run)")
     mo.add_argument("folder")
     mo.add_argument("-o", "--out", default=None)
+    wk = sub.add_parser("walk",
+                        help="soundwalk mode: segment a moving recording "
+                             "into sub-soundscape zones, describe each zone, "
+                             "track step cadence (needs a prior analyze run)")
+    wk.add_argument("folder")
+    wk.add_argument("-o", "--out", default=None)
+    wk.add_argument("--threshold-db", type=float, default=4.0,
+                    dest="threshold_db",
+                    help="feature-novelty contrast a zone boundary must "
+                         "reach (default 4.0)")
+    wk.add_argument("--min-zone", type=float, default=30.0, dest="min_zone",
+                    help="shortest zone to report, s (default 30)")
     for dom, desc in (
             ("mechanical", "engines/machinery/traffic: low-freq fraction, "
                            "rumble, envelope periodicity"),
@@ -982,7 +997,10 @@ def main(argv=None):
             sess = open_session(args.folder)
         except (FileNotFoundError, ValueError):
             sess = None
-        out = draft_annotations(F, args.folder, session=sess)
+        from .draft import MAX_TAGGED
+        mt = MAX_TAGGED if args.max_tags is None else (
+            None if args.max_tags < 0 else args.max_tags)
+        out = draft_annotations(F, args.folder, session=sess, max_tagged=mt)
         doc = json.loads(out.read_text())
         n_obj = len(doc["objects"])
         n_tag = sum(1 for o in doc["objects"] for h in o.get("_hints", [{}])
@@ -1291,6 +1309,22 @@ def main(argv=None):
                   f"{doc['inharmonicity_median']}, top pitch classes "
                   f"{', '.join(doc['top_pitch_classes'])}")
             print(f"wrote {out/'tonality.png'} and {out/'tonality.json'}")
+        return 0
+
+    if args.cmd == "walk":
+        from . import features as feats
+        out = Path(args.out) if args.out else Path(args.folder) / "analysis"
+        if not (out / "features").exists():
+            print(f"no cached features in {out} — run 'ambiscape analyze' first")
+            return 1
+        F = feats.load_features(sorted((out / "features").glob("*.npz")))
+        from .walk import analyze_walk, write_walk
+        r = write_walk(F, args.folder, out)
+        for i, z in enumerate(r["zones"], 1):
+            print(f"  zone {i}: {z['t0']:.0f}-{z['t1']:.0f}s "
+                  f"Leq {z['leq_dbfs']} dBFS, {z['regime']}, "
+                  f"{z['steps_per_min'] or '-'} steps/min")
+        print(f"wrote {out}/walk.md, walk_zones.tsv and route_profile.png")
         return 0
 
     if args.cmd == "anthropophony":

@@ -91,21 +91,62 @@ def _labels():
             yield "".join(letters)
 
 
-def _beds(regs: list) -> list:
+def _split_at(regs: list, bounds: list, tf, fast) -> list:
+    """Split (start, end, level) regimes at multivariate boundary times."""
+    import numpy as np
+    out = []
+    for a, b, lvl in regs:
+        cuts = [a] + [c for c in bounds if a + 1 < c < b - 1] + [b]
+        for c0, c1 in zip(cuts[:-1], cuts[1:]):
+            m = (tf >= c0) & (tf < c1)
+            out.append((float(c0), float(c1),
+                        float(np.median(fast[m])) if m.any() else lvl))
+    return out
+
+
+SPECTRAL_SPLIT_DB = 6.0   # dB-norm feature distance that separates beds
+
+
+def _signature(F, a: float, b: float):
+    """Mean segmentation-feature vector over [a, b] seconds, or None."""
+    import numpy as np
+    from .segmentation import feature_matrix
+    t = np.asarray(F["t"], float)
+    sel = (t >= a) & (t < b)
+    if not sel.any():
+        return None
+    return feature_matrix(F)[sel].mean(0)
+
+
+def _beds(regs: list, F: dict | None = None) -> list:
     """Cluster (start, end, level) regimes into keynote beds.
 
     Same rule as :func:`ambiscape.taxonomy.merge_keynote_beds`: sort by
     level, band greedily at ``BED_BAND_DB``, keep the ``MAX_BED_LANES``
     longest beds by total duration and pool the remainder into one "other"
     bed — so a 60-regime domestic day drafts as a handful of objects, not 60.
+    With ``F`` given, regimes in one level band whose spectral signatures
+    sit further than ``SPECTRAL_SPLIT_DB`` apart stay separate beds — same
+    level is not same soundscape.
     """
+    import numpy as np
     beds: list[dict] = []
     for a, b, lvl in sorted(regs, key=lambda r: r[2]):
+        sig = _signature(F, a, b) if F is not None else None
+        placed = False
         if beds and lvl - beds[-1]["lo"] <= BED_BAND_DB:
-            beds[-1]["regs"].append((a, b, lvl))
-            beds[-1]["hi"] = lvl
-        else:
-            beds.append({"lo": lvl, "hi": lvl, "regs": [(a, b, lvl)]})
+            candidates = [bd for bd in beds if lvl - bd["lo"] <= BED_BAND_DB]
+            for bd in candidates:
+                ref = bd.get("sig")
+                if sig is None or ref is None or (
+                        float(np.linalg.norm(sig - ref)) <= SPECTRAL_SPLIT_DB):
+                    bd["regs"].append((a, b, lvl))
+                    bd["hi"] = lvl
+                    placed = True
+                    break
+        if not placed:
+            beds.append({"lo": lvl, "hi": lvl, "regs": [(a, b, lvl)],
+                         "sig": sig})
     beds.sort(key=lambda bd: -sum(b - a for a, b, _ in bd["regs"]))
     keep, spill = beds[:MAX_BED_LANES], beds[MAX_BED_LANES:]
     if spill:
@@ -175,7 +216,8 @@ def schaeffer_hint(F: dict, a: float, b: float) -> dict:
 
 def draft_annotations(F: dict, folder: str | Path,
                       out_name="annotations.draft.json",
-                      session=None) -> Path:
+                      session=None, tagger=None,
+                      max_tagged: int | None = MAX_TAGGED) -> Path:
     """Draft an annotation file from the features, for a person to correct.
 
     It proposes the steady beds and the events it can find and names them where a tagger is
@@ -187,7 +229,8 @@ def draft_annotations(F: dict, folder: str | Path,
     tf, fast = F["t_fast"], F["fast_db"]
     dt = float(np.median(np.diff(tf))) if len(tf) > 1 else 0.125
     objects = []
-    tag = _tagger(session)
+    tag = tagger if tagger is not None else _tagger(session)
+    budget = float("inf") if max_tagged is None else max_tagged
     n_tagged = 0
 
     # --- steady-state keynote beds: regimes clustered by level similarity
@@ -195,7 +238,13 @@ def draft_annotations(F: dict, folder: str | Path,
     for i0, i1 in _gap_split(F["t"]):
         m = (tf >= F["t"][i0]) & (tf <= F["t"][i1 - 1] + 1)
         regs += _regimes(tf[m], fast[m], dt)
-    for bed in _beds(regs):
+    # A level-only regime split misses same-level spectral changes (a walk's
+    # gravel vs paved, a fan whose pitch moves without its level). With the
+    # spectral features cached, split regimes at multivariate boundaries too.
+    if "oct_pow" in F:
+        from .segmentation import segment
+        regs = _split_at(regs, segment(F), tf, fast)
+    for bed in _beds(regs, F if "oct_pow" in F else None):
         spans = sorted(bed["regs"])
         n = len(spans)
         med = float(np.median([lvl for _, _, lvl in spans]))
@@ -222,7 +271,20 @@ def draft_annotations(F: dict, folder: str | Path,
             obj["_schaeffer"] = {"flatness": round(float(np.median(flats)), 3),
                                  "level_band_db": [round(bed["lo"], 1),
                                                    round(bed["hi"], 1)]}
-        if tag and n_tagged < MAX_TAGGED:
+        # Two spectrally-split beds can share a level band and hence a
+        # bed_name; a centroid suffix keeps same-level-different-spectrum
+        # beds tellable apart in the draft.
+        if "centroid" in F:
+            import numpy as _np
+            tt = _np.asarray(F["t"], float)
+            sel = _np.zeros(len(tt), bool)
+            for a, b, _ in spans:
+                sel |= (tt >= a) & (tt < b)
+            if sel.any() and any(o["name"].startswith(obj["name"])
+                                 for o in objects):
+                c = int(_np.median(_np.asarray(F["centroid"], float)[sel]))
+                obj["name"] += f", centroid {c} Hz"
+        if tag and n_tagged < budget:
             a, b, _ = max(spans, key=lambda r: r[1] - r[0])
             tags = tag((a + b) / 2)
             n_tagged += 1
@@ -251,7 +313,7 @@ def draft_annotations(F: dict, folder: str | Path,
             "el": round(float(F["el"][si]), 0),
             "diffuseness": round(float(F["diffuse"][si]), 2),
         }
-        if tag and n_tagged < MAX_TAGGED:
+        if tag and n_tagged < budget:
             tags = tag(te)
             n_tagged += 1
             if tags:

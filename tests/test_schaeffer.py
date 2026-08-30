@@ -505,3 +505,67 @@ def test_render_map_from_features(tmp_path, object_features):
     out = tmp_path / "map.png"
     schaeffer_map(objs, out, title="synthetic", stats=stats)
     assert out.exists()
+
+
+def _same_level_two_spectra_F(nsec=600, change=300):
+    """Constant level, but the spectrum flips LF->HF halfway: a walk's
+    gravel-vs-paved case. Level-only regime detection sees one regime;
+    the draft must still propose two keynote beds."""
+    rng = np.random.default_rng(5)
+    dt = 0.5
+    tf = np.arange(0.0, nsec, dt)
+    fast = np.full(len(tf), -45.0) + rng.normal(0, 0.5, len(tf))
+    t = np.arange(0.0, nsec, 1.0)
+    n = len(t)
+    lf = 10.0 ** np.array([-3, -3, -3.5, -4, -4.5, -5, -5.5, -6, -6.5, -7])
+    op = np.tile(lf, (n, 1)) * rng.lognormal(0, 0.05, (n, 10))
+    op[change:] = lf[::-1] * op[change:].sum(1, keepdims=True) / lf.sum()
+    return {"t_fast": tf, "fast_db": fast, "t": t,
+            "oct_pow": op.astype(np.float32),
+            "centroid": np.where(t < change, 300.0, 2300.0),
+            "flatness": np.full(n, 0.3), "rms_w": np.full(n, 0.05),
+            "az": np.zeros(n), "el": np.zeros(n),
+            "diffuse": np.where(t < change, 0.3, 0.7)}
+
+
+def test_draft_splits_same_level_spectral_regimes(tmp_path):
+    out = draft_annotations(_same_level_two_spectra_F(), tmp_path)
+    doc = json.loads(out.read_text())
+    keynotes = [o for o in doc["objects"] if o["kind"] == "keynote"]
+    assert len(keynotes) >= 2
+    # the seam must sit near the spectral change, not at the session edges
+    starts = sorted(_parse(s[0]) for o in keynotes for s in o["spans"])
+    assert any(abs(s - 300.0) < 40.0 for s in starts)
+
+
+def _parse(hms: str) -> float:
+    h, m, s = hms.split(" ")[-1].split(":")
+    return int(h) * 3600 + int(m) * 60 + int(s)
+
+
+def test_split_beds_keep_distinct_names(tmp_path):
+    out = draft_annotations(_same_level_two_spectra_F(), tmp_path)
+    doc = json.loads(out.read_text())
+    names = [o["name"] for o in doc["objects"] if o["kind"] == "keynote"]
+    assert len(set(names)) == len(names)
+
+
+def test_tag_budget_is_a_parameter(tmp_path):
+    calls = []
+
+    def stub_tagger(t_center):
+        calls.append(t_center)
+        return [{"label": "Stub", "p": 0.9}]
+
+    F = _many_regime_F()
+    draft_annotations(F, tmp_path, tagger=stub_tagger, max_tagged=5)
+    assert len(calls) == 5
+    calls.clear()
+    draft_annotations(F, tmp_path, tagger=stub_tagger, max_tagged=None)
+    # unlimited: every bed and every listed event window gets a tag
+    doc = json.loads((tmp_path / "annotations.draft.json").read_text())
+    ev = [o for o in doc["objects"] if o["name"].startswith("events")]
+    n_expected = sum(1 for o in doc["objects"] if o["kind"] == "keynote")
+    if ev:
+        n_expected += len(ev[0]["_hints"])
+    assert len(calls) == n_expected

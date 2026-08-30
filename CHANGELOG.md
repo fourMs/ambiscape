@@ -14,6 +14,21 @@ been carrying feature work throughout a pre-1.0 life.
 > imports the functions that moved.
 
 
+## [Unreleased]
+
+### Added
+- **GPS tracks in walk mode** (`ambiscape walk --gps track.gpx`,
+  `--gps-offset`): GPX parsed with the standard library, each zone gains
+  distance, mean speed and midpoint position (an independent cross-check on
+  the acoustic step cadence), plus a `route_map.png` coloured by zone.
+- **Self-noise gating in walk mode**: footfalls detected as envelope
+  impulses and dilated into a mask, wind as per-second low-band×diffuseness
+  gusts; zones with clear gait report `leq_gated_dbfs` (what the place
+  sounds like without the walker), `step_time_fraction` and
+  `wind_time_fraction`. On the Blindern reference walk the walkers were
+  2–4 dB of their own quiet zones.
+
+
 ## [0.46.0] — 2026-08-30
 
 ### Added

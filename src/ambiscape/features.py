@@ -18,6 +18,11 @@ for stereo, or the lone channel for mono. Direction depends on the mode:
   elevation), and "diffuseness" is one minus the inter-channel coherence (a
   point source at the centre reads coherent/near-zero, a decorrelated
   ambient field reads diffuse/near-one). Elevation is undefined (NaN).
+- **binaural** (2 ch, declared): HRTF ear signals. The level balance is
+  head colouring rather than direction, so azimuth comes from the
+  interaural time difference (GCC-PHAT over the DOA band, Woodworth-limited
+  to +-90 deg, + = left) and diffuseness from delay-compensated interaural
+  coherence. No elevation or front/back; no intensity vector.
 - **mono** (1 ch): no direction at all — azimuth, elevation, diffuseness
   and the intensity vector are NaN.
 """
@@ -35,6 +40,7 @@ NFFT = 8192
 HOP = 4800  # 0.1 s at 48 kHz
 OCT_CENTERS = (31.5, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000)
 DOA_BAND = (80.0, 3000.0)
+ITD_MAX_S = 0.00066  # Woodworth max interaural delay, a(pi/2+1)/c for a=8.75 cm
 LOGF_RANGE = (25.0, 20000.0)
 N_LOGBANDS = 96
 FAST = 0.125  # fast level window (s)
@@ -93,13 +99,13 @@ def extract_take(take: Take, verbose: bool = False) -> dict:
         "diffuse": np.zeros(nsec, np.float32),
     }
     mode = getattr(take, "mode", "ambix")
-    if mode != "ambix":                 # direction is partial (stereo) or absent
+    if mode != "ambix":                 # direction is partial (2ch) or absent
         F["el"][:] = np.nan
-        if mode in ("mono", "binaural"):  # no valid DOA (binaural L/R = HRTF)
+        if mode == "mono":               # single channel: no direction at all
             F["az"][:] = np.nan
             F["diffuse"][:] = np.nan
             F["I_band"][:] = np.nan
-        else:                            # stereo: lateral az + coherence only
+        else:                            # stereo: balance az; binaural: ITD az
             F["I_band"][:] = np.nan
     nmin = -(-nsec // 60) if nsec else 0
     minspec = np.zeros((nmin, len(freqs)), np.float64)
@@ -163,7 +169,7 @@ def extract_take(take: Take, verbose: bool = False) -> dict:
                     IZ = (Wf.conj() * Zf).real / wsum2
                     Ev = (Xf.real ** 2 + Xf.imag ** 2 + Yf.real ** 2
                           + Yf.imag ** 2 + Zf.real ** 2 + Zf.imag ** 2) / wsum2
-                elif mode == "stereo":
+                elif mode in ("stereo", "binaural"):
                     Lf = np.fft.rfft(data[:, 0][idx] * win)
                     Rf = np.fft.rfft(data[:, 1][idx] * win)
                     PL = (Lf.real ** 2 + Lf.imag ** 2) / wsum2
@@ -213,6 +219,29 @@ def extract_take(take: Take, verbose: bool = False) -> dict:
                     for b, bi in enumerate(oct_idx):
                         F["I_band"][g, b] = (0.0, float(pl[bi].sum()
                                                         - pr[bi].sum()), 0.0)
+                elif mode == "binaural":
+                    # HRTF ear signals: level balance is head colouring, not
+                    # direction, so azimuth comes from the interaural time
+                    # difference instead (GCC-PHAT over the DOA band), and
+                    # diffuseness from interaural coherence with the delay
+                    # compensated -- magnitude coherence is invariant to
+                    # per-channel linear filtering, so it survives the HRTF.
+                    pl, pr = PL[sel].mean(0), PR[sel].mean(0)
+                    clr = CLR[sel].mean(0)
+                    sL, sR = float(pl[doa_mask].sum()), float(pr[doa_mask].sum())
+                    phat = np.zeros_like(clr)
+                    phat[doa_mask] = clr[doa_mask] / (np.abs(clr[doa_mask]) + eps)
+                    r = np.fft.irfft(phat, nfft)
+                    max_lag = max(1, int(round(ITD_MAX_S * fs)))
+                    cand = np.concatenate([r[:max_lag + 1], r[-max_lag:]])
+                    lag = int(np.argmax(cand))
+                    lag = lag if lag <= max_lag else lag - (2 * max_lag + 1)
+                    tau = lag / fs                     # + = right lags = left
+                    F["az"][g] = float(np.degrees(np.arcsin(
+                        np.clip(tau / ITD_MAX_S, -1.0, 1.0))))
+                    comp = clr * np.exp(2j * np.pi * freqs * tau)
+                    coh = abs(comp[doa_mask].sum()) / (np.sqrt(sL * sR) + eps)
+                    F["diffuse"][g] = 1.0 - min(1.0, float(coh))
                 minspec[g // 60] += pw
                 mincnt[g // 60] += 1
 

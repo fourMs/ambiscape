@@ -66,6 +66,13 @@ def _recording_note(sess: Session) -> str:
                 "energy balance (±90°, + = left, 0 = centre) and diffuseness "
                 "is inter-channel decorrelation (0 = coherent point source, "
                 "1 = decorrelated/enveloping) — no elevation or front/back.")
+    if mode == "binaural":
+        return ("2-channel binaural (HRTF ear signals). Levels are "
+                "uncalibrated dBFS. Azimuth is a lateral cue from the "
+                "interaural time difference (±90°, + = left) and diffuseness "
+                "is delay-compensated interaural decorrelation — level "
+                "differences between the ears are treated as head colouring, "
+                "not direction; no elevation or front/back.")
     if mode == "mono":
         return ("1-channel mono. Levels are uncalibrated dBFS; no directional "
                 "information.")

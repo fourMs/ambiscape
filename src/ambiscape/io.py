@@ -8,7 +8,8 @@ timeline (seconds since the session's first midnight).
 Inputs need not be four-channel AmbiX. A file's channel count picks a
 processing *mode*: ``ambix`` (>= 4 ch, first-order B-format, full 3-D
 direction), ``stereo`` (2 ch, a lateral left/right cue and a coherence-based
-width), or ``mono`` (1 ch, no direction). Containers libsndfile cannot open
+width), ``binaural`` (2 ch declared via ``calibration.json``, an ITD-based
+lateral cue and interaural coherence), or ``mono`` (1 ch, no direction). Containers libsndfile cannot open
 (a phone's AAC ``.m4a``, say) are transcoded to WAV with ffmpeg on ingest,
 and a recording's start time is taken from its BWF timestamp if present, else
 a ``YYMMDD_HHMMSS`` / ``YYYYMMDD_HHMMSS`` stamp in the filename, else the

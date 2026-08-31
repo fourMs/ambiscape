@@ -87,8 +87,8 @@ def test_binaural_mode_via_calibration(tmp_path, n):
     assert str(F["mode"]) == "binaural"
     s = full_summary(F)
     assert np.isfinite(s["leq_dbfs"])                 # levels from the L/R mean
-    assert s["directional_entropy"] is None           # HRTF ears -> no DOA
-    assert s["above_horizon_fraction"] is None
+    assert s["directional_entropy"] is not None       # ITD gives a lateral az
+    assert s["above_horizon_fraction"] is None        # but still no elevation
 
 
 def test_open_recording_binaural_override(tmp_path, n):

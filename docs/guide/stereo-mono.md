@@ -13,6 +13,7 @@ lone channel for mono).
 |---|---|---|---|---|
 | ambix | ≥ 4 | full 360° (pseudo-intensity) | yes | 1 − intensity/energy |
 | stereo | 2 | **lateral only**, ±90° balance | — | 1 − inter-channel coherence |
+| binaural | 2 (declared) | **lateral only**, ±90° from ITD (GCC-PHAT) | — | 1 − delay-compensated interaural coherence |
 | mono | 1 | — | — | — |
 
 ## What stereo direction means

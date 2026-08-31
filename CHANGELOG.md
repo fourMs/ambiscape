@@ -14,6 +14,24 @@ been carrying feature work throughout a pre-1.0 life.
 > imports the functions that moved.
 
 
+## [0.48.0] — 2026-08-31
+
+### Added
+- **Binaural spatial path**: declared 2-channel ear signals (`"mode":
+  "binaural"`) now yield a lateral azimuth from the interaural time
+  difference (GCC-PHAT over the DOA band, Woodworth-limited to ±90°,
+  + = left) and a diffuseness from delay-compensated interaural magnitude
+  coherence, which is invariant to per-channel linear filtering and
+  therefore survives the HRTF. Level differences between the ears are
+  treated as head colouring, never direction; elevation and the intensity
+  vector remain undefined. Motivated by a three-recorder soundwalk
+  comparison where the binaural decode was the best-sounding and least
+  analysable file of the trio.
+
+### Fixed
+- The session README recording note fell through to the AmbiX text for
+  binaural sessions; it now describes the binaural cues.
+
 ## [0.47.0] — 2026-08-30
 
 ### Added

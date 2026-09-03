@@ -1319,6 +1319,106 @@ def decay_time(x: np.ndarray, fs: int, bands=((250, 500), (500, 1000),
     return out
 
 
+def transient_candidates(x: np.ndarray, fs: int, n_max: int = 60, min_rise_db: float = 12.0,
+                         pre_s: float = 0.5, min_gap_s: float = 2.0) -> list[float]:
+    """Times of the sharpest level rises in a recording, for blind decay estimation.
+
+    A transient counts when the 10 ms RMS level exceeds the median level of the preceding
+    ``pre_s`` seconds by ``min_rise_db``; the strongest are kept, at least ``min_gap_s``
+    apart, so one applause does not supply every candidate.
+
+    Args:
+        x: Mono samples.
+        fs (int): Sample rate.
+        n_max (int): Most candidates to return. Defaults to 60.
+        min_rise_db (float): Rise over the preceding level that counts. Defaults to 12 dB.
+        pre_s (float): Length of the preceding window. Defaults to 0.5 s.
+        min_gap_s (float): Minimum spacing between candidates. Defaults to 2 s.
+
+    Returns:
+        list: Candidate times in seconds, strongest first.
+    """
+    hop = max(int(fs * 0.01), 1)
+    n = (len(x) - hop) // hop
+    if n < 10:
+        return []
+    frames = np.lib.stride_tricks.as_strided(x, shape=(n, hop), strides=(x.strides[0] * hop, x.strides[0]))
+    lvl = 20 * np.log10(np.sqrt((frames.astype(float) ** 2).mean(1)) + 1e-9)
+    w = max(int(pre_s / 0.01), 2)
+    pre = np.full(n, np.nan)
+    for i in range(w, n):
+        pre[i] = np.median(lvl[i - w:i])
+    rise = lvl - pre
+    order = np.argsort(np.nan_to_num(rise, nan=-1e9))[::-1]
+    picks: list[float] = []
+    dur = len(x) / fs
+    for i in order:
+        t = i * hop / fs
+        if not np.isfinite(rise[i]) or rise[i] < min_rise_db or t < pre_s + 0.5 or t > dur - 2.0:
+            continue
+        if all(abs(t - p) > min_gap_s for p in picks):
+            picks.append(float(t))
+        if len(picks) >= n_max:
+            break
+    return picks
+
+
+def decay_from_transients(x: np.ndarray, fs: int, bands=((250, 500), (500, 1000), (1000, 2000),
+                          (2000, 4000), (4000, 8000)), n_max: int = 60, min_rise_db: float = 12.0,
+                          pre_s: float = 0.5, excerpt_s: float = 2.0) -> dict:
+    """Blind reverberation estimates from the transients in an ordinary recording.
+
+    :func:`decay_time` wants an impulse. A concert or a session has no impulse but hundreds of
+    sharp onsets, each followed by a decay that is the room's until the next sound arrives.
+    This picks the sharpest of them (:func:`transient_candidates`), runs :func:`decay_time` on
+    an excerpt around each, and reports the per-band distribution. The result is a *coarse*
+    estimate: a decay can only be read where the music stops after the transient, so dense,
+    continuous material biases it upward, and the interquartile range says how much to trust
+    the median. It is the honest number when no measured impulse response exists; measure one
+    (`ambiscape sweep` and `ambiscape impulse`) when you can.
+
+    Args:
+        x: Mono samples.
+        fs (int): Sample rate.
+        bands: Octave bands as (lo, hi) pairs.
+        n_max (int): Transients examined. Defaults to 60.
+        min_rise_db (float): Rise that counts as a transient. Defaults to 12 dB.
+        pre_s (float): Pre-roll before each transient in the excerpt. Defaults to 0.5 s.
+        excerpt_s (float): Excerpt length. Defaults to 2 s.
+
+    Returns:
+        dict: ``candidates`` (times), ``estimates`` (list of ``{"t", "band", "T60", "dr_db"}``),
+        ``T60_median`` and ``T60_iqr`` per band, ``n`` per band, and ``T60_mid`` (median over the
+        500–2000 Hz bands) with ``n_mid``. Empty lists and NaNs when nothing qualifies.
+    """
+    cands = transient_candidates(x, fs, n_max=n_max, min_rise_db=min_rise_db, pre_s=pre_s)
+    est = []
+    for t in cands:
+        a = int((t - pre_s) * fs)
+        seg = x[a:a + int(excerpt_s * fs)]
+        if len(seg) < int(excerpt_s * fs) * 0.9:
+            continue
+        try:
+            d = decay_time(seg, fs, bands=bands)
+        except Exception:
+            continue
+        for band, (t60, dr) in d.items():
+            est.append({"t": t, "band": band, "T60": float(t60), "dr_db": float(dr)})
+    out: dict = {"candidates": cands, "estimates": est, "T60_median": {}, "T60_iqr": {}, "n": {}}
+    mids = []
+    for lo, hi in bands:
+        key = f"{lo}-{hi}"
+        v = np.array([e["T60"] for e in est if e["band"] == key])
+        out["n"][key] = int(len(v))
+        out["T60_median"][key] = float(np.median(v)) if len(v) else float("nan")
+        out["T60_iqr"][key] = float(np.percentile(v, 75) - np.percentile(v, 25)) if len(v) > 1 else float("nan")
+        if key in ("500-1000", "1000-2000"):
+            mids.extend(v.tolist())
+    out["T60_mid"] = float(np.median(mids)) if mids else float("nan")
+    out["n_mid"] = len(mids)
+    return out
+
+
 def pick_segments(F: dict, n=4, seg_s=600.0) -> list[dict]:
     """Suggest representative windows: quietest, most active, median-typical,
     and (if present) the strongest state transition.

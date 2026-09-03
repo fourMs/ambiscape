@@ -14,6 +14,16 @@ been carrying feature work throughout a pre-1.0 life.
 > imports the functions that moved.
 
 
+## [0.49.0] — 2026-09-03
+
+### Added
+- `analysis.decay_from_transients` and `analysis.transient_candidates`: blind reverberation
+  estimates from the sharpest onsets in an ordinary recording, each run through `decay_time` on
+  a 2 s excerpt, reported as per-band medians with interquartile ranges and a mid-band summary.
+  For the rooms one records in without an impulse response — a concert stage heard from a
+  painter's head-worn microphone, a session hall — and labelled as coarse, since continuous
+  material biases the decays upward. Measure a sweep when you can.
+
 ## [0.48.0] — 2026-08-31
 
 ### Added

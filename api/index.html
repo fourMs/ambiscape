@@ -2561,6 +2561,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#ambiscape.analysis.transient_candidates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        transient_candidates
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.analysis.decay_from_transients" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        decay_from_transients
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#ambiscape.analysis.pick_segments" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -6671,6 +6693,28 @@
     <span class="md-ellipsis">
       
         decay_time
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.analysis.transient_candidates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        transient_candidates
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ambiscape.analysis.decay_from_transients" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        decay_from_transients
       
     </span>
   </a>
@@ -15474,22 +15518,152 @@ Returns {band: (T60, dynamic_range_db)}.</p>
 <div class="doc doc-object doc-function">
 
 
-<h2 id="ambiscape.analysis.pick_segments" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">pick_segments</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">seg_s</span><span class="o">=</span><span class="mf">600.0</span><span class="p">)</span></code>
+<h2 id="ambiscape.analysis.transient_candidates" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">transient_candidates</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">n_max</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">min_rise_db</span><span class="o">=</span><span class="mf">12.0</span><span class="p">,</span> <span class="n">pre_s</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">min_gap_s</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span></code>
 
 </h2>
 
 
     <div class="doc doc-contents ">
 
-        <p>Suggest representative windows: quietest, most active, median-typical,
-and (if present) the strongest state transition.</p>
-<p>Kinds can coincide: a session barely longer than one window has only
-one window to offer, and a stationary room has no most-active minute
-to distinguish from its quietest one. Coincident kinds are returned
-once, the window keeping the first kind's name and listing the others
-under <code>also</code> — so the degeneracy is visible rather than presented as
-several identical "representative" segments.</p>
+        <p>Times of the sharpest level rises in a recording, for blind decay estimation.</p>
+<p>A transient counts when the 10 ms RMS level exceeds the median level of the preceding
+<code>pre_s</code> seconds by <code>min_rise_db</code>; the strongest are kept, at least <code>min_gap_s</code>
+apart, so one applause does not supply every candidate.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>x</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Mono samples.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>fs</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Sample rate.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>n_max</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Most candidates to return. Defaults to 60.</p>
+              </div>
+            </td>
+            <td>
+                  <code>60</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>min_rise_db</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Rise over the preceding level that counts. Defaults to 12 dB.</p>
+              </div>
+            </td>
+            <td>
+                  <code>12.0</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>pre_s</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Length of the preceding window. Defaults to 0.5 s.</p>
+              </div>
+            </td>
+            <td>
+                  <code>0.5</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>min_gap_s</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Minimum spacing between candidates. Defaults to 2 s.</p>
+              </div>
+            </td>
+            <td>
+                  <code>2.0</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+<th>Name</th>          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+<td><code>list</code></td>            <td>
+                  <code><span title="list">list</span>[<span title="float">float</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Candidate times in seconds, strongest first.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
 
             <details class="mkdocstrings-source">
@@ -15529,7 +15703,425 @@ several identical "representative" segments.</p>
 <span class="normal">1354</span>
 <span class="normal">1355</span>
 <span class="normal">1356</span>
-<span class="normal">1357</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pick_segments</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">seg_s</span><span class="o">=</span><span class="mf">600.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="normal">1357</span>
+<span class="normal">1358</span>
+<span class="normal">1359</span>
+<span class="normal">1360</span>
+<span class="normal">1361</span>
+<span class="normal">1362</span>
+<span class="normal">1363</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">transient_candidates</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n_max</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span> <span class="n">min_rise_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">12.0</span><span class="p">,</span>
+                         <span class="n">pre_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">min_gap_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Times of the sharpest level rises in a recording, for blind decay estimation.</span>
+
+<span class="sd">    A transient counts when the 10 ms RMS level exceeds the median level of the preceding</span>
+<span class="sd">    ``pre_s`` seconds by ``min_rise_db``; the strongest are kept, at least ``min_gap_s``</span>
+<span class="sd">    apart, so one applause does not supply every candidate.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x: Mono samples.</span>
+<span class="sd">        fs (int): Sample rate.</span>
+<span class="sd">        n_max (int): Most candidates to return. Defaults to 60.</span>
+<span class="sd">        min_rise_db (float): Rise over the preceding level that counts. Defaults to 12 dB.</span>
+<span class="sd">        pre_s (float): Length of the preceding window. Defaults to 0.5 s.</span>
+<span class="sd">        min_gap_s (float): Minimum spacing between candidates. Defaults to 2 s.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list: Candidate times in seconds, strongest first.</span>
+<span class="sd">    """</span>
+    <span class="n">hop</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">fs</span> <span class="o">*</span> <span class="mf">0.01</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="n">hop</span><span class="p">)</span> <span class="o">//</span> <span class="n">hop</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">frames</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">lib</span><span class="o">.</span><span class="n">stride_tricks</span><span class="o">.</span><span class="n">as_strided</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">hop</span><span class="p">),</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strides</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">hop</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">strides</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">lvl</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">frames</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="mf">1e-9</span><span class="p">)</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">pre_s</span> <span class="o">/</span> <span class="mf">0.01</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">pre</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="n">pre</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">lvl</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="n">w</span><span class="p">:</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">rise</span> <span class="o">=</span> <span class="n">lvl</span> <span class="o">-</span> <span class="n">pre</span>
+    <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">rise</span><span class="p">,</span> <span class="n">nan</span><span class="o">=-</span><span class="mf">1e9</span><span class="p">))[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">picks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">dur</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="n">fs</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">order</span><span class="p">:</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="n">hop</span> <span class="o">/</span> <span class="n">fs</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">rise</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="ow">or</span> <span class="n">rise</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">min_rise_db</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="n">pre_s</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">&gt;</span> <span class="n">dur</span> <span class="o">-</span> <span class="mf">2.0</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="n">p</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">min_gap_s</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">picks</span><span class="p">):</span>
+            <span class="n">picks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">picks</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">n_max</span><span class="p">:</span>
+            <span class="k">break</span>
+    <span class="k">return</span> <span class="n">picks</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ambiscape.analysis.decay_from_transients" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">decay_from_transients</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">bands</span><span class="o">=</span><span class="p">((</span><span class="mi">250</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span> <span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span> <span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">),</span> <span class="p">(</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">),</span> <span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="mi">8000</span><span class="p">)),</span> <span class="n">n_max</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">min_rise_db</span><span class="o">=</span><span class="mf">12.0</span><span class="p">,</span> <span class="n">pre_s</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">excerpt_s</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Blind reverberation estimates from the transients in an ordinary recording.</p>
+<p>:func:<code>decay_time</code> wants an impulse. A concert or a session has no impulse but hundreds of
+sharp onsets, each followed by a decay that is the room's until the next sound arrives.
+This picks the sharpest of them (:func:<code>transient_candidates</code>), runs :func:<code>decay_time</code> on
+an excerpt around each, and reports the per-band distribution. The result is a <em>coarse</em>
+estimate: a decay can only be read where the music stops after the transient, so dense,
+continuous material biases it upward, and the interquartile range says how much to trust
+the median. It is the honest number when no measured impulse response exists; measure one
+(<code>ambiscape sweep</code> and <code>ambiscape impulse</code>) when you can.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>x</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Mono samples.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>fs</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Sample rate.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>bands</code>
+            </td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Octave bands as (lo, hi) pairs.</p>
+              </div>
+            </td>
+            <td>
+                  <code>((250, 500), (500, 1000), (1000, 2000), (2000, 4000), (4000, 8000))</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>n_max</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Transients examined. Defaults to 60.</p>
+              </div>
+            </td>
+            <td>
+                  <code>60</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>min_rise_db</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Rise that counts as a transient. Defaults to 12 dB.</p>
+              </div>
+            </td>
+            <td>
+                  <code>12.0</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>pre_s</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Pre-roll before each transient in the excerpt. Defaults to 0.5 s.</p>
+              </div>
+            </td>
+            <td>
+                  <code>0.5</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>excerpt_s</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Excerpt length. Defaults to 2 s.</p>
+              </div>
+            </td>
+            <td>
+                  <code>2.0</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+<th>Name</th>          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+<td><code>dict</code></td>            <td>
+                  <code><span title="dict">dict</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p><code>candidates</code> (times), <code>estimates</code> (list of <code>{"t", "band", "T60", "dr_db"}</code>),</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+<td></td>            <td>
+                  <code><span title="dict">dict</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p><code>T60_median</code> and <code>T60_iqr</code> per band, <code>n</code> per band, and <code>T60_mid</code> (median over the</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+<td></td>            <td>
+                  <code><span title="dict">dict</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>500–2000 Hz bands) with <code>n_mid</code>. Empty lists and NaNs when nothing qualifies.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1366</span>
+<span class="normal">1367</span>
+<span class="normal">1368</span>
+<span class="normal">1369</span>
+<span class="normal">1370</span>
+<span class="normal">1371</span>
+<span class="normal">1372</span>
+<span class="normal">1373</span>
+<span class="normal">1374</span>
+<span class="normal">1375</span>
+<span class="normal">1376</span>
+<span class="normal">1377</span>
+<span class="normal">1378</span>
+<span class="normal">1379</span>
+<span class="normal">1380</span>
+<span class="normal">1381</span>
+<span class="normal">1382</span>
+<span class="normal">1383</span>
+<span class="normal">1384</span>
+<span class="normal">1385</span>
+<span class="normal">1386</span>
+<span class="normal">1387</span>
+<span class="normal">1388</span>
+<span class="normal">1389</span>
+<span class="normal">1390</span>
+<span class="normal">1391</span>
+<span class="normal">1392</span>
+<span class="normal">1393</span>
+<span class="normal">1394</span>
+<span class="normal">1395</span>
+<span class="normal">1396</span>
+<span class="normal">1397</span>
+<span class="normal">1398</span>
+<span class="normal">1399</span>
+<span class="normal">1400</span>
+<span class="normal">1401</span>
+<span class="normal">1402</span>
+<span class="normal">1403</span>
+<span class="normal">1404</span>
+<span class="normal">1405</span>
+<span class="normal">1406</span>
+<span class="normal">1407</span>
+<span class="normal">1408</span>
+<span class="normal">1409</span>
+<span class="normal">1410</span>
+<span class="normal">1411</span>
+<span class="normal">1412</span>
+<span class="normal">1413</span>
+<span class="normal">1414</span>
+<span class="normal">1415</span>
+<span class="normal">1416</span>
+<span class="normal">1417</span>
+<span class="normal">1418</span>
+<span class="normal">1419</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">decay_from_transients</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bands</span><span class="o">=</span><span class="p">((</span><span class="mi">250</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span> <span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span> <span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">),</span>
+                          <span class="p">(</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">),</span> <span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="mi">8000</span><span class="p">)),</span> <span class="n">n_max</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span> <span class="n">min_rise_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">12.0</span><span class="p">,</span>
+                          <span class="n">pre_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">excerpt_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Blind reverberation estimates from the transients in an ordinary recording.</span>
+
+<span class="sd">    :func:`decay_time` wants an impulse. A concert or a session has no impulse but hundreds of</span>
+<span class="sd">    sharp onsets, each followed by a decay that is the room's until the next sound arrives.</span>
+<span class="sd">    This picks the sharpest of them (:func:`transient_candidates`), runs :func:`decay_time` on</span>
+<span class="sd">    an excerpt around each, and reports the per-band distribution. The result is a *coarse*</span>
+<span class="sd">    estimate: a decay can only be read where the music stops after the transient, so dense,</span>
+<span class="sd">    continuous material biases it upward, and the interquartile range says how much to trust</span>
+<span class="sd">    the median. It is the honest number when no measured impulse response exists; measure one</span>
+<span class="sd">    (`ambiscape sweep` and `ambiscape impulse`) when you can.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x: Mono samples.</span>
+<span class="sd">        fs (int): Sample rate.</span>
+<span class="sd">        bands: Octave bands as (lo, hi) pairs.</span>
+<span class="sd">        n_max (int): Transients examined. Defaults to 60.</span>
+<span class="sd">        min_rise_db (float): Rise that counts as a transient. Defaults to 12 dB.</span>
+<span class="sd">        pre_s (float): Pre-roll before each transient in the excerpt. Defaults to 0.5 s.</span>
+<span class="sd">        excerpt_s (float): Excerpt length. Defaults to 2 s.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: ``candidates`` (times), ``estimates`` (list of ``{"t", "band", "T60", "dr_db"}``),</span>
+<span class="sd">        ``T60_median`` and ``T60_iqr`` per band, ``n`` per band, and ``T60_mid`` (median over the</span>
+<span class="sd">        500–2000 Hz bands) with ``n_mid``. Empty lists and NaNs when nothing qualifies.</span>
+<span class="sd">    """</span>
+    <span class="n">cands</span> <span class="o">=</span> <span class="n">transient_candidates</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">n_max</span><span class="o">=</span><span class="n">n_max</span><span class="p">,</span> <span class="n">min_rise_db</span><span class="o">=</span><span class="n">min_rise_db</span><span class="p">,</span> <span class="n">pre_s</span><span class="o">=</span><span class="n">pre_s</span><span class="p">)</span>
+    <span class="n">est</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">cands</span><span class="p">:</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">t</span> <span class="o">-</span> <span class="n">pre_s</span><span class="p">)</span> <span class="o">*</span> <span class="n">fs</span><span class="p">)</span>
+        <span class="n">seg</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">a</span><span class="p">:</span><span class="n">a</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">excerpt_s</span> <span class="o">*</span> <span class="n">fs</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">seg</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">int</span><span class="p">(</span><span class="n">excerpt_s</span> <span class="o">*</span> <span class="n">fs</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.9</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">decay_time</span><span class="p">(</span><span class="n">seg</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">bands</span><span class="o">=</span><span class="n">bands</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">for</span> <span class="n">band</span><span class="p">,</span> <span class="p">(</span><span class="n">t60</span><span class="p">,</span> <span class="n">dr</span><span class="p">)</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">est</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"t"</span><span class="p">:</span> <span class="n">t</span><span class="p">,</span> <span class="s2">"band"</span><span class="p">:</span> <span class="n">band</span><span class="p">,</span> <span class="s2">"T60"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">t60</span><span class="p">),</span> <span class="s2">"dr_db"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">dr</span><span class="p">)})</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"candidates"</span><span class="p">:</span> <span class="n">cands</span><span class="p">,</span> <span class="s2">"estimates"</span><span class="p">:</span> <span class="n">est</span><span class="p">,</span> <span class="s2">"T60_median"</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">"T60_iqr"</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">"n"</span><span class="p">:</span> <span class="p">{}}</span>
+    <span class="n">mids</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="ow">in</span> <span class="n">bands</span><span class="p">:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">lo</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">hi</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">e</span><span class="p">[</span><span class="s2">"T60"</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">est</span> <span class="k">if</span> <span class="n">e</span><span class="p">[</span><span class="s2">"band"</span><span class="p">]</span> <span class="o">==</span> <span class="n">key</span><span class="p">])</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">"n"</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">"T60_median"</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"nan"</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">"T60_iqr"</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="mi">75</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="mi">25</span><span class="p">))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"nan"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"500-1000"</span><span class="p">,</span> <span class="s2">"1000-2000"</span><span class="p">):</span>
+            <span class="n">mids</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">"T60_mid"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">mids</span><span class="p">))</span> <span class="k">if</span> <span class="n">mids</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"nan"</span><span class="p">)</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">"n_mid"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mids</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ambiscape.analysis.pick_segments" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">pick_segments</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">seg_s</span><span class="o">=</span><span class="mf">600.0</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Suggest representative windows: quietest, most active, median-typical,
+and (if present) the strongest state transition.</p>
+<p>Kinds can coincide: a session barely longer than one window has only
+one window to offer, and a stationary room has no most-active minute
+to distinguish from its quietest one. Coincident kinds are returned
+once, the window keeping the first kind's name and listing the others
+under <code>also</code> — so the degeneracy is visible rather than presented as
+several identical "representative" segments.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ambiscape/analysis.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1422</span>
+<span class="normal">1423</span>
+<span class="normal">1424</span>
+<span class="normal">1425</span>
+<span class="normal">1426</span>
+<span class="normal">1427</span>
+<span class="normal">1428</span>
+<span class="normal">1429</span>
+<span class="normal">1430</span>
+<span class="normal">1431</span>
+<span class="normal">1432</span>
+<span class="normal">1433</span>
+<span class="normal">1434</span>
+<span class="normal">1435</span>
+<span class="normal">1436</span>
+<span class="normal">1437</span>
+<span class="normal">1438</span>
+<span class="normal">1439</span>
+<span class="normal">1440</span>
+<span class="normal">1441</span>
+<span class="normal">1442</span>
+<span class="normal">1443</span>
+<span class="normal">1444</span>
+<span class="normal">1445</span>
+<span class="normal">1446</span>
+<span class="normal">1447</span>
+<span class="normal">1448</span>
+<span class="normal">1449</span>
+<span class="normal">1450</span>
+<span class="normal">1451</span>
+<span class="normal">1452</span>
+<span class="normal">1453</span>
+<span class="normal">1454</span>
+<span class="normal">1455</span>
+<span class="normal">1456</span>
+<span class="normal">1457</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pick_segments</span><span class="p">(</span><span class="n">F</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">seg_s</span><span class="o">=</span><span class="mf">600.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Suggest representative windows: quietest, most active, median-typical,</span>
 <span class="sd">    and (if present) the strongest state transition.</span>
 

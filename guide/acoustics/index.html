@@ -889,6 +889,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#reverberation-without-an-impulse-response-decay_from_transients" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reverberation without an impulse response (decay_from_transients)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#measuring-the-source-not-the-source-plus-the-recorder" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2154,6 +2165,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#reverberation-without-an-impulse-response-decay_from_transients" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reverberation without an impulse response (decay_from_transients)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#measuring-the-source-not-the-source-plus-the-recorder" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2400,6 +2422,30 @@ around it approaches ISO 3382-2 survey grade.</p>
 <p>For a deliberate measurement, a swept sine buys far more dynamic range
 than any clap and adds STI, IACC and auralization — see
 <a href="../impulse/">Impulse response &amp; auralization</a>.</p>
+<h2 id="reverberation-without-an-impulse-response-decay_from_transients">Reverberation without an impulse response (<code>decay_from_transients</code>)</h2>
+<p>Most recordings one wants to characterise were not made with a clap or a sweep: a concert heard
+from a performer's head-worn microphone, a session in a hall, a soundwalk through a station. They
+do contain hundreds of sharp onsets, and after each the sound decays as the room's until the next
+sound arrives. <code>decay_from_transients</code> uses them.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">ambiscape</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">asc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">soundfile</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sf</span>
+
+<span class="n">x</span><span class="p">,</span> <span class="n">fs</span> <span class="o">=</span> <span class="n">sf</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">"concert.wav"</span><span class="p">)</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">asc</span><span class="o">.</span><span class="n">decay_from_transients</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
+<span class="n">out</span><span class="p">[</span><span class="s2">"T60_mid"</span><span class="p">],</span> <span class="n">out</span><span class="p">[</span><span class="s2">"n_mid"</span><span class="p">]</span>            <span class="c1"># median over the 500–2000 Hz bands, and how many decays</span>
+<span class="n">out</span><span class="p">[</span><span class="s2">"T60_median"</span><span class="p">],</span> <span class="n">out</span><span class="p">[</span><span class="s2">"T60_iqr"</span><span class="p">]</span>       <span class="c1"># per octave band</span>
+<span class="n">out</span><span class="p">[</span><span class="s2">"candidates"</span><span class="p">]</span>                       <span class="c1"># the transient times it used</span>
+</code></pre></div>
+<p><code>transient_candidates</code> picks the sharpest rises (10 ms level at least 12 dB above the median of
+the preceding half second, at least 2 s apart, strongest first); each gets a 2 s excerpt with
+0.5 s of pre-roll and goes through <code>decay_time</code>, whose truncated-Schroeder fit stops at the next
+re-attack and at the noise floor. What comes back is a distribution, and the interquartile range
+is part of the answer: on a black-box theatre stage 178 decays gave a mid-band median of 0.43 s
+with an IQR of about 0.5 s; on a concert hall recorded during dense piano playing the median rose
+from 0.5 s to 1.0 s across three takes purely because the denser takes left fewer clean decays.</p>
+<p>So read the number as <em>coarse</em>, prefer the sparse passages, and measure a sweep
+(<code>ambiscape sweep</code>, <code>ambiscape impulse</code>) whenever the room can be entered with a loudspeaker.
+The function returns empty lists and NaN, not an error, when no transient qualifies.</p>
 <h2 id="measuring-the-source-not-the-source-plus-the-recorder">Measuring the source, not the source plus the recorder</h2>
 <p>Every level a recorder reports is <code>P = S + N</code> — what the room did, plus what
 the machine contributed. Nothing in the number says which is which, and
@@ -2741,7 +2787,7 @@ audio pass.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 21, 2026 06:26:10 UTC">August 21, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 3, 2026 20:17:37 UTC">September 3, 2026</span>
   </span>
 
     

@@ -111,6 +111,36 @@ For a deliberate measurement, a swept sine buys far more dynamic range
 than any clap and adds STI, IACC and auralization — see
 [Impulse response & auralization](impulse.md).
 
+## Reverberation without an impulse response (`decay_from_transients`)
+
+Most recordings one wants to characterise were not made with a clap or a sweep: a concert heard
+from a performer's head-worn microphone, a session in a hall, a soundwalk through a station. They
+do contain hundreds of sharp onsets, and after each the sound decays as the room's until the next
+sound arrives. `decay_from_transients` uses them.
+
+```python
+import ambiscape as asc
+import soundfile as sf
+
+x, fs = sf.read("concert.wav")
+out = asc.decay_from_transients(x, fs)
+out["T60_mid"], out["n_mid"]            # median over the 500–2000 Hz bands, and how many decays
+out["T60_median"], out["T60_iqr"]       # per octave band
+out["candidates"]                       # the transient times it used
+```
+
+`transient_candidates` picks the sharpest rises (10 ms level at least 12 dB above the median of
+the preceding half second, at least 2 s apart, strongest first); each gets a 2 s excerpt with
+0.5 s of pre-roll and goes through `decay_time`, whose truncated-Schroeder fit stops at the next
+re-attack and at the noise floor. What comes back is a distribution, and the interquartile range
+is part of the answer: on a black-box theatre stage 178 decays gave a mid-band median of 0.43 s
+with an IQR of about 0.5 s; on a concert hall recorded during dense piano playing the median rose
+from 0.5 s to 1.0 s across three takes purely because the denser takes left fewer clean decays.
+
+So read the number as *coarse*, prefer the sparse passages, and measure a sweep
+(`ambiscape sweep`, `ambiscape impulse`) whenever the room can be entered with a loudspeaker.
+The function returns empty lists and NaN, not an error, when no transient qualifies.
+
 ## Measuring the source, not the source plus the recorder
 
 Every level a recorder reports is `P = S + N` — what the room did, plus what

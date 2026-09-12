@@ -18,6 +18,21 @@ classes into the draft's listening hints:
           {"label": "Door", "p": 0.49}]}
 ```
 
+For a whole recording rather than a handful of events, `ml.tag_frames`
+tiles it into windows and returns one row of posteriors per window:
+
+```python
+from ambiscape import ml
+t, P, names = ml.tag_frames(x, fs, win_s=4.0, hop_s=2.0,
+                            wanted=["Music", "Speech", "Applause", "Silence"],
+                            device="auto")
+```
+
+`device` is `"cpu"` unless you say otherwise (`ml.PANNS_DEVICE` sets the
+default for a session); `"auto"` takes a CUDA GPU when torch sees one. CNN14
+is roughly two orders of magnitude faster on a GPU, which turns a 90-minute
+concert from half an hour of tagging into under a minute.
+
 AudioSet's taxonomy includes remarkably apt classes for indoor soundscape
 work (*Air conditioning, Refrigerator, Church bell, Pigeon/dove, Water tap,
 Footsteps, Speech*). The intended reading is that the tagger says what and

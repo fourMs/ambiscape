@@ -14,6 +14,17 @@ been carrying feature work throughout a pre-1.0 life.
 > imports the functions that moved.
 
 
+## [Unreleased]
+
+### Added
+- `ml.tag_frames(x, fs, win_s, hop_s, wanted, device, batch)`: frame-wise AudioSet posteriors for a
+  whole recording, tiled and batched through CNN14, returned as `(times, probs, names)`. The
+  array a segmenter wants (music against speech against applause every two seconds), where
+  `tag_window` answers for one event.
+- `device=` on `tag_window` and `tag_probabilities`, plus `ml.PANNS_DEVICE` for the session
+  default and `ml.resolve_device`. PANNs was hardcoded to CPU; `"auto"` takes a CUDA GPU when
+  torch sees one. The cached model is rebuilt when a different device is asked for.
+
 ## [0.49.0] — 2026-09-03
 
 ### Added

@@ -21,7 +21,15 @@ from pathlib import Path
 
 import numpy as np
 
+#: Device PANNs runs on when a call does not say: ``"cpu"`` (the historical
+#: behaviour), ``"cuda"``, or ``"auto"`` (CUDA when torch sees one, else CPU).
+#: CNN14 on one 10 s window is ~1-3 s on a laptop CPU and ~10 ms on a GPU, which
+#: is the difference between tagging forty windows around events and tagging a
+#: whole concert every two seconds.
+PANNS_DEVICE = "cpu"
+
 _panns_model = None
+_panns_model_device = None
 
 
 def _resample(x: np.ndarray, fs: int, target: int) -> np.ndarray:
@@ -31,6 +39,29 @@ def _resample(x: np.ndarray, fs: int, target: int) -> np.ndarray:
     from math import gcd
     g = gcd(fs, target)
     return resample_poly(x, target // g, fs // g)
+
+
+def resolve_device(device: str | None = None) -> str:
+    """``None`` -> :data:`PANNS_DEVICE`; ``"auto"`` -> ``"cuda"`` if available else ``"cpu"``."""
+    device = device or PANNS_DEVICE
+    if device != "auto":
+        return device
+    try:
+        import torch
+        return "cuda" if torch.cuda.is_available() else "cpu"
+    except Exception:
+        return "cpu"
+
+
+def _panns(device: str | None = None):
+    """The cached CNN14, rebuilt only when asked for a different device."""
+    global _panns_model, _panns_model_device
+    from panns_inference import AudioTagging
+    dev = resolve_device(device)
+    if _panns_model is None or _panns_model_device != dev:
+        _panns_model = AudioTagging(checkpoint_path=None, device=dev)
+        _panns_model_device = dev
+    return _panns_model
 
 
 def panns_available() -> bool:
@@ -47,24 +78,29 @@ def panns_available() -> bool:
 
 
 def tag_window(x: np.ndarray, fs: int, top_k: int = 3,
-               min_prob: float = 0.10) -> list[dict]:
+               min_prob: float = 0.10, device: str | None = None) -> list[dict]:
     """AudioSet tags for one mono window via PANNs CNN14 (32 kHz input)."""
-    global _panns_model
-    from panns_inference import AudioTagging, labels
-    if _panns_model is None:
-        _panns_model = AudioTagging(checkpoint_path=None, device="cpu")
+    from panns_inference import labels
+    model = _panns(device)
     y = _resample(x.astype(np.float32), fs, 32000)
     clip = np.clip(y, -1, 1)[None, :]
-    clipwise, _emb = _panns_model.inference(clip)
+    clipwise, _emb = model.inference(clip)
     probs = np.asarray(clipwise)[0]
     order = np.argsort(probs)[::-1][:top_k]
     return [{"label": labels[i], "p": round(float(probs[i]), 2)}
             for i in order if probs[i] >= min_prob]
 
 
+def _check_wanted(wanted, all_labels) -> None:
+    if wanted is not None:
+        unknown = [w for w in wanted if w not in all_labels]
+        if unknown:
+            raise ValueError(f"not AudioSet labels: {unknown}")
+
+
 def tag_probabilities(x: np.ndarray, fs: int,
-                      wanted: list[str] | tuple[str, ...] | None = None
-                      ) -> dict[str, float]:
+                      wanted: list[str] | tuple[str, ...] | None = None,
+                      device: str | None = None) -> dict[str, float]:
     """Probability of each named AudioSet class for one mono window.
 
     :func:`tag_window` returns the few labels that came top and cleared a
@@ -86,21 +122,55 @@ def tag_probabilities(x: np.ndarray, fs: int,
     against each other, not against 0.5.
     """
     from panns_inference import labels as _labels
-    global _panns_model
-    from panns_inference import AudioTagging
-    if _panns_model is None:
-        _panns_model = AudioTagging(checkpoint_path=None, device="cpu")
-    if wanted is not None:
-        unknown = [w for w in wanted if w not in _labels]
-        if unknown:
-            raise ValueError(f"not AudioSet labels: {unknown}")
+    _check_wanted(wanted, _labels)
+    model = _panns(device)
     y = _resample(x.astype(np.float32), fs, 32000)
     clip = np.clip(y, -1, 1)[None, :]
-    clipwise, _emb = _panns_model.inference(clip)
+    clipwise, _emb = model.inference(clip)
     probs = np.asarray(clipwise)[0]
     names = wanted if wanted is not None else _labels
     idx = {lab: i for i, lab in enumerate(_labels)}
     return {lab: float(probs[idx[lab]]) for lab in names}
+
+
+def tag_frames(x: np.ndarray, fs: int, win_s: float = 4.0, hop_s: float = 2.0,
+               wanted: list[str] | tuple[str, ...] | None = None,
+               device: str | None = None, batch: int = 32
+               ) -> tuple[np.ndarray, np.ndarray, list[str]]:
+    """Frame-wise AudioSet posteriors over a whole recording.
+
+    Tiles ``x`` into ``win_s`` windows every ``hop_s`` and runs them through
+    CNN14 in batches. Returns ``(times, probs, names)``: window centres in
+    seconds, a ``(n_windows, n_names)`` float32 array, and the label names in
+    column order (``wanted``, or all 527). A recording shorter than one window
+    is one window. This is the array a segmenter wants --- music against
+    speech against applause every two seconds --- where :func:`tag_window`
+    is the answer for one event.
+
+    Same caveat as :func:`tag_probabilities`: posteriors to compare against
+    each other, not probabilities.
+    """
+    from panns_inference import labels as _labels
+    _check_wanted(wanted, _labels)
+    model = _panns(device)
+    y = np.clip(_resample(np.asarray(x, dtype=np.float32), fs, 32000), -1, 1)
+    sr = 32000
+    win, hop = max(1, int(round(win_s * sr))), max(1, int(round(hop_s * sr)))
+    n = 1 if len(y) <= win else (len(y) - win) // hop + 1
+    idx = {lab: i for i, lab in enumerate(_labels)}
+    cols = [idx[w] for w in wanted] if wanted is not None else list(range(len(_labels)))
+    names = list(wanted) if wanted is not None else list(_labels)
+    probs = np.zeros((n, len(cols)), np.float32)
+    times = np.arange(n) * (hop / sr) + min(len(y), win) / sr / 2
+    for b0 in range(0, n, batch):
+        rows = [y[i * hop: i * hop + win] for i in range(b0, min(n, b0 + batch))]
+        width = max(len(r) for r in rows)
+        clip = np.zeros((len(rows), width), np.float32)
+        for k, r in enumerate(rows):
+            clip[k, : len(r)] = r
+        clipwise, _emb = model.inference(clip)
+        probs[b0: b0 + len(rows)] = np.asarray(clipwise)[:, cols]
+    return times, probs, names
 
 
 def birdnet_available() -> bool:

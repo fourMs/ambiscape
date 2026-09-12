@@ -14,7 +14,7 @@ been carrying feature work throughout a pre-1.0 life.
 > imports the functions that moved.
 
 
-## [Unreleased]
+## [0.50.0] — 2026-09-12
 
 ### Added
 - `ml.tag_frames(x, fs, win_s, hop_s, wanted, device, batch)`: frame-wise AudioSet posteriors for a

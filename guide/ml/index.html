@@ -2114,6 +2114,8 @@ tiles it into windows and returns one row of posteriors per window:</p>
 default for a session); <code>"auto"</code> takes a CUDA GPU when torch sees one. CNN14
 is roughly two orders of magnitude faster on a GPU, which turns a 90-minute
 concert from half an hour of tagging into under a minute.</p>
+<p><code>tag_frames</code> is what <a href="https://github.com/fourMs/avsegmenter">avsegmenter</a> runs first on a concert or
+lecture recording; <code>musiscape.tagging</code> turns the array into music / talk / applause spans.</p>
 <p>AudioSet's taxonomy includes remarkably apt classes for indoor soundscape
 work (<em>Air conditioning, Refrigerator, Church bell, Pigeon/dove, Water tap,
 Footsteps, Speech</em>). The intended reading is that the tagger says what and
@@ -2165,7 +2167,7 @@ regions (<code>first_speech_at_s</code> is reported).</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 12, 2026 19:34:54 UTC">September 12, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 13, 2026 08:58:57 UTC">September 13, 2026</span>
   </span>
 
     

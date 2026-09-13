@@ -33,6 +33,9 @@ default for a session); `"auto"` takes a CUDA GPU when torch sees one. CNN14
 is roughly two orders of magnitude faster on a GPU, which turns a 90-minute
 concert from half an hour of tagging into under a minute.
 
+`tag_frames` is what [avsegmenter](https://github.com/fourMs/avsegmenter) runs first on a concert or
+lecture recording; `musiscape.tagging` turns the array into music / talk / applause spans.
+
 AudioSet's taxonomy includes remarkably apt classes for indoor soundscape
 work (*Air conditioning, Refrigerator, Church bell, Pigeon/dove, Water tap,
 Footsteps, Speech*). The intended reading is that the tagger says what and

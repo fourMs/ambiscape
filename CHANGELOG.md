@@ -14,6 +14,10 @@ been carrying feature work throughout a pre-1.0 life.
 > imports the functions that moved.
 
 
+## [Unreleased]
+
+- Documentation: README gains "What you can reuse" and "What it does not do", naming Kinetics Toolkit, PyEyesWeb and librosa as the tools for what this package leaves out (2026-09-18).
+
 ## [0.50.0] — 2026-09-12
 
 ### Added

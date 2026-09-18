@@ -40,6 +40,21 @@ This streams the audio in constant memory, however long it is. It extracts featu
 
 ambiscape analyses sound; its sister toolbox [MGT-python](https://github.com/fourMs/MGT-python) analyses video. The two meet at file boundaries—see [Working with other packages](https://fourms.github.io/ambiscape/interop/).
 
+## What you can reuse
+
+Parts of the toolbox that work on their own:
+
+- the streaming reader, which walks a recording of any length in constant memory and hands you frames
+- the level and spectral feature extractors (Leq, LAeq, percentile levels, log and mel spectra) as functions on arrays
+- the ambisonic direction and diffuseness estimators, which take a first-order AmbiX block and return where the energy comes from
+- the session model, a folder of files on one clock with a per-take feature cache, which any batch analysis can adopt
+- the ISO 12913-2 perceptual survey tools and the impulse-response and auralisation functions
+- the FLAC hand-off convention, a leading `YYYYMMDD_HHMMSS` stamp in local time, which the other three toolboxes read
+
+## What it does not do
+
+ambiscape describes places, not music: per-track music analysis lives in musiscape, and deeper music information retrieval in [librosa](https://librosa.org/) or the MIR Toolbox. It streams long files but is not a real-time engine; the `capture` extra records, it does not react. It does not read motion or video; those go to micromotion and musicalgestures.
+
 ## The four toolboxes
 
 Four packages from the fourMs lab, each released separately on PyPI. Which one you want is

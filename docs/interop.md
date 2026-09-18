@@ -83,3 +83,7 @@ Some functionality genuinely exists in more than one package. Prefer the package
 question belongs to, and say in your analysis which implementation produced a number, since two
 implementations of "the same" measure rarely agree exactly, and a figure without its provenance
 cannot be reproduced or compared.
+
+## Outside the fourMs family
+
+Two packages in the wider toolbox landscape meet this one at a DataFrame. [Kinetics Toolkit](https://kineticstoolkit.uqam.ca/) keeps data, time and events in a `TimeSeries` with `to_dataframe` and `from_dataframe`; read a C3D there, convert, and hand the frame to this package's functions. [mopipe](https://github.com/au-imclab/mopipe) composes motion-capture processing as typed nodes over pandas; a function from this package can be wrapped as one node, since every function here takes and returns arrays or frames and holds no state.

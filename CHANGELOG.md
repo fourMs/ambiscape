@@ -16,6 +16,9 @@ been carrying feature work throughout a pre-1.0 life.
 
 ## [Unreleased]
 
+### Fixed
+- `render.characteristic_excerpt` (`ambiscape background --excerpt`) in sessions of several takes: the excerpt is named after the take it is cut from, `t0_in_take_s` is measured from that take, a new `take` key names the file, and windows that straddle a take boundary are no longer scored. The exported audio was already correct; the filename and offset pointed at the first take (2026-10-03).
+
 - Documentation: README gains "What you can reuse" and "What it does not do", naming Kinetics Toolkit, PyEyesWeb and librosa as the tools for what this package leaves out (2026-09-18).
 
 ## [0.50.0] — 2026-09-12

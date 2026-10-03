@@ -186,6 +186,10 @@ def characteristic_excerpt(sess, F: dict, out_dir, dur_s: float = 60.0,
     is exported **bit-exact from the original take** via
     :func:`ambiscape.io.export_segment` — a soundscape thumbnail with no
     processing artefacts. Needs cached features (a prior analyze run).
+
+    In a session of several takes, only windows that lie within one take
+    are scored, and the excerpt is named after the take it is cut from,
+    with ``t0_in_take_s`` measured from that take's start.
     """
     import json
     from .io import export_segment
@@ -205,6 +209,11 @@ def characteristic_excerpt(sess, F: dict, out_dir, dur_s: float = 60.0,
         starts = [0]
     else:
         starts = list(range(0, n - w + 1, max(1, int(round(hop_s)))))
+        rows = F.get("take_of_row")
+        if rows is not None:
+            rows = np.asarray(rows)
+            within = [i0 for i0 in starts if rows[i0] == rows[i0 + w - 1]]
+            starts = within or starts
     best = None
     for i0 in starts:
         win = slice(i0, i0 + min(w, n))
@@ -216,16 +225,18 @@ def characteristic_excerpt(sess, F: dict, out_dir, dur_s: float = 60.0,
             best = (score, i0, dist, ev)
     _, i0, dist, ev = best
     t0 = float(t[i0])
+    take = next((tk for tk in sess.takes if tk.start <= t0 < tk.end),
+                sess.takes[0])
     if out_path is None:
-        take = sess.takes[0]
         out_path = out_dir / f"excerpt_{take.path.stem}_{int(dur_s)}s.wav"
     # export_segment stamps the filename with the excerpt's wall clock, so
     # the path it returns is the one that exists
     out_path = export_segment(sess, t0, float(min(dur_s, t[-1] - t0 + 1.0)),
                               Path(out_path))
     doc = {
-        "out_path": str(out_path), "t0_s": round(t0, 1),
-        "t0_in_take_s": round(t0 - sess.takes[0].start, 1),
+        "out_path": str(out_path), "take": take.path.name,
+        "t0_s": round(t0, 1),
+        "t0_in_take_s": round(t0 - take.start, 1),
         "dur_s": dur_s, "clock": sess.clock(t0),
         "spectral_distance_db": round(dist, 2),
         "eventful_fraction": round(ev, 3),

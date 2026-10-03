@@ -113,6 +113,38 @@ def test_characteristic_excerpt_avoids_events(tmp_path):
     assert np.max(np.abs(orig[:fs] - got[:fs])) < 2e-4   # 16-bit quantise
 
 
+def test_characteristic_excerpt_names_the_take_it_cut(tmp_path):
+    """In a multi-take session the excerpt is labelled with the take that
+    covers it, its offset is measured from that take, and no window
+    straddles a take boundary."""
+    import ambiscape as asc
+    from ambiscape import features as afeat
+    fs = 16000
+    rng = np.random.default_rng(5)
+    t = np.arange(int(2.0 * fs)) / fs
+    burst = 0.4 * np.sin(2 * np.pi * 800 * t) * np.hanning(len(t))
+    busy = 0.01 * rng.standard_normal(150 * fs)
+    for s in range(3, 145, 10):
+        busy[int(s * fs):int(s * fs) + len(burst)] += burst
+    quiet = 0.01 * rng.standard_normal(150 * fs)
+    quiet[:20 * fs] = busy[-20 * fs:]           # events up to 20 s into take 2
+    sf.write(tmp_path / "20260724_120000_a.wav", busy.astype(np.float32), fs)
+    sf.write(tmp_path / "20260724_120230_b.wav", quiet.astype(np.float32), fs)
+    sess = asc.open_session(tmp_path)
+    out = tmp_path / "analysis"
+    F = afeat.load_features(afeat.extract_session(sess, out / "features",
+                                                  verbose=False))
+    doc = render.characteristic_excerpt(sess, F, out, dur_s=60.0)
+    assert doc["take"] == "20260724_120230_b.wav"
+    assert "excerpt_20260724_120230_b_60s" in doc["out_path"]
+    rel = doc["t0_in_take_s"]
+    assert 0.0 <= rel <= 90.0                   # inside take b, not take a
+    y, fs2 = sf.read(doc["out_path"])
+    assert abs(len(y) / fs2 - 60.0) < 1.0       # a full window, not cut short
+    i0 = int(round(rel * fs))
+    assert np.max(np.abs(quiet[i0:i0 + fs] - y[:fs])) < 2e-4
+
+
 def _typical_with_odd_stretch(tmp_path, fs=16000, dur=300):
     """Steady 'typical' noise texture, but 60-120 s is loud and tonal."""
     rng = np.random.default_rng(11)

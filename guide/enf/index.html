@@ -477,6 +477,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../run/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    One folder per recording
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../descriptors/" class="md-nav__link">
         
   
@@ -1553,6 +1581,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#pickup-or-hum-in-the-air" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pickup or hum in the air
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#as-a-corpus-descriptor" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2081,6 +2120,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#pickup-or-hum-in-the-air" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pickup or hum in the air
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#as-a-corpus-descriptor" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2154,6 +2204,43 @@ produce at take boundaries.</p>
   trace timestamps a recording to the second, independently of the
   recorder clock, which gives a cross-check for <code>schedule.clock_offset</code>.</li>
 </ul>
+<h2 id="pickup-or-hum-in-the-air">Pickup or hum in the air</h2>
+<p>A recorder on a USB supply can take the mains in through the cable. That hum
+is electrical, not acoustic, and it reaches every capsule of a B-format
+microphone in phase, so after the A- to B-format matrix it lands in W and
+hardly at all in X, Y and Z. Hum in the air has a direction, or spreads over
+all directions, and fills the first-order channels too. <code>supply_signature</code>
+measures that difference for each mains harmonic:</p>
+<div class="highlight"><pre><span></span><code>ambiscape<span class="w"> </span>supply<span class="w"> </span>SESSION/<span class="w">                 </span><span class="c1"># analysis/supply.json, one entry per take</span>
+ambiscape<span class="w"> </span>supply<span class="w"> </span>SESSION/<span class="w"> </span>--bearing<span class="w"> </span><span class="m">100</span><span class="w">   </span><span class="c1"># also the bearing of the 100 Hz line</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">sig</span> <span class="o">=</span> <span class="n">enf</span><span class="o">.</span><span class="n">supply_signature</span><span class="p">(</span><span class="n">take</span><span class="o">.</span><span class="n">audio_path</span><span class="p">,</span> <span class="n">wyzx</span><span class="o">=</span><span class="n">take</span><span class="o">.</span><span class="n">wyzx</span><span class="p">)</span>
+<span class="n">sig</span><span class="p">[</span><span class="s2">"verdict"</span><span class="p">]</span>                     <span class="c1"># 'pickup', 'acoustic', 'no line' or 'not ambix'</span>
+<span class="n">sig</span><span class="p">[</span><span class="s2">"fundamental"</span><span class="p">]</span>                 <span class="c1"># {'prom_W_db': 16.8, 'line_minus_ring_db': -15.1, ...}</span>
+</code></pre></div>
+<p><code>prom_W_db</code> is how far the line stands out of the spectrum in W
+(<code>tonality.narrow_line_prominence</code>). <code>line_minus_ring_db</code> is the line's excess
+power in X, Y and Z against W, in dB, minus the same ratio for the noise just
+beside it; subtracting the surround removes what the recorder and the room do
+to every frequency alike, so a line in the air sits near 0 dB and pickup far
+below. The verdict is <code>pickup</code> when the fundamental stands at least 6 dB out
+and sits at or below −10 dB.</p>
+<p>The threshold rests on little. On an overnight Zoom H3-VR session with its USB
+adapter beside it, the 50 Hz line stood 13.8 to 16.8 dB out and sat 15.1 to
+18.5 dB below its surround, while tracking the grid; across 45 other H3-VR
+files on batteries, a power bank or another USB supply, no 50 Hz line reached
+10 dB, and where one stood out by 6 dB its direction ratio was within −5.5 to
++3.7 dB of the surround. USB power alone does not make pickup; the adapter, the
+socket and the cable do. A pickup line also passes every ENF test, since it
+<em>is</em> the grid: the direction ratio is what tells the cable from the room.</p>
+<p><code>line_bearing(path, f0)</code> gives the bearing of a steady line from the active
+intensity at <code>f0</code> (the real parts of the cross-spectra of W with X, Y and Z),
+summed over six windows and kept per window, so a fixed source shows as a
+bearing that does not move. In the same night the 100 Hz line, twice the mains
+frequency where transformers hum, pointed to 168 to 170° and 14° below the
+capsules in every take, where the power adapter stood on the table: the supply
+reached the recording twice, through the cable at 50 Hz and through the air at
+100 Hz.</p>
 <h2 id="as-a-corpus-descriptor">As a corpus descriptor</h2>
 <p><code>enf_summary</code>'s <code>median_rise_db</code> and <code>coverage</code> say how electrified a room
 sounds: a machine-room measured +45 dB of 50 Hz line, a quiet hotel room
@@ -2203,7 +2290,7 @@ no frames at all to libsndfile, without raising anything.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 13, 2026 17:35:56 UTC">August 13, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 4, 2026 09:40:29 UTC">October 4, 2026</span>
   </span>
 
     

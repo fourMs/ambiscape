@@ -477,6 +477,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../run/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    One folder per recording
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../descriptors/" class="md-nav__link">
         
   
@@ -2185,11 +2213,15 @@ ambiscape<span class="w"> </span>background<span class="w"> </span>SESSION/<span
 </code></pre></div>
 <p>Every 60 s window (5 s hop) is scored by two things: the mean per-band
 distance between its median log-spectrum and the session's background
-spectral profile (the 10th percentile per band over the whole take), and
+spectral profile (the 10th percentile per band over the whole session), and
 the fraction of eventful seconds (broadband level more than 6 dB over the
 session median), weighted at 20 dB. The winner is exported bit-exact from
 the original take, with no processing whatsoever, together with
-<code>background_excerpt.json</code> recording the wall-clock position and scores.</p>
+<code>background_excerpt.json</code> recording the wall-clock position and scores.
+In a session of several takes, such as an overnight recording split at
+the recorder's 2 GB limit, only windows inside one take are scored; the
+excerpt is named after the take it is cut from, and <code>take</code> and
+<code>t0_in_take_s</code> in the JSON locate it in that file.</p>
 <p>The picker's behaviour on real material is reassuringly boring: in a
 uniformly quiet night recording it takes the first window (anywhere is
 characteristic); in a 98-minute café it finds a calm stretch an hour in;
@@ -2213,8 +2245,9 @@ background profile.</p>
 <li><strong>Capped is not recovered.</strong> Where the foreground was loud, the bed
   contains that energy pushed down to background level. The true
   background masked beneath it is gone, and nothing can reconstruct it.</li>
-<li>Like <code>rhythm</code> and <code>carillon</code>, the command processes the first take
-  of the session. Multi-device folders (a WAV and an M4A of the same
+<li>Like <code>rhythm</code> and <code>carillon</code>, the bed render (without <code>--excerpt</code>)
+  processes the first take of the session; the excerpt picker searches
+  every take. Multi-device folders (a WAV and an M4A of the same
   scene) render whichever sorts first, so point at single-file folders for
   per-device beds.</li>
 <li>Channels are processed with independent gains; stereo and ambiX beds
@@ -2246,7 +2279,7 @@ background profile.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 16, 2026 10:28:47 UTC">August 16, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 3, 2026 20:32:11 UTC">October 3, 2026</span>
   </span>
 
     

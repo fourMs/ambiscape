@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://fourms.github.io/ambiscape/guide/grounding/">
+        <link rel="canonical" href="https://fourms.github.io/ambiscape/guide/run/">
       
       
-        <link rel="prev" href="../timescales/">
+        <link rel="prev" href="../sessions/">
       
       
-        <link rel="next" href="../stereo-mono/">
+        <link rel="next" href="../descriptors/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Grounding (signal vs perception) - ambiscape</title>
+        <title>One folder per recording - ambiscape</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#grounding-what-a-descriptor-is-evidence-about" class="md-skip">
+        <a href="#one-folder-per-recording" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Grounding (signal vs perception)
+              One folder per recording
             
           </span>
         </div>
@@ -476,10 +476,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../run/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    One folder per recording
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -495,6 +522,81 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-stages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The stages
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sessionjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        session.json
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#handled-ends" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Handled ends
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-report-that-cannot-print-a-gap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A report that cannot print a gap
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#from-python" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        From Python
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -560,37 +662,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Grounding (signal vs perception)
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../grounding/" class="md-nav__link">
         
   
   
@@ -606,92 +681,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#the-four-tiers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The four tiers
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-check" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The check
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-five-perceptually-defined-descriptors" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The five perceptually-defined descriptors
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#coverage-cannot-rot" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Coverage cannot rot
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#inspecting-the-registry" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Inspecting the registry
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-this-does-not-cover" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What this does not cover
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2120,10 +2109,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-four-tiers" class="md-nav__link">
+  <a href="#the-stages" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The four tiers
+        The stages
       
     </span>
   </a>
@@ -2131,10 +2120,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-check" class="md-nav__link">
+  <a href="#sessionjson" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The check
+        session.json
       
     </span>
   </a>
@@ -2142,10 +2131,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-five-perceptually-defined-descriptors" class="md-nav__link">
+  <a href="#handled-ends" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The five perceptually-defined descriptors
+        Handled ends
       
     </span>
   </a>
@@ -2153,10 +2142,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#coverage-cannot-rot" class="md-nav__link">
+  <a href="#a-report-that-cannot-print-a-gap" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Coverage cannot rot
+        A report that cannot print a gap
       
     </span>
   </a>
@@ -2164,21 +2153,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#inspecting-the-registry" class="md-nav__link">
+  <a href="#from-python" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Inspecting the registry
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-this-does-not-cover" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What this does not cover
+        From Python
       
     </span>
   </a>
@@ -2205,195 +2183,151 @@
   
 
 
-<h1 id="grounding-what-a-descriptor-is-evidence-about">Grounding: what a descriptor is evidence about</h1>
-<p>Every number this toolbox returns is a fact about a waveform. Some of them are
-<em>also</em> meant as facts about hearing, and the distance between those two things
-is where this project has made its worst mistakes.</p>
-<p>Four claims were withdrawn in a single month. Every one of them was a
-perceptual quantity read off a signal statistic:</p>
+<h1 id="one-folder-per-recording">One folder per recording</h1>
+<p>A recording arrives as one or more files; <code>ambiscape run</code> turns the folder
+that holds them into a finished analysis, without anything else around it.
+Put the takes in a folder, describe them in a <code>session.json</code>, and run:</p>
+<div class="highlight"><pre><span></span><code>ambiscape<span class="w"> </span>init<span class="w"> </span>SESSION/<span class="w">          </span><span class="c1"># writes a session.json skeleton</span>
+<span class="c1"># fill in session.json: place, coordinates, notes, the spans to listen to</span>
+ambiscape<span class="w"> </span>run<span class="w"> </span>SESSION/
+</code></pre></div>
+<p>The folder then holds everything: the ambiscape outputs in <code>analysis/</code>, the
+session <code>README.md</code> that <code>analyze</code> writes, listening clips in <code>listen/</code>, and,
+if a <code>REPORT.template.md</code> is present, a <code>REPORT.md</code> filled from <code>analysis/</code>.
+For a recording you keep making, such as a soundscape a day, the folder is the
+unit that is copied, moved and deposited; nothing it needs lives elsewhere.</p>
+<h2 id="the-stages">The stages</h2>
+<p><code>run</code> goes through seven stages in order. <code>--stage</code> picks some of them
+(repeatable) and <code>--no-ml</code> skips the three that need <code>ambiscape[ml]</code>.</p>
 <table>
 <thead>
 <tr>
-<th>the claim</th>
-<th>the number behind it</th>
-<th>what was wrong</th>
+<th>Stage</th>
+<th>What it runs</th>
+<th>Writes</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>an open-plan room has two acoustic <em>zones</em></td>
-<td>speech fraction per microphone</td>
-<td>a detection threshold, not a geography</td>
+<td><code>analyze</code></td>
+<td><code>analyze</code>, <code>draft</code>, <code>anthrophony</code>, <code>mechanical</code>, <code>enf</code>, <code>background --excerpt</code></td>
+<td><code>summary.json</code>, figures, <code>README.md</code>, <code>annotations.draft.json</code>, the rest</td>
 </tr>
 <tr>
-<td>one node is a <em>dead channel</em></td>
-<td>its level against its neighbours</td>
-<td>a quiet room and a sensitive recorder look alike</td>
+<td><code>birdnet</code></td>
+<td><code>birdnet</code> with <code>lat</code>/<code>lon</code>, skipped when <code>lat</code> is empty</td>
+<td><code>birdnet.json</code></td>
 </tr>
 <tr>
-<td>the building has a 62-minute <em>rhythm</em></td>
-<td>periodicity on one day</td>
-<td>it did not persist across the week</td>
+<td><code>speechgate</code></td>
+<td><code>speechgate</code> on every take</td>
+<td><code>speechgate.json</code></td>
 </tr>
 <tr>
-<td>a loft's hum has a T60 of 17 s</td>
-<td>Schroeder integration</td>
-<td>the material contains no free decay to measure</td>
+<td><code>iso</code></td>
+<td><code>iso</code></td>
+<td><code>iso_indicators.json</code></td>
+</tr>
+<tr>
+<td><code>tags</code></td>
+<td><code>ml.tag_session</code>: AudioSet posteriors every 2 s, one cache per take</td>
+<td><code>analysis/tags/*.npz</code></td>
+</tr>
+<tr>
+<td><code>post</code></td>
+<td>energy concentration, tag groups and timeline, handled ends against the settled recording, supply pickup (B-format), tables, listening clips</td>
+<td><code>energy.json</code>, <code>tag_groups.json</code>, <code>tag_timeline.png</code>, <code>split.json</code>, <code>supply.json</code>, <code>tables.json</code>, <code>listen/</code></td>
+</tr>
+<tr>
+<td><code>report</code></td>
+<td><code>report.fill_template</code> on <code>REPORT.template.md</code></td>
+<td><code>REPORT.md</code></td>
 </tr>
 </tbody>
 </table>
-<p>None was a coding error. Each was a <em>translation</em> nobody had written down.</p>
-<p><code>ambiscape.grounding</code> writes it down. It is the companion to
-<a href="../timescales/"><code>ambiscape.timescales</code></a> and deliberately the same shape: a
-registry, a check, and a list of what is not yet covered. Where the timescale
-registry answers <em>over how long is this valid</em>, this one answers <em>what is it
-evidence about</em>.</p>
-<h2 id="the-four-tiers">The four tiers</h2>
+<p>Each pass of the first five stages runs in its own process. This matters
+for the machine-learning stages: importing tensorflow (BirdNET) before torch
+hides the GPU from torch, and in separate processes neither sees the other. A
+failed pass prints a <code>!!! failed</code> line and the run continues, so one missing
+extra does not cost the rest. The tag stage resumes: a take whose cache exists
+is skipped.</p>
+<p>A night takes about an hour, most of it in <code>birdnet</code>, <code>speechgate</code> and <code>iso</code>;
+run long sessions as a memory-capped service rather than in a terminal you
+might close, and send the output to a log, which then reads as the record of
+the run.</p>
+<h2 id="sessionjson">session.json</h2>
 <table>
 <thead>
 <tr>
-<th>tier</th>
-<th>meaning</th>
-<th>what it may claim</th>
+<th>Key</th>
+<th>Meaning</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>S</code></td>
-<td><strong>signal only</strong> — defined by the mathematics of the waveform</td>
-<td>"this is what is in the recording", and nothing about audibility, salience or annoyance</td>
+<td><code>title</code>, <code>place</code>, <code>device</code>, <code>power</code>, <code>orientation</code>, <code>clock_note</code></td>
+<td>Free text for the report.</td>
 </tr>
 <tr>
-<td><code>PM</code></td>
-<td><strong>perceptually motivated</strong> — designed by analogy with hearing, not validated against listeners in this domain</td>
-<td>"this is a quantity a listener <em>might</em> track". The analogy is a hypothesis</td>
+<td><code>notes</code></td>
+<td>Passed to <code>analyze --notes</code> and printed in the README.</td>
 </tr>
 <tr>
-<td><code>PC</code></td>
-<td><strong>perceptually calibrated</strong> — the transform embeds a measured property of hearing</td>
-<td>"this is weighted the way ears are". Still not a report of what anyone heard</td>
+<td><code>lat</code>, <code>lon</code></td>
+<td>BirdNET's location and season filter; leave <code>lat</code> empty to skip BirdNET.</td>
 </tr>
 <tr>
-<td><code>PD</code></td>
-<td><strong>perceptually defined</strong> — the quantity only exists as a fact about a listener</td>
-<td>nothing, without a listener. The number is evidence about the <em>proxy</em> until somebody asks one</td>
+<td><code>handling_s</code></td>
+<td>Seconds at each end resolved as handling (default 60). <code>resolve</code> drops a state shorter than 30 s, so 15 is the least that works for a short clip.</td>
+</tr>
+<tr>
+<td><code>excerpt_s</code></td>
+<td>Length of the characteristic excerpt (default 60).</td>
+</tr>
+<tr>
+<td><code>listen</code></td>
+<td><code>[["HH:MM:SS", seconds, "label"], ...]</code>: spans exported as stereo previews, normalised, the applied gain in the filename.</td>
 </tr>
 </tbody>
 </table>
-<p>Current coverage is all <em>71</em> descriptors the toolbox emits:</p>
-<table>
-<thead>
-<tr>
-<th><code>S</code></th>
-<th><code>PM</code></th>
-<th><code>PC</code></th>
-<th><code>PD</code></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>40</td>
-<td>19</td>
-<td>7</td>
-<td>5</td>
-</tr>
-</tbody>
-</table>
-<p><em>The tier is not a quality ranking.</em> <code>S</code> is not worse than <code>PC</code>; a spectral
-centroid is an excellent measurement of a spectral centroid. The tier says what
-may be concluded, and the only real error is concluding one tier's worth of
-thing from another tier's number.</p>
-<p>Two consequences worth stating plainly, because both are easy to get backwards:</p>
-<ul>
-<li><em>Calibrated is not the same as right.</em> A-weighting is a genuine
-  equal-loudness contour from listening tests, and it is also known to
-  under-weight exactly the low-frequency steady sources indoor work is full of.
-  <code>PC</code> means a listener is built into the transform, not that the answer suits
-  your material.</li>
-<li><em>Signal-only is not the same as neutral.</em> <code>centroid_median_hz</code> is routinely
-  called "brightness", which smuggles in a perceptual claim the number does not
-  carry. Most <code>S</code> descriptors acquire a <code>PD</code> reading somewhere downstream, and
-  that reading is where the risk lives — not in the arithmetic.</li>
-</ul>
-<h2 id="the-check">The check</h2>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape</span><span class="w"> </span><span class="kn">import</span> <span class="n">grounding</span>
+<p>The clock in <code>listen</code>, and every clock in the outputs, is the session clock:
+the recorder's own, moved by <code>calibration.json</code> where the recorder was off.
+A recorder that kept its home time zone abroad needs a <code>clock_offset_s</code> there,
+or every time in the report is an hour out.</p>
+<h2 id="handled-ends">Handled ends</h2>
+<p>The first and last minutes of a recording are usually the recordist setting
+the device down and picking it up. In a quiet room one set-down knock can
+carry half of the acoustic energy of half an hour, so the session LAeq
+describes the knock. <code>post</code> therefore resolves the ends as their own state
+(<code>resolve.handling_states</code>) and writes both into <code>split.json</code>, and
+<code>energy.json</code> says how few frames carry half the energy
+(<code>analysis.energy_concentration</code>). Read the <code>settled</code> state for the place.
+The same split is on the command line as <code>ambiscape resolve SESSION --by handling</code>.</p>
+<h2 id="a-report-that-cannot-print-a-gap">A report that cannot print a gap</h2>
+<p><code>REPORT.template.md</code> is markdown with placeholders that name a JSON file in
+<code>analysis/</code> and a path into it:</p>
+<div class="highlight"><pre><span></span><code>The settled room has an LAeq of {{split.json:states.settled.laeq_dbfs}} dBFS
+and a median centroid of {{summary.json:centroid_median_hz}} Hz.
 
-<span class="n">summary</span><span class="p">,</span> <span class="n">cautions</span> <span class="o">=</span> <span class="n">grounding</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cautions</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+{{tables.json:states}}
 </code></pre></div>
-<p>On a summary carrying a foreground fraction, two events descriptors and a
-couple of levels, that prints:</p>
-<div class="highlight"><pre><span></span><code>fg_fraction_median: figure and ground are a relation between a sound and a
-  listener, not a property of a signal. This is a level-based proxy for that
-  relation and can be wrong about it
-2 further descriptors are perceptually motivated but unvalidated against
-  listeners (tier PM); see ambiscape.grounding
-</code></pre></div>
-<p>On a full summary, where all five perceptually-defined descriptors are
-present, all five are named and the tally reads <code>19</code>.</p>
-<p><code>check</code> raises a caution for every <code>PD</code> quantity present and <em>counts</em> the
-<code>PM</code> ones without itemising them. That asymmetry is deliberate: there are
-nineteen <code>PM</code> descriptors, and a warning that fires on all of them every time
-is a warning nobody reads.</p>
-<p>The result is also written back into the summary under <code>grounding_cautions</code>,
-so a deposited record carries its own caveats rather than relying on whoever
-reads it having read this page.</p>
-<h2 id="the-five-perceptually-defined-descriptors">The five perceptually-defined descriptors</h2>
-<p>These are the ones to be careful with, and it is not a coincidence that they
-are all the same thing:</p>
-<ul>
-<li><code>fg_fraction_median</code>, <code>fg_fraction_p90</code> — how much of a session is
-  "foreground"</li>
-<li><code>fgbg_az_overlap</code> — whether figure and ground share a direction</li>
-<li><code>azimuth_fg_deg</code>, <code>elevation_fg_median_deg</code> — where the foreground is</li>
-</ul>
-<p>Foreground and background are not properties of a signal. A background is a
-relation between a sound and someone who is not attending to it, and level is a
-stand-in for that relation. The stand-in is a good one — across a year of
-recordings, days with audible voices do not sit at a higher level but show a
-wider range, which is a real and measured result — but it is still a stand-in.
-Read these as evidence about the proxy.</p>
-<h2 id="coverage-cannot-rot">Coverage cannot rot</h2>
-<p>A test fails if a descriptor reaches the summary without a tier:</p>
-<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_every_known_summary_key_has_a_tier</span><span class="p">():</span>
-    <span class="n">known</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">timescales</span><span class="o">.</span><span class="n">WINDOWS</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">timescales</span><span class="o">.</span><span class="n">EXEMPT</span><span class="p">)</span>
-    <span class="n">missing</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">known</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">grounding</span><span class="o">.</span><span class="n">GROUNDINGS</span><span class="p">)</span> <span class="o">-</span> <span class="n">grounding</span><span class="o">.</span><span class="n">EXEMPT</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="ow">not</span> <span class="n">missing</span>
-</code></pre></div>
-<p>The alternative — letting an unclassified descriptor default to <code>S</code> — is the
-convenient answer and precisely how a perceptual claim gets attached to a
-signal number without anyone deciding to. <code>grounding.unregistered(summary)</code>
-reports the same thing at runtime for summaries from outside the toolbox.</p>
-<h2 id="inspecting-the-registry">Inspecting the registry</h2>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape</span><span class="w"> </span><span class="kn">import</span> <span class="n">grounding</span>
+<p><code>{{file.json:key.path:fmt}}</code> adds a format spec (<code>.1f</code>, <code>+.0f</code>). A value
+stored as text, such as a clock time or a table from <code>tables.json</code>, goes in as
+it is; numbers print with a true minus sign. A missing key or a null value
+stops the build with the placeholder's name, so a report never shows a blank
+where a measurement should be, and a number in it is never typed by hand. The
+prose around the placeholders is yours: <code>run</code> measures, the template says what
+the measurement means.</p>
+<p>Analyses that only one recording needs, such as a breathing-rate test for a
+night with sleepers, stay in that folder as scripts that read and write
+<code>analysis/</code>, and their outputs fill the same template.</p>
+<h2 id="from-python">From Python</h2>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">ambiscape</span><span class="w"> </span><span class="kn">import</span> <span class="n">runner</span>
 
-<span class="n">grounding</span><span class="o">.</span><span class="n">tier_of</span><span class="p">(</span><span class="s2">"laeq_dbfs"</span><span class="p">)</span>      <span class="c1"># 'PC'</span>
-<span class="n">grounding</span><span class="o">.</span><span class="n">tier_of</span><span class="p">(</span><span class="s2">"leq_dbfs"</span><span class="p">)</span>       <span class="c1"># 'S'  -- unweighted, no listener</span>
-<span class="n">grounding</span><span class="o">.</span><span class="n">counts</span><span class="p">()</span>                  <span class="c1"># {'S': 40, 'PM': 19, 'PC': 7, 'PD': 5}</span>
-
-<span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">grounding</span><span class="o">.</span><span class="n">table</span><span class="p">():</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"tier"</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">"descriptor"</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">"why"</span><span class="p">])</span>
+<span class="n">runner</span><span class="o">.</span><span class="n">init_config</span><span class="p">(</span><span class="s2">"SESSION"</span><span class="p">)</span>
+<span class="n">runner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">"SESSION"</span><span class="p">,</span> <span class="n">stages</span><span class="o">=</span><span class="p">[</span><span class="s2">"post"</span><span class="p">,</span> <span class="s2">"report"</span><span class="p">])</span>
+<span class="n">runner</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"SESSION"</span><span class="p">)</span>                      <span class="c1"># the post stage alone</span>
 </code></pre></div>
-<p>Every entry carries a <code>why</code>, and a <code>ref</code> where the tier rests on a published
-standard. If you disagree with a classification, the <code>why</code> is the thing to
-argue with.</p>
-<h2 id="what-this-does-not-cover">What this does not cover</h2>
-<p>The registry covers the <em>session summary</em>. It does not yet reach:</p>
-<ul>
-<li><strong>object-level typing.</strong> <code>object_facture</code> returns "impulsive", "sustained" or
-  "iterative" — Schaeffer's categories, which are perceptual by definition and
-  therefore <code>PD</code>. Three trained listeners agree unanimously on 158 of 365
-  deliberately-recorded sound actions, so the ground truth is itself unstable.
-  The label does not currently carry that.</li>
-<li><strong>impulse-response metrics.</strong> T60, EDT, C50 and STI are all <code>PC</code> — the 50 ms
-  and 80 ms splits and the 10 dB early-decay range come from listening
-  experiments — but they are returned by <code>ir_metrics</code> rather than through the
-  session summary.</li>
-<li><strong>the video side.</strong> Quantity of motion and its relatives are <code>S</code>, and the
-  same downstream risk applies.</li>
-</ul>
-<p>These are gaps, listed so they are visible rather than assumed covered.</p>
 
 
 
@@ -2416,7 +2350,7 @@ argue with.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 10, 2026 13:03:20 UTC">August 10, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 4, 2026 09:40:29 UTC">October 4, 2026</span>
   </span>
 
     
@@ -2426,7 +2360,7 @@ argue with.</p>
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 10, 2026 12:51:37 UTC">August 10, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 4, 2026 09:40:29 UTC">October 4, 2026</span>
   </span>
 
     

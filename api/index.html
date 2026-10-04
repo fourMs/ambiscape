@@ -20952,8 +20952,8 @@ between 1 and 20 kHz, where switching supplies whine, is returned.</p>
 <code>SUPPLY_MIN_PROM_DB</code> out of W and its direction ratio is at or below
 <code>SUPPLY_PICKUP_DB</code>; <code>"acoustic"</code> when it stands out and sits above;
 <code>"no line"</code> when it does not stand out; <code>"not ambix"</code> for files that
-are not four-channel. The threshold rests on little: one overnight Zoom
-H3-VR session on a USB supply (the line 15 to 18.5 dB below its surround)
+are not four-channel; <code>"empty"</code> for a file that holds no frames. The
+threshold rests on little: one overnight Zoom H3-VR session on a USB supply (the line 15 to 18.5 dB below its surround)
 against 45 files without pickup (-5.5 to +3.7 dB where a line stood out).</p>
 <p><code>wyzx</code> gives the column of W, Y, Z and X (AmbiX: <code>(0, 1, 2, 3)</code>;
 FuMa W, X, Y, Z: <code>(0, 2, 3, 1)</code>); :attr:<code>ambiscape.io.Take.wyzx</code> has it.
@@ -21036,7 +21036,10 @@ where a long file allows.</p>
 <span class="normal">281</span>
 <span class="normal">282</span>
 <span class="normal">283</span>
-<span class="normal">284</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">supply_signature</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">nominal</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">50.0</span><span class="p">,</span> <span class="n">n_harmonics</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">supply_signature</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">nominal</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">50.0</span><span class="p">,</span> <span class="n">n_harmonics</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
                      <span class="n">n_windows</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">win_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">,</span> <span class="n">nperseg_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">8.0</span><span class="p">,</span>
                      <span class="n">wyzx</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Is the mains hum in a four-channel B-format file electrical pickup</span>
@@ -21059,8 +21062,8 @@ where a long file allows.</p>
 <span class="sd">    ``SUPPLY_MIN_PROM_DB`` out of W and its direction ratio is at or below</span>
 <span class="sd">    ``SUPPLY_PICKUP_DB``; ``"acoustic"`` when it stands out and sits above;</span>
 <span class="sd">    ``"no line"`` when it does not stand out; ``"not ambix"`` for files that</span>
-<span class="sd">    are not four-channel. The threshold rests on little: one overnight Zoom</span>
-<span class="sd">    H3-VR session on a USB supply (the line 15 to 18.5 dB below its surround)</span>
+<span class="sd">    are not four-channel; ``"empty"`` for a file that holds no frames. The</span>
+<span class="sd">    threshold rests on little: one overnight Zoom H3-VR session on a USB supply (the line 15 to 18.5 dB below its surround)</span>
 <span class="sd">    against 45 files without pickup (-5.5 to +3.7 dB where a line stood out).</span>
 
 <span class="sd">    ``wyzx`` gives the column of W, Y, Z and X (AmbiX: ``(0, 1, 2, 3)``;</span>
@@ -21072,8 +21075,11 @@ where a long file allows.</p>
     <span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">signal</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.ndimage</span><span class="w"> </span><span class="kn">import</span> <span class="n">median_filter</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.tonality</span><span class="w"> </span><span class="kn">import</span> <span class="n">narrow_line_prominence</span>
-    <span class="k">if</span> <span class="n">sf</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span><span class="o">.</span><span class="n">channels</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">sf</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">channels</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">"verdict"</span><span class="p">:</span> <span class="s2">"not ambix"</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">frames</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>                        <span class="c1"># a broken header reads as no audio</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"verdict"</span><span class="p">:</span> <span class="s2">"empty"</span><span class="p">}</span>
     <span class="n">f</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">ws</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">_ch</span><span class="p">,</span> <span class="n">nw</span> <span class="o">=</span> <span class="n">_welch_windows</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">n_windows</span><span class="p">,</span> <span class="n">win_s</span><span class="p">,</span> <span class="n">nperseg_s</span><span class="p">)</span>
     <span class="n">P</span> <span class="o">=</span> <span class="n">P</span><span class="p">[:,</span> <span class="nb">list</span><span class="p">(</span><span class="n">wyzx</span><span class="p">)]</span>                                 <span class="c1"># -&gt; W, Y, Z, X</span>
     <span class="n">db</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">P</span> <span class="o">+</span> <span class="n">EPS</span><span class="p">)</span>
@@ -21137,10 +21143,7 @@ horizontal, both in the recorder's own frame.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/ambiscape/enf.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">287</span>
-<span class="normal">288</span>
-<span class="normal">289</span>
-<span class="normal">290</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">290</span>
 <span class="normal">291</span>
 <span class="normal">292</span>
 <span class="normal">293</span>
@@ -21171,7 +21174,10 @@ horizontal, both in the recorder's own frame.</p>
 <span class="normal">318</span>
 <span class="normal">319</span>
 <span class="normal">320</span>
-<span class="normal">321</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">line_bearing</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">f0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">n_windows</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">win_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">,</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">line_bearing</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">f0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">n_windows</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">win_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">,</span>
                  <span class="n">nperseg_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">8.0</span><span class="p">,</span> <span class="n">wyzx</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Bearing of a steady narrow line, from the active intensity at ``f0``:</span>
 <span class="sd">    the real parts of the cross-spectra of W with X, Y and Z, which point</span>

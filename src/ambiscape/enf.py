@@ -231,7 +231,7 @@ def supply_signature(path, nominal: float = 50.0, n_harmonics: int = 10,
     ``SUPPLY_MIN_PROM_DB`` out of W and its direction ratio is at or below
     ``SUPPLY_PICKUP_DB``; ``"acoustic"`` when it stands out and sits above;
     ``"no line"`` when it does not stand out; ``"not ambix"`` for files that
-    are not four-channel. The threshold rests on little: one overnight Zoom
+    are not four-channel; ``"empty"`` for a file that holds no frames. The threshold rests on little: one overnight Zoom
     H3-VR session on a USB supply (the line 15 to 18.5 dB below its surround)
     against 45 files without pickup (-5.5 to +3.7 dB where a line stood out).
 
@@ -244,8 +244,11 @@ def supply_signature(path, nominal: float = 50.0, n_harmonics: int = 10,
     from scipy import signal
     from scipy.ndimage import median_filter
     from .tonality import narrow_line_prominence
-    if sf.info(str(path)).channels != 4:
+    info = sf.info(str(path))
+    if info.channels != 4:
         return {"verdict": "not ambix"}
+    if info.frames == 0:                        # a broken header reads as no audio
+        return {"verdict": "empty"}
     f, P, ws, fs, _ch, nw = _welch_windows(path, n_windows, win_s, nperseg_s)
     P = P[:, list(wyzx)]                                 # -> W, Y, Z, X
     db = 10 * np.log10(P + EPS)

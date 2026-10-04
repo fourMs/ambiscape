@@ -24,6 +24,9 @@ been carrying feature work throughout a pre-1.0 life.
 - `io.listening_clips`, `report.fill_template`, `report.markdown_table` (2026-10-04).
 - `python -m ambiscape` runs the command line (2026-10-04).
 
+### Fixed
+- `enf.supply_signature` returns the verdict `empty` for a file that holds no frames (a broken header), instead of failing with an IndexError (2026-10-04).
+
 ### Changed
 - `ambiscape speechgate` reads a session folder take by take, decoding where needed, and `--json` writes its results (2026-10-04).
 

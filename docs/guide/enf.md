@@ -68,7 +68,7 @@ ambiscape supply SESSION/ --bearing 100   # also the bearing of the 100 Hz line
 
 ```python
 sig = enf.supply_signature(take.audio_path, wyzx=take.wyzx)
-sig["verdict"]                     # 'pickup', 'acoustic', 'no line' or 'not ambix'
+sig["verdict"]                     # 'pickup', 'acoustic', 'no line', 'not ambix' or 'empty'
 sig["fundamental"]                 # {'prom_W_db': 16.8, 'line_minus_ring_db': -15.1, ...}
 ```
 

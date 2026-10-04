@@ -63,3 +63,9 @@ def test_line_bearing_recovers_azimuth(tmp_path, n, az):
     assert ((b["az_deg"] - az + 180) % 360) - 180 == pytest.approx(0, abs=3)
     assert b["el_deg"] == pytest.approx(-15, abs=3)
     assert len(b["per_window_az_deg"]) == 3
+
+
+def test_empty_file_is_said_so(tmp_path):
+    p = tmp_path / "empty.wav"
+    sf.write(p, np.zeros((0, 4), np.float32), FS)
+    assert enf.supply_signature(p)["verdict"] == "empty"

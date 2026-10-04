@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 from .io import Session
@@ -217,3 +218,57 @@ def write_readme(sess: Session, summary: dict, out_dir: Path,
     (out_dir / "summary.json").write_text(
         json.dumps(_json_safe(summary), indent=2))
     return path
+
+
+_PLACEHOLDER = re.compile(r"\{\{([^:}]+\.json):([^:}]+)(?::([^}]+))?\}\}")
+
+
+def fill_template(text: str, base_dir) -> str:
+    """Fill ``{{file.json:key.path}}`` and ``{{file.json:key.path:fmt}}``
+    placeholders from JSON files under ``base_dir``.
+
+    ``key.path`` walks the JSON with dots (integer steps index lists); ``fmt``
+    is a Python format spec. Numbers print with a true minus sign; a value
+    stored as text (a clock time, a markdown table) is inserted as it is. A
+    missing key or a null value raises ``KeyError``, so a report never prints
+    a gap where a measurement should be."""
+    base = Path(base_dir)
+    cache = {}
+
+    def get(f, path):
+        p = (base / f).resolve()
+        if p not in cache:
+            if not p.exists():
+                raise KeyError(f"{f}: no such file under {base}")
+            cache[p] = json.loads(p.read_text())
+        obj = cache[p]
+        for k in path.split("."):
+            try:
+                obj = obj[int(k)] if isinstance(obj, list) else obj[k]
+            except (KeyError, IndexError, ValueError) as e:
+                raise KeyError(f"{{{{{f}:{path}}}}}: {e!r}") from None
+        if obj is None:
+            raise KeyError(f"{{{{{f}:{path}}}}}: null")
+        return obj
+
+    def sub(m):
+        v = get(m.group(1), m.group(2))
+        if m.group(3):
+            return format(v, m.group(3)).replace("-", "−")
+        return str(v).replace("-", "−") if isinstance(v, (int, float)) else str(v)
+
+    return _PLACEHOLDER.sub(sub, text)
+
+
+def markdown_table(rows, cols, head) -> str:
+    """A markdown table: ``rows`` are dicts, ``cols`` their keys in order,
+    ``head`` the header cells. Numbers print with a true minus sign and an
+    absent value as an en dash."""
+    out = ["| " + " | ".join(head) + " |", "|" + "---|" * len(head)]
+    for r in rows:
+        cells = []
+        for c in cols:
+            v = r.get(c)
+            cells.append("–" if v is None else (str(v).replace("-", "−") if isinstance(v, (int, float)) else str(v)))
+        out.append("| " + " | ".join(cells) + " |")
+    return "\n".join(out)

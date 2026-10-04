@@ -32,6 +32,7 @@ nav:
   - Working with other packages: interop.md
   - Core:
       - Sessions & conventions: guide/sessions.md
+      - One folder per recording: guide/run.md
       - Features & descriptors: guide/descriptors.md
       - Timescales & validity windows: guide/timescales.md
       - Grounding (signal vs perception): guide/grounding.md

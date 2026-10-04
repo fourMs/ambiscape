@@ -203,3 +203,45 @@ def directogram(F, out_path, title=""):
         fig.tight_layout()
         fig.savefig(out_path, bbox_inches="tight")
         plt.close(fig)
+
+
+def tag_timeline(F, arrays, counts, out_path, threshold=0.3, title="", band=(50.0, 1000.0)):
+    """Band level (1 s, with a 60 s running median) above a raster of the
+    tag groups at ``threshold``, on the session's local clock: hours for a
+    session over three hours, minutes otherwise. ``arrays`` and ``counts``
+    come from :func:`ambiscape.ml.tag_groups`."""
+    from scipy.ndimage import median_filter
+    from .ml import group_key
+    from .states import band_level
+    t = np.asarray(F["t"], float)
+    lvl = band_level(F, band)
+    long = (t[-1] - t[0]) > 3 * 3600
+    sc = 3600.0 if long else 60.0
+    with plt.rc_context(RC):
+        fig, (a1, a2) = plt.subplots(2, 1, figsize=(12, 5.5), sharex=True,
+                                     gridspec_kw={"height_ratios": [2, 1.4]})
+        a1.plot(t / sc, lvl, lw=0.3, color="#7aa6d8")
+        a1.plot(t / sc, median_filter(lvl, 61, mode="nearest"), lw=1.2, color="#1f4e8c")
+        a1.set_ylabel(f"{band[0]:g}–{band[1]:g} Hz level (dB)")
+        a1.set_title(title or f"band level and AudioSet tag groups at P ≥ {threshold}", loc="left", fontsize=10)
+        shown = [g for g in counts if counts[g] > 0]
+        for k, g in enumerate(shown):
+            v = arrays[group_key(g)]
+            a2.plot(arrays["t"][v >= threshold] / sc, np.full(int((v >= threshold).sum()), k),
+                    "|", ms=9, color="#333")
+        a2.set_yticks(range(len(shown)))
+        a2.set_yticklabels([f"{g} ({counts[g]})" for g in shown], fontsize=8)
+        a2.set_ylim(-0.7, max(len(shown), 1) - 0.3)
+        a2.set_xlim(t[0] / sc, t[-1] / sc)
+        ticks = a2.get_xticks()
+        a2.set_xticks(ticks)
+        a2.set_xlim(t[0] / sc, t[-1] / sc)
+        a2.set_xticklabels([f"{int(v) % 24:02d}:00" if long else f"{int(v // 60) % 24:02d}:{int(v % 60):02d}"
+                            for v in ticks])
+        a2.set_xlabel("local time")
+        for a in (a1, a2):
+            a.spines[["top", "right"]].set_visible(False)
+        fig.tight_layout()
+        fig.savefig(out_path, dpi=130)
+        plt.close(fig)
+    return out_path

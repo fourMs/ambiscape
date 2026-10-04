@@ -29,6 +29,8 @@ This streams the audio in constant memory, however long it is. It extracts featu
 
 ![Session overview figure: level timeline, spectrogram, anglegram, and diffuseness lane on one clock.](docs/img/overview.png) The [quickstart guide](https://fourms.github.io/ambiscape/quickstart/) continues from there, on the command line and in Python.
 
+For a recording you keep as a folder of its own, `ambiscape init my-session/` writes a `session.json` to fill in, and `ambiscape run my-session/` runs the whole chain on it, from `analyze` to a filled report; see [one folder per recording](https://fourms.github.io/ambiscape/guide/run/).
+
 ## Commands
 
 `analyze` is one of nearly forty subcommands. The others cover taxonomy annotation, rhythm and tonality, room acoustics and impulse responses, ecological and source-domain indices, perceptual surveys, multi-recorder building networks (`network`), corpus aggregation, and privacy-aware publishing. The [command overview](https://fourms.github.io/ambiscape/cli/) lists them all; `ambiscape --help` prints the same list.

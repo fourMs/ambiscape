@@ -541,3 +541,32 @@ def stereo_preview(x, wyzx=(0, 1, 2, 3), az_deg: float = 90.0, mode="ambix"):
     W, Y = x[:, wyzx[0]], x[:, wyzx[1]]
     g = float(np.sin(np.radians(az_deg)))
     return np.stack([0.5 * (W + g * Y), 0.5 * (W - g * Y)], axis=1)
+
+
+def listening_clips(sess: Session, clips, out_dir, peak_dbfs: float = -1.0) -> list:
+    """Stereo previews of spans worth listening to, for checking what a
+    machine reading claims. ``clips`` is a list of ``(clock, seconds, label)``
+    with ``clock`` as local ``HH:MM:SS`` (the first occurrence at or after the
+    session start). Each span is decoded with :func:`stereo_preview` (B-format
+    as cardioids at +-90 deg, stereo passed through), normalised to
+    ``peak_dbfs`` and written as 24-bit WAV named
+    ``YYYYMMDD_HHMMSS_<label>_gain<+N>dB.wav``, the gain applied in the name.
+    Returns the paths written."""
+    import numpy as np
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    tk0 = sess.takes[0]
+    paths = []
+    for hms, dur, label in clips:
+        h, m, s = (int(v) for v in str(hms).split(":"))
+        t = h * 3600 + m * 60 + s
+        while t < tk0.start:
+            t += 86400
+        x, fs = read_span(sess, float(t), float(dur))
+        y = stereo_preview(x, wyzx=tk0.wyzx, mode=tk0.mode)
+        g = 10 ** (peak_dbfs / 20) / max(1e-9, float(np.abs(y).max()))
+        day = sess.day0 + _dt.timedelta(days=int(t // 86400))
+        p = out_dir / f"{day:%Y%m%d}_{h:02d}{m:02d}{s:02d}_{label}_gain{20 * np.log10(g):+.0f}dB.wav"
+        sf.write(str(p), (y * g).astype("float32"), fs, subtype="PCM_24")
+        paths.append(p)
+    return paths

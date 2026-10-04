@@ -1363,7 +1363,7 @@ def transient_candidates(x: np.ndarray, fs: int, n_max: int = 60, min_rise_db: f
     return picks
 
 
-def decay_from_transients(x: np.ndarray, fs: int, bands=((250, 500), (500, 1000), (1000, 2000),
+def decay_from_transients(x: np.ndarray, fs: int, bands: tuple = ((250, 500), (500, 1000), (1000, 2000),
                           (2000, 4000), (4000, 8000)), n_max: int = 60, min_rise_db: float = 12.0,
                           pre_s: float = 0.5, excerpt_s: float = 2.0) -> dict:
     """Blind reverberation estimates from the transients in an ordinary recording.
@@ -1455,3 +1455,30 @@ def pick_segments(F: dict, n=4, seg_s=600.0) -> list[dict]:
         else:
             same.setdefault("also", []).append(kind)
     return picks[:n]
+
+
+def energy_concentration(F: dict, handling_s: float | None = None, trim_pct: float = 5.0) -> dict:
+    """How few frames carry an energy average.
+
+    LAeq is a mean of squared pressure, so in a quiet span a handful of loud
+    frames can decide it. Returns the number and share of 125 ms frames that
+    carry half of the A-weighted energy, LAeq with and without the loudest
+    ``trim_pct`` %, LAeq without the first and last ``handling_s`` seconds
+    (setting a recorder down and picking it up) when given, the largest peak,
+    and the times of the five loudest frames (session seconds).
+    """
+    la, t = np.asarray(F["fast_dba"], float), np.asarray(F["t_fast"], float)
+    p = 10 ** (la / 10.0)
+    order = np.argsort(p)[::-1]
+    n_half = int(np.searchsorted(np.cumsum(p[order]) / p.sum(), 0.5)) + 1
+    out = {"frames": int(p.size), "frames_half_energy": n_half,
+           "pct_frames_half_energy": round(100 * n_half / p.size, 3),
+           "laeq_dbfs": round(float(10 * np.log10(p.mean())), 1),
+           "laeq_trim5_dbfs": round(float(trimmed_leq(la, trim_pct)), 1),
+           "max_peak_dbfs": round(float(20 * np.log10(np.max(F["peak"]) + 1e-12)), 1),
+           "loudest_s": [round(float(v), 3) for v in t[order[:5]]]}
+    if handling_s:
+        m = (t > t[0] + handling_s) & (t < t[-1] - handling_s)
+        out["handling_s"] = float(handling_s)
+        out["laeq_without_ends_dbfs"] = round(float(10 * np.log10(p[m].mean())), 1) if m.any() else None
+    return out

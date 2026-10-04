@@ -16,6 +16,17 @@ been carrying feature work throughout a pre-1.0 life.
 
 ## [Unreleased]
 
+### Added
+- `ambiscape run SESSION`, `ambiscape init SESSION` and `ambiscape.runner`: the whole chain on one session folder, driven by its `session.json`, in seven stages (`analyze`, `birdnet`, `speechgate`, `iso`, `tags`, `post`, `report`), each pass in its own process so tensorflow and torch do not meet. The post stage writes `energy.json`, `tag_groups.json`, `tag_timeline.png`, `split.json`, `supply.json`, `tables.json` and listening clips; the report stage fills `REPORT.template.md` into `REPORT.md` (2026-10-04).
+- `enf.supply_signature` and `ambiscape supply`: power-supply pickup against hum in the air, from the direction ratio of each mains line in X, Y and Z against W relative to its surround; `enf.line_bearing` for the bearing of a steady line (2026-10-04).
+- `ml.tag_session`, `ml.tag_groups`, `ml.TAG_GROUPS`: frame-wise tags over every take with a per-take cache, pooled into groups on the session clock; `figures.tag_timeline` (2026-10-04).
+- `analysis.energy_concentration`, `resolve.handling_states` and `ambiscape resolve --by handling`: how few frames carry an energy average, and the handled ends as their own state (2026-10-04).
+- `io.listening_clips`, `report.fill_template`, `report.markdown_table` (2026-10-04).
+- `python -m ambiscape` runs the command line (2026-10-04).
+
+### Changed
+- `ambiscape speechgate` reads a session folder take by take, decoding where needed, and `--json` writes its results (2026-10-04).
+
 ### Fixed
 - `render.characteristic_excerpt` (`ambiscape background --excerpt`) in sessions of several takes: the excerpt is named after the take it is cut from, `t0_in_take_s` is measured from that take, a new `take` key names the file, and windows that straddle a take boundary are no longer scored. The exported audio was already correct; the filename and offset pointed at the first take (2026-10-03).
 

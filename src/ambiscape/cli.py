@@ -74,9 +74,37 @@ def main(argv=None):
     sg = sub.add_parser("speechgate",
                         help="silero-vad privacy check: fraction of speech "
                              "in WAV file(s) before publishing")
-    sg.add_argument("path", help="a WAV file or a folder of WAVs")
+    sg.add_argument("path", help="a WAV file, a folder of WAVs, or a session "
+                                 "folder (its takes, decoded where needed)")
     sg.add_argument("--threshold", type=float, default=0.01,
                     help="max allowed speech fraction (default 0.01)")
+    sg.add_argument("--json", default=None,
+                    help="also write the results to this JSON file")
+    rn = sub.add_parser("run",
+                        help="the whole chain on one session folder, driven "
+                             "by its session.json (see 'ambiscape init')")
+    rn.add_argument("folder")
+    rn.add_argument("--stage", action="append", default=None,
+                    choices=("analyze", "birdnet", "speechgate", "iso", "tags",
+                             "post", "report"),
+                    help="run only this stage (repeatable; default all)")
+    rn.add_argument("--no-ml", action="store_true",
+                    help="skip BirdNET, the speech gate and the tags")
+    it = sub.add_parser("init", help="write a session.json skeleton into a "
+                                     "session folder")
+    it.add_argument("folder")
+    su = sub.add_parser("supply",
+                        help="power-supply pickup or hum in the air: the "
+                             "direction ratio of each mains line, per take "
+                             "(B-format only)")
+    su.add_argument("folder")
+    su.add_argument("-o", "--out", default=None,
+                    help="output dir (default <folder>/analysis)")
+    su.add_argument("--nominal", type=float, default=50.0,
+                    help="mains nominal Hz (50 Europe/Asia, 60 Americas)")
+    su.add_argument("--bearing", type=float, action="append", default=None,
+                    metavar="HZ", help="also the bearing of the line at HZ "
+                                       "(repeatable)")
     bn = sub.add_parser("birdnet",
                         help="BirdNET bird-species detections, optionally on "
                              "hi-fi windows only (needs ambiscape[ml])")
@@ -327,9 +355,12 @@ def main(argv=None):
                              "(needs a prior analyze run)")
     rs.add_argument("folder")
     rs.add_argument("-o", "--out", default=None)
-    rs.add_argument("--by", choices=("machine", "diel"), default="machine",
-                    help="split by machine band on/off (default) or wall-clock "
-                         "day/night")
+    rs.add_argument("--by", choices=("machine", "diel", "handling"),
+                    default="machine",
+                    help="split by machine band on/off (default), wall-clock "
+                         "day/night, or the handled ends against the rest")
+    rs.add_argument("--handling-s", type=float, default=60.0,
+                    help="seconds at each end for --by handling (default 60)")
     rs.add_argument("--band", default="250,1000",
                     help="machine band lo,hi Hz for --by machine "
                          "(default 250,1000)")
@@ -604,18 +635,76 @@ def main(argv=None):
     if args.cmd == "speechgate":
         from .ml import speech_gate
         p = Path(args.path)
-        files = sorted(p.glob("*.wav")) + sorted(p.glob("*.WAV")) \
-            if p.is_dir() else [p]
-        ok = True
+        names = {}
+        if p.is_dir():
+            try:
+                from .io import open_session
+                takes = open_session(p).takes
+                files = [t.audio_path for t in takes]
+                names = {str(t.audio_path): t.path.name for t in takes}
+            except FileNotFoundError:
+                files = sorted(p.glob("*.wav")) + sorted(p.glob("*.WAV"))
+        else:
+            files = [p]
+        ok, doc = True, {}
         for f in files:
             r = speech_gate(f, threshold=args.threshold)
             verdict = "PASS" if r["passes"] else "FAIL"
             ok &= r["passes"]
             extra = ("" if r["passes"] else
                      f" (first speech at {r['first_speech_at_s']}s)")
-            print(f"  {verdict}  {f.name}: {r['speech_fraction']*100:.2f}% "
+            name = names.get(str(f), Path(f).name)
+            print(f"  {verdict}  {name}: {r['speech_fraction']*100:.2f}% "
                   f"speech, {r['n_speech_segments']} segment(s){extra}")
+            doc[name] = {"verdict": verdict,
+                         "speech_pct": round(100 * r["speech_fraction"], 2),
+                         "segments": r["n_speech_segments"]}
+        if args.json:
+            Path(args.json).parent.mkdir(parents=True, exist_ok=True)
+            Path(args.json).write_text(json.dumps(
+                {"threshold": args.threshold, "takes": doc, "n_takes": len(doc),
+                 "segments_total": sum(v["segments"] for v in doc.values()),
+                 "max_speech_pct": max((v["speech_pct"] for v in doc.values()),
+                                       default=None)}, indent=1))
         return 0 if ok else 2
+
+    if args.cmd == "run":
+        from . import runner
+        runner.run(args.folder, stages=args.stage, ml=not args.no_ml)
+        return 0
+
+    if args.cmd == "init":
+        from . import runner
+        try:
+            print(f"wrote {runner.init_config(args.folder)}")
+        except FileExistsError as e:
+            print(f"error: {e}")
+            return 1
+        return 0
+
+    if args.cmd == "supply":
+        from . import enf as enf_mod
+        from .io import open_session
+        sess = open_session(args.folder)
+        out = Path(args.out) if args.out else Path(args.folder) / "analysis"
+        out.mkdir(parents=True, exist_ok=True)
+        takes = {}
+        for t in sess.takes:
+            sig = enf_mod.supply_signature(t.audio_path, nominal=args.nominal,
+                                           wyzx=t.wyzx)
+            if args.bearing and sig["verdict"] != "not ambix":
+                sig["bearings"] = [enf_mod.line_bearing(t.audio_path, f0, wyzx=t.wyzx)
+                                   for f0 in args.bearing]
+            takes[t.path.name] = sig
+            f1 = sig.get("fundamental", {})
+            print(f"  {t.path.name}: {sig['verdict']}"
+                  + (f" (line {f1['prom_W_db']} dB in W, direction ratio "
+                     f"{f1['line_minus_ring_db']} dB vs surround)" if f1 else ""))
+        (out / "supply.json").write_text(json.dumps(
+            {"nominal_hz": args.nominal, "min_prom_db": enf_mod.SUPPLY_MIN_PROM_DB,
+             "pickup_db": enf_mod.SUPPLY_PICKUP_DB, "takes": takes}, indent=1))
+        print(f"wrote {out / 'supply.json'}")
+        return 0
 
     if args.cmd == "resolve":
         from .io import open_session
@@ -631,6 +720,8 @@ def main(argv=None):
         if args.by == "machine":
             lo, hi = (float(v) for v in args.band.split(","))
             states = rmod.machine_states(F, band=(lo, hi))
+        elif args.by == "handling":
+            states = rmod.handling_states(F, handling_s=args.handling_s)
         else:
             nlo, nhi = (int(v) for v in args.night.split(","))
             states = rmod.diel_states(F, sess, night=(nlo, nhi))

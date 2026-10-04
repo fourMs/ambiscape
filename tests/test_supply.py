@@ -69,3 +69,30 @@ def test_empty_file_is_said_so(tmp_path):
     p = tmp_path / "empty.wav"
     sf.write(p, np.zeros((0, 4), np.float32), FS)
     assert enf.supply_signature(p)["verdict"] == "empty"
+
+
+def test_a_loud_window_does_not_bury_the_line(tmp_path):
+    """A short take whose first and last windows hold speech and handling,
+    30 dB above the room: the pickup line must still be found and called."""
+    n = int(150 * FS)                                  # too short to skip its ends
+    data = diffuse_noise(n, level=0.00005, seed=6)     # a quiet room
+    data[:, 0] += _hum(n, level=0.0002)               # pickup, W only: under the
+                                                      # handling, far over the room
+    loud = int(10 * FS)                                # speech and plugging in, as recorded
+    data[:loud] += diffuse_noise(loud, level=0.05, seed=7)
+    data[-loud:] += diffuse_noise(loud, level=0.05, seed=8)
+    sig = enf.supply_signature(_write(tmp_path / "h.wav", data), n_windows=6, win_s=40.0)
+    assert sig["fundamental"]["prom_W_db"] > 15
+    assert sig["verdict"] == "pickup"
+
+
+def test_a_loud_window_does_not_move_the_bearing(tmp_path):
+    """Two handled windows full of loud sound from elsewhere: the bearing of
+    the steady line still comes from where the line is."""
+    n = int(150 * FS)
+    data = diffuse_noise(n, level=0.00005, seed=9) + plane_wave(_hum(n, f0=100.0, level=0.0005), 60.0)
+    loud = int(10 * FS)
+    data[:loud] += plane_wave(0.05 * np.random.default_rng(1).standard_normal(loud), -120.0)
+    data[-loud:] += plane_wave(0.05 * np.random.default_rng(2).standard_normal(loud), -120.0)
+    b = enf.line_bearing(_write(tmp_path / "b2.wav", data), 100.0, n_windows=6, win_s=40.0)
+    assert ((b["az_deg"] - 60 + 180) % 360) - 180 == pytest.approx(0, abs=5)

@@ -187,8 +187,12 @@ SUPPLY_PICKUP_DB = -10.0
 
 
 def _welch_windows(path, n_windows, win_s, nperseg_s):
-    """Average Welch PSD (n_freq x channels) over evenly spread windows, and
-    the mono W windows themselves for :func:`hum_peak`."""
+    """Welch PSD (n_freq x channels) over evenly spread windows, combined by
+    the median across windows bin by bin, and the mono W windows themselves
+    for :func:`hum_peak`. The median, not the mean: in a short take the first
+    and last windows hold the recordist's voice and the handling, tens of
+    decibels above the room, and a mean of powers lets those two windows bury
+    a line the other four show plainly."""
     import soundfile as sf
     from scipy import signal
     info = sf.info(str(path))
@@ -197,15 +201,15 @@ def _welch_windows(path, n_windows, win_s, nperseg_s):
     span = max(dur - 2 * lead - win_s, 0.0)
     starts = [lead + (span * i / (n_windows - 1) if n_windows > 1 else 0.0)
               for i in range(n_windows)] if span > 0 else [0.0]
-    P, ws, f = None, [], None
+    Ps, ws, f = [], [], None
     with sf.SoundFile(str(path)) as fh:
         for t0 in starts:
             fh.seek(int(t0 * fs))
             x = fh.read(int(win_s * fs), dtype="float64", always_2d=True)
             f, p = signal.welch(x, fs, nperseg=min(int(nperseg_s * fs), len(x)), axis=0)
-            P = p if P is None else P + p
+            Ps.append(p)
             ws.append(x[:, 0])
-    return f, P / len(starts), ws, fs, info.channels, len(starts)
+    return f, np.median(np.stack(Ps), axis=0), ws, fs, info.channels, len(starts)
 
 
 def supply_signature(path, nominal: float = 50.0, n_harmonics: int = 10,
@@ -291,8 +295,10 @@ def line_bearing(path, f0: float, n_windows: int = 6, win_s: float = 60.0,
                  nperseg_s: float = 8.0, wyzx=(0, 1, 2, 3)) -> dict:
     """Bearing of a steady narrow line, from the active intensity at ``f0``:
     the real parts of the cross-spectra of W with X, Y and Z, which point
-    towards a plane wave's source. Summed over evenly spread windows for the
-    bearing, kept per window to show whether the source moved. Azimuth is
+    towards a plane wave's source. Each window's intensity vector is scaled to
+    unit length before they are summed, so every window counts once and a
+    loud handled window cannot outvote the rest; the per-window bearings are
+    kept to show whether the source moved. Azimuth is
     counter-clockwise from the recorder's front (X+), elevation up from the
     horizontal, both in the recorder's own frame."""
     import soundfile as sf
@@ -317,7 +323,7 @@ def line_bearing(path, f0: float, n_windows: int = 6, win_s: float = 60.0,
                 k = max(k - 2, 0) + int(np.argmax(np.abs(C[max(k - 2, 0):k + 3])))
                 I.append(C[k].real)
             I = np.array(I)
-            acc += I
+            acc += I / max(float(np.linalg.norm(I)), 1e-30)
             per.append(round(float(np.degrees(np.arctan2(I[1], I[0])))))
     return {"f0_hz": f0, "az_deg": round(float(np.degrees(np.arctan2(acc[1], acc[0])))),
             "el_deg": round(float(np.degrees(np.arctan2(acc[2], np.hypot(acc[0], acc[1]))))),

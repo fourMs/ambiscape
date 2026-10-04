@@ -25,6 +25,7 @@ been carrying feature work throughout a pre-1.0 life.
 - `python -m ambiscape` runs the command line (2026-10-04).
 
 ### Fixed
+- `enf.supply_signature` combines its windows by the median across windows instead of the mean of powers, so the recordist's voice and the handling in the first and last window of a short take can no longer bury the line; `enf.line_bearing` counts each window once, as a unit vector (2026-10-04).
 - `enf.supply_signature` returns the verdict `empty` for a file that holds no frames (a broken header), instead of failing with an IndexError (2026-10-04).
 
 ### Changed

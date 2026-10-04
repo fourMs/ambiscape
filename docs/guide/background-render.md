@@ -62,11 +62,15 @@ ambiscape background SESSION/ --excerpt 60
 
 Every 60 s window (5 s hop) is scored by two things: the mean per-band
 distance between its median log-spectrum and the session's background
-spectral profile (the 10th percentile per band over the whole take), and
+spectral profile (the 10th percentile per band over the whole session), and
 the fraction of eventful seconds (broadband level more than 6 dB over the
 session median), weighted at 20 dB. The winner is exported bit-exact from
 the original take, with no processing whatsoever, together with
 `background_excerpt.json` recording the wall-clock position and scores.
+In a session of several takes, such as an overnight recording split at
+the recorder's 2 GB limit, only windows inside one take are scored; the
+excerpt is named after the take it is cut from, and `take` and
+`t0_in_take_s` in the JSON locate it in that file.
 
 The picker's behaviour on real material is reassuringly boring: in a
 uniformly quiet night recording it takes the first window (anywhere is
@@ -95,8 +99,9 @@ print(ex["clock"], ex["out_path"])
 - **Capped is not recovered.** Where the foreground was loud, the bed
   contains that energy pushed down to background level. The true
   background masked beneath it is gone, and nothing can reconstruct it.
-- Like `rhythm` and `carillon`, the command processes the first take
-  of the session. Multi-device folders (a WAV and an M4A of the same
+- Like `rhythm` and `carillon`, the bed render (without `--excerpt`)
+  processes the first take of the session; the excerpt picker searches
+  every take. Multi-device folders (a WAV and an M4A of the same
   scene) render whichever sorts first, so point at single-file folders for
   per-device beds.
 - Channels are processed with independent gains; stereo and ambiX beds

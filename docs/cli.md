@@ -10,11 +10,13 @@ Every command works on a *session*—a folder of WAV files on one absolute clock
 | `ambiscape analyze <session>` | Extract features, compute descriptors, render figures, write the session `README.md`. |
 | `ambiscape draft <session>` | Pre-fill `annotations.draft.json` from detected states and events (*cache*; tag hints with `[ml]`). |
 | `ambiscape taxonomy <session>` | Render the Schaeffer map and Schafer timeline from `annotations.json`. |
-| `ambiscape resolve <session>` | Per-state descriptors: split by machine on/off (`--by machine`) or day/night (`--by diel`) (*cache*). |
+| `ambiscape resolve <session>` | Per-state descriptors: split by machine on/off (`--by machine`), day/night (`--by diel`), or the handled ends against the rest (`--by handling`) (*cache*). |
+| `ambiscape init <session>` | Write a `session.json` skeleton for `run`. |
+| `ambiscape run <session>` | The whole chain on one session folder, driven by its `session.json`, ending in a filled `REPORT.md`; `--stage` picks stages, `--no-ml` skips the machine-learning ones. |
 | `ambiscape scenes <folder>` | Analyse each WAV in a folder as an independent one-off scene. |
 | `ambiscape objects <folder>` | Profile every clip in a folder as one sound object: envelope and spectral morphology, one CSV row per clip. |
 
-See [Sessions & conventions](guide/sessions.md), [Features & descriptors](guide/descriptors.md), [State-resolved descriptors](guide/resolve.md), and [Taxonomy](guide/taxonomy.md).
+See [Sessions & conventions](guide/sessions.md), [One folder per recording](guide/run.md), [Features & descriptors](guide/descriptors.md), [State-resolved descriptors](guide/resolve.md), and [Taxonomy](guide/taxonomy.md).
 
 ## Space & acoustics
 
@@ -66,6 +68,7 @@ See [Tonality](guide/tonality.md), [Event timbre](guide/timbre.md), [Background 
 | `ambiscape geophony <session>` | Wind, rain, water: diffuse low-band and flat high-band indices (*cache*). |
 | `ambiscape birdnet <session>` | BirdNET bird-species detections, optionally gated to hi-fi windows (`[ml]`). |
 | `ambiscape enf <session>` | Track the mains hum (50/60 Hz) at millihertz resolution: electrification descriptor and forensic grid trace. |
+| `ambiscape supply <session>` | Tell power-supply pickup from hum in the air, per take, by the direction ratio of each mains line; `--bearing HZ` adds the bearing of a line (B-format). |
 
 Biophony's structural measures are library calls—see [Biophony](guide/biophony.md)—alongside [Ratings & global indices](guide/indices.md), [Mains hum & ENF](guide/enf.md), and [Machine listening](guide/ml.md).
 
@@ -88,7 +91,7 @@ See [Resynthesis](guide/resynth.md), [Visual features](guide/vision.md), and [So
 | `ambiscape network <folder>` | Multi-recorder acoustic network of one building: pairwise coupling, lags, hub and density across node sessions (*cache*). |
 | `ambiscape longitudinal <corpus>` | Trend and seasonal analysis of dated session summaries. |
 | `ambiscape capture <root>` | Always-on feature-extraction daemon; audio discarded per block (`[capture]`). |
-| `ambiscape speechgate <wav-or-folder>` | Speech privacy check before publishing (`[ml]`). |
+| `ambiscape speechgate <wav-or-folder>` | Speech privacy check before publishing; a session folder is read take by take, `--json` writes the results (`[ml]`). |
 | `ambiscape deposit <session>` | Non-identifying 1 Hz TSV export for open deposits (*cache*). |
 | `ambiscape doavalidate <folder> --annotations <dir>` | Validate the energy-based direction estimate against DCASE STARSS labels: per-frame azimuth error on single-source frames, circular statistics, error rose. |
 

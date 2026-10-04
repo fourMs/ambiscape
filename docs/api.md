@@ -4,6 +4,10 @@
 
 ::: ambiscape.io
 
+## One folder per recording
+
+::: ambiscape.runner
+
 ## Feature extraction
 
 ::: ambiscape.features

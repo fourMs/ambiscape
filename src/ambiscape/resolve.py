@@ -214,3 +214,18 @@ def diel_states(F: dict, sess, night=(22, 6),
     out = {labels[0]: intervals_from_mask(F["t"], night_mask),
            labels[1]: intervals_from_mask(F["t"], ~night_mask)}
     return {k: v for k, v in out.items() if v}
+
+
+def handling_states(F: dict, handling_s: float = 60.0,
+                    labels=("handling", "settled")) -> dict:
+    """The first and last ``handling_s`` seconds against the rest.
+
+    A handheld or set-down recorder is handled at both ends, and that minute
+    can decide a session's energy average (one set-down frame can carry half
+    of a quiet half-hour). Resolving the ends as their own state keeps the
+    room's descriptors free of them. Intervals in session seconds.
+    """
+    t = np.asarray(F["t"], float)
+    t0, t1 = float(t[0]), float(t[-1]) + 1.0
+    h = float(handling_s)
+    return {labels[0]: [(t0, t0 + h), (t1 - h, t1)], labels[1]: [(t0 + h, t1 - h)]}

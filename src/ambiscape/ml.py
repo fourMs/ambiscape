@@ -330,3 +330,90 @@ def speech_gate(path: str | Path, threshold: float = 0.01) -> dict:
     res["file"] = str(path)
     res["passes"] = res["speech_fraction"] <= threshold
     return res
+
+
+# --- Whole-session tagging and pooled groups -----------------------------------
+
+#: AudioSet classes pooled into the groups a session timeline counts. A group's
+#: value per window is the highest posterior among its classes.
+TAG_GROUPS = {
+    "speech": ["Speech", "Conversation", "Male speech, man speaking",
+               "Female speech, woman speaking", "Child speech, kid speaking"],
+    "breathing/snoring": ["Snoring", "Breathing", "Snort", "Sigh", "Gasp"],
+    "dog": ["Dog", "Bark", "Howl", "Bow-wow", "Yip"],
+    "road vehicle": ["Vehicle", "Car", "Motor vehicle (road)", "Motorcycle", "Truck", "Bus",
+                     "Car passing by", "Reversing beeps"],
+    "train/tram": ["Train", "Rail transport", "Railroad car, train wagon",
+                   "Train wheels squealing", "Subway, metro, underground", "Tram"],
+    "aircraft": ["Aircraft", "Fixed-wing aircraft, airplane", "Aircraft engine", "Jet engine"],
+    "bird": ["Bird", "Bird vocalization, bird call, bird song", "Chirp, tweet", "Pigeon, dove",
+             "Coo", "Crow", "Caw", "Gull, seagull", "Rooster", "Crowing, cock-a-doodle-doo"],
+    "door/cupboard": ["Door", "Cupboard open or close", "Drawer open or close", "Sliding door"],
+    "bell": ["Bell", "Ding", "Ding-dong", "Tubular bells", "Church bell", "Chime"],
+    "music": ["Music"],
+}
+
+
+def group_key(name: str) -> str:
+    """A group name as an array key: ``"road vehicle"`` -> ``"road_vehicle"``."""
+    return name.replace("/", "_").replace(" ", "_")
+
+
+def tag_session(sess, out_dir, win_s: float = 4.0, hop_s: float = 2.0,
+                device: str | None = "auto", verbose: bool = True) -> list:
+    """:func:`tag_frames` over the first channel (W for AmbiX) of every take,
+    one cache per take in ``out_dir/<take stem>.npz`` (``t`` in seconds into
+    the take, ``P`` as float16, ``names``). A take whose cache exists is
+    skipped, so an interrupted run resumes. Run it in its own process when
+    BirdNET is used too: importing tensorflow first hides the GPU from torch.
+    Returns the cache paths."""
+    import soundfile as sf
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    paths = []
+    for take in sess.takes:
+        dst = out_dir / f"{take.path.stem}.npz"
+        paths.append(dst)
+        if dst.exists():
+            continue
+        x, fs = sf.read(str(take.audio_path), dtype="float32", always_2d=True)
+        w = np.ascontiguousarray(x[:, 0])
+        del x
+        t, P, names = tag_frames(w, fs, win_s=win_s, hop_s=hop_s, device=device)
+        np.savez_compressed(dst, t=t, P=P.astype(np.float16), names=np.array(names))
+        if verbose:
+            print(f"  tagged {take.path.name}: {P.shape[0]} windows", flush=True)
+    return paths
+
+
+def tag_groups(sess, tags_dir, groups: dict | None = None, threshold: float = 0.3):
+    """Pool the per-take caches of :func:`tag_session` into ``groups`` on the
+    session clock. Returns ``(doc, arrays)``: ``doc`` has the window count,
+    per-group counts of windows at or above ``threshold``, and each group's
+    first and last clock time and eight strongest windows; ``arrays`` has
+    ``t`` (session seconds) and one max-posterior column per group, keyed by
+    :func:`group_key`. Posteriors are compared with each other, not read as
+    probabilities, so the threshold marks the windows worth listening to."""
+    groups = TAG_GROUPS if groups is None else groups
+    tw, Pw, names = [], [], None
+    for take in sess.takes:
+        z = np.load(Path(tags_dir) / f"{take.path.stem}.npz")
+        names = list(z["names"])
+        tw.append(take.start + z["t"])
+        Pw.append(z["P"].astype(np.float32))
+    tw, Pw = np.concatenate(tw), np.concatenate(Pw)
+    idx = {n: i for i, n in enumerate(names)}
+    clock = (lambda s: sess.clock(s)[-8:]) if sess.day0 is not None else (lambda s: f"{s:.0f}")
+    arrays, counts, events = {"t": tw}, {}, {}
+    for g, classes in groups.items():
+        cols = [idx[c] for c in classes if c in idx]
+        v = Pw[:, cols].max(1) if cols else np.zeros(len(tw), np.float32)
+        arrays[group_key(g)] = v
+        hit = np.flatnonzero(v >= threshold)
+        counts[g] = int(hit.size)
+        if hit.size:
+            best = hit[np.argsort(v[hit])[::-1][:8]]
+            events[g] = {"first": clock(tw[hit[0]]), "last": clock(tw[hit[-1]]),
+                         "strongest": [[clock(tw[i]), round(float(v[i]), 2)] for i in sorted(best)]}
+    doc = {"threshold": threshold, "windows": int(len(tw)), "counts": counts, "events": events}
+    return doc, arrays

@@ -172,3 +172,150 @@ def enf_summary(track: dict, nominal: float = 50.0,
             out["harmonic_agreement_mhz"] = round(float(np.median(d) * 1000),
                                                   2)
     return out
+
+
+# --- Supply pickup: is the hum in the air or in the cable? -------------------
+
+#: Prominence in W (dB over the ring) below which a mains line is "not there".
+#: :func:`ambiscape.tonality.narrow_line_prominence` scores noise at about
+#: 1-5 dB depending on how much was averaged, so 6 dB is the first value
+#: clearly above that floor.
+SUPPLY_MIN_PROM_DB = 6.0
+#: Direction ratio of the line relative to its surround (dB) at or below which
+#: the line counts as electrical pickup.
+SUPPLY_PICKUP_DB = -10.0
+
+
+def _welch_windows(path, n_windows, win_s, nperseg_s):
+    """Average Welch PSD (n_freq x channels) over evenly spread windows, and
+    the mono W windows themselves for :func:`hum_peak`."""
+    import soundfile as sf
+    from scipy import signal
+    info = sf.info(str(path))
+    fs, dur = info.samplerate, info.frames / info.samplerate
+    lead = 60.0 if dur > win_s + 180 else 0.0      # skip setting the device down
+    span = max(dur - 2 * lead - win_s, 0.0)
+    starts = [lead + (span * i / (n_windows - 1) if n_windows > 1 else 0.0)
+              for i in range(n_windows)] if span > 0 else [0.0]
+    P, ws, f = None, [], None
+    with sf.SoundFile(str(path)) as fh:
+        for t0 in starts:
+            fh.seek(int(t0 * fs))
+            x = fh.read(int(win_s * fs), dtype="float64", always_2d=True)
+            f, p = signal.welch(x, fs, nperseg=min(int(nperseg_s * fs), len(x)), axis=0)
+            P = p if P is None else P + p
+            ws.append(x[:, 0])
+    return f, P / len(starts), ws, fs, info.channels, len(starts)
+
+
+def supply_signature(path, nominal: float = 50.0, n_harmonics: int = 10,
+                     n_windows: int = 6, win_s: float = 60.0, nperseg_s: float = 8.0,
+                     wyzx=(0, 1, 2, 3)) -> dict:
+    """Is the mains hum in a four-channel B-format file electrical pickup
+    through the recorder's power supply, or sound in the air?
+
+    Pickup reaches every capsule in phase, so after the A- to B-format matrix
+    it lands in W and hardly at all in X, Y and Z. A sound in the air has a
+    direction (or, diffuse, spreads over all three), so the first-order
+    channels carry it too. For each harmonic ``k * nominal`` this measures the
+    line's prominence in W (:func:`ambiscape.tonality.narrow_line_prominence`)
+    and its *direction ratio*: the line's excess power over its ring in X+Y+Z
+    against the same in W, in dB, minus the same ratio for the noise just
+    beside the line (``line_minus_ring_db``). Subtracting the ring removes
+    what the recorder's matrix and the room do to every frequency alike, so
+    near 0 dB is acoustic and far below is pickup. The fundamental also gets
+    its frequency and rise from :func:`hum_peak`, and the count of narrow lines
+    between 1 and 20 kHz, where switching supplies whine, is returned.
+
+    ``verdict`` is ``"pickup"`` when the fundamental stands at least
+    ``SUPPLY_MIN_PROM_DB`` out of W and its direction ratio is at or below
+    ``SUPPLY_PICKUP_DB``; ``"acoustic"`` when it stands out and sits above;
+    ``"no line"`` when it does not stand out; ``"not ambix"`` for files that
+    are not four-channel. The threshold rests on little: one overnight Zoom
+    H3-VR session on a USB supply (the line 15 to 18.5 dB below its surround)
+    against 45 files without pickup (-5.5 to +3.7 dB where a line stood out).
+
+    ``wyzx`` gives the column of W, Y, Z and X (AmbiX: ``(0, 1, 2, 3)``;
+    FuMa W, X, Y, Z: ``(0, 2, 3, 1)``); :attr:`ambiscape.io.Take.wyzx` has it.
+    Six 60 s windows spread over the file, skipping the first and last minute
+    where a long file allows.
+    """
+    import soundfile as sf
+    from scipy import signal
+    from scipy.ndimage import median_filter
+    from .tonality import narrow_line_prominence
+    if sf.info(str(path)).channels != 4:
+        return {"verdict": "not ambix"}
+    f, P, ws, fs, _ch, nw = _welch_windows(path, n_windows, win_s, nperseg_s)
+    P = P[:, list(wyzx)]                                 # -> W, Y, Z, X
+    db = 10 * np.log10(P + EPS)
+    lines = []
+    for k in range(1, n_harmonics + 1):
+        f0 = nominal * k
+        if f0 + 6.0 >= f[-1]:
+            break
+        prom = narrow_line_prominence(f, db[:, 0], f0)
+        pk = (f >= f0 - 0.35) & (f <= f0 + 0.35)
+        ring = (np.abs(f - f0) > 1.5) & (np.abs(f - f0) <= 6.0)
+        ex = [max(P[pk, c].max() - np.median(P[ring, c]), 0.0) for c in range(4)]
+        rr = 10 * np.log10(np.median(P[ring, 1:].sum(1)) / np.median(P[ring, 0]))
+        ratio = (10 * np.log10((sum(ex[1:]) + 1e-12 * ex[0]) / ex[0])) if ex[0] > 0 else None
+        lines.append({"hz": f0, "prom_W_db": round(float(prom), 1),
+                      "xyz_over_w_db": None if ratio is None else round(float(ratio), 1),
+                      "ring_xyz_over_w_db": round(float(rr), 1),
+                      "line_minus_ring_db": None if ratio is None else round(float(ratio - rr), 1)})
+    band = (f >= 1000) & (f <= min(20000, f[-1]))
+    n_hf = 0
+    if band.sum() > 50:
+        resid = db[band, 0] - median_filter(db[band, 0], 41, mode="nearest")
+        n_hf = int(len(signal.find_peaks(resid, height=12.0, distance=8)[0]))
+    hum = [hum_peak(w, fs, nominal) for w in ws]
+    hz = float(np.median([h[0] for h in hum]))
+    f1 = lines[0]
+    if f1["prom_W_db"] < SUPPLY_MIN_PROM_DB or f1["line_minus_ring_db"] is None:
+        verdict = "no line"
+    elif f1["line_minus_ring_db"] <= SUPPLY_PICKUP_DB:
+        verdict = "pickup"
+    else:
+        verdict = "acoustic"
+    return {"verdict": verdict, "n_windows": nw, "win_s": win_s,
+            "hum_hz_median": round(hz, 4), "hum_dev_mhz": round(abs(hz - nominal) * 1000, 1),
+            "hum_rise_db_median": round(float(np.median([h[1] for h in hum])), 1),
+            "fundamental": f1, "lines": lines, "n_hf_lines": n_hf}
+
+
+def line_bearing(path, f0: float, n_windows: int = 6, win_s: float = 60.0,
+                 nperseg_s: float = 8.0, wyzx=(0, 1, 2, 3)) -> dict:
+    """Bearing of a steady narrow line, from the active intensity at ``f0``:
+    the real parts of the cross-spectra of W with X, Y and Z, which point
+    towards a plane wave's source. Summed over evenly spread windows for the
+    bearing, kept per window to show whether the source moved. Azimuth is
+    counter-clockwise from the recorder's front (X+), elevation up from the
+    horizontal, both in the recorder's own frame."""
+    import soundfile as sf
+    from scipy import signal
+    info = sf.info(str(path))
+    if info.channels != 4:
+        raise ValueError(f"{path}: line_bearing needs four-channel B-format")
+    fs, dur = info.samplerate, info.frames / info.samplerate
+    lead = 60.0 if dur > win_s + 180 else 0.0
+    span = max(dur - 2 * lead - win_s, 0.0)
+    starts = [lead + span * i / max(n_windows - 1, 1) for i in range(n_windows)]
+    acc, per = np.zeros(3), []
+    with sf.SoundFile(str(path)) as fh:
+        for t0 in starts:
+            fh.seek(int(t0 * fs))
+            x = fh.read(int(win_s * fs), dtype="float64", always_2d=True)[:, list(wyzx)]
+            W, Y, Z, X = x.T
+            I = []
+            for c in (X, Y, Z):
+                f, C = signal.csd(W, c, fs, nperseg=min(int(nperseg_s * fs), len(W)))
+                k = int(np.argmin(np.abs(f - f0)))
+                k = max(k - 2, 0) + int(np.argmax(np.abs(C[max(k - 2, 0):k + 3])))
+                I.append(C[k].real)
+            I = np.array(I)
+            acc += I
+            per.append(round(float(np.degrees(np.arctan2(I[1], I[0])))))
+    return {"f0_hz": f0, "az_deg": round(float(np.degrees(np.arctan2(acc[1], acc[0])))),
+            "el_deg": round(float(np.degrees(np.arctan2(acc[2], np.hypot(acc[0], acc[1]))))),
+            "per_window_az_deg": per}

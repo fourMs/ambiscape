@@ -52,6 +52,52 @@ produce at take boundaries.
   trace timestamps a recording to the second, independently of the
   recorder clock, which gives a cross-check for `schedule.clock_offset`.
 
+## Pickup or hum in the air
+
+A recorder on a USB supply can take the mains in through the cable. That hum
+is electrical, not acoustic, and it reaches every capsule of a B-format
+microphone in phase, so after the A- to B-format matrix it lands in W and
+hardly at all in X, Y and Z. Hum in the air has a direction, or spreads over
+all directions, and fills the first-order channels too. `supply_signature`
+measures that difference for each mains harmonic:
+
+```bash
+ambiscape supply SESSION/                 # analysis/supply.json, one entry per take
+ambiscape supply SESSION/ --bearing 100   # also the bearing of the 100 Hz line
+```
+
+```python
+sig = enf.supply_signature(take.audio_path, wyzx=take.wyzx)
+sig["verdict"]                     # 'pickup', 'acoustic', 'no line' or 'not ambix'
+sig["fundamental"]                 # {'prom_W_db': 16.8, 'line_minus_ring_db': -15.1, ...}
+```
+
+`prom_W_db` is how far the line stands out of the spectrum in W
+(`tonality.narrow_line_prominence`). `line_minus_ring_db` is the line's excess
+power in X, Y and Z against W, in dB, minus the same ratio for the noise just
+beside it; subtracting the surround removes what the recorder and the room do
+to every frequency alike, so a line in the air sits near 0 dB and pickup far
+below. The verdict is `pickup` when the fundamental stands at least 6 dB out
+and sits at or below −10 dB.
+
+The threshold rests on little. On an overnight Zoom H3-VR session with its USB
+adapter beside it, the 50 Hz line stood 13.8 to 16.8 dB out and sat 15.1 to
+18.5 dB below its surround, while tracking the grid; across 45 other H3-VR
+files on batteries, a power bank or another USB supply, no 50 Hz line reached
+10 dB, and where one stood out by 6 dB its direction ratio was within −5.5 to
++3.7 dB of the surround. USB power alone does not make pickup; the adapter, the
+socket and the cable do. A pickup line also passes every ENF test, since it
+*is* the grid: the direction ratio is what tells the cable from the room.
+
+`line_bearing(path, f0)` gives the bearing of a steady line from the active
+intensity at `f0` (the real parts of the cross-spectra of W with X, Y and Z),
+summed over six windows and kept per window, so a fixed source shows as a
+bearing that does not move. In the same night the 100 Hz line, twice the mains
+frequency where transformers hum, pointed to 168 to 170° and 14° below the
+capsules in every take, where the power adapter stood on the table: the supply
+reached the recording twice, through the cable at 50 Hz and through the air at
+100 Hz.
+
 ## As a corpus descriptor
 
 `enf_summary`'s `median_rise_db` and `coverage` say how electrified a room

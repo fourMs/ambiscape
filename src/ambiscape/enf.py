@@ -231,8 +231,8 @@ def supply_signature(path, nominal: float = 50.0, n_harmonics: int = 10,
     ``SUPPLY_MIN_PROM_DB`` out of W and its direction ratio is at or below
     ``SUPPLY_PICKUP_DB``; ``"acoustic"`` when it stands out and sits above;
     ``"no line"`` when it does not stand out; ``"not ambix"`` for files that
-    are not four-channel; ``"empty"`` for a file that holds no frames. The threshold rests on little: one overnight Zoom
-    H3-VR session on a USB supply (the line 15 to 18.5 dB below its surround)
+    are not four-channel; ``"empty"`` for a file that holds no frames. The
+    threshold rests on little: one overnight Zoom H3-VR session on a USB supply (the line 15 to 18.5 dB below its surround)
     against 45 files without pickup (-5.5 to +3.7 dB where a line stood out).
 
     ``wyzx`` gives the column of W, Y, Z and X (AmbiX: ``(0, 1, 2, 3)``;
